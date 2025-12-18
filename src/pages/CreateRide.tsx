@@ -1,43 +1,110 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Users, DollarSign, Navigation as NavigationIcon } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, DollarSign, Locate, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import NavigationBar from '@/components/Navigation';
 import Map from '@/components/Map';
+import AddressSearch from '@/components/AddressSearch';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
 const CreateRide = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [gettingLocation, setGettingLocation] = useState(false);
   
   const [origin, setOrigin] = useState({ address: '', lat: 0, lng: 0 });
   const [destination, setDestination] = useState({ address: '', lat: 0, lng: 0 });
   const [departureTime, setDepartureTime] = useState('');
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
-  const [selectingPoint, setSelectingPoint] = useState<'origin' | 'destination' | null>(null);
 
-  const handleMapClick = (lng: number, lat: number) => {
-    if (selectingPoint === 'origin') {
-      setOrigin({ address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, lat, lng });
-      setSelectingPoint('destination');
-    } else if (selectingPoint === 'destination') {
-      setDestination({ address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, lat, lng });
-      setSelectingPoint(null);
+  // Auto-detect location on mount
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: 'Chyba',
+        description: 'Geolokácia nie je podporovaná vo vašom prehliadači.',
+        variant: 'destructive'
+      });
+      return;
     }
+
+    setGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        // Reverse geocode to get address
+        try {
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${MAPBOX_TOKEN}&language=sk`
+          );
+          const data = await response.json();
+          const address = data.features?.[0]?.place_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          
+          setOrigin({ address, lat: latitude, lng: longitude });
+        } catch {
+          setOrigin({ 
+            address: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`, 
+            lat: latitude, 
+            lng: longitude 
+          });
+        }
+        setGettingLocation(false);
+      },
+      (error) => {
+        setGettingLocation(false);
+        toast({
+          title: 'Chyba',
+          description: 'Nepodarilo sa získať vašu polohu. Povoľte prístup k polohe.',
+          variant: 'destructive'
+        });
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const handleSubmit = async () => {
-    if (!profile) return;
+    if (!profile) {
+      toast({
+        title: 'Chyba',
+        description: 'Musíte byť prihlásený.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!origin.lat || !destination.lat) {
+      toast({
+        title: 'Chyba',
+        description: 'Zadajte štart aj cieľ.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!departureTime) {
+      toast({
+        title: 'Chyba',
+        description: 'Zadajte čas odchodu.',
+        variant: 'destructive'
+      });
+      return;
+    }
     
     setLoading(true);
     try {
@@ -82,6 +149,10 @@ const CreateRide = () => {
     markers.push({ id: 'dest', lat: destination.lat, lng: destination.lng, type: 'destination' as const, popup: 'Cieľ' });
   }
 
+  const mapCenter: [number, number] = origin.lat && origin.lng 
+    ? [origin.lng, origin.lat] 
+    : [19.699, 48.669];
+
   return (
     <div className="min-h-screen bg-background">
       <NavigationBar />
@@ -110,47 +181,48 @@ const CreateRide = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <Label>Štart</Label>
+                    <Label>Štart (vaša poloha)</Label>
                     <div className="flex gap-2">
-                      <Input
+                      <AddressSearch
                         value={origin.address}
-                        onChange={(e) => setOrigin({ ...origin, address: e.target.value })}
-                        placeholder="Zadajte adresu alebo vyberte na mape"
+                        onSelect={(address, lat, lng) => setOrigin({ address, lat, lng })}
+                        placeholder="Vaša aktuálna poloha"
+                        className="flex-1"
                       />
                       <Button
-                        variant={selectingPoint === 'origin' ? 'default' : 'outline'}
+                        variant="outline"
                         size="icon"
-                        onClick={() => setSelectingPoint('origin')}
+                        onClick={getCurrentLocation}
+                        disabled={gettingLocation}
                       >
-                        <NavigationIcon className="w-4 h-4" />
+                        {gettingLocation ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Locate className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
+                    {origin.lat > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ✓ Poloha nastavená
+                      </p>
+                    )}
                   </div>
                   
                   <div>
                     <Label>Cieľ</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={destination.address}
-                        onChange={(e) => setDestination({ ...destination, address: e.target.value })}
-                        placeholder="Zadajte adresu alebo vyberte na mape"
-                      />
-                      <Button
-                        variant={selectingPoint === 'destination' ? 'default' : 'outline'}
-                        size="icon"
-                        onClick={() => setSelectingPoint('destination')}
-                      >
-                        <NavigationIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <AddressSearch
+                      value={destination.address}
+                      onSelect={(address, lat, lng) => setDestination({ address, lat, lng })}
+                      placeholder="Kam idete? Zadajte adresu..."
+                    />
+                    {destination.lat > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ✓ Cieľ nastavený
+                      </p>
+                    )}
                   </div>
                 </div>
-
-                {selectingPoint && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Kliknite na mapu pre výber {selectingPoint === 'origin' ? 'štartu' : 'cieľa'}
-                  </p>
-                )}
               </div>
 
               <div className="p-6 rounded-2xl bg-card border border-border">
@@ -181,7 +253,7 @@ const CreateRide = () => {
                       min={1}
                       max={7}
                       value={seats}
-                      onChange={(e) => setSeats(parseInt(e.target.value))}
+                      onChange={(e) => setSeats(parseInt(e.target.value) || 1)}
                     />
                   </div>
                   <div>
@@ -190,7 +262,7 @@ const CreateRide = () => {
                       type="number"
                       min={1}
                       value={price}
-                      onChange={(e) => setPrice(parseFloat(e.target.value))}
+                      onChange={(e) => setPrice(parseFloat(e.target.value) || 1)}
                     />
                   </div>
                 </div>
@@ -211,7 +283,8 @@ const CreateRide = () => {
             <div className="lg:sticky lg:top-24">
               <Map
                 markers={markers}
-                onMapClick={handleMapClick}
+                center={mapCenter}
+                zoom={origin.lat ? 12 : 7}
                 className="h-[500px]"
               />
             </div>
