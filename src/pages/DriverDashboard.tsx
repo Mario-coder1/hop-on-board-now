@@ -62,6 +62,44 @@ const DriverDashboard: React.FC = () => {
     }
   }, [profile]);
 
+  // Realtime subscription for ride requests
+  useEffect(() => {
+    if (!profile) return;
+
+    const channel = supabase
+      .channel('driver-dashboard-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests'
+        },
+        () => {
+          console.log('[Realtime] Ride request changed');
+          fetchRequests();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rides',
+          filter: `driver_id=eq.${profile.id}`
+        },
+        () => {
+          console.log('[Realtime] Ride changed');
+          fetchRides();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile]);
+
   const fetchRides = async () => {
     if (!profile) return;
     

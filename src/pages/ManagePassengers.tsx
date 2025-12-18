@@ -64,6 +64,32 @@ const ManagePassengers = () => {
     }
   }, [rideId, profile]);
 
+  // Realtime subscription for passenger updates
+  useEffect(() => {
+    if (!rideId) return;
+
+    const channel = supabase
+      .channel(`manage-passengers-${rideId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests',
+          filter: `ride_id=eq.${rideId}`
+        },
+        () => {
+          console.log('[Realtime] Passenger request changed');
+          fetchRideAndPassengers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [rideId]);
+
   const fetchRideAndPassengers = async () => {
     // Fetch ride info
     const { data: rideData } = await supabase

@@ -39,6 +39,44 @@ const MyRides = () => {
     if (profile) fetchRides();
   }, [profile]);
 
+  // Realtime subscription
+  useEffect(() => {
+    if (!profile) return;
+
+    const channel = supabase
+      .channel('my-rides-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rides',
+          filter: `driver_id=eq.${profile.id}`
+        },
+        () => {
+          console.log('[Realtime] Ride updated');
+          fetchRides();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests'
+        },
+        () => {
+          console.log('[Realtime] Request updated');
+          fetchRides();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile]);
+
   const fetchRides = async () => {
     const { data, error } = await supabase
       .from('rides')
