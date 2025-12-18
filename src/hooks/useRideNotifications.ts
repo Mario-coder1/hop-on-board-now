@@ -58,15 +58,23 @@ export const useRideNotifications = () => {
             });
             
             playNotificationSound();
+          } else if (newStatus === 'driver_arrived') {
+            toast({
+              title: '🚗 Vodič je na mieste!',
+              description: `${driverName} práve prišiel na miesto vyzdvihnutia. Príďte k autu!`,
+              duration: 10000,
+            });
+            
+            playNotificationSound();
           } else if (newStatus === 'picked_up') {
             toast({
-              title: '🚗 Vyzdvihnutie potvrdené',
+              title: '✅ Vyzdvihnutie potvrdené',
               description: `${driverName} potvrdil vaše vyzdvihnutie. Dobrú cestu!`,
               duration: 5000,
             });
           } else if (newStatus === 'completed') {
             toast({
-              title: '✅ Jazda dokončená',
+              title: '🏁 Jazda dokončená',
               description: `Vaša jazda s ${driverName} bola úspešne dokončená.`,
               duration: 5000,
             });

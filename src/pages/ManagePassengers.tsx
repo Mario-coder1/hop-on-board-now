@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +96,21 @@ const ManagePassengers = () => {
       toast({
         title: 'Pasažier vyzdvihnutý',
         description: 'Pasažier bol označený ako vyzdvihnutý.',
+      });
+      fetchRideAndPassengers();
+    }
+  };
+
+  const handleArrived = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ status: 'driver_arrived' })
+      .eq('id', requestId);
+
+    if (!error) {
+      toast({
+        title: 'Notifikácia odoslaná',
+        description: `${passengerName} bol upozornený, že ste na mieste.`,
       });
       fetchRideAndPassengers();
     }
@@ -222,10 +237,15 @@ const ManagePassengers = () => {
                             <h3 className="font-display font-semibold">
                               {passenger.passenger.full_name}
                             </h3>
-                            <Badge variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
-                              className={passenger.status === 'picked_up' ? 'bg-green-500' : ''}
+                            <Badge 
+                              variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
+                              className={
+                                passenger.status === 'picked_up' ? 'bg-green-500' : 
+                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white' : ''
+                              }
                             >
-                              {passenger.status === 'picked_up' ? 'Vyzdvihnutý' : 'Čaká'}
+                              {passenger.status === 'picked_up' ? 'Vyzdvihnutý' : 
+                               passenger.status === 'driver_arrived' ? 'Na mieste' : 'Čaká'}
                             </Badge>
                           </div>
                           
@@ -247,11 +267,11 @@ const ManagePassengers = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex flex-wrap gap-2 mt-4">
                         <Button
                           variant="hero"
                           size="sm"
-                          className="flex-1 gap-2"
+                          className="gap-2"
                           onClick={(e) => {
                             e.stopPropagation();
                             openNavigation(
@@ -276,11 +296,25 @@ const ManagePassengers = () => {
                             }}
                           >
                             <Phone className="w-4 h-4" />
-                            Volať
+                          </Button>
+                        )}
+
+                        {passenger.status === 'accepted' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 border-amber-500 text-amber-600 hover:bg-amber-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleArrived(passenger.id, passenger.passenger.full_name);
+                            }}
+                          >
+                            <Bell className="w-4 h-4" />
+                            Som na mieste
                           </Button>
                         )}
                         
-                        {passenger.status !== 'picked_up' && (
+                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && (
                           <Button
                             size="sm"
                             className="gap-2 bg-green-600 hover:bg-green-700"
