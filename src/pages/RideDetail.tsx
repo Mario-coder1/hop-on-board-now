@@ -37,6 +37,16 @@ interface RideDetail {
   };
 }
 
+interface AcceptedPassenger {
+  id: string;
+  pickup_address: string;
+  pickup_lat: number;
+  pickup_lng: number;
+  passenger: {
+    full_name: string;
+  };
+}
+
 const RideDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -48,11 +58,13 @@ const RideDetail = () => {
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState('');
   const [hasRequested, setHasRequested] = useState(false);
+  const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
 
   useEffect(() => {
     if (id) {
       fetchRide();
       checkExistingRequest();
+      fetchAcceptedPassengers();
     }
   }, [id, profile]);
 
@@ -86,6 +98,21 @@ const RideDetail = () => {
       .maybeSingle();
     
     setHasRequested(!!data);
+  };
+
+  const fetchAcceptedPassengers = async () => {
+    const { data } = await supabase
+      .from('ride_requests')
+      .select(`
+        id, pickup_address, pickup_lat, pickup_lng,
+        passenger:profiles!ride_requests_passenger_id_fkey(full_name)
+      `)
+      .eq('ride_id', id)
+      .in('status', ['accepted', 'picked_up']);
+
+    if (data) {
+      setAcceptedPassengers(data as unknown as AcceptedPassenger[]);
+    }
   };
 
   const handleRequest = async () => {
@@ -146,9 +173,18 @@ const RideDetail = () => {
   }
 
   const isDriver = profile?.id === ride.driver.id;
+  
+  // Build markers - origin, destination, and accepted passengers' pickup locations
   const markers = [
-    { id: 'origin', lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const, popup: ride.origin_address },
-    { id: 'dest', lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const, popup: ride.destination_address },
+    { id: 'origin', lat: Number(ride.origin_lat), lng: Number(ride.origin_lng), type: 'origin' as const, popup: `<strong>Štart:</strong><br/>${ride.origin_address}` },
+    { id: 'dest', lat: Number(ride.destination_lat), lng: Number(ride.destination_lng), type: 'destination' as const, popup: `<strong>Cieľ:</strong><br/>${ride.destination_address}` },
+    ...acceptedPassengers.map(p => ({
+      id: `pickup-${p.id}`,
+      lat: Number(p.pickup_lat),
+      lng: Number(p.pickup_lng),
+      type: 'pickup' as const,
+      popup: `<strong>Pasažier:</strong> ${p.passenger.full_name}<br/>${p.pickup_address}`
+    }))
   ];
 
   return (
@@ -206,8 +242,8 @@ const RideDetail = () => {
                 </div>
               </div>
 
-              {/* Map */}
-              <Map markers={markers} className="h-[400px]" />
+              {/* Map with route */}
+              <Map markers={markers} showRoute className="h-[400px]" />
             </div>
 
             {/* Sidebar */}

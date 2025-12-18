@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navigation, MapPin } from 'lucide-react';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
 
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
+
 interface LiveTrackingMapProps {
   driverProfileId: string;
   passengerLocation?: { lat: number; lng: number };
   destinationLocation?: { lat: number; lng: number };
+  originLocation?: { lat: number; lng: number };
   className?: string;
 }
 
@@ -15,9 +18,51 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   driverProfileId,
   passengerLocation,
   destinationLocation,
+  originLocation,
   className = ''
 }) => {
   const { location, isLoading, error } = useDriverTracking(driverProfileId);
+  const [route, setRoute] = useState<Array<[number, number]> | null>(null);
+
+  // Fetch route from origin to destination via pickup
+  useEffect(() => {
+    const fetchRoute = async () => {
+      // Build waypoints: origin -> pickup -> destination
+      const waypoints: Array<[number, number]> = [];
+      
+      if (originLocation) {
+        waypoints.push([originLocation.lng, originLocation.lat]);
+      } else if (location) {
+        waypoints.push([location.lng, location.lat]);
+      }
+      
+      if (passengerLocation) {
+        waypoints.push([passengerLocation.lng, passengerLocation.lat]);
+      }
+      
+      if (destinationLocation) {
+        waypoints.push([destinationLocation.lng, destinationLocation.lat]);
+      }
+
+      if (waypoints.length < 2) return;
+
+      try {
+        const coordinates = waypoints.map(w => `${w[0]},${w[1]}`).join(';');
+        const response = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+        );
+        const data = await response.json();
+        
+        if (data.routes && data.routes[0]) {
+          setRoute(data.routes[0].geometry.coordinates);
+        }
+      } catch (error) {
+        console.error('Error fetching route:', error);
+      }
+    };
+
+    fetchRoute();
+  }, [originLocation?.lat, originLocation?.lng, passengerLocation?.lat, passengerLocation?.lng, destinationLocation?.lat, destinationLocation?.lng, location?.lat, location?.lng]);
 
   const markers = React.useMemo(() => {
     const m: Array<{
@@ -63,7 +108,9 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
 
   const mapCenter: [number, number] = location 
     ? [location.lng, location.lat] 
-    : [19.699, 48.669];
+    : passengerLocation 
+      ? [passengerLocation.lng, passengerLocation.lat]
+      : [19.699, 48.669];
 
   if (error) {
     return (
@@ -77,8 +124,9 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     <div className={`relative ${className}`}>
       <Map
         center={mapCenter}
-        zoom={14}
+        zoom={13}
         markers={markers}
+        route={route || undefined}
         className="h-full w-full"
         interactive={true}
       />
