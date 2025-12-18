@@ -50,7 +50,7 @@ const PassengerDashboard: React.FC = () => {
       .from('rides')
       .select(`
         *,
-        driver:profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color)
+        driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color)
       `)
       .eq('status', 'active')
       .gt('departure_time', new Date().toISOString())
