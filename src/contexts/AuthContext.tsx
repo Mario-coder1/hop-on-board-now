@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
@@ -15,6 +16,8 @@ interface Profile {
   rating: number;
   total_rides: number;
   selected_role: 'driver' | 'passenger';
+  banned?: boolean;
+  ban_reason?: string | null;
 }
 
 interface AuthContextType {
@@ -36,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -45,6 +49,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .maybeSingle();
     
     if (data && !error) {
+      // Check if user is banned
+      if (data.banned) {
+        toast({
+          title: 'Účet pozastavený',
+          description: data.ban_reason || 'Váš účet bol pozastavený.',
+          variant: 'destructive',
+        });
+        // Sign out banned user
+        await supabase.auth.signOut();
+        setProfile(null);
+        setUser(null);
+        setSession(null);
+        return;
+      }
       setProfile(data as Profile);
     }
   };

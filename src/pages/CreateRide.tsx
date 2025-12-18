@@ -11,7 +11,7 @@ import AddressSearch from '@/components/AddressSearch';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
+import { mapDatabaseError } from '@/lib/errorMapping';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
 const CreateRide = () => {
@@ -130,10 +130,10 @@ const CreateRide = () => {
       });
       
       navigate('/driver');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Chyba',
-        description: error.message,
+        description: mapDatabaseError(error),
         variant: 'destructive'
       });
     } finally {
