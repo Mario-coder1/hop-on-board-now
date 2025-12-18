@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, Navigation as NavigationIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
-
 interface Trip {
   id: string;
   status: string;
@@ -147,8 +146,7 @@ const MyTrips = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/ride/${trip.ride.id}`)}
-                  className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                  className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -160,7 +158,7 @@ const MyTrips = () => {
                     <span className="text-2xl font-bold text-primary">{trip.ride.price_per_seat}€</span>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-4 cursor-pointer" onClick={() => navigate(`/ride/${trip.ride.id}`)}>
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-2 h-2 rounded-full bg-primary" />
                       <span className="font-medium">{trip.ride.origin_address}</span>
@@ -182,9 +180,19 @@ const MyTrips = () => {
                       </div>
                       <span className="font-medium">{trip.ride.driver.full_name}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      {format(new Date(trip.ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        {format(new Date(trip.ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
+                      </span>
+                      {(trip.status === 'accepted' || trip.status === 'picked_up') && (
+                        <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
+                          <Button size="sm" variant="hero" className="gap-1">
+                            <NavigationIcon className="w-4 h-4" />
+                            Sledovať
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </motion.div>

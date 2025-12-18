@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Car, MapPin, Clock, Users, ChevronRight, Bell, TrendingUp } from 'lucide-react';
+import { Plus, Car, MapPin, Clock, Users, ChevronRight, Bell, TrendingUp, Radio, CircleOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 
 interface Ride {
   id: string;
@@ -48,6 +49,7 @@ const DriverDashboard: React.FC = () => {
   const [rides, setRides] = useState<Ride[]>([]);
   const [requests, setRequests] = useState<RideRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isTracking, startTracking, stopTracking } = useLocationBroadcast(profile?.id || null);
 
   useEffect(() => {
     if (profile) {
@@ -135,12 +137,25 @@ const DriverDashboard: React.FC = () => {
               Pripravený na ďalšiu jazdu?
             </p>
           </div>
-          <Link to="/create-ride">
-            <Button variant="hero" size="lg" className="gap-2">
-              <Plus className="w-5 h-5" />
-              Vytvoriť jazdu
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            {isTracking ? (
+              <Button variant="outline" onClick={stopTracking} className="gap-2">
+                <CircleOff className="w-4 h-4" />
+                Zastaviť zdieľanie
+              </Button>
+            ) : (
+              <Button variant="secondary" onClick={startTracking} className="gap-2">
+                <Radio className="w-4 h-4" />
+                Zdieľať polohu
+              </Button>
+            )}
+            <Link to="/create-ride">
+              <Button variant="hero" size="lg" className="gap-2">
+                <Plus className="w-5 h-5" />
+                Vytvoriť jazdu
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
