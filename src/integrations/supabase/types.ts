@@ -497,6 +497,7 @@ export type Database = {
     }
     Functions: {
       current_profile_id: { Args: never; Returns: string }
+      has_ride_request: { Args: { _ride_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -504,6 +505,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
