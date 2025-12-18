@@ -17,6 +17,7 @@ import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
 import TrackRide from "./pages/TrackRide";
 import ManagePassengers from "./pages/ManagePassengers";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const AppRoutes = () => {
         <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />
         <Route path="/manage-passengers/:rideId" element={<ProtectedRoute><ManagePassengers /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/install" element={<Install />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
