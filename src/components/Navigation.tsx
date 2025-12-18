@@ -36,12 +36,12 @@ const Navigation: React.FC = () => {
 
   const navItems = isDriver
     ? [
-        { path: '/', icon: Home, label: 'Domov' },
+        { path: '/driver', icon: Home, label: 'Domov' },
         { path: '/create-ride', icon: PlusCircle, label: 'Nová jazda' },
         { path: '/my-rides', icon: Car, label: 'Moje jazdy' },
       ]
     : [
-        { path: '/', icon: Home, label: 'Domov' },
+        { path: '/passenger', icon: Home, label: 'Domov' },
         { path: '/search', icon: Search, label: 'Hľadať' },
         { path: '/my-trips', icon: MapPin, label: 'Moje cesty' },
       ];
