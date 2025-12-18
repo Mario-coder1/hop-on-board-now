@@ -306,12 +306,13 @@ const ManagePassengers = () => {
                 <CardContent className="p-0">
                   <Map 
                     markers={markers}
+                    showRoute
                     className="h-[500px]"
                     center={selectedPassenger ? [
                       Number(selectedPassenger.pickup_lng),
                       Number(selectedPassenger.pickup_lat)
                     ] : undefined}
-                    zoom={selectedPassenger ? 14 : 10}
+                    zoom={selectedPassenger ? 13 : 10}
                   />
                 </CardContent>
               </Card>

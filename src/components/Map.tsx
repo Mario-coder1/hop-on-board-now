@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -13,6 +13,7 @@ interface MapProps {
     popup?: string;
   }>;
   route?: Array<[number, number]>;
+  showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
   className?: string;
   interactive?: boolean;
@@ -24,7 +25,8 @@ const Map: React.FC<MapProps> = ({
   center = [19.699, 48.669],
   zoom = 7,
   markers = [],
-  route,
+  route: providedRoute,
+  showRoute = false,
   onMapClick,
   className = '',
   interactive = true
@@ -32,6 +34,38 @@ const Map: React.FC<MapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const [fetchedRoute, setFetchedRoute] = useState<Array<[number, number]> | null>(null);
+
+  // Find origin and destination from markers for route fetching
+  const originMarker = markers.find(m => m.type === 'origin');
+  const destinationMarker = markers.find(m => m.type === 'destination');
+
+  // Fetch route from Mapbox Directions API
+  useEffect(() => {
+    if (!showRoute || !originMarker || !destinationMarker) {
+      setFetchedRoute(null);
+      return;
+    }
+
+    const fetchRoute = async () => {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${originMarker.lng},${originMarker.lat};${destinationMarker.lng},${destinationMarker.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+        );
+        const data = await response.json();
+        
+        if (data.routes && data.routes[0]) {
+          setFetchedRoute(data.routes[0].geometry.coordinates);
+        }
+      } catch (error) {
+        console.error('Error fetching route:', error);
+      }
+    };
+
+    fetchRoute();
+  }, [showRoute, originMarker?.lat, originMarker?.lng, destinationMarker?.lat, destinationMarker?.lng]);
+
+  const route = providedRoute || fetchedRoute;
 
   useEffect(() => {
     return () => {
@@ -46,7 +80,7 @@ const Map: React.FC<MapProps> = ({
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/streets-v12',
       center: center,
       zoom: zoom,
       interactive: interactive,
@@ -100,7 +134,7 @@ const Map: React.FC<MapProps> = ({
         passenger: '👤',
         origin: '📍',
         destination: '🎯',
-        pickup: '🏁'
+        pickup: '🧍'
       };
 
       el.innerHTML = `
@@ -133,7 +167,7 @@ const Map: React.FC<MapProps> = ({
 
       if (markerData.popup) {
         const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<div class="font-sans p-2">${markerData.popup}</div>`);
+          .setHTML(`<div class="font-sans p-2 text-sm">${markerData.popup}</div>`);
         marker.setPopup(popup);
       }
 
@@ -141,58 +175,71 @@ const Map: React.FC<MapProps> = ({
     });
   }, [markers]);
 
+  // Draw route on map
   useEffect(() => {
     if (!map.current || !route || route.length < 2) return;
 
     const sourceId = 'route';
     const layerId = 'route-line';
 
-    map.current.on('load', () => {
-      if (map.current?.getSource(sourceId)) {
-        (map.current.getSource(sourceId) as mapboxgl.GeoJSONSource).setData({
+    const addRoute = () => {
+      if (!map.current) return;
+
+      // Remove existing route if any
+      if (map.current.getLayer(layerId)) {
+        map.current.removeLayer(layerId);
+      }
+      if (map.current.getSource(sourceId)) {
+        map.current.removeSource(sourceId);
+      }
+
+      map.current.addSource(sourceId, {
+        type: 'geojson',
+        data: {
           type: 'Feature',
           properties: {},
           geometry: {
             type: 'LineString',
             coordinates: route
           }
-        });
-      } else {
-        map.current?.addSource(sourceId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: route
-            }
-          }
-        });
+        }
+      });
 
-        map.current?.addLayer({
-          id: layerId,
-          type: 'line',
-          source: sourceId,
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#20b4a8',
-            'line-width': 5,
-            'line-opacity': 0.8
-          }
-        });
-      }
+      map.current.addLayer({
+        id: layerId,
+        type: 'line',
+        source: sourceId,
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#20b4a8',
+          'line-width': 5,
+          'line-opacity': 0.8
+        }
+      });
 
+      // Fit bounds to show the entire route
       const bounds = route.reduce(
         (bounds, coord) => bounds.extend(coord as [number, number]),
         new mapboxgl.LngLatBounds(route[0], route[0])
       );
-      map.current?.fitBounds(bounds, { padding: 50 });
-    });
-  }, [route]);
+      
+      // Include all markers in bounds
+      markers.forEach(m => {
+        bounds.extend([m.lng, m.lat]);
+      });
+
+      map.current.fitBounds(bounds, { padding: 60 });
+    };
+
+    if (map.current.isStyleLoaded()) {
+      addRoute();
+    } else {
+      map.current.on('load', addRoute);
+    }
+  }, [route, markers]);
 
   return (
     <div className={`relative rounded-2xl overflow-hidden ${className}`}>
