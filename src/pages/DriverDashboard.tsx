@@ -96,10 +96,31 @@ const DriverDashboard: React.FC = () => {
   };
 
   const handleRequest = async (requestId: string, action: 'accepted' | 'rejected') => {
+    // Get the ride_id from the request
+    const request = requests.find(r => r.id === requestId);
+    
     await supabase
       .from('ride_requests')
       .update({ status: action })
       .eq('id', requestId);
+    
+    // If accepted, decrement available seats
+    if (action === 'accepted' && request) {
+      const ride = rides.find(r => r.id === request.ride_id);
+      if (ride && ride.available_seats > 0) {
+        await supabase
+          .from('rides')
+          .update({ available_seats: ride.available_seats - 1 })
+          .eq('id', request.ride_id);
+        
+        // Update local state
+        setRides(prev => prev.map(r => 
+          r.id === request.ride_id 
+            ? { ...r, available_seats: r.available_seats - 1 }
+            : r
+        ));
+      }
+    }
     
     fetchRequests();
   };
