@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -18,8 +18,10 @@ interface MapProps {
   interactive?: boolean;
 }
 
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
+
 const Map: React.FC<MapProps> = ({
-  center = [19.699, 48.669], // Slovakia center
+  center = [19.699, 48.669],
   zoom = 7,
   markers = [],
   route,
@@ -30,10 +32,7 @@ const Map: React.FC<MapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [tokenInput, setTokenInput] = useState('');
 
-  // Cleanup markers
   useEffect(() => {
     return () => {
       markersRef.current.forEach(marker => marker.remove());
@@ -41,9 +40,9 @@ const Map: React.FC<MapProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = mapboxToken;
+    mapboxgl.accessToken = MAPBOX_TOKEN;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -76,17 +75,14 @@ const Map: React.FC<MapProps> = ({
     return () => {
       map.current?.remove();
     };
-  }, [mapboxToken, interactive]);
+  }, [interactive]);
 
-  // Update markers
   useEffect(() => {
-    if (!map.current || !mapboxToken) return;
+    if (!map.current) return;
 
-    // Remove old markers
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    // Add new markers
     markers.forEach(markerData => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
@@ -143,11 +139,10 @@ const Map: React.FC<MapProps> = ({
 
       markersRef.current.push(marker);
     });
-  }, [markers, mapboxToken]);
+  }, [markers]);
 
-  // Draw route
   useEffect(() => {
-    if (!map.current || !route || route.length < 2 || !mapboxToken) return;
+    if (!map.current || !route || route.length < 2) return;
 
     const sourceId = 'route';
     const layerId = 'route-line';
@@ -191,53 +186,13 @@ const Map: React.FC<MapProps> = ({
         });
       }
 
-      // Fit bounds to route
       const bounds = route.reduce(
         (bounds, coord) => bounds.extend(coord as [number, number]),
         new mapboxgl.LngLatBounds(route[0], route[0])
       );
       map.current?.fitBounds(bounds, { padding: 50 });
     });
-  }, [route, mapboxToken]);
-
-  if (!mapboxToken) {
-    return (
-      <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <span className="text-3xl">🗺️</span>
-          </div>
-          <h3 className="font-display text-lg font-semibold mb-2">Mapbox Token</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Pre zobrazenie mapy potrebujete Mapbox token. 
-            <a 
-              href="https://mapbox.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline ml-1"
-            >
-              Získajte ho tu
-            </a>
-          </p>
-          <div className="w-full max-w-sm space-y-3">
-            <input
-              type="text"
-              placeholder="pk.eyJ1Ijo..."
-              value={tokenInput}
-              onChange={(e) => setTokenInput(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-sm"
-            />
-            <button
-              onClick={() => setMapboxToken(tokenInput)}
-              className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
-            >
-              Aktivovať mapu
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  }, [route]);
 
   return (
     <div className={`relative rounded-2xl overflow-hidden ${className}`}>
