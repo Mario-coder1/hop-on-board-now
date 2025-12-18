@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
+import { ReportDialog } from '@/components/ReportDialog';
 
 interface RideRequest {
   id: string;
@@ -202,6 +203,11 @@ const TrackRide: React.FC = () => {
                 <Button variant="outline" size="icon">
                   <MessageCircle className="w-4 h-4" />
                 </Button>
+                <ReportDialog
+                  reportedUserId={driver.id}
+                  reportedUserName={driver.full_name}
+                  rideId={ride.id}
+                />
               </div>
             </div>
 
