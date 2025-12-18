@@ -230,6 +230,7 @@ export type Database = {
       request_status:
         | "pending"
         | "accepted"
+        | "driver_arrived"
         | "rejected"
         | "picked_up"
         | "completed"
@@ -365,6 +366,7 @@ export const Constants = {
       request_status: [
         "pending",
         "accepted",
+        "driver_arrived",
         "rejected",
         "picked_up",
         "completed",
