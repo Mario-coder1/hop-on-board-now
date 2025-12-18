@@ -57,12 +57,11 @@ const DriverDashboard: React.FC = () => {
 
   useEffect(() => {
     if (profile) {
-      fetchRides();
-      fetchRequests();
+      fetchData();
     }
   }, [profile]);
 
-  // Realtime subscription for ride requests
+  // Realtime subscription for ride requests and rides
   useEffect(() => {
     if (!profile) return;
 
@@ -75,9 +74,9 @@ const DriverDashboard: React.FC = () => {
           schema: 'public',
           table: 'ride_requests'
         },
-        () => {
-          console.log('[Realtime] Ride request changed');
-          fetchRequests();
+        (payload) => {
+          console.log('[Realtime] Ride request changed:', payload);
+          fetchData();
         }
       )
       .on(
@@ -88,49 +87,55 @@ const DriverDashboard: React.FC = () => {
           table: 'rides',
           filter: `driver_id=eq.${profile.id}`
         },
-        () => {
-          console.log('[Realtime] Ride changed');
-          fetchRides();
+        (payload) => {
+          console.log('[Realtime] Ride changed:', payload);
+          fetchData();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Realtime] Subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [profile]);
 
-  const fetchRides = async () => {
+  const fetchData = async () => {
     if (!profile) return;
     
-    const { data, error } = await supabase
+    // Fetch rides first
+    const { data: ridesData, error: ridesError } = await supabase
       .from('rides')
       .select('*')
       .eq('driver_id', profile.id)
       .order('departure_time', { ascending: true });
 
-    if (!error && data) {
-      setRides(data as Ride[]);
+    if (!ridesError && ridesData) {
+      setRides(ridesData as Ride[]);
+      
+      // Then fetch pending requests for these rides
+      if (ridesData.length > 0) {
+        const rideIds = ridesData.map(r => r.id);
+        const { data: requestsData, error: requestsError } = await supabase
+          .from('ride_requests')
+          .select(`
+            *,
+            passenger:profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url, phone),
+            ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)
+          `)
+          .eq('status', 'pending')
+          .in('ride_id', rideIds);
+
+        if (!requestsError && requestsData) {
+          console.log('[Fetch] Pending requests:', requestsData.length);
+          setRequests(requestsData as unknown as RideRequest[]);
+        }
+      } else {
+        setRequests([]);
+      }
     }
     setLoading(false);
-  };
-
-  const fetchRequests = async () => {
-    if (!profile) return;
-
-    const { data, error } = await supabase
-      .from('ride_requests')
-      .select(`
-        *,
-        passenger:profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url, phone),
-        ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)
-      `)
-      .eq('status', 'pending')
-      .in('ride_id', rides.map(r => r.id));
-
-    if (!error && data) {
-      setRequests(data as unknown as RideRequest[]);
-    }
   };
 
   const handleRequest = async (requestId: string, action: 'accepted' | 'rejected') => {
@@ -160,7 +165,7 @@ const DriverDashboard: React.FC = () => {
       }
     }
     
-    fetchRequests();
+    fetchData();
   };
 
   const openNavigation = (lat: number, lng: number) => {
