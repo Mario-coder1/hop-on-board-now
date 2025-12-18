@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useRideNotifications } from "@/hooks/useRideNotifications";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import DriverDashboard from "./pages/DriverDashboard";
@@ -37,22 +38,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Component to handle global notifications
+const NotificationListener = () => {
+  useRideNotifications();
+  return null;
+};
+
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/driver" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
-      <Route path="/passenger" element={<ProtectedRoute><PassengerDashboard /></ProtectedRoute>} />
-      <Route path="/create-ride" element={<ProtectedRoute><CreateRide /></ProtectedRoute>} />
-      <Route path="/search" element={<ProtectedRoute><SearchRides /></ProtectedRoute>} />
-      <Route path="/ride/:id" element={<ProtectedRoute><RideDetail /></ProtectedRoute>} />
-      <Route path="/my-rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
-      <Route path="/my-trips" element={<ProtectedRoute><MyTrips /></ProtectedRoute>} />
-      <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <NotificationListener />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/driver" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
+        <Route path="/passenger" element={<ProtectedRoute><PassengerDashboard /></ProtectedRoute>} />
+        <Route path="/create-ride" element={<ProtectedRoute><CreateRide /></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><SearchRides /></ProtectedRoute>} />
+        <Route path="/ride/:id" element={<ProtectedRoute><RideDetail /></ProtectedRoute>} />
+        <Route path="/my-rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
+        <Route path="/my-trips" element={<ProtectedRoute><MyTrips /></ProtectedRoute>} />
+        <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 };
 
