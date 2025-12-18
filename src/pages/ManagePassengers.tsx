@@ -110,7 +110,7 @@ const ManagePassengers = () => {
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating)
       `)
       .eq('ride_id', rideId)
-      .in('status', ['accepted', 'picked_up']);
+      .in('status', ['accepted', 'driver_arrived', 'picked_up']);
 
     if (passengersData) {
       setPassengers(passengersData as unknown as AcceptedPassenger[]);
