@@ -18,7 +18,9 @@ import {
   CheckCircle, 
   Send,
   ArrowLeft,
-  Star
+  Star,
+  Car,
+  MapPin
 } from 'lucide-react';
 import {
   Dialog,
@@ -76,6 +78,7 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [rideStats, setRideStats] = useState({ total: 0, active: 0, inProgress: 0, completed: 0 });
   const [loadingData, setLoadingData] = useState(true);
   const [banReason, setBanReason] = useState('');
   const [pushMessage, setPushMessage] = useState('');
@@ -110,6 +113,7 @@ const Admin = () => {
     if (isAdmin) {
       fetchUsers();
       fetchReports();
+      fetchRideStats();
     }
   }, [isAdmin]);
 
@@ -141,6 +145,24 @@ const Admin = () => {
       console.error('Error fetching reports:', error);
     } else {
       setReports(data || []);
+    }
+  };
+
+  const fetchRideStats = async () => {
+    const { data, error } = await supabase
+      .from('rides')
+      .select('status');
+
+    if (error) {
+      console.error('Error fetching rides:', error);
+    } else {
+      const rides = data || [];
+      setRideStats({
+        total: rides.length,
+        active: rides.filter(r => r.status === 'active').length,
+        inProgress: rides.filter(r => r.status === 'in_progress').length,
+        completed: rides.filter(r => r.status === 'completed').length,
+      });
     }
   };
 
@@ -282,14 +304,14 @@ const Admin = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <Users className="w-10 h-10 text-primary" />
                 <div>
                   <p className="text-2xl font-bold">{users.length}</p>
-                  <p className="text-muted-foreground">Používatelia</p>
+                  <p className="text-muted-foreground text-sm">Používatelia</p>
                 </div>
               </div>
             </CardContent>
@@ -302,7 +324,7 @@ const Admin = () => {
                   <p className="text-2xl font-bold">
                     {reports.filter(r => r.status === 'pending').length}
                   </p>
-                  <p className="text-muted-foreground">Aktívne nahlásenia</p>
+                  <p className="text-muted-foreground text-sm">Nahlásenia</p>
                 </div>
               </div>
             </CardContent>
@@ -315,7 +337,40 @@ const Admin = () => {
                   <p className="text-2xl font-bold">
                     {users.filter(u => u.banned).length}
                   </p>
-                  <p className="text-muted-foreground">Zabanovaní</p>
+                  <p className="text-muted-foreground text-sm">Zabanovaní</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <Car className="w-10 h-10 text-blue-500" />
+                <div>
+                  <p className="text-2xl font-bold">{rideStats.total}</p>
+                  <p className="text-muted-foreground text-sm">Celkom jázd</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <MapPin className="w-10 h-10 text-green-500" />
+                <div>
+                  <p className="text-2xl font-bold">{rideStats.active + rideStats.inProgress}</p>
+                  <p className="text-muted-foreground text-sm">Aktívne jazdy</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <CheckCircle className="w-10 h-10 text-emerald-500" />
+                <div>
+                  <p className="text-2xl font-bold">{rideStats.completed}</p>
+                  <p className="text-muted-foreground text-sm">Dokončené</p>
                 </div>
               </div>
             </CardContent>
