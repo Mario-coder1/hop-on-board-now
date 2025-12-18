@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { sendPushNotification } from '@/hooks/usePushNotifications';
 
 interface Trip {
   id: string;
@@ -23,6 +24,7 @@ interface Trip {
     departure_time: string;
     price_per_seat: number;
     available_seats: number;
+    driver_id: string;
     driver: {
       full_name: string;
       avatar_url: string | null;
@@ -48,7 +50,7 @@ const MyTrips = () => {
       .select(`
         *,
         ride:rides(
-          id, origin_address, destination_address, departure_time, price_per_seat, available_seats,
+          id, origin_address, destination_address, departure_time, price_per_seat, available_seats, driver_id,
           driver:profiles!rides_driver_id_fkey(full_name, avatar_url)
         )
       `)
@@ -87,12 +89,25 @@ const MyTrips = () => {
         .eq('id', trip.ride_id);
     }
 
+    // Send push notification to driver
+    try {
+      const passengerName = profile?.full_name || 'Pasažier';
+      await sendPushNotification(
+        trip.ride.driver_id,
+        '❌ Zrušená rezervácia',
+        `${passengerName} zrušil rezerváciu na jazdu ${trip.ride.origin_address} → ${trip.ride.destination_address}`
+      );
+    } catch (err) {
+      console.error('Error sending notification to driver:', err);
+    }
+
     toast({
       title: 'Žiadosť zrušená',
       description: wasAccepted 
         ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené.' 
         : 'Vaša žiadosť bola zrušená.',
     });
+
 
     fetchTrips();
   };
