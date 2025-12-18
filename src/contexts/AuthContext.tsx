@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,6 +25,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -39,8 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const initializedRef = useRef(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -48,50 +51,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .maybeSingle();
     
     if (data && !error) {
-      // Check if user is banned
       if (data.banned) {
         toast.error('Účet pozastavený', {
           description: data.ban_reason || 'Váš účet bol pozastavený.',
         });
-        // Sign out banned user
         await supabase.auth.signOut();
         setProfile(null);
         setUser(null);
         setSession(null);
+        setIsAdmin(false);
         return;
       }
       setProfile(data as Profile);
     }
-  };
+  }, []);
+
+  const checkAdminRole = useCallback(async (userId: string) => {
+    const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+    setIsAdmin(!!data);
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        if (session?.user) {
+        if (newSession?.user && !initializedRef.current) {
+          initializedRef.current = true;
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            fetchProfile(newSession.user.id);
+            checkAdminRole(newSession.user.id);
           }, 0);
-        } else {
+        } else if (!newSession?.user) {
           setProfile(null);
+          setIsAdmin(false);
+          initializedRef.current = false;
         }
         setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      if (existingSession?.user && !initializedRef.current) {
+        initializedRef.current = true;
+        setSession(existingSession);
+        setUser(existingSession.user);
+        Promise.all([
+          fetchProfile(existingSession.user.id),
+          checkAdminRole(existingSession.user.id)
+        ]).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile, checkAdminRole]);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
@@ -148,6 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       session,
       profile,
       loading,
+      isAdmin,
       signUp,
       signIn,
       signOut,
