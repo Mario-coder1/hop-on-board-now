@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
+import { RatingDialog } from '@/components/RatingDialog';
+import { ReportDialog } from '@/components/ReportDialog';
 
 interface Trip {
   id: string;
@@ -236,7 +238,7 @@ const MyTrips = () => {
                       </div>
                       <span className="font-medium">{trip.ride.driver.full_name}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         {format(new Date(trip.ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
@@ -262,6 +264,21 @@ const MyTrips = () => {
                           <X className="w-4 h-4" />
                           Zrušiť
                         </Button>
+                      )}
+                      {trip.status === 'completed' && (
+                        <>
+                          <RatingDialog
+                            rideRequestId={trip.id}
+                            ratedUserId={trip.ride.driver_id}
+                            ratedUserName={trip.ride.driver.full_name}
+                            onRated={fetchTrips}
+                          />
+                          <ReportDialog
+                            reportedUserId={trip.ride.driver_id}
+                            reportedUserName={trip.ride.driver.full_name}
+                            rideId={trip.ride.id}
+                          />
+                        </>
                       )}
                     </div>
                   </div>
