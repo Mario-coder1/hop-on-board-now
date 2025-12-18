@@ -264,7 +264,7 @@ const RideDetail = () => {
                     <p className="font-display font-semibold text-lg">{ride.driver.full_name}</p>
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span>{ride.driver.rating.toFixed(1)}</span>
+                      <span>{ride.driver.rating?.toFixed(1) ?? 'N/A'}</span>
                     </div>
                   </div>
                 </div>
