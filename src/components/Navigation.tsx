@@ -69,17 +69,7 @@ const Navigation: React.FC = () => {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2">
-            {/* Role indicator */}
-            <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-              isDriver
-                ? 'bg-primary/10 text-primary'
-                : 'bg-accent/10 text-accent'
-            }`}>
-              {isDriver ? <Car className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-              {isDriver ? 'Vodič' : 'Cestujúci'}
-            </span>
-
+          <div className="flex items-center">
             {/* Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
