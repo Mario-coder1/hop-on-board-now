@@ -121,7 +121,7 @@ const Map: React.FC<MapProps> = ({
       const el = document.createElement('div');
       el.className = 'custom-marker';
       
-      const colors = {
+      const colors: Record<string, string> = {
         driver: '#20b4a8',
         passenger: '#ef6c4c',
         origin: '#20b4a8',
@@ -129,7 +129,7 @@ const Map: React.FC<MapProps> = ({
         pickup: '#f59e0b'
       };
 
-      const icons = {
+      const icons: Record<string, string> = {
         driver: '🚗',
         passenger: '👤',
         origin: '📍',
@@ -137,22 +137,24 @@ const Map: React.FC<MapProps> = ({
         pickup: '🧍'
       };
 
-      el.innerHTML = `
-        <div style="
-          width: 40px;
-          height: 40px;
-          background: ${colors[markerData.type]};
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          border: 3px solid white;
-          cursor: pointer;
-          transition: transform 0.2s;
-        ">${icons[markerData.type]}</div>
+      // Use DOM API instead of innerHTML to prevent XSS
+      const markerDiv = document.createElement('div');
+      markerDiv.style.cssText = `
+        width: 40px;
+        height: 40px;
+        background: ${colors[markerData.type] || '#888'};
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border: 3px solid white;
+        cursor: pointer;
+        transition: transform 0.2s;
       `;
+      markerDiv.textContent = icons[markerData.type] || '📍';
+      el.appendChild(markerDiv);
 
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.1)';
