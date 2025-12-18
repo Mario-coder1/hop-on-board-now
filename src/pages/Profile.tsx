@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Navigation from '@/components/Navigation';
+import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -184,6 +185,15 @@ const Profile = () => {
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Push Notifications */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <Label className="text-sm text-muted-foreground mb-2 block">Push notifikácie</Label>
+              <PushNotificationToggle />
+              <p className="text-xs text-muted-foreground mt-2">
+                Dostávajte upozornenia aj keď je aplikácia zatvorená.
+              </p>
             </div>
           </div>
 

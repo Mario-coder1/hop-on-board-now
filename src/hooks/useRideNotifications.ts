@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { sendPushNotification } from '@/hooks/usePushNotifications';
 
 export const useRideNotifications = () => {
   const { profile } = useAuth();
@@ -40,44 +41,63 @@ export const useRideNotifications = () => {
 
           const driverName = ride?.driver?.full_name || 'Vodič';
 
+          let notificationTitle = '';
+          let notificationBody = '';
+
           if (newStatus === 'accepted') {
+            notificationTitle = '🎉 Žiadosť prijatá!';
+            notificationBody = `${driverName} prijal vašu žiadosť o jazdu. Môžete sledovať jeho polohu.`;
             toast({
-              title: '🎉 Žiadosť prijatá!',
-              description: `${driverName} prijal vašu žiadosť o jazdu. Môžete sledovať jeho polohu.`,
+              title: notificationTitle,
+              description: notificationBody,
               duration: 8000,
             });
-            
-            // Play notification sound
             playNotificationSound();
           } else if (newStatus === 'rejected') {
+            notificationTitle = '😔 Žiadosť odmietnutá';
+            notificationBody = `${driverName} odmietol vašu žiadosť. Skúste inú jazdu.`;
             toast({
-              title: '😔 Žiadosť odmietnutá',
-              description: `${driverName} odmietol vašu žiadosť. Skúste inú jazdu.`,
+              title: notificationTitle,
+              description: notificationBody,
               variant: 'destructive',
               duration: 8000,
             });
-            
             playNotificationSound();
           } else if (newStatus === 'driver_arrived') {
+            notificationTitle = '🚗 Vodič je na mieste!';
+            notificationBody = `${driverName} práve prišiel na miesto vyzdvihnutia. Príďte k autu!`;
             toast({
-              title: '🚗 Vodič je na mieste!',
-              description: `${driverName} práve prišiel na miesto vyzdvihnutia. Príďte k autu!`,
+              title: notificationTitle,
+              description: notificationBody,
               duration: 10000,
             });
-            
             playNotificationSound();
           } else if (newStatus === 'picked_up') {
+            notificationTitle = '✅ Vyzdvihnutie potvrdené';
+            notificationBody = `${driverName} potvrdil vaše vyzdvihnutie. Dobrú cestu!`;
             toast({
-              title: '✅ Vyzdvihnutie potvrdené',
-              description: `${driverName} potvrdil vaše vyzdvihnutie. Dobrú cestu!`,
+              title: notificationTitle,
+              description: notificationBody,
               duration: 5000,
             });
           } else if (newStatus === 'completed') {
+            notificationTitle = '🏁 Jazda dokončená';
+            notificationBody = `Vaša jazda s ${driverName} bola úspešne dokončená.`;
             toast({
-              title: '🏁 Jazda dokončená',
-              description: `Vaša jazda s ${driverName} bola úspešne dokončená.`,
+              title: notificationTitle,
+              description: notificationBody,
               duration: 5000,
             });
+          }
+
+          // Send push notification (works even when app is closed)
+          if (notificationTitle && notificationBody) {
+            sendPushNotification(
+              profile.id,
+              notificationTitle,
+              notificationBody,
+              { rideId: payload.new.ride_id, status: newStatus }
+            );
           }
         }
       )
