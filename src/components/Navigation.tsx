@@ -14,7 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Navigation: React.FC = () => {
-  const { profile, signOut, updateRole } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
 
   const isDriver = profile?.selected_role === 'driver';
@@ -30,10 +30,6 @@ const Navigation: React.FC = () => {
         { path: '/search', icon: Search, label: 'Hľadať' },
         { path: '/my-trips', icon: MapPin, label: 'Moje cesty' },
       ];
-
-  const handleSwitchRole = () => {
-    updateRole(isDriver ? 'passenger' : 'driver');
-  };
 
   return (
     <motion.nav
@@ -73,20 +69,16 @@ const Navigation: React.FC = () => {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Role Badge - visible on all screens */}
-            <button
-              onClick={handleSwitchRole}
-              className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                isDriver
-                  ? 'bg-primary/10 text-primary hover:bg-primary/20'
-                  : 'bg-accent/10 text-accent hover:bg-accent/20'
-              }`}
-            >
+          <div className="flex items-center gap-2">
+            {/* Role indicator */}
+            <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+              isDriver
+                ? 'bg-primary/10 text-primary'
+                : 'bg-accent/10 text-accent'
+            }`}>
               {isDriver ? <Car className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-              <span className="hidden xs:inline">{isDriver ? 'Vodič' : 'Cestujúci'}</span>
-              <span className="xs:hidden">{isDriver ? 'V' : 'C'}</span>
-            </button>
+              {isDriver ? 'Vodič' : 'Cestujúci'}
+            </span>
 
             {/* Profile Dropdown */}
             <DropdownMenu>
@@ -113,19 +105,6 @@ const Navigation: React.FC = () => {
                     <User className="w-4 h-4" />
                     Môj profil
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSwitchRole} className="cursor-pointer">
-                  {isDriver ? (
-                    <>
-                      <User className="w-4 h-4 mr-2" />
-                      Prepnúť na cestujúceho
-                    </>
-                  ) : (
-                    <>
-                      <Car className="w-4 h-4 mr-2" />
-                      Prepnúť na vodiča
-                    </>
-                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
@@ -158,18 +137,6 @@ const Navigation: React.FC = () => {
               </Link>
             );
           })}
-          {/* Role Switch Button */}
-          <button
-            onClick={handleSwitchRole}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-              isDriver
-                ? 'text-accent hover:bg-accent/10'
-                : 'text-primary hover:bg-primary/10'
-            }`}
-          >
-            {isDriver ? <User className="w-5 h-5" /> : <Car className="w-5 h-5" />}
-            <span className="text-[10px]">{isDriver ? 'Cestujúci' : 'Vodič'}</span>
-          </button>
           <Link
             to="/profile"
             className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
