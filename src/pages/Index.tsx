@@ -1,31 +1,30 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthContext';
-import RoleSelector from '@/components/RoleSelector';
-import { Car, Users, MapPin, Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { Car, Users, MapPin, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const { user, profile, loading, updateRole } = useAuth();
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user && profile?.selected_role) {
-      if (profile.selected_role === 'driver') {
-        navigate('/driver');
+    if (loading) return;
+
+    if (user && profile) {
+      if (profile.selected_role === "driver") {
+        navigate("/driver", { replace: true });
+      } else if (profile.selected_role === "passenger") {
+        navigate("/passenger", { replace: true });
       } else {
-        navigate('/passenger');
+        // Role selection lives in Profile page
+        navigate("/profile", { replace: true });
       }
     }
   }, [user, profile, loading, navigate]);
 
-  const handleRoleSelect = async (role: 'driver' | 'passenger') => {
-    await updateRole(role);
-    navigate(role === 'driver' ? '/driver' : '/passenger');
-  };
-
-  if (loading) {
+  if (loading || (user && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -33,15 +32,11 @@ const Index = () => {
     );
   }
 
-  if (user && !profile?.selected_role) {
-    return <RoleSelector onSelect={handleRoleSelect} />;
-  }
-
   const features = [
-    { icon: Car, title: 'Ponúkni jazdu', desc: 'Zdieľaj cestu a ušetri na nákladoch' },
-    { icon: Users, title: 'Nájdi spolucestujúcich', desc: 'Cestuj s overenými vodičmi' },
-    { icon: MapPin, title: 'Live sledovanie', desc: 'Sleduj polohu v reálnom čase' },
-    { icon: Shield, title: 'Bezpečnosť', desc: 'Overené profily a hodnotenia' },
+    { icon: Car, title: "Ponúkni jazdu", desc: "Zdieľaj cestu a ušetri na nákladoch" },
+    { icon: Users, title: "Nájdi spolucestujúcich", desc: "Cestuj s overenými vodičmi" },
+    { icon: MapPin, title: "Live sledovanie", desc: "Sleduj polohu v reálnom čase" },
+    { icon: Shield, title: "Bezpečnosť", desc: "Overené profily a hodnotenia" },
   ];
 
   return (
@@ -49,7 +44,7 @@ const Index = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20" />
-        
+
         <div className="relative container mx-auto px-4 py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -59,7 +54,7 @@ const Index = () => {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring' }}
+              transition={{ delay: 0.2, type: "spring" }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6"
             >
               <Car className="w-5 h-5" />
@@ -77,18 +72,13 @@ const Index = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                variant="hero"
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="text-lg px-8"
-              >
+              <Button variant="hero" size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
                 Začať teraz
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => navigate('/search')}
+                onClick={() => navigate("/search")}
                 className="text-lg px-8"
               >
                 Hľadať jazdy
@@ -135,12 +125,7 @@ const Index = () => {
             <p className="text-primary-foreground/80 mb-8 max-w-md mx-auto">
               Vytvor si účet zadarmo a začni cestovať ešte dnes.
             </p>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="text-lg px-8"
-            >
+            <Button variant="secondary" size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
               Registrovať sa
             </Button>
           </div>
