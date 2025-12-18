@@ -150,7 +150,7 @@ const Profile = () => {
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    {profile.rating.toFixed(1)}
+                    {profile.rating?.toFixed(1) ?? 'N/A'}
                   </span>
                   <span>{profile.total_rides} jázd</span>
                   <span className="capitalize px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs">
