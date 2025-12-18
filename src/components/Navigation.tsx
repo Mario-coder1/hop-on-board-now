@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,22 +14,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Navigation: React.FC = () => {
-  const { user, profile, signOut } = useAuth();
+  const { profile, signOut, isAdmin } = useAuth();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) return;
-      
-      const { data } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      
-      setIsAdmin(!!data);
-    };
-
-    checkAdmin();
-  }, [user]);
 
   const isDriver = profile?.selected_role === 'driver';
 

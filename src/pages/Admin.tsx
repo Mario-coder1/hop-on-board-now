@@ -71,11 +71,10 @@ interface Report {
 }
 
 const Admin = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [rideStats, setRideStats] = useState({ total: 0, active: 0, inProgress: 0, completed: 0 });
@@ -85,28 +84,14 @@ const Admin = () => {
   const [pushTitle, setPushTitle] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  // Check if user is admin
+  // Redirect non-admin users
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) return;
-      
-      const { data, error } = await supabase
-        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      
-      if (error) {
-        console.error('Error checking admin role:', error);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(data);
-      }
-    };
-
-    if (!loading && user) {
-      checkAdmin();
-    } else if (!loading && !user) {
+    if (!loading && !user) {
       navigate('/auth');
+    } else if (!loading && user && !isAdmin) {
+      navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, isAdmin, navigate]);
 
   // Fetch data when admin is confirmed
   useEffect(() => {
@@ -262,7 +247,7 @@ const Admin = () => {
     }
   };
 
-  if (loading || isAdmin === null) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
