@@ -46,6 +46,32 @@ const MyTrips = () => {
     if (profile) fetchTrips();
   }, [profile]);
 
+  // Realtime subscription
+  useEffect(() => {
+    if (!profile) return;
+
+    const channel = supabase
+      .channel('my-trips-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests',
+          filter: `passenger_id=eq.${profile.id}`
+        },
+        () => {
+          console.log('[Realtime] Trip status changed');
+          fetchTrips();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile]);
+
   const fetchTrips = async () => {
     const { data, error } = await supabase
       .from('ride_requests')

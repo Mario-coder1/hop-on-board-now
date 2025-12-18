@@ -40,56 +40,82 @@ const TrackRide: React.FC = () => {
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRideRequest = async () => {
-      if (!requestId) return;
+  const fetchRideRequest = async () => {
+    if (!requestId) return;
 
-      const { data, error } = await supabase
-        .from('ride_requests')
-        .select(`
+    const { data, error } = await supabase
+      .from('ride_requests')
+      .select(`
+        id,
+        status,
+        pickup_lat,
+        pickup_lng,
+        pickup_address,
+        ride:rides!inner (
           id,
-          status,
-          pickup_lat,
-          pickup_lng,
-          pickup_address,
-          ride:rides!inner (
+          destination_lat,
+          destination_lng,
+          destination_address,
+          departure_time,
+          driver_id,
+          driver:profiles!rides_driver_id_fkey (
             id,
-            destination_lat,
-            destination_lng,
-            destination_address,
-            departure_time,
-            driver_id,
-            driver:profiles!rides_driver_id_fkey (
-              id,
-              full_name,
-              phone,
-              avatar_url,
-              car_model,
-              car_color,
-              license_plate
-            )
+            full_name,
+            phone,
+            avatar_url,
+            car_model,
+            car_color,
+            license_plate
           )
-        `)
-        .eq('id', requestId)
-        .maybeSingle();
+        )
+      `)
+      .eq('id', requestId)
+      .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching ride request:', error);
-      } else if (data) {
-        const ride = Array.isArray(data.ride) ? data.ride[0] : data.ride;
-        const driver = ride?.driver;
-        setRideRequest({
-          ...data,
-          ride: {
-            ...ride,
-            driver: Array.isArray(driver) ? driver[0] : driver
-          }
-        } as RideRequest);
-      }
-      setLoading(false);
-    };
+    if (error) {
+      console.error('Error fetching ride request:', error);
+    } else if (data) {
+      const ride = Array.isArray(data.ride) ? data.ride[0] : data.ride;
+      const driver = ride?.driver;
+      setRideRequest({
+        ...data,
+        ride: {
+          ...ride,
+          driver: Array.isArray(driver) ? driver[0] : driver
+        }
+      } as RideRequest);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchRideRequest();
+  }, [requestId]);
+
+  // Realtime subscription for ride status changes
+  useEffect(() => {
+    if (!requestId) return;
+
+    const channel = supabase
+      .channel(`track-ride-${requestId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests',
+          filter: `id=eq.${requestId}`
+        },
+        () => {
+          console.log('[Realtime] Ride request status changed');
+          fetchRideRequest();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [requestId]);
 
   if (loading) {
