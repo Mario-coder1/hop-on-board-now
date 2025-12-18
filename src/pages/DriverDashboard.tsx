@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Car, MapPin, Clock, Users, ChevronRight, Bell, TrendingUp, Radio, CircleOff } from 'lucide-react';
+import { Plus, Car, MapPin, Clock, Users, ChevronRight, Bell, TrendingUp, Radio, CircleOff, Navigation as NavIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -31,12 +31,16 @@ interface RideRequest {
   id: string;
   status: string;
   pickup_address: string;
+  pickup_lat: number;
+  pickup_lng: number;
   message: string;
   created_at: string;
+  ride_id: string;
   passenger: {
     full_name: string;
     rating: number;
     avatar_url: string | null;
+    phone: string | null;
   };
   ride: {
     origin_address: string;
@@ -80,7 +84,7 @@ const DriverDashboard: React.FC = () => {
       .from('ride_requests')
       .select(`
         *,
-        passenger:profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url),
+        passenger:profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url, phone),
         ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)
       `)
       .eq('status', 'pending')
@@ -100,6 +104,28 @@ const DriverDashboard: React.FC = () => {
     fetchRequests();
   };
 
+  const openNavigation = (lat: number, lng: number) => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+    let url: string;
+    
+    if (isIOS) {
+      url = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
+    } else if (isAndroid) {
+      url = `google.navigation:q=${lat},${lng}`;
+    } else {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    }
+
+    window.open(url, '_blank');
+  };
+
+  // Count accepted passengers per ride
+  const getAcceptedCount = (rideId: string) => {
+    // This would need to be fetched from accepted requests
+    return 0; // Placeholder
+  };
   const activeRides = rides.filter(r => r.status === 'active' || r.status === 'in_progress');
   const mapMarkers = activeRides.flatMap(ride => [
     {
@@ -225,8 +251,7 @@ const DriverDashboard: React.FC = () => {
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            variant="success"
-                            className="flex-1"
+                            className="flex-1 bg-green-600 hover:bg-green-700"
                             onClick={() => handleRequest(request.id, 'accepted')}
                           >
                             Prijať
@@ -312,8 +337,7 @@ const DriverDashboard: React.FC = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {rides.slice(0, 6).map((ride) => (
-                <Link key={ride.id} to={`/ride/${ride.id}`}>
-                  <Card className="border-0 shadow-card hover:shadow-lg transition-shadow cursor-pointer group">
+                <Card key={ride.id} className="border-0 shadow-card hover:shadow-lg transition-shadow group">
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-4">
                         <Badge variant={ride.status === 'active' ? 'default' : 'secondary'}>
@@ -348,12 +372,21 @@ const DriverDashboard: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="mt-3 flex items-center justify-end text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Detail <ChevronRight className="w-4 h-4" />
+                      <div className="flex gap-2 mt-4">
+                        <Link to={`/ride/${ride.id}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            Detail
+                          </Button>
+                        </Link>
+                        <Link to={`/manage-passengers/${ride.id}`} className="flex-1">
+                          <Button variant="hero" size="sm" className="w-full gap-1">
+                            <NavIcon className="w-4 h-4" />
+                            Pasažieri
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
               ))}
             </div>
           )}
