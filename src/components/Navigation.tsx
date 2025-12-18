@@ -139,7 +139,7 @@ const Navigation: React.FC = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-border/50 px-2 py-2">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-border/50 px-2 py-2 safe-area-bottom">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -147,27 +147,39 @@ const Navigation: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
                   isActive
                     ? 'text-primary bg-primary/10'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
-                <span className="text-xs">{item.label}</span>
+                <span className="text-[10px]">{item.label}</span>
               </Link>
             );
           })}
+          {/* Role Switch Button */}
+          <button
+            onClick={handleSwitchRole}
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+              isDriver
+                ? 'text-accent hover:bg-accent/10'
+                : 'text-primary hover:bg-primary/10'
+            }`}
+          >
+            {isDriver ? <User className="w-5 h-5" /> : <Car className="w-5 h-5" />}
+            <span className="text-[10px]">{isDriver ? 'Cestujúci' : 'Vodič'}</span>
+          </button>
           <Link
             to="/profile"
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
               location.pathname === '/profile'
                 ? 'text-primary bg-primary/10'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <User className="w-5 h-5" />
-            <span className="text-xs">Profil</span>
+            <span className="text-[10px]">Profil</span>
           </Link>
         </div>
       </div>
