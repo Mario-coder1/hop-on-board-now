@@ -56,10 +56,27 @@ self.addEventListener('notificationclick', function(event) {
 
 self.addEventListener('install', function(event) {
   console.log('[SW] Installing service worker');
+  // Take over immediately, don't wait for old SW to die
   self.skipWaiting();
 });
 
 self.addEventListener('activate', function(event) {
   console.log('[SW] Activating service worker');
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    // Clean up old caches and claim clients immediately
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          // Delete any old caches that might have stale JS
+          if (cacheName.includes('workbox') || cacheName.includes('app-assets')) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(function() {
+      // Take control of all pages immediately
+      return clients.claim();
+    })
+  );
 });
