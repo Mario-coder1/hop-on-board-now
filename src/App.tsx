@@ -14,6 +14,7 @@ import RideDetail from "./pages/RideDetail";
 import MyRides from "./pages/MyRides";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
+import TrackRide from "./pages/TrackRide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const AppRoutes = () => {
       <Route path="/ride/:id" element={<ProtectedRoute><RideDetail /></ProtectedRoute>} />
       <Route path="/my-rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
       <Route path="/my-trips" element={<ProtectedRoute><MyTrips /></ProtectedRoute>} />
+      <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
