@@ -12,11 +12,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, updateRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [loading, setLoading] = useState(false);
+  const [roleLoading, setRoleLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -39,9 +40,36 @@ const Profile = () => {
     }
   }, [profile]);
 
+  const handleSwitchRole = async () => {
+    if (!profile) return;
+
+    const nextRole = profile.selected_role === 'driver' ? 'passenger' : 'driver';
+    setRoleLoading(true);
+
+    try {
+      await updateRole(nextRole);
+      await refreshProfile();
+
+      toast({
+        title: 'Rola zmenená',
+        description: `Si teraz ${nextRole === 'driver' ? 'vodič' : 'cestujúci'}.`,
+      });
+
+      navigate(nextRole === 'driver' ? '/driver' : '/passenger');
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error?.message || 'Nepodarilo sa zmeniť rolu.',
+        variant: 'destructive'
+      });
+    } finally {
+      setRoleLoading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!profile) return;
-    
+
     setLoading(true);
     try {
       const { error } = await supabase
@@ -52,7 +80,7 @@ const Profile = () => {
       if (error) throw error;
 
       await refreshProfile();
-      
+
       toast({
         title: 'Uložené!',
         description: 'Profil bol úspešne aktualizovaný.',
@@ -101,7 +129,11 @@ const Profile = () => {
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
                 {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src={profile.avatar_url}
+                    alt={`${profile.full_name} profilová fotka`}
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 ) : (
                   <span className="text-3xl">{profile.full_name.charAt(0)}</span>
                 )}
@@ -119,6 +151,24 @@ const Profile = () => {
                   </span>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                Ak chceš vidieť funkcie pre druhú rolu, prepni sa tu.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+                onClick={handleSwitchRole}
+                disabled={roleLoading}
+              >
+                {profile.selected_role === 'driver' ? <User /> : <Car />}
+                {roleLoading
+                  ? 'Prepínam...'
+                  : `Prepnúť na ${profile.selected_role === 'driver' ? 'cestujúceho' : 'vodiča'}`}
+              </Button>
             </div>
           </div>
 
