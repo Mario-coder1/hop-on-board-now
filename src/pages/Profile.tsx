@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,22 +47,21 @@ const Profile = () => {
     }
   }, [profile]);
 
-  const handleSwitchRole = async () => {
-    if (!profile) return;
+  const handleRoleChange = async (newRole: 'driver' | 'passenger') => {
+    if (!profile || newRole === profile.selected_role) return;
 
-    const nextRole = profile.selected_role === 'driver' ? 'passenger' : 'driver';
     setRoleLoading(true);
 
     try {
-      await updateRole(nextRole);
+      await updateRole(newRole);
       await refreshProfile();
 
       toast({
         title: 'Rola zmenená',
-        description: `Si teraz ${nextRole === 'driver' ? 'vodič' : 'cestujúci'}.`,
+        description: `Si teraz ${newRole === 'driver' ? 'vodič' : 'cestujúci'}.`,
       });
 
-      navigate(nextRole === 'driver' ? '/driver' : '/passenger');
+      navigate(newRole === 'driver' ? '/driver' : '/passenger');
     } catch (error: any) {
       toast({
         title: 'Chyba',
@@ -153,22 +159,31 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-sm text-muted-foreground">
-                Ak chceš vidieť funkcie pre druhú rolu, prepni sa tu.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full sm:w-auto"
-                onClick={handleSwitchRole}
+            <div className="mt-5">
+              <Label className="text-sm text-muted-foreground mb-2 block">Vyber svoju rolu</Label>
+              <Select
+                value={profile.selected_role}
+                onValueChange={(value) => handleRoleChange(value as 'driver' | 'passenger')}
                 disabled={roleLoading}
               >
-                {profile.selected_role === 'driver' ? <User /> : <Car />}
-                {roleLoading
-                  ? 'Prepínam...'
-                  : `Prepnúť na ${profile.selected_role === 'driver' ? 'cestujúceho' : 'vodiča'}`}
-              </Button>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Vyber rolu" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="driver">
+                    <div className="flex items-center gap-2">
+                      <Car className="w-4 h-4" />
+                      Vodič
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="passenger">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Cestujúci
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
