@@ -34,13 +34,124 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     
+    // Create client with user's auth token for authorization check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('[Push] No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get authenticated user
+    const { data: { user }, error: authError } = await userClient.auth.getUser();
+    if (authError || !user) {
+      console.error('[Push] Auth error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Service client for database operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { profile_id, title, body, data, tag } = await req.json() as PushPayload;
 
-    console.log(`[Push] Sending notification to profile: ${profile_id}`);
+    // Validate inputs
+    if (!profile_id || typeof profile_id !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid profile_id' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (!title || title.length > 100) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid title (max 100 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (!body || body.length > 500) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid body (max 500 chars)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`[Push] User ${user.id} requesting notification to profile: ${profile_id}`);
     console.log(`[Push] Title: ${title}, Body: ${body}`);
+
+    // Get caller's profile
+    const { data: callerProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!callerProfile) {
+      console.error('[Push] Caller profile not found');
+      return new Response(
+        JSON.stringify({ error: 'Profile not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Authorization: Check if caller has active ride relationship with target
+    // Either as driver with target as passenger, or as passenger with target as driver
+    const { data: hasRelationship } = await supabase
+      .from('ride_requests')
+      .select(`
+        id,
+        ride:rides!inner(driver_id)
+      `)
+      .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
+      .or(`passenger_id.eq.${profile_id},ride.driver_id.eq.${profile_id}`)
+      .or(`passenger_id.eq.${callerProfile.id},ride.driver_id.eq.${callerProfile.id}`)
+      .limit(1);
+
+    // Also check if caller is driver of any ride with target as passenger or vice versa
+    const { data: driverRelation } = await supabase
+      .from('rides')
+      .select(`
+        id,
+        ride_requests!inner(passenger_id)
+      `)
+      .eq('driver_id', callerProfile.id)
+      .eq('ride_requests.passenger_id', profile_id)
+      .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
+      .limit(1);
+
+    const { data: passengerRelation } = await supabase
+      .from('rides')
+      .select(`
+        id,
+        ride_requests!inner(passenger_id)
+      `)
+      .eq('driver_id', profile_id)
+      .eq('ride_requests.passenger_id', callerProfile.id)
+      .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
+      .limit(1);
+
+    const isAuthorized = (driverRelation && driverRelation.length > 0) || 
+                         (passengerRelation && passengerRelation.length > 0) ||
+                         callerProfile.id === profile_id; // Can notify self
+
+    if (!isAuthorized) {
+      console.error('[Push] Unauthorized: No active ride relationship');
+      return new Response(
+        JSON.stringify({ error: 'Not authorized to notify this user' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[Push] Authorization passed');
 
     // Get all subscriptions for this profile
     const { data: subscriptions, error: subError } = await supabase
@@ -123,7 +234,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('[Push] Error:', error);
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: 'Vyskytla sa chyba. Skúste to znova.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
