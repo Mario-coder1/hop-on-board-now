@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, Navigation as NavigationIcon } from 'lucide-react';
+import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, Navigation as NavigationIcon, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
+
 interface Trip {
   id: string;
   status: string;
   pickup_address: string;
   created_at: string;
+  ride_id: string;
   ride: {
     id: string;
     origin_address: string;
     destination_address: string;
     departure_time: string;
     price_per_seat: number;
+    available_seats: number;
     driver: {
       full_name: string;
       avatar_url: string | null;
@@ -29,6 +33,7 @@ interface Trip {
 const MyTrips = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'completed'>('all');
@@ -43,7 +48,7 @@ const MyTrips = () => {
       .select(`
         *,
         ride:rides(
-          id, origin_address, destination_address, departure_time, price_per_seat,
+          id, origin_address, destination_address, departure_time, price_per_seat, available_seats,
           driver:profiles!rides_driver_id_fkey(full_name, avatar_url)
         )
       `)
@@ -54,6 +59,42 @@ const MyTrips = () => {
       setTrips(data as unknown as Trip[]);
     }
     setLoading(false);
+  };
+
+  const handleCancelRequest = async (trip: Trip) => {
+    const wasAccepted = trip.status === 'accepted' || trip.status === 'driver_arrived';
+    
+    // Delete the request
+    const { error } = await supabase
+      .from('ride_requests')
+      .delete()
+      .eq('id', trip.id);
+
+    if (error) {
+      toast({
+        title: 'Chyba',
+        description: 'Nepodarilo sa zrušiť žiadosť.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // If was accepted, restore the seat
+    if (wasAccepted) {
+      await supabase
+        .from('rides')
+        .update({ available_seats: trip.ride.available_seats + 1 })
+        .eq('id', trip.ride_id);
+    }
+
+    toast({
+      title: 'Žiadosť zrušená',
+      description: wasAccepted 
+        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené.' 
+        : 'Vaša žiadosť bola zrušená.',
+    });
+
+    fetchTrips();
   };
 
   const filteredTrips = trips.filter(trip => {
@@ -185,13 +226,27 @@ const MyTrips = () => {
                         <Calendar className="w-4 h-4" />
                         {format(new Date(trip.ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
                       </span>
-                      {(trip.status === 'accepted' || trip.status === 'picked_up') && (
+                      {(trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived') && (
                         <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
                           <Button size="sm" variant="hero" className="gap-1">
                             <NavigationIcon className="w-4 h-4" />
                             Sledovať
                           </Button>
                         </Link>
+                      )}
+                      {(trip.status === 'pending' || trip.status === 'accepted' || trip.status === 'driver_arrived') && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelRequest(trip);
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                          Zrušiť
+                        </Button>
                       )}
                     </div>
                   </div>
