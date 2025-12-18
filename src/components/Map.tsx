@@ -167,7 +167,7 @@ const Map: React.FC<MapProps> = ({
 
       if (markerData.popup) {
         const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<div class="font-sans p-2 text-sm">${markerData.popup}</div>`);
+          .setText(markerData.popup); // Use setText to prevent XSS
         marker.setPopup(popup);
       }
 
