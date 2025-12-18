@@ -19,6 +19,8 @@ import TrackRide from "./pages/TrackRide";
 import ManagePassengers from "./pages/ManagePassengers";
 import Install from "./pages/Install";
 import Admin from "./pages/Admin";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +68,8 @@ const AppRoutes = () => {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/install" element={<Install />} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/gdpr" element={<GDPR />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

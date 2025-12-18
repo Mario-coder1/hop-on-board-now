@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -293,6 +293,30 @@ const Profile = () => {
             <Save className="w-4 h-4 mr-2" />
             {loading ? 'Ukladám...' : 'Uložiť zmeny'}
           </Button>
+
+          {/* Legal Links */}
+          <div className="p-6 rounded-2xl bg-card border border-border mt-6">
+            <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Právne informácie
+            </h3>
+            <div className="space-y-3">
+              <Link
+                to="/privacy"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Shield className="w-5 h-5 text-muted-foreground" />
+                <span>Zásady ochrany súkromia</span>
+              </Link>
+              <Link
+                to="/gdpr"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Scale className="w-5 h-5 text-muted-foreground" />
+                <span>GDPR - Vaše práva</span>
+              </Link>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
