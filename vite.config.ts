@@ -16,6 +16,10 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      // Disable SW in dev to prevent caching issues
+      devOptions: {
+        enabled: false,
+      },
       manifest: {
         name: "TakeMe - Zdieľané jazdy",
         short_name: "TakeMe",
@@ -46,10 +50,18 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        // Force immediate activation
+        skipWaiting: true,
+        clientsClaim: true,
+        // Only cache static assets, NOT JS bundles
+        globPatterns: ["**/*.{ico,png,svg,woff2}"],
+        // Don't precache anything in preview/dev-like environments
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Clean old caches on activate
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
+            // Cache Mapbox tiles
             urlPattern: /^https:\/\/api\.mapbox\.com\/.*/i,
             handler: "CacheFirst",
             options: {
@@ -58,6 +70,19 @@ export default defineConfig(({ mode }) => ({
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 7,
               },
+            },
+          },
+          {
+            // Network-first for app JS/CSS (always get fresh)
+            urlPattern: /\.(js|css|html)$/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "app-assets",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60, // 1 hour max
+              },
+              networkTimeoutSeconds: 3,
             },
           },
         ],
