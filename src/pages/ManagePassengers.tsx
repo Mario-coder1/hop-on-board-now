@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,8 @@ import Map from '@/components/Map';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
+import { useLocationBroadcast } from '@/hooks/useDriverTracking';
+import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 interface AcceptedPassenger {
   id: string;
   status: string;
@@ -42,11 +43,20 @@ const ManagePassengers = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { isTracking, startTracking, stopTracking } = useLocationBroadcast(profile?.id || null);
   
   const [passengers, setPassengers] = useState<AcceptedPassenger[]>([]);
   const [ride, setRide] = useState<RideInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPassenger, setSelectedPassenger] = useState<AcceptedPassenger | null>(null);
+
+  // Auto-complete ride when driver arrives at destination (within 5m)
+  useAutoCompleteRide(
+    rideId || null,
+    ride ? { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) } : null,
+    profile?.id || null,
+    isTracking
+  );
 
   useEffect(() => {
     if (rideId && profile) {
@@ -184,15 +194,45 @@ const ManagePassengers = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Späť
-          </Button>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <Button variant="ghost" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Späť
+            </Button>
+            
+            {/* Tracking controls */}
+            <div className="flex items-center gap-2">
+              {isTracking ? (
+                <Button variant="outline" onClick={stopTracking} className="gap-2">
+                  <CircleOff className="w-4 h-4" />
+                  Zastaviť zdieľanie
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={startTracking} className="gap-2">
+                  <Radio className="w-4 h-4" />
+                  Zdieľať polohu
+                </Button>
+              )}
+              {isTracking && (
+                <Badge variant="default" className="bg-green-500 animate-pulse">
+                  <Radio className="w-3 h-3 mr-1" />
+                  GPS aktívne
+                </Badge>
+              )}
+            </div>
+          </div>
 
           <h1 className="font-display text-3xl font-bold mb-2">Pasažieri na vyzdvihnutie</h1>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-muted-foreground mb-4">
             {ride?.origin_address} → {ride?.destination_address}
           </p>
+          
+          {isTracking && (
+            <p className="text-sm text-muted-foreground mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Jazda sa automaticky ukončí po príchode do cieľa (5m)
+            </p>
+          )}
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Passengers List */}
