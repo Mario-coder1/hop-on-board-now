@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import webpush from "https://esm.sh/web-push@3.6.7";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,32 +11,19 @@ const corsHeaders = {
 const VAPID_PUBLIC_KEY = 'BNlR7VxH3G8jE4o8z2bF3pK5cQ9wY1nM6vS0hX4tA7iU2dL8rO9sP5jN3kW1yZ6mE8xC0bV4gF2aH7qJ5uT9oI3';
 const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!;
 
+// Configure web-push with VAPID details
+webpush.setVapidDetails(
+  'mailto:takeme-app@example.com',
+  VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY
+);
+
 interface PushPayload {
   profile_id: string;
   title: string;
   body: string;
   data?: Record<string, unknown>;
   tag?: string;
-}
-
-async function sendPushNotification(subscription: any, payload: any) {
-  const vapidHeaders = {
-    alg: 'ES256',
-    typ: 'JWT'
-  };
-
-  // Simple push notification using fetch
-  const response = await fetch(subscription.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Encoding': 'aes128gcm',
-      'TTL': '86400',
-    },
-    body: JSON.stringify(payload)
-  });
-
-  return response;
 }
 
 serve(async (req) => {
@@ -75,19 +63,18 @@ serve(async (req) => {
 
     console.log(`[Push] Found ${subscriptions.length} subscription(s)`);
 
-    const payload = {
+    const payload = JSON.stringify({
       title,
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
       data: data || {},
       tag: tag || 'takeme-notification'
-    };
+    });
 
     const results = await Promise.allSettled(
       subscriptions.map(async (sub) => {
         try {
-          // Use Web Push protocol
           const pushSubscription = {
             endpoint: sub.endpoint,
             keys: {
@@ -96,36 +83,40 @@ serve(async (req) => {
             }
           };
 
-          // For now, we'll use a simple approach - in production you'd use web-push library
-          const response = await fetch(sub.endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/octet-stream',
-              'TTL': '86400',
-            },
-          });
+          console.log(`[Push] Sending to endpoint: ${sub.endpoint.substring(0, 50)}...`);
 
-          if (!response.ok && response.status === 410) {
-            // Subscription expired, remove it
-            console.log('[Push] Subscription expired, removing...');
+          const result = await webpush.sendNotification(pushSubscription, payload);
+          
+          console.log(`[Push] Success! Status: ${result.statusCode}`);
+          return { success: true, statusCode: result.statusCode };
+        } catch (error: any) {
+          console.error('[Push] Error sending notification:', error.message);
+          
+          // If subscription is expired or invalid (410 Gone or 404 Not Found), remove it
+          if (error.statusCode === 410 || error.statusCode === 404) {
+            console.log('[Push] Subscription expired/invalid, removing...');
             await supabase
               .from('push_subscriptions')
               .delete()
               .eq('id', sub.id);
           }
-
-          return { success: response.ok, status: response.status };
-        } catch (error) {
-          console.error('[Push] Error sending to subscription:', error);
-          return { success: false, error: (error as Error).message };
+          
+          return { success: false, error: error.message, statusCode: error.statusCode };
         }
       })
     );
 
-    console.log('[Push] Results:', results);
+    console.log('[Push] Results:', JSON.stringify(results));
+
+    const successCount = results.filter(r => r.status === 'fulfilled' && (r.value as any).success).length;
 
     return new Response(
-      JSON.stringify({ success: true, results }),
+      JSON.stringify({ 
+        success: successCount > 0, 
+        sent: successCount,
+        total: subscriptions.length,
+        results 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
