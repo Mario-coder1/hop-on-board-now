@@ -73,18 +73,19 @@ const Navigation: React.FC = () => {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center gap-3">
-            {/* Role Badge */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Role Badge - visible on all screens */}
             <button
               onClick={handleSwitchRole}
-              className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 isDriver
                   ? 'bg-primary/10 text-primary hover:bg-primary/20'
                   : 'bg-accent/10 text-accent hover:bg-accent/20'
               }`}
             >
               {isDriver ? <Car className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-              {isDriver ? 'Vodič' : 'Cestujúci'}
+              <span className="hidden xs:inline">{isDriver ? 'Vodič' : 'Cestujúci'}</span>
+              <span className="xs:hidden">{isDriver ? 'V' : 'C'}</span>
             </button>
 
             {/* Profile Dropdown */}
