@@ -143,18 +143,7 @@ const RideDetail = () => {
     void fetchStops();
   }, [id, profile?.id]);
 
-  useEffect(() => {
-    if (!ride) return;
-
-    // Default pickup = origin (so passenger can request immediately like before)
-    if (!pickup.lat || !pickup.lng) {
-      setPickup({
-        address: ride.origin_address,
-        lat: Number(ride.origin_lat),
-        lng: Number(ride.origin_lng),
-      });
-    }
-  }, [ride]);
+  // Removed: Default pickup = origin - now passengers must specify their own pickup location
 
   useEffect(() => {
     if (!ride || !profile || !canSeeDriverContact) {
@@ -624,31 +613,37 @@ const RideDetail = () => {
                   ) : (
                     <>
                       <div className="mb-4">
-                        <Label>Miesto nastúpenia</Label>
-                        <div className="flex gap-2 mt-1">
+                        <Label className="text-primary font-semibold">Kde vás má vodič vyzdvihnúť?</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Zadajte vašu presnú adresu, aby vás vodič vedel nájsť
+                        </p>
+                        <Button
+                          variant="secondary"
+                          className="w-full mb-2 gap-2"
+                          onClick={getPickupFromCurrentLocation}
+                          disabled={gettingPickupLocation}
+                        >
+                          {gettingPickupLocation ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Locate className="w-4 h-4" />
+                          )}
+                          Použiť moju aktuálnu polohu
+                        </Button>
+                        <div className="relative">
                           <AddressSearch
                             value={pickup.address}
                             onSelect={(address, lat, lng) => setPickup({ address, lat, lng })}
-                            placeholder="Kde chcete nastúpiť?"
-                            className="flex-1"
+                            placeholder="alebo zadajte adresu..."
+                            className="w-full"
                           />
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={getPickupFromCurrentLocation}
-                            disabled={gettingPickupLocation}
-                            aria-label="Použiť moju polohu"
-                          >
-                            {gettingPickupLocation ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Locate className="w-4 h-4" />
-                            )}
-                          </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Vyberte bod, kde vás má vodič vyzdvihnúť.
-                        </p>
+                        {pickup.address && (
+                          <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                            <Locate className="w-3 h-3" />
+                            {pickup.address}
+                          </p>
+                        )}
                       </div>
 
                       <div className="mb-4">
