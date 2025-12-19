@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
+import { RatingDialog } from '@/components/RatingDialog';
 
 interface RideRequest {
   id: string;
@@ -37,8 +38,12 @@ interface RideRequest {
 const TrackRide: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+  const previousStatus = useRef<string | null>(null);
 
   const fetchRideRequest = async () => {
     if (!requestId) return;
@@ -88,9 +93,45 @@ const TrackRide: React.FC = () => {
     setLoading(false);
   };
 
+  // Check if user already rated this ride
+  const checkExistingRating = async () => {
+    if (!requestId || !profile) return;
+    
+    const { data } = await supabase
+      .from('ratings')
+      .select('id')
+      .eq('ride_request_id', requestId)
+      .eq('rater_id', profile.id)
+      .maybeSingle();
+    
+    setHasRated(!!data);
+  };
+
   useEffect(() => {
     fetchRideRequest();
   }, [requestId]);
+
+  useEffect(() => {
+    if (profile && requestId) {
+      checkExistingRating();
+    }
+  }, [profile, requestId]);
+
+  // Show rating dialog when status changes to completed
+  useEffect(() => {
+    if (rideRequest && !hasRated) {
+      const currentStatus = rideRequest.status;
+      
+      // If status just changed to completed, show rating dialog
+      if (currentStatus === 'completed' && previousStatus.current !== 'completed') {
+        setTimeout(() => {
+          setShowRatingDialog(true);
+        }, 500); // Small delay for better UX
+      }
+      
+      previousStatus.current = currentStatus;
+    }
+  }, [rideRequest?.status, hasRated]);
 
   // Realtime subscription for ride status changes
   useEffect(() => {
@@ -117,6 +158,11 @@ const TrackRide: React.FC = () => {
       supabase.removeChannel(channel);
     };
   }, [requestId]);
+
+  const handleRated = () => {
+    setHasRated(true);
+    setShowRatingDialog(false);
+  };
 
   if (loading) {
     return (
@@ -259,9 +305,49 @@ const TrackRide: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Completed Status */}
+            {rideRequest.status === 'completed' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 text-center"
+              >
+                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                <h3 className="font-semibold text-lg text-green-600">Jazda dokončená!</h3>
+                <p className="text-muted-foreground mt-1">
+                  Ďakujeme, že ste cestovali s nami.
+                </p>
+                {!hasRated && (
+                  <Button 
+                    variant="hero" 
+                    className="mt-4"
+                    onClick={() => setShowRatingDialog(true)}
+                  >
+                    Ohodnotiť vodiča
+                  </Button>
+                )}
+                {hasRated && (
+                  <p className="text-sm text-muted-foreground mt-3">
+                    ✓ Ďakujeme za vaše hodnotenie
+                  </p>
+                )}
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Rating Dialog */}
+      <RatingDialog
+        rideRequestId={rideRequest.id}
+        ratedUserId={driver.id}
+        ratedUserName={driver.full_name}
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+        showTrigger={false}
+        onRated={handleRated}
+      />
     </div>
   );
 };
