@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Users, DollarSign, Locate, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, DollarSign, Locate, Loader2, Route } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import NavigationBar from '@/components/Navigation';
 import Map from '@/components/Map';
 import AddressSearch from '@/components/AddressSearch';
+import StopsManager, { Stop } from '@/components/StopsManager';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -24,9 +25,11 @@ const CreateRide = () => {
   
   const [origin, setOrigin] = useState({ address: '', lat: 0, lng: 0 });
   const [destination, setDestination] = useState({ address: '', lat: 0, lng: 0 });
+  const [stops, setStops] = useState<Stop[]>([]);
   const [departureTime, setDepartureTime] = useState('');
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
+  const [routePolyline, setRoutePolyline] = useState<string | null>(null);
 
   // Auto-detect location on mount
   useEffect(() => {
@@ -108,21 +111,48 @@ const CreateRide = () => {
     
     setLoading(true);
     try {
-      const { error } = await supabase.from('rides').insert({
-        driver_id: profile.id,
-        origin_address: origin.address,
-        origin_lat: origin.lat,
-        origin_lng: origin.lng,
-        destination_address: destination.address,
-        destination_lat: destination.lat,
-        destination_lng: destination.lng,
-        departure_time: new Date(departureTime).toISOString(),
-        available_seats: seats,
-        price_per_seat: price,
-        status: 'active'
-      });
+      // Insert ride
+      const { data: rideData, error: rideError } = await supabase
+        .from('rides')
+        .insert({
+          driver_id: profile.id,
+          origin_address: origin.address,
+          origin_lat: origin.lat,
+          origin_lng: origin.lng,
+          destination_address: destination.address,
+          destination_lat: destination.lat,
+          destination_lng: destination.lng,
+          departure_time: new Date(departureTime).toISOString(),
+          available_seats: seats,
+          price_per_seat: price,
+          status: 'active',
+          route_polyline: routePolyline
+        })
+        .select('id')
+        .single();
 
-      if (error) throw error;
+      if (rideError) throw rideError;
+
+      // Insert stops if any
+      const validStops = stops.filter(stop => stop.lat !== 0 && stop.lng !== 0);
+      if (validStops.length > 0 && rideData) {
+        const stopsToInsert = validStops.map((stop, index) => ({
+          ride_id: rideData.id,
+          stop_order: index + 1,
+          address: stop.address,
+          lat: stop.lat,
+          lng: stop.lng
+        }));
+
+        const { error: stopsError } = await supabase
+          .from('ride_stops')
+          .insert(stopsToInsert);
+
+        if (stopsError) {
+          console.error('Error inserting stops:', stopsError);
+          // Don't fail the whole ride creation, just log it
+        }
+      }
 
       toast({
         title: 'Jazda vytvorená!',
@@ -141,13 +171,36 @@ const CreateRide = () => {
     }
   };
 
+  const handleRouteCalculated = useCallback((polyline: string) => {
+    setRoutePolyline(polyline);
+  }, []);
+
   const markers = [];
   if (origin.lat && origin.lng) {
     markers.push({ id: 'origin', lat: origin.lat, lng: origin.lng, type: 'origin' as const, popup: 'Štart' });
   }
+  
+  // Add stop markers
+  stops.forEach((stop, index) => {
+    if (stop.lat && stop.lng) {
+      markers.push({
+        id: `stop-${stop.id}`,
+        lat: stop.lat,
+        lng: stop.lng,
+        type: 'stop' as const,
+        popup: `Zastávka ${index + 1}: ${stop.address}`
+      });
+    }
+  });
+  
   if (destination.lat && destination.lng) {
     markers.push({ id: 'dest', lat: destination.lat, lng: destination.lng, type: 'destination' as const, popup: 'Cieľ' });
   }
+
+  // Waypoints for route calculation (only stops with valid coordinates)
+  const waypoints = stops
+    .filter(stop => stop.lat !== 0 && stop.lng !== 0)
+    .map(stop => ({ lat: stop.lat, lng: stop.lng }));
 
   const mapCenter: [number, number] = origin.lat && origin.lng 
     ? [origin.lng, origin.lat] 
@@ -222,6 +275,15 @@ const CreateRide = () => {
                       </p>
                     )}
                   </div>
+
+                  {/* Stops section */}
+                  <div className="pt-4 border-t border-border">
+                    <StopsManager
+                      stops={stops}
+                      onStopsChange={setStops}
+                      maxStops={5}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -283,8 +345,11 @@ const CreateRide = () => {
             <div className="lg:sticky lg:top-24">
               <Map
                 markers={markers}
+                waypoints={waypoints}
                 center={mapCenter}
                 zoom={origin.lat ? 12 : 7}
+                showRoute={origin.lat !== 0 && destination.lat !== 0}
+                onRouteCalculated={handleRouteCalculated}
                 className="h-[500px]"
               />
             </div>

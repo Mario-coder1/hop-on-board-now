@@ -9,12 +9,14 @@ interface MapProps {
     id: string;
     lat: number;
     lng: number;
-    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup';
+    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop';
     popup?: string;
   }>;
+  waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
   route?: Array<[number, number]>;
   showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
+  onRouteCalculated?: (routePolyline: string) => void; // Callback with encoded polyline
   className?: string;
   interactive?: boolean;
 }
@@ -25,9 +27,11 @@ const Map: React.FC<MapProps> = ({
   center = [19.699, 48.669],
   zoom = 7,
   markers = [],
+  waypoints = [],
   route: providedRoute,
   showRoute = false,
   onMapClick,
+  onRouteCalculated,
   className = '',
   interactive = true
 }) => {
@@ -40,7 +44,7 @@ const Map: React.FC<MapProps> = ({
   const originMarker = markers.find(m => m.type === 'origin');
   const destinationMarker = markers.find(m => m.type === 'destination');
 
-  // Fetch route from Mapbox Directions API
+  // Fetch route from Mapbox Directions API with waypoints
   useEffect(() => {
     if (!showRoute || !originMarker || !destinationMarker) {
       setFetchedRoute(null);
@@ -49,13 +53,26 @@ const Map: React.FC<MapProps> = ({
 
     const fetchRoute = async () => {
       try {
+        // Build coordinates string: origin;waypoint1;waypoint2;...;destination
+        const coords = [
+          `${originMarker.lng},${originMarker.lat}`,
+          ...waypoints.map(wp => `${wp.lng},${wp.lat}`),
+          `${destinationMarker.lng},${destinationMarker.lat}`
+        ].join(';');
+
         const response = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/driving/${originMarker.lng},${originMarker.lat};${destinationMarker.lng},${destinationMarker.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${coords}?geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`
         );
         const data = await response.json();
         
         if (data.routes && data.routes[0]) {
           setFetchedRoute(data.routes[0].geometry.coordinates);
+          
+          // If callback provided, send the polyline (we'll encode it)
+          if (onRouteCalculated && data.routes[0].geometry) {
+            // Store as JSON string for database
+            onRouteCalculated(JSON.stringify(data.routes[0].geometry.coordinates));
+          }
         }
       } catch (error) {
         console.error('Error fetching route:', error);
@@ -63,7 +80,7 @@ const Map: React.FC<MapProps> = ({
     };
 
     fetchRoute();
-  }, [showRoute, originMarker?.lat, originMarker?.lng, destinationMarker?.lat, destinationMarker?.lng]);
+  }, [showRoute, originMarker?.lat, originMarker?.lng, destinationMarker?.lat, destinationMarker?.lng, waypoints, onRouteCalculated]);
 
   const route = providedRoute || fetchedRoute;
 
@@ -126,7 +143,8 @@ const Map: React.FC<MapProps> = ({
         passenger: '#ef6c4c',
         origin: '#20b4a8',
         destination: '#ef6c4c',
-        pickup: '#f59e0b'
+        pickup: '#f59e0b',
+        stop: '#8b5cf6'
       };
 
       const icons: Record<string, string> = {
@@ -134,7 +152,8 @@ const Map: React.FC<MapProps> = ({
         passenger: '👤',
         origin: '📍',
         destination: '🎯',
-        pickup: '🧍'
+        pickup: '🧍',
+        stop: '🔵'
       };
 
       // Use DOM API instead of innerHTML to prevent XSS
