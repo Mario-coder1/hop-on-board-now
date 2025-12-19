@@ -10,6 +10,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
 
+interface RideStop {
+  id: string;
+  address: string;
+  stop_order: number;
+}
+
 interface Ride {
   id: string;
   origin_address: string;
@@ -26,6 +32,7 @@ interface Ride {
     avatar_url: string | null;
     rating: number | null;
   };
+  ride_stops: RideStop[];
 }
 
 const SearchRides = () => {
@@ -45,7 +52,8 @@ const SearchRides = () => {
       .from('rides')
       .select(`
         *,
-        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating)
+        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating),
+        ride_stops(id, address, stop_order)
       `)
       .eq('status', 'active')
       .gte('departure_time', new Date().toISOString())
@@ -155,6 +163,18 @@ const SearchRides = () => {
                           <div className="w-2 h-2 rounded-full bg-primary" />
                           <span className="font-medium">{ride.origin_address}</span>
                         </div>
+                        {ride.ride_stops && ride.ride_stops.length > 0 && (
+                          <div className="ml-1 pl-3 border-l border-border my-1">
+                            {ride.ride_stops
+                              .sort((a, b) => a.stop_order - b.stop_order)
+                              .map((stop) => (
+                                <div key={stop.id} className="flex items-center gap-2 text-sm text-muted-foreground py-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                                  <span className="truncate">{stop.address}</span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-accent" />
                           <span className="font-medium">{ride.destination_address}</span>
