@@ -35,7 +35,7 @@ const MyRides = () => {
   const { toast } = useToast();
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all');
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancellingRide, setCancellingRide] = useState<Ride | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -152,7 +152,8 @@ const MyRides = () => {
   const filteredRides = rides.filter(ride => {
     if (filter === 'all') return ride.status !== 'cancelled';
     if (filter === 'active') return ride.status === 'active' || ride.status === 'in_progress';
-    return ride.status === 'completed' || ride.status === 'cancelled';
+    if (filter === 'cancelled') return ride.status === 'cancelled';
+    return ride.status === 'completed';
   });
 
   const statusColors: Record<string, string> = {
@@ -187,15 +188,15 @@ const MyRides = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex gap-2 mb-6">
-            {(['all', 'active', 'completed'] as const).map(f => (
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {(['all', 'active', 'completed', 'cancelled'] as const).map(f => (
               <Button
                 key={f}
                 variant={filter === f ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilter(f)}
               >
-                {f === 'all' ? 'Všetky' : f === 'active' ? 'Aktívne' : 'Dokončené'}
+                {f === 'all' ? 'Všetky' : f === 'active' ? 'Aktívne' : f === 'completed' ? 'Dokončené' : 'Zrušené'}
               </Button>
             ))}
           </div>
