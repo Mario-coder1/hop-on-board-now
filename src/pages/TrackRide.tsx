@@ -213,18 +213,16 @@ const TrackRide: React.FC = () => {
 
   const { ride } = rideRequest;
 
-  // Check if driver data is available
-  if (!driver) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Načítavam údaje vodiča...</h1>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-        </div>
-      </div>
-    );
-  }
+  // Fallback driver info if not loaded
+  const displayDriver = driver || {
+    id: ride.driver_id,
+    full_name: 'Vodič',
+    phone: null,
+    avatar_url: null,
+    car_model: null,
+    car_color: null,
+    license_plate: null
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,7 +253,7 @@ const TrackRide: React.FC = () => {
 
           {/* Map */}
           <LiveTrackingMap
-            driverProfileId={driver.id}
+            driverProfileId={displayDriver.id}
             passengerLocation={{
               lat: Number(rideRequest.pickup_lat),
               lng: Number(rideRequest.pickup_lng)
@@ -276,31 +274,34 @@ const TrackRide: React.FC = () => {
           >
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                {driver.avatar_url ? (
-                  <img src={driver.avatar_url} alt={driver.full_name} className="w-full h-full object-cover" />
+                {displayDriver.avatar_url ? (
+                  <img src={displayDriver.avatar_url} alt={displayDriver.full_name} className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-8 h-8 text-primary" />
                 )}
               </div>
               
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{driver.full_name}</h3>
-                {driver.car_model && (
+                <h3 className="font-semibold text-lg">{displayDriver.full_name}</h3>
+                {displayDriver.car_model && (
                   <div className="flex items-center gap-2 text-muted-foreground mt-1">
                     <Car className="w-4 h-4" />
-                    <span>{driver.car_color} {driver.car_model}</span>
-                    {driver.license_plate && (
+                    <span>{displayDriver.car_color} {displayDriver.car_model}</span>
+                    {displayDriver.license_plate && (
                       <span className="bg-muted px-2 py-0.5 rounded text-xs font-mono">
-                        {driver.license_plate}
+                        {displayDriver.license_plate}
                       </span>
                     )}
                   </div>
                 )}
+                {!driver && (
+                  <p className="text-xs text-muted-foreground mt-1">Načítavam detaily...</p>
+                )}
               </div>
 
               <div className="flex gap-2">
-                {driver.phone && (
-                  <a href={`tel:${driver.phone}`}>
+                {displayDriver.phone && (
+                  <a href={`tel:${displayDriver.phone}`}>
                     <Button variant="outline" size="icon">
                       <Phone className="w-4 h-4" />
                     </Button>
@@ -310,8 +311,8 @@ const TrackRide: React.FC = () => {
                   <MessageCircle className="w-4 h-4" />
                 </Button>
                 <ReportDialog
-                  reportedUserId={driver.id}
-                  reportedUserName={driver.full_name}
+                  reportedUserId={displayDriver.id}
+                  reportedUserName={displayDriver.full_name}
                   rideId={ride.id}
                 />
               </div>
@@ -373,15 +374,17 @@ const TrackRide: React.FC = () => {
       </div>
 
       {/* Rating Dialog */}
-      <RatingDialog
-        rideRequestId={rideRequest.id}
-        ratedUserId={driver.id}
-        ratedUserName={driver.full_name}
-        open={showRatingDialog}
-        onOpenChange={setShowRatingDialog}
-        showTrigger={false}
-        onRated={handleRated}
-      />
+      {driver && (
+        <RatingDialog
+          rideRequestId={rideRequest.id}
+          ratedUserId={driver.id}
+          ratedUserName={driver.full_name}
+          open={showRatingDialog}
+          onOpenChange={setShowRatingDialog}
+          showTrigger={false}
+          onRated={handleRated}
+        />
+      )}
     </div>
   );
 };
