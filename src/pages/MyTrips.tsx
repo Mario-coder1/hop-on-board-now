@@ -29,10 +29,10 @@ interface Trip {
     available_seats: number;
     driver_id: string;
     driver: {
-      full_name: string;
+      full_name: string | null;
       avatar_url: string | null;
-    };
-  };
+    } | null;
+  } | null;
 }
 
 const MyTrips = () => {
@@ -88,15 +88,20 @@ const MyTrips = () => {
         *,
         ride:rides(
           id, origin_address, destination_address, departure_time, price_per_seat, available_seats, driver_id,
-          driver:profiles!rides_driver_id_fkey(full_name, avatar_url)
+          driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url)
         )
       `)
       .eq('passenger_id', profile?.id)
       .order('created_at', { ascending: false });
 
-    if (data && !error) {
-      setTrips(data as unknown as Trip[]);
+    if (error) {
+      console.error('[MyTrips] fetchTrips error:', error);
+      setTrips([]);
+      setLoading(false);
+      return;
     }
+
+    setTrips((data as unknown as Trip[]) ?? []);
     setLoading(false);
   };
 
@@ -127,7 +132,7 @@ const MyTrips = () => {
     }
 
     // If was accepted, restore the seat
-    if (wasAccepted) {
+    if (wasAccepted && cancellingTrip.ride) {
       await supabase
         .from('rides')
         .update({ available_seats: cancellingTrip.ride.available_seats + 1 })
@@ -135,15 +140,17 @@ const MyTrips = () => {
     }
 
     // Send push notification to driver
-    try {
-      const passengerName = profile?.full_name || 'Pasažier';
-      await sendPushNotification(
-        cancellingTrip.ride.driver_id,
-        '❌ Zrušená rezervácia',
-        `${passengerName} zrušil rezerváciu. Dôvod: ${reason}`
-      );
-    } catch (err) {
-      console.error('Error sending notification to driver:', err);
+    if (cancellingTrip.ride) {
+      try {
+        const passengerName = profile?.full_name || 'Pasažier';
+        await sendPushNotification(
+          cancellingTrip.ride.driver_id,
+          '❌ Zrušená rezervácia',
+          `${passengerName} zrušil rezerváciu. Dôvod: ${reason}`
+        );
+      } catch (err) {
+        console.error('Error sending notification to driver:', err);
+      }
     }
 
     toast({
@@ -243,93 +250,104 @@ const MyTrips = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredTrips.map((trip, index) => (
-                <motion.div
-                  key={trip.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusColors[trip.status]}`}>
-                        {statusIcons[trip.status]}
-                        {statusLabels[trip.status]}
+              {filteredTrips.map((trip, index) => {
+                const ride = trip.ride;
+                const driverName = ride?.driver?.full_name || 'Vodič';
+
+                return (
+                  <motion.div
+                    key={trip.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusColors[trip.status] ?? ''}`}>
+                          {statusIcons[trip.status]}
+                          {statusLabels[trip.status] ?? trip.status}
+                        </div>
                       </div>
+                      <span className="text-2xl font-bold text-primary">{ride?.price_per_seat ?? '—'}€</span>
                     </div>
-                    <span className="text-2xl font-bold text-primary">{trip.ride.price_per_seat}€</span>
-                  </div>
 
-                  <div className="mb-4 cursor-pointer" onClick={() => navigate(`/ride/${trip.ride.id}`)}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                      <span className="font-medium">{trip.ride.origin_address}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-accent" />
-                      <span className="font-medium">{trip.ride.destination_address}</span>
-                    </div>
-                  </div>
+                    {ride ? (
+                      <div className="mb-4 cursor-pointer" onClick={() => navigate(`/ride/${ride.id}`)}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 rounded-full bg-primary" />
+                          <span className="font-medium">{ride.origin_address}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-accent" />
+                          <span className="font-medium">{ride.destination_address}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-4 p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground">
+                        Táto jazda už nie je dostupná.
+                      </div>
+                    )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        {trip.ride.driver.avatar_url ? (
-                          <img src={trip.ride.driver.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                          <User className="w-5 h-5 text-primary" />
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          {ride?.driver?.avatar_url ? (
+                            <img src={ride.driver.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            <User className="w-5 h-5 text-primary" />
+                          )}
+                        </div>
+                        <span className="font-medium">{driverName}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          {ride?.departure_time ? formatDbDate(ride.departure_time, 'd. MMM HH:mm', { locale: sk }) : '—'}
+                        </span>
+                        {(trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived') && (
+                          <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
+                            <Button size="sm" variant="hero" className="gap-1">
+                              <NavigationIcon className="w-4 h-4" />
+                              Sledovať
+                            </Button>
+                          </Link>
+                        )}
+                        {(trip.status === 'pending' || trip.status === 'accepted' || trip.status === 'driver_arrived') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCancellingTrip(trip);
+                              setCancelDialogOpen(true);
+                            }}
+                          >
+                            <X className="w-4 h-4" />
+                            Zrušiť
+                          </Button>
+                        )}
+                        {trip.status === 'completed' && ride && (
+                          <>
+                            <RatingDialog
+                              rideRequestId={trip.id}
+                              ratedUserId={ride.driver_id}
+                              ratedUserName={driverName}
+                              onRated={fetchTrips}
+                            />
+                            <ReportDialog
+                              reportedUserId={ride.driver_id}
+                              reportedUserName={driverName}
+                              rideId={ride.id}
+                            />
+                          </>
                         )}
                       </div>
-                      <span className="font-medium">{trip.ride.driver.full_name}</span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        {formatDbDate(trip.ride.departure_time, 'd. MMM HH:mm', { locale: sk })}
-                      </span>
-                      {(trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived') && (
-                        <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
-                          <Button size="sm" variant="hero" className="gap-1">
-                            <NavigationIcon className="w-4 h-4" />
-                            Sledovať
-                          </Button>
-                        </Link>
-                      )}
-                      {(trip.status === 'pending' || trip.status === 'accepted' || trip.status === 'driver_arrived') && (
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCancellingTrip(trip);
-                            setCancelDialogOpen(true);
-                          }}
-                        >
-                          <X className="w-4 h-4" />
-                          Zrušiť
-                        </Button>
-                      )}
-                      {trip.status === 'completed' && (
-                        <>
-                          <RatingDialog
-                            rideRequestId={trip.id}
-                            ratedUserId={trip.ride.driver_id}
-                            ratedUserName={trip.ride.driver.full_name}
-                            onRated={fetchTrips}
-                          />
-                          <ReportDialog
-                            reportedUserId={trip.ride.driver_id}
-                            reportedUserName={trip.ride.driver.full_name}
-                            rideId={trip.ride.id}
-                          />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>
