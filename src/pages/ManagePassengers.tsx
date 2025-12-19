@@ -235,13 +235,25 @@ const ManagePassengers = () => {
   }
 
   passengers.forEach(p => {
+    // Pickup marker
     markers.push({
-      id: `passenger-${p.id}`,
+      id: `pickup-${p.id}`,
       lat: Number(p.pickup_lat),
       lng: Number(p.pickup_lng),
       type: 'pickup' as const,
-      popup: `${p.passenger.full_name}: ${p.pickup_address}`
+      popup: `🟢 ${p.passenger.full_name} nastúpenie: ${p.pickup_address}`
     });
+    
+    // Dropoff marker (if different from destination)
+    if (p.dropoff_lat && p.dropoff_lng && p.dropoff_address) {
+      markers.push({
+        id: `dropoff-${p.id}`,
+        lat: Number(p.dropoff_lat),
+        lng: Number(p.dropoff_lng),
+        type: 'dropoff' as const,
+        popup: `🔴 ${p.passenger.full_name} vystúpenie: ${p.dropoff_address}`
+      });
+    }
   });
 
   if (loading) {
