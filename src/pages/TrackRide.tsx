@@ -190,7 +190,22 @@ const TrackRide: React.FC = () => {
   }
 
   const { ride } = rideRequest;
-  const driver = ride.driver;
+  const driver = ride?.driver;
+
+  // Check if driver data is available
+  if (!driver) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold mb-4">Dáta vodiča nie sú dostupné</h1>
+          <Link to="/my-trips">
+            <Button>Späť na moje cesty</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
