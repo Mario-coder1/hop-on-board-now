@@ -229,7 +229,89 @@ const Install = () => {
                     ))}
                   </div>
 
-                  {isIOS && (
+                  {isIOS && currentStep === 0 && (
+                    <>
+                      {/* Animated arrow pointing to Share button */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="fixed bottom-0 left-0 right-0 pointer-events-none z-50"
+                      >
+                        <div className="relative h-32">
+                          {/* Pulsing highlight circle */}
+                          <motion.div
+                            animate={{ 
+                              scale: [1, 1.3, 1],
+                              opacity: [0.6, 0.2, 0.6]
+                            }}
+                            transition={{ 
+                              duration: 1.5, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-primary/30"
+                          />
+                          
+                          {/* Arrow pointing down */}
+                          <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ 
+                              duration: 1, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center"
+                          >
+                            <div className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg shadow-lg text-xs font-medium whitespace-nowrap">
+                              Klikni sem ↓
+                            </div>
+                            <svg 
+                              width="24" 
+                              height="40" 
+                              viewBox="0 0 24 40" 
+                              className="text-primary mt-1"
+                            >
+                              <path 
+                                d="M12 0 L12 32 M4 24 L12 34 L20 24" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </motion.div>
+
+                          {/* Share icon indicator */}
+                          <motion.div
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ 
+                              duration: 1.5, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg"
+                          >
+                            <Share className="w-5 h-5 text-primary-foreground" />
+                          </motion.div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20"
+                      >
+                        <p className="text-xs text-foreground">
+                          <strong>Pozri dole!</strong> Šípka ti ukazuje kde nájdeš ikonu zdieľania v Safari.
+                        </p>
+                      </motion.div>
+                    </>
+                  )}
+
+                  {isIOS && currentStep !== 0 && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
