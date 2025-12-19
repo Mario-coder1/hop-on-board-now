@@ -398,9 +398,22 @@ const DriverDashboard: React.FC = () => {
                 </Link>
               </CardContent>
             </Card>
+          ) : activeRides.length === 0 ? (
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Car className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-lg font-semibold mb-2">Žiadne aktívne jazdy</h3>
+                <p className="text-muted-foreground mb-4">Vytvorte novú jazdu a začnite zarábať</p>
+                <Link to="/create-ride">
+                  <Button variant="hero">Vytvoriť jazdu</Button>
+                </Link>
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rides.slice(0, 6).map((ride) => (
+              {activeRides.slice(0, 6).map((ride) => (
                 <Card key={ride.id} className="border-0 shadow-card hover:shadow-lg transition-shadow group">
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between mb-4">
