@@ -15,6 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { CancellationDialog } from '@/components/CancellationDialog';
+import { sendPushNotification } from '@/hooks/usePushNotifications';
 
 interface Ride {
   id: string;
@@ -34,6 +36,9 @@ const MyRides = () => {
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancellingRide, setCancellingRide] = useState<Ride | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (profile) fetchRides();
@@ -96,16 +101,52 @@ const MyRides = () => {
     setLoading(false);
   };
 
-  const cancelRide = async (rideId: string) => {
+  const handleCancelRide = async (reason: string) => {
+    if (!cancellingRide || !profile) return;
+    setCancelling(true);
+
     const { error } = await supabase
       .from('rides')
-      .update({ status: 'cancelled' })
-      .eq('id', rideId);
+      .update({ 
+        status: 'cancelled',
+        cancellation_reason: reason,
+        cancelled_at: new Date().toISOString(),
+        cancelled_by: profile.id
+      })
+      .eq('id', cancellingRide.id);
 
-    if (!error) {
-      toast({ title: 'Jazda zrušená' });
-      fetchRides();
+    if (error) {
+      toast({ title: 'Chyba', description: 'Nepodarilo sa zrušiť jazdu.', variant: 'destructive' });
+      setCancelling(false);
+      return;
     }
+
+    // Notify all accepted passengers
+    const { data: requests } = await supabase
+      .from('ride_requests')
+      .select('passenger_id')
+      .eq('ride_id', cancellingRide.id)
+      .eq('status', 'accepted');
+
+    if (requests) {
+      for (const req of requests) {
+        try {
+          await sendPushNotification(
+            req.passenger_id,
+            '❌ Jazda zrušená',
+            `Jazda ${cancellingRide.origin_address} → ${cancellingRide.destination_address} bola zrušená. Dôvod: ${reason}`
+          );
+        } catch (err) {
+          console.error('Error notifying passenger:', err);
+        }
+      }
+    }
+
+    toast({ title: 'Jazda zrušená', description: 'Pasažieri boli upozornení.' });
+    setCancelDialogOpen(false);
+    setCancellingRide(null);
+    setCancelling(false);
+    fetchRides();
   };
 
   const filteredRides = rides.filter(ride => {
@@ -236,7 +277,13 @@ const MyRides = () => {
                           Zobraziť
                         </DropdownMenuItem>
                         {ride.status === 'active' && (
-                          <DropdownMenuItem onClick={() => cancelRide(ride.id)} className="text-destructive">
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setCancellingRide(ride);
+                              setCancelDialogOpen(true);
+                            }} 
+                            className="text-destructive"
+                          >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Zrušiť
                           </DropdownMenuItem>
@@ -250,6 +297,14 @@ const MyRides = () => {
           )}
         </motion.div>
       </div>
+
+      <CancellationDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        onConfirm={handleCancelRide}
+        loading={cancelling}
+        type="ride"
+      />
     </div>
   );
 };

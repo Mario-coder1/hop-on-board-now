@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { RatingDialog } from '@/components/RatingDialog';
 import { ReportDialog } from '@/components/ReportDialog';
+import { CancellationDialog } from '@/components/CancellationDialog';
 
 interface Trip {
   id: string;
@@ -41,6 +42,9 @@ const MyTrips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'completed'>('all');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancellingTrip, setCancellingTrip] = useState<Trip | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (profile) fetchTrips();
@@ -91,14 +95,21 @@ const MyTrips = () => {
     setLoading(false);
   };
 
-  const handleCancelRequest = async (trip: Trip) => {
-    const wasAccepted = trip.status === 'accepted' || trip.status === 'driver_arrived';
+  const handleCancelRequest = async (reason: string) => {
+    if (!cancellingTrip || !profile) return;
+    setCancelling(true);
+
+    const wasAccepted = cancellingTrip.status === 'accepted' || cancellingTrip.status === 'driver_arrived';
     
-    // Delete the request
+    // Update the request with cancellation info
     const { error } = await supabase
       .from('ride_requests')
-      .delete()
-      .eq('id', trip.id);
+      .update({ 
+        status: 'cancelled',
+        cancellation_reason: reason,
+        cancelled_at: new Date().toISOString()
+      })
+      .eq('id', cancellingTrip.id);
 
     if (error) {
       toast({
@@ -106,6 +117,7 @@ const MyTrips = () => {
         description: 'Nepodarilo sa zrušiť žiadosť.',
         variant: 'destructive'
       });
+      setCancelling(false);
       return;
     }
 
@@ -113,17 +125,17 @@ const MyTrips = () => {
     if (wasAccepted) {
       await supabase
         .from('rides')
-        .update({ available_seats: trip.ride.available_seats + 1 })
-        .eq('id', trip.ride_id);
+        .update({ available_seats: cancellingTrip.ride.available_seats + 1 })
+        .eq('id', cancellingTrip.ride_id);
     }
 
     // Send push notification to driver
     try {
       const passengerName = profile?.full_name || 'Pasažier';
       await sendPushNotification(
-        trip.ride.driver_id,
+        cancellingTrip.ride.driver_id,
         '❌ Zrušená rezervácia',
-        `${passengerName} zrušil rezerváciu na jazdu ${trip.ride.origin_address} → ${trip.ride.destination_address}`
+        `${passengerName} zrušil rezerváciu. Dôvod: ${reason}`
       );
     } catch (err) {
       console.error('Error sending notification to driver:', err);
@@ -136,7 +148,9 @@ const MyTrips = () => {
         : 'Vaša žiadosť bola zrušená.',
     });
 
-
+    setCancelDialogOpen(false);
+    setCancellingTrip(null);
+    setCancelling(false);
     fetchTrips();
   };
 
@@ -284,7 +298,8 @@ const MyTrips = () => {
                           className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCancelRequest(trip);
+                            setCancellingTrip(trip);
+                            setCancelDialogOpen(true);
                           }}
                         >
                           <X className="w-4 h-4" />
@@ -314,6 +329,14 @@ const MyTrips = () => {
           )}
         </motion.div>
       </div>
+
+      <CancellationDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        onConfirm={handleCancelRequest}
+        loading={cancelling}
+        type="request"
+      />
     </div>
   );
 };
