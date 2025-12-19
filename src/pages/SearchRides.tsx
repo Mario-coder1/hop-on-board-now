@@ -28,10 +28,10 @@ interface Ride {
   available_seats: number;
   price_per_seat: number;
   driver: {
-    full_name: string;
+    full_name: string | null;
     avatar_url: string | null;
     rating: number | null;
-  };
+  } | null;
   ride_stops: RideStop[];
 }
 
@@ -59,9 +59,14 @@ const SearchRides = () => {
       .gte('departure_time', new Date().toISOString())
       .order('departure_time', { ascending: true });
 
-    if (data && !error) {
-      setRides(data as unknown as Ride[]);
+    if (error) {
+      console.error('[SearchRides] fetchRides error:', error);
+      setRides([]);
+      setLoading(false);
+      return;
     }
+
+    setRides((data as unknown as Ride[]) ?? []);
     setLoading(false);
   };
 
@@ -212,19 +217,19 @@ const SearchRides = () => {
 
                     <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        {ride.driver.avatar_url ? (
+                        {ride.driver?.avatar_url ? (
                           <img
                             src={ride.driver.avatar_url}
-                            alt={`${ride.driver.full_name} profilová fotka vodiča`}
+                            alt={`${ride.driver?.full_name ?? 'Vodič'} profilová fotka vodiča`}
                             className="w-full h-full rounded-full object-cover"
                           />
                         ) : (
-                          <span className="text-lg">{ride.driver.full_name.charAt(0)}</span>
+                          <span className="text-lg">{(ride.driver?.full_name?.[0] ?? '?').toUpperCase()}</span>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{ride.driver.full_name}</p>
-                        <p className="text-xs text-muted-foreground">⭐ {ride.driver.rating?.toFixed(1) ?? '5.0'}</p>
+                        <p className="font-medium text-sm">{ride.driver?.full_name ?? 'Vodič'}</p>
+                        <p className="text-xs text-muted-foreground">⭐ {ride.driver?.rating?.toFixed(1) ?? '5.0'}</p>
                       </div>
                     </div>
                   </motion.div>
