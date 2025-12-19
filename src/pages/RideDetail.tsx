@@ -36,6 +36,14 @@ type RequestStatus =
   | 'completed'
   | null;
 
+interface RideStop {
+  id: string;
+  address: string;
+  lat: number;
+  lng: number;
+  stop_order: number;
+}
+
 interface RideDetailData {
   id: string;
   driver_id: string;
@@ -91,6 +99,7 @@ const RideDetail = () => {
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
 
   const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
+  const [stops, setStops] = useState<RideStop[]>([]);
 
   const [pickup, setPickup] = useState<{ address: string; lat: number; lng: number }>({
     address: '',
@@ -126,6 +135,7 @@ const RideDetail = () => {
     if (!id) return;
     void checkExistingRequest();
     void fetchAcceptedPassengers();
+    void fetchStops();
   }, [id, profile?.id]);
 
   useEffect(() => {
@@ -250,6 +260,20 @@ const RideDetail = () => {
 
     if (data) {
       setAcceptedPassengers(data as unknown as AcceptedPassenger[]);
+    }
+  };
+
+  const fetchStops = async () => {
+    if (!id) return;
+
+    const { data } = await supabase
+      .from('ride_stops')
+      .select('id, address, lat, lng, stop_order')
+      .eq('ride_id', id)
+      .order('stop_order', { ascending: true });
+
+    if (data) {
+      setStops(data as RideStop[]);
     }
   };
 
@@ -378,6 +402,13 @@ const RideDetail = () => {
         type: 'origin' as const,
         popup: `Štart: ${ride.origin_address}`,
       },
+      ...stops.map((stop) => ({
+        id: `stop-${stop.id}`,
+        lat: Number(stop.lat),
+        lng: Number(stop.lng),
+        type: 'stop' as const,
+        popup: `Zastávka ${stop.stop_order}: ${stop.address}`,
+      })),
       {
         id: 'dest',
         lat: Number(ride.destination_lat),
@@ -412,7 +443,14 @@ const RideDetail = () => {
     }
 
     return base;
-  }, [ride, acceptedPassengers, pickup.lat, pickup.lng, pickup.address, isDriver]);
+  }, [ride, acceptedPassengers, stops, pickup.lat, pickup.lng, pickup.address, isDriver]);
+
+  const waypoints = useMemo(() => {
+    return stops.map((stop) => ({
+      lat: Number(stop.lat),
+      lng: Number(stop.lng),
+    }));
+  }, [stops]);
 
   if (loading) {
     return (
@@ -460,14 +498,32 @@ const RideDetail = () => {
                 <div className="flex items-start gap-4 mb-6">
                   <div className="flex flex-col items-center">
                     <div className="w-4 h-4 rounded-full bg-primary" />
-                    <div className="w-0.5 h-16 bg-border my-1" />
+                    {stops.length > 0 ? (
+                      <>
+                        {stops.map((_, idx) => (
+                          <div key={idx} className="flex flex-col items-center">
+                            <div className="w-0.5 h-8 bg-border my-1" />
+                            <div className="w-3 h-3 rounded-full bg-orange-500" />
+                          </div>
+                        ))}
+                        <div className="w-0.5 h-8 bg-border my-1" />
+                      </>
+                    ) : (
+                      <div className="w-0.5 h-16 bg-border my-1" />
+                    )}
                     <div className="w-4 h-4 rounded-full bg-accent" />
                   </div>
                   <div className="flex-1">
-                    <div className="mb-6">
+                    <div className="mb-4">
                       <p className="text-sm text-muted-foreground">Štart</p>
                       <p className="font-display text-lg font-semibold">{ride.origin_address}</p>
                     </div>
+                    {stops.map((stop) => (
+                      <div key={stop.id} className="mb-4">
+                        <p className="text-sm text-orange-500">Zastávka {stop.stop_order}</p>
+                        <p className="font-display font-medium">{stop.address}</p>
+                      </div>
+                    ))}
                     <div>
                       <p className="text-sm text-muted-foreground">Cieľ</p>
                       <p className="font-display text-lg font-semibold">{ride.destination_address}</p>
@@ -494,7 +550,7 @@ const RideDetail = () => {
               </article>
 
               {/* Map with route */}
-              <Map markers={markers} showRoute className="h-[400px]" />
+              <Map markers={markers} waypoints={waypoints} showRoute className="h-[400px]" />
             </section>
 
             {/* Sidebar */}
