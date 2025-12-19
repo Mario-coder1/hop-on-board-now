@@ -21,16 +21,33 @@ interface RatingDialogProps {
   ratedUserId: string;
   ratedUserName: string;
   onRated?: () => void;
+  // For controlled mode
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
 }
 
-export const RatingDialog = ({ rideRequestId, ratedUserId, ratedUserName, onRated }: RatingDialogProps) => {
+export const RatingDialog = ({ 
+  rideRequestId, 
+  ratedUserId, 
+  ratedUserName, 
+  onRated,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  showTrigger = true
+}: RatingDialogProps) => {
   const { profile } = useAuth();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Use controlled or internal state
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? (controlledOnOpenChange || (() => {})) : setInternalOpen;
 
   const handleSubmit = async () => {
     if (!profile || rating === 0) {
@@ -86,12 +103,14 @@ export const RatingDialog = ({ rideRequestId, ratedUserId, ratedUserName, onRate
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Star className="w-4 h-4" />
-          Ohodnotiť
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Star className="w-4 h-4" />
+            Ohodnotiť
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Ohodnoťte jazdu</DialogTitle>
