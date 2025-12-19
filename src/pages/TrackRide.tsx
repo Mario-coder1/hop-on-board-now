@@ -10,6 +10,16 @@ import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
 import { RatingDialog } from '@/components/RatingDialog';
 
+interface DriverInfo {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  avatar_url: string | null;
+  car_model: string | null;
+  car_color: string | null;
+  license_plate: string | null;
+}
+
 interface RideRequest {
   id: string;
   status: string;
@@ -23,15 +33,6 @@ interface RideRequest {
     destination_address: string;
     departure_time: string;
     driver_id: string;
-    driver: {
-      id: string;
-      full_name: string;
-      phone: string | null;
-      avatar_url: string | null;
-      car_model: string | null;
-      car_color: string | null;
-      license_plate: string | null;
-    };
   };
 }
 
@@ -40,6 +41,7 @@ const TrackRide: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
+  const [driver, setDriver] = useState<DriverInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
@@ -48,6 +50,7 @@ const TrackRide: React.FC = () => {
   const fetchRideRequest = async () => {
     if (!requestId) return;
 
+    // First fetch the ride request and ride info
     const { data, error } = await supabase
       .from('ride_requests')
       .select(`
@@ -62,16 +65,7 @@ const TrackRide: React.FC = () => {
           destination_lng,
           destination_address,
           departure_time,
-          driver_id,
-          driver:profiles!rides_driver_id_fkey (
-            id,
-            full_name,
-            phone,
-            avatar_url,
-            car_model,
-            car_color,
-            license_plate
-          )
+          driver_id
         )
       `)
       .eq('id', requestId)
@@ -79,17 +73,46 @@ const TrackRide: React.FC = () => {
 
     if (error) {
       console.error('Error fetching ride request:', error);
-    } else if (data) {
-      const ride = Array.isArray(data.ride) ? data.ride[0] : data.ride;
-      const driver = ride?.driver;
-      setRideRequest({
-        ...data,
-        ride: {
-          ...ride,
-          driver: Array.isArray(driver) ? driver[0] : driver
-        }
-      } as RideRequest);
+      setLoading(false);
+      return;
     }
+    
+    if (!data) {
+      setLoading(false);
+      return;
+    }
+
+    const ride = Array.isArray(data.ride) ? data.ride[0] : data.ride;
+    
+    setRideRequest({
+      ...data,
+      ride: ride
+    } as RideRequest);
+
+    // Now fetch driver info from public_profiles view
+    if (ride?.driver_id) {
+      const { data: driverData, error: driverError } = await supabase
+        .from('public_profiles')
+        .select('id, full_name, avatar_url, car_model, car_color')
+        .eq('id', ride.driver_id)
+        .maybeSingle();
+
+      if (driverError) {
+        console.error('Error fetching driver:', driverError);
+      } else if (driverData) {
+        // Fetch phone from profiles if it's the user's own profile, otherwise null
+        setDriver({
+          id: driverData.id || '',
+          full_name: driverData.full_name || 'Neznámy vodič',
+          phone: null, // Phone is private, not in public_profiles
+          avatar_url: driverData.avatar_url,
+          car_model: driverData.car_model,
+          car_color: driverData.car_color,
+          license_plate: null // License plate is private
+        });
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -190,7 +213,6 @@ const TrackRide: React.FC = () => {
   }
 
   const { ride } = rideRequest;
-  const driver = ride?.driver;
 
   // Check if driver data is available
   if (!driver) {
@@ -198,10 +220,8 @@ const TrackRide: React.FC = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Dáta vodiča nie sú dostupné</h1>
-          <Link to="/my-trips">
-            <Button>Späť na moje cesty</Button>
-          </Link>
+          <h1 className="text-2xl font-bold mb-4">Načítavam údaje vodiča...</h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
         </div>
       </div>
     );
