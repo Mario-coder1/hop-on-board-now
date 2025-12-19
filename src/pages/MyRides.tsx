@@ -150,9 +150,9 @@ const MyRides = () => {
   };
 
   const filteredRides = rides.filter(ride => {
-    if (filter === 'all') return true;
+    if (filter === 'all') return ride.status !== 'cancelled';
     if (filter === 'active') return ride.status === 'active' || ride.status === 'in_progress';
-    return ride.status === 'completed';
+    return ride.status === 'completed' || ride.status === 'cancelled';
   });
 
   const statusColors: Record<string, string> = {
