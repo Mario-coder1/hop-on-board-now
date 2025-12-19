@@ -106,6 +106,11 @@ const RideDetail = () => {
     lat: 0,
     lng: 0,
   });
+  const [dropoff, setDropoff] = useState<{ address: string; lat: number; lng: number }>({
+    address: '',
+    lat: 0,
+    lng: 0,
+  });
   const [gettingPickupLocation, setGettingPickupLocation] = useState(false);
 
   const [driverContact, setDriverContact] = useState<DriverContact | null>(null);
@@ -348,6 +353,9 @@ const RideDetail = () => {
         pickup_address: pickup.address,
         pickup_lat: pickup.lat,
         pickup_lng: pickup.lng,
+        dropoff_address: dropoff.address || null,
+        dropoff_lat: dropoff.lat || null,
+        dropoff_lng: dropoff.lng || null,
         message: message || null,
         status: 'pending',
       });
@@ -639,7 +647,22 @@ const RideDetail = () => {
                           </Button>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Vyberte bod, kde vás má vodič vyzdvihnúť (napr. po ceste).
+                          Vyberte bod, kde vás má vodič vyzdvihnúť.
+                        </p>
+                      </div>
+
+                      <div className="mb-4">
+                        <Label>Miesto vystúpenia <span className="text-muted-foreground font-normal">(voliteľné)</span></Label>
+                        <div className="flex gap-2 mt-1">
+                          <AddressSearch
+                            value={dropoff.address}
+                            onSelect={(address, lat, lng) => setDropoff({ address, lat, lng })}
+                            placeholder="Kde chcete vystúpiť?"
+                            className="flex-1"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Ak nechcete ísť až do cieľa, vyberte kde vystúpite.
                         </p>
                       </div>
 
