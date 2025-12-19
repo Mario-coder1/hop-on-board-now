@@ -9,7 +9,7 @@ interface MapProps {
     id: string;
     lat: number;
     lng: number;
-    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop';
+    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff';
     popup?: string;
   }>;
   waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
@@ -143,8 +143,9 @@ const Map: React.FC<MapProps> = ({
         passenger: '#ef6c4c',
         origin: '#20b4a8',
         destination: '#ef6c4c',
-        pickup: '#f59e0b',
-        stop: '#8b5cf6'
+        pickup: '#22c55e',
+        stop: '#8b5cf6',
+        dropoff: '#ef4444'
       };
 
       const icons: Record<string, string> = {
@@ -152,8 +153,9 @@ const Map: React.FC<MapProps> = ({
         passenger: '👤',
         origin: '📍',
         destination: '🎯',
-        pickup: '🧍',
-        stop: '🔵'
+        pickup: '🟢',
+        stop: '🔵',
+        dropoff: '🔴'
       };
 
       // Use DOM API instead of innerHTML to prevent XSS
