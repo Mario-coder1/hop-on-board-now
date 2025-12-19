@@ -90,6 +90,9 @@ const Map: React.FC<MapProps> = ({
     };
   }, []);
 
+  // Store initial center to prevent map recreation on every center change
+  const initialCenterRef = useRef<[number, number]>(center);
+
   useEffect(() => {
     if (!mapContainer.current) return;
 
@@ -98,7 +101,7 @@ const Map: React.FC<MapProps> = ({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
+      center: initialCenterRef.current,
       zoom: zoom,
       interactive: interactive,
     });
@@ -127,6 +130,26 @@ const Map: React.FC<MapProps> = ({
       map.current?.remove();
     };
   }, [interactive]);
+
+  // Update center smoothly without recreating the map
+  useEffect(() => {
+    if (map.current && center) {
+      // Only fly to if map is loaded and center is significantly different
+      const currentCenter = map.current.getCenter();
+      const distance = Math.sqrt(
+        Math.pow(currentCenter.lng - center[0], 2) + 
+        Math.pow(currentCenter.lat - center[1], 2)
+      );
+      
+      // Only move if distance is significant (avoid micro-movements)
+      if (distance > 0.0001) {
+        map.current.easeTo({
+          center: center,
+          duration: 500
+        });
+      }
+    }
+  }, [center]);
 
   useEffect(() => {
     if (!map.current) return;

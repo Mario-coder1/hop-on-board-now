@@ -24,16 +24,14 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const { location, isLoading, error } = useDriverTracking(driverProfileId);
   const [route, setRoute] = useState<Array<[number, number]> | null>(null);
 
-  // Fetch route from origin to destination via pickup
+  // Fetch route only once when static points are known (not on driver location changes)
   useEffect(() => {
     const fetchRoute = async () => {
-      // Build waypoints: origin -> pickup -> destination
+      // Build waypoints: origin -> pickup -> destination (static points only)
       const waypoints: Array<[number, number]> = [];
       
       if (originLocation) {
         waypoints.push([originLocation.lng, originLocation.lat]);
-      } else if (location) {
-        waypoints.push([location.lng, location.lat]);
       }
       
       if (passengerLocation) {
@@ -62,7 +60,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     };
 
     fetchRoute();
-  }, [originLocation?.lat, originLocation?.lng, passengerLocation?.lat, passengerLocation?.lng, destinationLocation?.lat, destinationLocation?.lng, location?.lat, location?.lng]);
+  }, [originLocation?.lat, originLocation?.lng, passengerLocation?.lat, passengerLocation?.lng, destinationLocation?.lat, destinationLocation?.lng]);
 
   const markers = React.useMemo(() => {
     const m: Array<{

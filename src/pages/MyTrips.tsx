@@ -47,7 +47,12 @@ const MyTrips = () => {
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
-    if (profile) fetchTrips();
+    if (profile) {
+      fetchTrips();
+    } else {
+      // Reset loading when there's no profile yet
+      setLoading(true);
+    }
   }, [profile]);
 
   // Realtime subscription
