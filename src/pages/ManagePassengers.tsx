@@ -235,6 +235,8 @@ const ManagePassengers = () => {
   }
 
   passengers.forEach(p => {
+    if (!p.passenger) return; // Skip if passenger data is null
+    
     // Pickup marker
     markers.push({
       id: `pickup-${p.id}`,
@@ -330,7 +332,7 @@ const ManagePassengers = () => {
                   </CardContent>
                 </Card>
               ) : (
-                passengers.map((passenger) => (
+                passengers.filter(p => p.passenger !== null).map((passenger) => (
                   <Card 
                     key={passenger.id} 
                     className={`border-0 shadow-card cursor-pointer transition-all ${
@@ -497,7 +499,7 @@ const ManagePassengers = () => {
                 </CardContent>
               </Card>
               
-              {selectedPassenger && (
+                {selectedPassenger && selectedPassenger.passenger && (
                 <div className="mt-4 p-4 rounded-xl bg-card border border-border">
                   <p className="text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
                   <p className="font-semibold">{selectedPassenger.passenger.full_name}</p>
