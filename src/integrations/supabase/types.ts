@@ -363,6 +363,44 @@ export type Database = {
           },
         ]
       }
+      ride_stops: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          lat: number
+          lng: number
+          ride_id: string
+          stop_order: number
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          lat: number
+          lng: number
+          ride_id: string
+          stop_order: number
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          ride_id?: string
+          stop_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_stops_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rides: {
         Row: {
           available_seats: number
