@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { formatDbDate } from '@/lib/datetime';
 
 interface RideStop {
   id: string;
@@ -190,7 +190,7 @@ const SearchRides = () => {
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {format(new Date(ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
+                          {formatDbDate(ride.departure_time, 'd. MMM HH:mm', { locale: sk })}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="w-4 h-4" />

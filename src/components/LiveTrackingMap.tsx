@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Navigation, MapPin } from 'lucide-react';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
+import { formatDbDate } from '@/lib/datetime';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
@@ -162,7 +163,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
-              <span>Aktualizované: {new Date(location.updated_at).toLocaleTimeString('sk-SK')}</span>
+              <span>Aktualizované: {formatDbDate(location.updated_at, 'HH:mm:ss')}</span>
             </div>
           </div>
         )}

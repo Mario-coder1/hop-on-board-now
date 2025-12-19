@@ -21,8 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { formatDbDate } from '@/lib/datetime';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -542,8 +542,8 @@ const RideDetail = () => {
                 <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
                   <div className="text-center">
                     <Calendar className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
-                    <p className="font-medium">{format(new Date(ride.departure_time), 'd. MMMM', { locale: sk })}</p>
-                    <p className="text-sm text-muted-foreground">{format(new Date(ride.departure_time), 'HH:mm')}</p>
+                    <p className="font-medium">{formatDbDate(ride.departure_time, 'd. MMMM', { locale: sk })}</p>
+                    <p className="text-sm text-muted-foreground">{formatDbDate(ride.departure_time, 'HH:mm')}</p>
                   </div>
                   <div className="text-center">
                     <Users className="w-5 h-5 mx-auto text-muted-foreground mb-1" />

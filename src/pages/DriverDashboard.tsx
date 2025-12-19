@@ -9,8 +9,8 @@ import Map from '@/components/Map';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 
 interface Ride {
@@ -441,7 +441,7 @@ const DriverDashboard: React.FC = () => {
                       <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {format(new Date(ride.departure_time), 'd MMM, HH:mm', { locale: sk })}
+                          {formatDbDate(ride.departure_time, 'd MMM, HH:mm', { locale: sk })}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="w-4 h-4" />

@@ -10,8 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { formatDbDate } from '@/lib/datetime';
 
 interface Ride {
   id: string;
@@ -78,7 +78,7 @@ const PassengerDashboard: React.FC = () => {
       lat: Number(ride.origin_lat),
       lng: Number(ride.origin_lng),
       type: 'origin' as const,
-      popup: `<strong>${ride.origin_address}</strong><br/>Odchod: ${format(new Date(ride.departure_time), 'HH:mm')}`
+      popup: `<strong>${ride.origin_address}</strong><br/>Odchod: ${formatDbDate(ride.departure_time, 'HH:mm')}`
     },
     {
       id: `${ride.id}-dest`,
@@ -264,7 +264,7 @@ const PassengerDashboard: React.FC = () => {
                                 <div>
                                   <p className="font-medium text-sm">{ride.origin_address}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {format(new Date(ride.departure_time), 'EEEE d. MMMM, HH:mm', { locale: sk })}
+                                    {formatDbDate(ride.departure_time, 'EEEE d. MMMM, HH:mm', { locale: sk })}
                                   </p>
                                 </div>
                                 <div>
