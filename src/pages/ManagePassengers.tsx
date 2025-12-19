@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -132,6 +132,29 @@ const ManagePassengers = () => {
       toast({
         title: 'Pasažier vyzdvihnutý',
         description: 'Pasažier bol označený ako vyzdvihnutý.',
+      });
+      fetchRideAndPassengers();
+    }
+  };
+
+  const handleDropoff = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ status: 'completed' })
+      .eq('id', requestId);
+
+    if (!error) {
+      // Restore available seat
+      if (ride) {
+        await supabase
+          .from('rides')
+          .update({ available_seats: (passengers.length > 0 ? passengers.length - 1 : 0) })
+          .eq('id', ride.id);
+      }
+      
+      toast({
+        title: 'Pasažier vystúpil',
+        description: `${passengerName} bol označený ako vystúpený.`,
       });
       fetchRideAndPassengers();
     }
@@ -391,6 +414,20 @@ const ManagePassengers = () => {
                           >
                             <CheckCircle className="w-4 h-4" />
                             Vyzdvihnutý
+                          </Button>
+                        )}
+
+                        {passenger.status === 'picked_up' && (
+                          <Button
+                            size="sm"
+                            className="gap-2 bg-blue-600 hover:bg-blue-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDropoff(passenger.id, passenger.passenger.full_name);
+                            }}
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Vystúpil
                           </Button>
                         )}
                       </div>
