@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, MapPin, Calendar, Users, ArrowRight, Filter } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +28,7 @@ interface Ride {
   departure_time: string;
   available_seats: number;
   price_per_seat: number;
+  status: string;
   driver: {
     full_name: string | null;
     avatar_url: string | null;
@@ -166,6 +168,12 @@ const SearchRides = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 rounded-full bg-primary" />
                           <span className="font-medium">{ride.origin_address}</span>
+                          {ride.status === 'in_progress' && (
+                            <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white gap-1 animate-pulse">
+                              <Radio className="w-3 h-3" />
+                              LIVE
+                            </Badge>
+                          )}
                         </div>
                         {ride.ride_stops && ride.ride_stops.length > 0 && (
                           <div className="ml-1 pl-3 border-l border-border my-1">
