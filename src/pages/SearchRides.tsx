@@ -55,8 +55,7 @@ const SearchRides = () => {
         driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating),
         ride_stops(id, address, stop_order)
       `)
-      .eq('status', 'active')
-      .gte('departure_time', new Date().toISOString())
+      .in('status', ['active', 'in_progress'])
       .order('departure_time', { ascending: true });
 
     if (error) {
