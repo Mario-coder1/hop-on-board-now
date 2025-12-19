@@ -298,6 +298,8 @@ export type Database = {
       }
       ride_requests: {
         Row: {
+          cancellation_reason: string | null
+          cancelled_at: string | null
           created_at: string
           id: string
           message: string | null
@@ -310,6 +312,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -322,6 +326,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -360,6 +366,9 @@ export type Database = {
       rides: {
         Row: {
           available_seats: number
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           departure_time: string
           destination_address: string
@@ -377,6 +386,9 @@ export type Database = {
         }
         Insert: {
           available_seats?: number
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           departure_time: string
           destination_address: string
@@ -394,6 +406,9 @@ export type Database = {
         }
         Update: {
           available_seats?: number
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           departure_time?: string
           destination_address?: string
@@ -410,6 +425,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rides_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rides_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rides_driver_id_fkey"
             columns: ["driver_id"]
@@ -645,6 +674,7 @@ export type Database = {
         | "rejected"
         | "picked_up"
         | "completed"
+        | "cancelled"
       ride_status: "active" | "in_progress" | "completed" | "cancelled"
       user_role: "driver" | "passenger"
     }
@@ -782,6 +812,7 @@ export const Constants = {
         "rejected",
         "picked_up",
         "completed",
+        "cancelled",
       ],
       ride_status: ["active", "in_progress", "completed", "cancelled"],
       user_role: ["driver", "passenger"],
