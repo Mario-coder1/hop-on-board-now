@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
+import { Label } from '@/components/ui/label';
 import { 
   Shield, 
   Users, 
@@ -20,7 +21,11 @@ import {
   ArrowLeft,
   Star,
   Car,
-  MapPin
+  MapPin,
+  Settings,
+  Wallet,
+  TrendingUp,
+  Percent
 } from 'lucide-react';
 import {
   Dialog,
@@ -83,6 +88,14 @@ const Admin = () => {
   const [pushMessage, setPushMessage] = useState('');
   const [pushTitle, setPushTitle] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  
+  // Platform settings state
+  const [commissionPercentage, setCommissionPercentage] = useState(10);
+  const [topupFeePercentage, setTopupFeePercentage] = useState(2);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalCommissions, setTotalCommissions] = useState(0);
+  const [totalTopupFees, setTotalTopupFees] = useState(0);
 
   // Redirect non-admin users
   useEffect(() => {
@@ -99,6 +112,8 @@ const Admin = () => {
       fetchUsers();
       fetchReports();
       fetchRideStats();
+      fetchPlatformSettings();
+      fetchRevenueStats();
     }
   }, [isAdmin]);
 
@@ -148,6 +163,75 @@ const Admin = () => {
         inProgress: rides.filter(r => r.status === 'in_progress').length,
         completed: rides.filter(r => r.status === 'completed').length,
       });
+    }
+  };
+
+  const fetchPlatformSettings = async () => {
+    const { data, error } = await supabase
+      .from('platform_settings')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching settings:', error);
+    } else if (data) {
+      const commission = data.find(s => s.key === 'commission_percentage');
+      const topup = data.find(s => s.key === 'topup_fee_percentage');
+      if (commission) setCommissionPercentage(Number(commission.value));
+      if (topup) setTopupFeePercentage(Number(topup.value));
+    }
+  };
+
+  const fetchRevenueStats = async () => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('type, amount')
+      .in('type', ['commission', 'topup_fee']);
+
+    if (error) {
+      console.error('Error fetching revenue:', error);
+    } else if (data) {
+      const commissions = data
+        .filter(t => t.type === 'commission')
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+      const topupFees = data
+        .filter(t => t.type === 'topup_fee')
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+      
+      setTotalCommissions(commissions);
+      setTotalTopupFees(topupFees);
+      setTotalRevenue(commissions + topupFees);
+    }
+  };
+
+  const handleUpdateSettings = async () => {
+    setSettingsLoading(true);
+    try {
+      const { error: commissionError } = await supabase
+        .from('platform_settings')
+        .update({ value: commissionPercentage })
+        .eq('key', 'commission_percentage');
+
+      const { error: topupError } = await supabase
+        .from('platform_settings')
+        .update({ value: topupFeePercentage })
+        .eq('key', 'topup_fee_percentage');
+
+      if (commissionError || topupError) {
+        throw commissionError || topupError;
+      }
+
+      toast({
+        title: 'Nastavenia uložené',
+        description: 'Provízne nastavenia boli aktualizované.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa uložiť nastavenia.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSettingsLoading(false);
     }
   };
 
@@ -371,6 +455,10 @@ const Admin = () => {
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
               Používatelia
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="w-4 h-4" />
+              Nastavenia
             </TabsTrigger>
           </TabsList>
 
@@ -617,6 +705,127 @@ const Admin = () => {
                 </Card>
               ))
             )}
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            {/* Revenue Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <TrendingUp className="w-10 h-10 text-green-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{totalRevenue.toFixed(2)} €</p>
+                      <p className="text-muted-foreground text-sm">Celkové výnosy</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <Percent className="w-10 h-10 text-blue-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{totalCommissions.toFixed(2)} €</p>
+                      <p className="text-muted-foreground text-sm">Z provízií</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <Wallet className="w-10 h-10 text-purple-500" />
+                    <div>
+                      <p className="text-2xl font-bold">{totalTopupFees.toFixed(2)} €</p>
+                      <p className="text-muted-foreground text-sm">Z poplatkov za dobíjanie</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Platform Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Nastavenia provízií
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="commission">Provízna z jázd (%)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="commission"
+                        type="number"
+                        min="0"
+                        max="50"
+                        value={commissionPercentage}
+                        onChange={(e) => setCommissionPercentage(Number(e.target.value))}
+                      />
+                      <span className="text-muted-foreground">%</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Pri každej platbe za jazdu si platforma strhne {commissionPercentage}%
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="topup">Poplatok za dobíjanie (%)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="topup"
+                        type="number"
+                        min="0"
+                        max="20"
+                        value={topupFeePercentage}
+                        onChange={(e) => setTopupFeePercentage(Number(e.target.value))}
+                      />
+                      <span className="text-muted-foreground">%</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Pri dobíjaní kreditu sa účtuje {topupFeePercentage}% poplatok
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleUpdateSettings}
+                  disabled={settingsLoading}
+                  className="w-full md:w-auto"
+                >
+                  {settingsLoading ? 'Ukladám...' : 'Uložiť nastavenia'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Example calculations */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Príklad výpočtu</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">Jazda za 10€</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li>Pasažier zaplatí: <strong>10.00€</strong></li>
+                      <li>Provízna platformy ({commissionPercentage}%): <strong>{(10 * commissionPercentage / 100).toFixed(2)}€</strong></li>
+                      <li>Vodič dostane: <strong>{(10 - 10 * commissionPercentage / 100).toFixed(2)}€</strong></li>
+                    </ul>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">Dobíjanie 50€</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li>Používateľ zaplatí: <strong>{(50 + 50 * topupFeePercentage / 100).toFixed(2)}€</strong></li>
+                      <li>Poplatok ({topupFeePercentage}%): <strong>{(50 * topupFeePercentage / 100).toFixed(2)}€</strong></li>
+                      <li>Kredit na účte: <strong>50.00€</strong></li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
