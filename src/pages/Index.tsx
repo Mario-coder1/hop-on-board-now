@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { Car, Users, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import InstallBanner from "@/components/InstallBanner";
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
@@ -41,6 +41,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <InstallBanner />
+      
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20" />
