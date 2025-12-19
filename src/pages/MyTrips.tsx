@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { formatDbDate } from '@/lib/datetime';
 import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { RatingDialog } from '@/components/RatingDialog';
@@ -286,7 +286,7 @@ const MyTrips = () => {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
-                        {format(new Date(trip.ride.departure_time), 'd. MMM HH:mm', { locale: sk })}
+                        {formatDbDate(trip.ride.departure_time, 'd. MMM HH:mm', { locale: sk })}
                       </span>
                       {(trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived') && (
                         <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
