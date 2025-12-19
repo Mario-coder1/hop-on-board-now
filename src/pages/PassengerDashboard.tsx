@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, MapPin, Clock, Users, ChevronRight, Navigation2, Star, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Clock, Users, ChevronRight, Navigation2, Star, ArrowRight, Radio } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -244,6 +244,12 @@ const PassengerDashboard: React.FC = () => {
                                 <Star className="w-3.5 h-3.5 fill-warning text-warning" />
                                 {ride.driver?.rating?.toFixed(1) || '5.0'}
                               </span>
+                              {ride.status === 'in_progress' && (
+                                <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white gap-1 animate-pulse">
+                                  <Radio className="w-3 h-3" />
+                                  LIVE
+                                </Badge>
+                              )}
                             </div>
                             
                             {ride.driver?.car_model && (
