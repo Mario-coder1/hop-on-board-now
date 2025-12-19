@@ -301,6 +301,9 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           created_at: string
+          dropoff_address: string | null
+          dropoff_lat: number | null
+          dropoff_lng: number | null
           id: string
           message: string | null
           passenger_id: string
@@ -315,6 +318,9 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
           id?: string
           message?: string | null
           passenger_id: string
@@ -329,6 +335,9 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
           id?: string
           message?: string | null
           passenger_id?: string

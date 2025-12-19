@@ -19,6 +19,9 @@ interface AcceptedPassenger {
   pickup_address: string;
   pickup_lat: number;
   pickup_lng: number;
+  dropoff_address: string | null;
+  dropoff_lat: number | null;
+  dropoff_lng: number | null;
   message: string | null;
   passenger: {
     id: string;
@@ -107,7 +110,7 @@ const ManagePassengers = () => {
     const { data: passengersData } = await supabase
       .from('ride_requests')
       .select(`
-        id, status, pickup_address, pickup_lat, pickup_lng, message,
+        id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating)
       `)
       .eq('ride_id', rideId)
@@ -361,8 +364,18 @@ const ManagePassengers = () => {
                           </p>
                           
                           <div className="flex items-start gap-1 text-sm">
-                            <MapPin className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground">{passenger.pickup_address}</span>
+                            <MapPin className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground">
+                              <span className="font-medium text-foreground">Nastúpenie:</span> {passenger.pickup_address}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-start gap-1 text-sm mt-1">
+                            <MapPin className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground">
+                              <span className="font-medium text-foreground">Vystúpenie:</span>{' '}
+                              {passenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}
+                            </span>
                           </div>
 
                           {passenger.message && (
@@ -476,7 +489,8 @@ const ManagePassengers = () => {
                 <div className="mt-4 p-4 rounded-xl bg-card border border-border">
                   <p className="text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
                   <p className="font-semibold">{selectedPassenger.passenger.full_name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedPassenger.pickup_address}</p>
+                  <p className="text-sm text-green-600">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
+                  <p className="text-sm text-red-500">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
                   <Button
                     variant="hero"
                     className="w-full mt-3 gap-2"
@@ -487,8 +501,22 @@ const ManagePassengers = () => {
                     )}
                   >
                     <NavIcon className="w-4 h-4" />
-                    Otvoriť navigáciu
+                    Navigovať k nastúpeniu
                   </Button>
+                  {selectedPassenger.dropoff_address && selectedPassenger.dropoff_lat && selectedPassenger.dropoff_lng && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2 gap-2"
+                      onClick={() => openNavigation(
+                        Number(selectedPassenger.dropoff_lat),
+                        Number(selectedPassenger.dropoff_lng),
+                        selectedPassenger.dropoff_address!
+                      )}
+                    >
+                      <NavIcon className="w-4 h-4" />
+                      Navigovať k vystúpeniu
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
