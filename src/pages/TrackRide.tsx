@@ -89,26 +89,25 @@ const TrackRide: React.FC = () => {
       ride: ride
     } as RideRequest);
 
-    // Now fetch driver info from public_profiles view
+    // Fetch driver info from profiles (RLS policy allows passengers to see driver for their accepted rides)
     if (ride?.driver_id) {
       const { data: driverData, error: driverError } = await supabase
-        .from('public_profiles')
-        .select('id, full_name, avatar_url, car_model, car_color')
+        .from('profiles')
+        .select('id, full_name, phone, avatar_url, car_model, car_color, license_plate')
         .eq('id', ride.driver_id)
         .maybeSingle();
 
       if (driverError) {
         console.error('Error fetching driver:', driverError);
       } else if (driverData) {
-        // Fetch phone from profiles if it's the user's own profile, otherwise null
         setDriver({
-          id: driverData.id || '',
+          id: driverData.id,
           full_name: driverData.full_name || 'Neznámy vodič',
-          phone: null, // Phone is private, not in public_profiles
+          phone: driverData.phone,
           avatar_url: driverData.avatar_url,
           car_model: driverData.car_model,
           car_color: driverData.car_color,
-          license_plate: null // License plate is private
+          license_plate: driverData.license_plate
         });
       }
     }
