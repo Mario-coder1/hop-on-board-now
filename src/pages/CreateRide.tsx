@@ -312,8 +312,6 @@ const CreateRide = () => {
                     <Label>Voľné miesta</Label>
                     <Input
                       type="number"
-                      min={1}
-                      max={7}
                       value={seats}
                       onChange={(e) => setSeats(parseInt(e.target.value) || 1)}
                     />

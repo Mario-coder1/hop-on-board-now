@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -338,6 +338,26 @@ const Profile = () => {
             <Save className="w-4 h-4 mr-2" />
             {loading ? 'Ukladám...' : 'Uložiť zmeny'}
           </Button>
+
+          {/* Support */}
+          <div className="p-6 rounded-2xl bg-card border border-border mt-6">
+            <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-primary" />
+              Podpora
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Máte otázky alebo potrebujete pomoc? Kontaktujte nás cez WhatsApp.
+            </p>
+            <a
+              href="https://wa.me/message/RVYLKZFAFEYVP1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors font-medium"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Napísať na WhatsApp
+            </a>
+          </div>
 
           {/* Legal Links */}
           <div className="p-6 rounded-2xl bg-card border border-border mt-6">
