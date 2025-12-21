@@ -28,7 +28,9 @@ import {
   Percent,
   Search,
   Trash2,
-  Calendar
+  Calendar,
+  Key,
+  UserX
 } from 'lucide-react';
 import {
   Dialog,
@@ -109,6 +111,9 @@ const Admin = () => {
   const [userRides, setUserRides] = useState<UserRide[]>([]);
   const [selectedUserForRides, setSelectedUserForRides] = useState<UserProfile | null>(null);
   const [ridesLoading, setRidesLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false);
+  const [deleteUserLoading, setDeleteUserLoading] = useState(false);
   
   // Platform settings state
   const [commissionPercentage, setCommissionPercentage] = useState(10);
@@ -447,6 +452,78 @@ const Admin = () => {
         description: error.message || 'Nepodarilo sa vymazať jazdu.',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleResetPassword = async (userProfile: UserProfile) => {
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: 'Chyba',
+        description: 'Heslo musí mať aspoň 6 znakov.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setPasswordResetLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const response = await supabase.functions.invoke('admin-user-management', {
+        body: {
+          action: 'resetPassword',
+          userId: userProfile.user_id,
+          newPassword: newPassword
+        }
+      });
+
+      if (response.error) throw response.error;
+      if (response.data?.error) throw new Error(response.data.error);
+
+      toast({
+        title: 'Heslo zmenené',
+        description: `Heslo pre ${userProfile.full_name} bolo úspešne zmenené.`,
+      });
+      setNewPassword('');
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa zmeniť heslo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPasswordResetLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userProfile: UserProfile) => {
+    setDeleteUserLoading(true);
+    try {
+      const response = await supabase.functions.invoke('admin-user-management', {
+        body: {
+          action: 'deleteUser',
+          userId: userProfile.user_id
+        }
+      });
+
+      if (response.error) throw response.error;
+      if (response.data?.error) throw new Error(response.data.error);
+
+      toast({
+        title: 'Používateľ vymazaný',
+        description: `${userProfile.full_name} bol úspešne vymazaný.`,
+      });
+      
+      // Refresh data
+      fetchUsers();
+      setSearchResults(prev => prev.filter(u => u.id !== userProfile.id));
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa vymazať používateľa.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleteUserLoading(false);
     }
   };
 
@@ -977,6 +1054,67 @@ const Admin = () => {
                                   </div>
                                 </DialogContent>
                               </Dialog>
+
+                              {/* Reset Password Dialog */}
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <Key className="w-4 h-4 mr-2" />
+                                    Heslo
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Zmeniť heslo</DialogTitle>
+                                    <DialogDescription>
+                                      Nastavte nové heslo pre {userProfile.full_name}
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4 mt-4">
+                                    <Input
+                                      type="password"
+                                      placeholder="Nové heslo (min. 6 znakov)"
+                                      value={newPassword}
+                                      onChange={(e) => setNewPassword(e.target.value)}
+                                    />
+                                    <Button 
+                                      className="w-full"
+                                      onClick={() => handleResetPassword(userProfile)}
+                                      disabled={passwordResetLoading}
+                                    >
+                                      {passwordResetLoading ? 'Mením...' : 'Zmeniť heslo'}
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+
+                              {/* Delete User Dialog */}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                    <UserX className="w-4 h-4 mr-2" />
+                                    Vymazať
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Vymazať používateľa?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Naozaj chcete úplne vymazať používateľa {userProfile.full_name}? 
+                                      Táto akcia je nezvratná a používateľ sa bude musieť znovu zaregistrovať.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteUser(userProfile)}
+                                      disabled={deleteUserLoading}
+                                    >
+                                      {deleteUserLoading ? 'Mažem...' : 'Vymazať používateľa'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                               
                               {userProfile.banned ? (
                                 <Button 
@@ -990,7 +1128,7 @@ const Admin = () => {
                               ) : (
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">
+                                    <Button variant="outline" size="sm">
                                       <Ban className="w-4 h-4 mr-2" />
                                       Ban
                                     </Button>
