@@ -312,8 +312,8 @@ const CreateRide = () => {
                     <Label>Voľné miesta</Label>
                     <Input
                       type="number"
-                      value={seats}
-                      onChange={(e) => setSeats(parseInt(e.target.value) || 1)}
+                      value={seats || ''}
+                      onChange={(e) => setSeats(e.target.value ? parseInt(e.target.value) : 0)}
                     />
                   </div>
                   <div>
