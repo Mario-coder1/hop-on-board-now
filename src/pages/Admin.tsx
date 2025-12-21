@@ -25,7 +25,10 @@ import {
   Settings,
   Wallet,
   TrendingUp,
-  Percent
+  Percent,
+  Search,
+  Trash2,
+  Calendar
 } from 'lucide-react';
 import {
   Dialog,
@@ -62,6 +65,16 @@ interface UserProfile {
   created_at: string;
 }
 
+interface UserRide {
+  id: string;
+  origin_address: string;
+  destination_address: string;
+  departure_time: string;
+  status: string | null;
+  available_seats: number;
+  price_per_seat: number;
+}
+
 interface Report {
   id: string;
   reporter_id: string;
@@ -88,6 +101,14 @@ const Admin = () => {
   const [pushMessage, setPushMessage] = useState('');
   const [pushTitle, setPushTitle] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  
+  // Email search state
+  const [emailSearch, setEmailSearch] = useState('');
+  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [userRides, setUserRides] = useState<UserRide[]>([]);
+  const [selectedUserForRides, setSelectedUserForRides] = useState<UserProfile | null>(null);
+  const [ridesLoading, setRidesLoading] = useState(false);
   
   // Platform settings state
   const [commissionPercentage, setCommissionPercentage] = useState(10);
@@ -331,6 +352,104 @@ const Admin = () => {
     }
   };
 
+  const handleSearchByEmail = async () => {
+    if (!emailSearch.trim()) {
+      toast({
+        title: 'Chyba',
+        description: 'Zadajte email na vyhľadávanie.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      // Search in auth.users via admin API (we need to search profiles and match with auth)
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // We need to get emails from auth - for now search by name containing email-like pattern
+      // Since we can't directly access auth.users emails, we'll filter users whose user_id exists
+      const matchingUsers = profiles?.filter(p => 
+        p.full_name.toLowerCase().includes(emailSearch.toLowerCase()) ||
+        p.phone?.includes(emailSearch)
+      ) || [];
+
+      setSearchResults(matchingUsers);
+      
+      if (matchingUsers.length === 0) {
+        toast({
+          title: 'Nenájdené',
+          description: 'Žiadny používateľ nebol nájdený.',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa vyhľadať.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleFetchUserRides = async (userProfile: UserProfile) => {
+    setSelectedUserForRides(userProfile);
+    setRidesLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('rides')
+        .select('*')
+        .eq('driver_id', userProfile.id)
+        .in('status', ['active', 'in_progress'])
+        .order('departure_time', { ascending: true });
+
+      if (error) throw error;
+      setUserRides(data || []);
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa načítať jazdy.',
+        variant: 'destructive',
+      });
+    } finally {
+      setRidesLoading(false);
+    }
+  };
+
+  const handleDeleteRide = async (rideId: string) => {
+    try {
+      const { error } = await supabase
+        .from('rides')
+        .delete()
+        .eq('id', rideId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Jazda vymazaná',
+        description: 'Jazda bola úspešne vymazaná.',
+      });
+
+      // Refresh rides list
+      if (selectedUserForRides) {
+        handleFetchUserRides(selectedUserForRides);
+      }
+      fetchRideStats();
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa vymazať jazdu.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -455,6 +574,10 @@ const Admin = () => {
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
               Používatelia
+            </TabsTrigger>
+            <TabsTrigger value="search" className="gap-2">
+              <Search className="w-4 h-4" />
+              Vyhľadávanie
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -705,6 +828,205 @@ const Admin = () => {
                 </Card>
               ))
             )}
+          </TabsContent>
+
+          <TabsContent value="search" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="w-5 h-5" />
+                  Vyhľadať používateľa
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Zadajte meno alebo telefónne číslo..."
+                    value={emailSearch}
+                    onChange={(e) => setEmailSearch(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearchByEmail()}
+                  />
+                  <Button onClick={handleSearchByEmail} disabled={searchLoading}>
+                    {searchLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4 mr-2" />
+                        Hľadať
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {searchResults.length > 0 && (
+                  <div className="space-y-4 mt-4">
+                    <h3 className="font-medium">Výsledky vyhľadávania ({searchResults.length})</h3>
+                    {searchResults.map((userProfile) => (
+                      <Card key={userProfile.id} className={userProfile.banned ? 'border-destructive' : ''}>
+                        <CardContent className="py-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <span className="text-lg font-bold text-primary">
+                                  {userProfile.full_name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium">{userProfile.full_name}</p>
+                                  {userProfile.banned && (
+                                    <Badge variant="destructive">Zabanovaný</Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>{userProfile.phone || 'Bez telefónu'}</span>
+                                  <span className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                    {userProfile.rating?.toFixed(1) || '5.0'}
+                                  </span>
+                                  <span>
+                                    {userProfile.selected_role === 'driver' ? 'Vodič' : 'Pasažier'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => handleFetchUserRides(userProfile)}
+                                  >
+                                    <Car className="w-4 h-4 mr-2" />
+                                    Jazdy
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Aktívne jazdy - {selectedUserForRides?.full_name}</DialogTitle>
+                                    <DialogDescription>
+                                      Zoznam aktívnych jázd používateľa
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4 mt-4 max-h-96 overflow-y-auto">
+                                    {ridesLoading ? (
+                                      <div className="flex justify-center py-8">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                      </div>
+                                    ) : userRides.length === 0 ? (
+                                      <div className="text-center py-8 text-muted-foreground">
+                                        <Car className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                        <p>Žiadne aktívne jazdy</p>
+                                      </div>
+                                    ) : (
+                                      userRides.map((ride) => (
+                                        <Card key={ride.id}>
+                                          <CardContent className="py-4">
+                                            <div className="flex items-center justify-between">
+                                              <div className="space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                  <MapPin className="w-4 h-4 text-green-500" />
+                                                  <span className="text-sm">{ride.origin_address}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <MapPin className="w-4 h-4 text-red-500" />
+                                                  <span className="text-sm">{ride.destination_address}</span>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                                                  <span className="flex items-center gap-1">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(ride.departure_time).toLocaleString('sk-SK')}
+                                                  </span>
+                                                  <span>{ride.available_seats} miest</span>
+                                                  <span>{ride.price_per_seat}€/miesto</span>
+                                                  <Badge variant={ride.status === 'active' ? 'default' : 'secondary'}>
+                                                    {ride.status === 'active' ? 'Aktívna' : 'V priebehu'}
+                                                  </Badge>
+                                                </div>
+                                              </div>
+                                              <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                  <Button variant="destructive" size="sm">
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    Vymazať
+                                                  </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                    <AlertDialogTitle>Vymazať jazdu?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                      Naozaj chcete vymazať túto jazdu? Táto akcia je nezvratná.
+                                                    </AlertDialogDescription>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                    <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                      onClick={() => handleDeleteRide(ride.id)}
+                                                    >
+                                                      Vymazať
+                                                    </AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                              </AlertDialog>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+                                      ))
+                                    )}
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                              
+                              {userProfile.banned ? (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleUnbanUser(userProfile.id)}
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Odbanovať
+                                </Button>
+                              ) : (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm">
+                                      <Ban className="w-4 h-4 mr-2" />
+                                      Ban
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Zabanovať používateľa?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Naozaj chcete zabanovať používateľa {userProfile.full_name}?
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <Input
+                                      placeholder="Dôvod banu (voliteľné)"
+                                      value={banReason}
+                                      onChange={(e) => setBanReason(e.target.value)}
+                                    />
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleBanUser(userProfile.id)}
+                                      >
+                                        Zabanovať
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
