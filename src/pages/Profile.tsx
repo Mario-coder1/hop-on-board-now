@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -587,6 +587,13 @@ const Profile = () => {
                 <Scale className="w-5 h-5 text-muted-foreground" />
                 <span>GDPR - Vaše práva</span>
               </Link>
+              <a
+                href="mailto:support@takeme.sk"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Mail className="w-5 h-5 text-muted-foreground" />
+                <span>support@takeme.sk</span>
+              </a>
             </div>
           </div>
 
