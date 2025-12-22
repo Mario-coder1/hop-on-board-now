@@ -90,7 +90,7 @@ const GDPR = () => {
             <div className="space-y-4 text-muted-foreground">
               <p>Pre uplatnenie vašich práv:</p>
               <ol className="list-decimal pl-6 space-y-2">
-                <li>Kontaktujte nás e-mailom na <strong className="text-foreground">gdpr@takeme.sk</strong></li>
+                <li>Kontaktujte nás e-mailom na <strong className="text-foreground">support@takeme.sk</strong></li>
                 <li>Uveďte svoje meno a e-mailovú adresu spojenú s účtom</li>
                 <li>Opíšte, ktoré právo chcete uplatniť</li>
                 <li>Na vašu žiadosť odpovieme do 30 dní</li>
@@ -106,7 +106,7 @@ const GDPR = () => {
             <div className="space-y-4 text-muted-foreground">
               <p>Pre úplné zmazanie účtu a všetkých súvisiacich údajov:</p>
               <ol className="list-decimal pl-6 space-y-2">
-                <li>Pošlite e-mail na <strong className="text-foreground">gdpr@takeme.sk</strong> s predmetom "Žiadosť o zmazanie účtu"</li>
+                <li>Pošlite e-mail na <strong className="text-foreground">support@takeme.sk</strong> s predmetom "Žiadosť o zmazanie účtu"</li>
                 <li>Uveďte e-mailovú adresu vášho účtu</li>
                 <li>Váš účet a údaje budú vymazané do 30 dní</li>
               </ol>
@@ -145,7 +145,7 @@ const GDPR = () => {
               <p>Prevádzkovateľom osobných údajov je:</p>
               <div className="p-4 rounded-lg bg-muted/50">
                 <p className="font-semibold text-foreground">TakeMe s.r.o.</p>
-                <p>Kontakt: gdpr@takeme.sk</p>
+                <p>Kontakt: support@takeme.sk</p>
               </div>
             </div>
           </section>
