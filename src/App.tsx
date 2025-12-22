@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useRideNotifications } from "@/hooks/useRideNotifications";
+import { useNotificationAlert } from "@/hooks/useNotificationAlert";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -47,6 +48,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Component to handle global notifications
 const NotificationListener = () => {
   useRideNotifications();
+  useNotificationAlert();
   return null;
 };
 
