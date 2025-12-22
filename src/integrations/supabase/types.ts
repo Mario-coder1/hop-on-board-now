@@ -14,6 +14,94 @@ export type Database = {
   }
   public: {
     Tables: {
+      notification_reads: {
+        Row: {
+          id: string
+          notification_id: string
+          profile_id: string
+          read_at: string
+        }
+        Insert: {
+          id?: string
+          notification_id: string
+          profile_id: string
+          read_at?: string
+        }
+        Update: {
+          id?: string
+          notification_id?: string
+          profile_id?: string
+          read_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_reads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_reads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_global: boolean
+          is_read: boolean
+          message: string
+          profile_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_global?: boolean
+          is_read?: boolean
+          message: string
+          profile_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_global?: boolean
+          is_read?: boolean
+          message?: string
+          profile_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           description: string | null

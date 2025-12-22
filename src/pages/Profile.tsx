@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -30,6 +31,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  is_global: boolean;
+  created_at: string;
+}
+
 const Profile = () => {
   const { profile, refreshProfile, updateRole } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +48,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [roleLoading, setRoleLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -57,8 +69,107 @@ const Profile = () => {
         car_color: profile.car_color || '',
         license_plate: profile.license_plate || ''
       });
+      fetchNotifications();
     }
   }, [profile]);
+
+  const fetchNotifications = async () => {
+    if (!profile) return;
+    
+    setNotificationsLoading(true);
+    try {
+      // Fetch user-specific and global notifications
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .or(`profile_id.eq.${profile.id},is_global.eq.true`)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+
+      // Get read global notifications
+      const { data: reads } = await supabase
+        .from('notification_reads')
+        .select('notification_id')
+        .eq('profile_id', profile.id);
+
+      const readIds = new Set(reads?.map(r => r.notification_id) || []);
+
+      // Mark global notifications as read if they're in the reads table
+      const processedNotifications = (data || []).map(n => ({
+        ...n,
+        is_read: n.is_global ? readIds.has(n.id) : n.is_read
+      }));
+
+      setNotifications(processedNotifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  const markNotificationAsRead = async (notification: Notification) => {
+    if (!profile) return;
+
+    try {
+      if (notification.is_global) {
+        // Insert into notification_reads for global notifications
+        await supabase
+          .from('notification_reads')
+          .insert({
+            notification_id: notification.id,
+            profile_id: profile.id
+          });
+      } else {
+        // Update the notification directly for user-specific ones
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', notification.id);
+      }
+
+      setNotifications(prev => 
+        prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!profile) return;
+
+    try {
+      const unreadNotifications = notifications.filter(n => !n.is_read);
+      
+      for (const notification of unreadNotifications) {
+        if (notification.is_global) {
+          await supabase
+            .from('notification_reads')
+            .insert({
+              notification_id: notification.id,
+              profile_id: profile.id
+            });
+        } else {
+          await supabase
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('id', notification.id);
+        }
+      }
+
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      
+      toast({
+        title: 'Hotovo',
+        description: 'Všetky notifikácie boli označené ako prečítané.',
+      });
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
 
   const handleRoleChange = async (newRole: 'driver' | 'passenger') => {
     if (!profile || newRole === profile.selected_role) return;
@@ -240,6 +351,86 @@ const Profile = () => {
                 Dostávajte upozornenia aj keď je aplikácia zatvorená.
               </p>
             </div>
+          </div>
+
+          {/* Notifications */}
+          <div className="p-6 rounded-2xl bg-card border border-border mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-semibold flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Upozornenia
+                {notifications.filter(n => !n.is_read).length > 0 && (
+                  <Badge variant="destructive" className="ml-2">
+                    {notifications.filter(n => !n.is_read).length}
+                  </Badge>
+                )}
+              </h3>
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                  <Check className="w-4 h-4 mr-1" />
+                  Označiť všetky
+                </Button>
+              )}
+            </div>
+            
+            {notificationsLoading ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              </div>
+            ) : notifications.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Žiadne upozornenia
+              </p>
+            ) : (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg border transition-colors ${
+                      notification.is_read 
+                        ? 'bg-muted/50 border-border' 
+                        : 'bg-primary/5 border-primary/20'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-sm">{notification.title}</h4>
+                          {!notification.is_read && (
+                            <span className="w-2 h-2 rounded-full bg-primary" />
+                          )}
+                          {notification.is_global && (
+                            <Badge variant="secondary" className="text-xs">
+                              Všeobecné
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(notification.created_at).toLocaleDateString('sk-SK', {
+                            day: 'numeric',
+                            month: 'long',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      {!notification.is_read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => markNotificationAsRead(notification)}
+                        >
+                          <Check className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Personal Info */}
