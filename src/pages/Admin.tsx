@@ -30,7 +30,9 @@ import {
   Trash2,
   Calendar,
   Key,
-  UserX
+  UserX,
+  Bell,
+  Megaphone
 } from 'lucide-react';
 import {
   Dialog,
@@ -114,6 +116,11 @@ const Admin = () => {
   const [newPassword, setNewPassword] = useState('');
   const [passwordResetLoading, setPasswordResetLoading] = useState(false);
   const [deleteUserLoading, setDeleteUserLoading] = useState(false);
+  
+  // Mass notification state
+  const [massNotificationTitle, setMassNotificationTitle] = useState('');
+  const [massNotificationMessage, setMassNotificationMessage] = useState('');
+  const [massNotificationLoading, setMassNotificationLoading] = useState(false);
   
   // Platform settings state
   const [commissionPercentage, setCommissionPercentage] = useState(10);
@@ -527,6 +534,59 @@ const Admin = () => {
     }
   };
 
+  const handleSendMassNotification = async () => {
+    if (!massNotificationTitle.trim() || !massNotificationMessage.trim()) {
+      toast({
+        title: 'Chyba',
+        description: 'Vyplňte titulok aj správu.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setMassNotificationLoading(true);
+    try {
+      // Create a global notification
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          title: massNotificationTitle,
+          message: massNotificationMessage,
+          is_global: true,
+          profile_id: null
+        });
+
+      if (error) throw error;
+
+      // Also send push notifications to all users
+      const { data: allProfiles } = await supabase
+        .from('profiles')
+        .select('id');
+
+      if (allProfiles) {
+        for (const profile of allProfiles) {
+          await sendPushNotification(profile.id, massNotificationTitle, massNotificationMessage);
+        }
+      }
+
+      toast({
+        title: 'Notifikácia odoslaná',
+        description: `Hromadná notifikácia bola odoslaná všetkým ${allProfiles?.length || 0} používateľom.`,
+      });
+
+      setMassNotificationTitle('');
+      setMassNotificationMessage('');
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa odoslať notifikáciu.',
+        variant: 'destructive',
+      });
+    } finally {
+      setMassNotificationLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -655,6 +715,10 @@ const Admin = () => {
             <TabsTrigger value="search" className="gap-2">
               <Search className="w-4 h-4" />
               Vyhľadávanie
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Megaphone className="w-4 h-4" />
+              Notifikácie
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -1163,6 +1227,58 @@ const Admin = () => {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Megaphone className="w-5 h-5" />
+                  Hromadná notifikácia
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Odošlite správu všetkým registrovaným používateľom. Notifikácia sa zobrazí v ich profile a tiež ako push notifikácia.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Titulok</Label>
+                    <Input
+                      placeholder="Napr. Nová aktualizácia aplikácie"
+                      value={massNotificationTitle}
+                      onChange={(e) => setMassNotificationTitle(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Správa</Label>
+                    <Textarea
+                      placeholder="Napíšte správu pre všetkých používateľov..."
+                      value={massNotificationMessage}
+                      onChange={(e) => setMassNotificationMessage(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSendMassNotification}
+                    disabled={massNotificationLoading}
+                    className="w-full md:w-auto"
+                  >
+                    {massNotificationLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        Odosielam...
+                      </>
+                    ) : (
+                      <>
+                        <Megaphone className="w-4 h-4 mr-2" />
+                        Odoslať všetkým ({users.length})
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
