@@ -112,7 +112,7 @@ const PrivacyPolicy = () => {
             </div>
             <div className="space-y-4 text-muted-foreground">
               <p>Pre otázky týkajúce sa ochrany súkromia nás kontaktujte:</p>
-              <p className="font-semibold text-foreground">podpora@takeme.sk</p>
+              <p className="font-semibold text-foreground">support@takeme.sk</p>
             </div>
           </section>
         </div>
