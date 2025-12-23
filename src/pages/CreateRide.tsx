@@ -320,9 +320,10 @@ const CreateRide = () => {
                     <Label>Cena za miesto (€)</Label>
                     <Input
                       type="number"
-                      min={1}
-                      value={price}
-                      onChange={(e) => setPrice(parseFloat(e.target.value) || 1)}
+                      min={0}
+                      step="0.01"
+                      value={price || ''}
+                      onChange={(e) => setPrice(e.target.value ? parseFloat(e.target.value) : 0)}
                     />
                   </div>
                 </div>
