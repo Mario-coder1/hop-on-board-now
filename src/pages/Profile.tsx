@@ -352,6 +352,21 @@ const Profile = () => {
                 Dostávajte upozornenia aj keď je aplikácia zatvorená.
               </p>
             </div>
+
+            {/* Public Chat Link */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <Button 
+                onClick={() => navigate('/chat')} 
+                variant="outline" 
+                className="w-full gap-2 group hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
+                <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Verejný chat
+                <span className="ml-auto text-xs text-muted-foreground group-hover:text-primary-foreground/70">
+                  Chatuj s ostatnými
+                </span>
+              </Button>
+            </div>
           </div>
 
           {/* Notifications */}
