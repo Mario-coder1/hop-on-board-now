@@ -6,15 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Send, MessageCircle, Users, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, Send, MessageCircle, Users, Trash2, Smile, Image, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 interface ChatMessage {
   id: string;
   message: string;
+  image_url: string | null;
   created_at: string;
   profile_id: string;
   profiles: {
@@ -31,8 +35,14 @@ const PublicChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +55,6 @@ const PublicChat = () => {
   useEffect(() => {
     fetchMessages();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel('public-chat')
       .on(
@@ -56,12 +65,12 @@ const PublicChat = () => {
           table: 'public_chat_messages'
         },
         async (payload) => {
-          // Fetch the complete message with profile data
           const { data } = await supabase
             .from('public_chat_messages')
             .select(`
               id,
               message,
+              image_url,
               created_at,
               profile_id,
               profiles:profile_id (
@@ -103,6 +112,7 @@ const PublicChat = () => {
         .select(`
           id,
           message,
+          image_url,
           created_at,
           profile_id,
           profiles:profile_id (
@@ -124,27 +134,96 @@ const PublicChat = () => {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Vyber prosím obrázok");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Obrázok je príliš veľký (max 5MB)");
+      return;
+    }
+
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearSelectedImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage || !profile?.id) return null;
+
+    const fileExt = selectedImage.name.split('.').pop();
+    const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-images')
+      .upload(fileName, selectedImage);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('chat-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  const addEmoji = (emoji: any) => {
+    setNewMessage(prev => prev + emoji.native);
+    setEmojiOpen(false);
+    inputRef.current?.focus();
+  };
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !profile?.id || sending) return;
+    if ((!newMessage.trim() && !selectedImage) || !profile?.id || sending) return;
 
     setSending(true);
+    setUploading(!!selectedImage);
+
     try {
+      let imageUrl: string | null = null;
+
+      if (selectedImage) {
+        imageUrl = await uploadImage();
+      }
+
       const { error } = await supabase
         .from('public_chat_messages')
         .insert({
           profile_id: profile.id,
-          message: newMessage.trim()
+          message: newMessage.trim(),
+          image_url: imageUrl
         });
 
       if (error) throw error;
+      
       setNewMessage("");
+      clearSelectedImage();
       inputRef.current?.focus();
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error("Nepodarilo sa odoslať správu");
     } finally {
       setSending(false);
+      setUploading(false);
     }
   };
 
@@ -184,6 +263,37 @@ const PublicChat = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
+      {/* Fullscreen Image Modal */}
+      <AnimatePresence>
+        {fullscreenImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 text-white hover:bg-white/20"
+              onClick={() => setFullscreenImage(null)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <motion.img
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              src={fullscreenImage}
+              alt="Fullscreen"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
@@ -271,13 +381,25 @@ const PublicChat = () => {
                     )}
                     <div className="group relative">
                       <Card 
-                        className={`px-3 py-2 shadow-sm border-0 ${
+                        className={`px-3 py-2 shadow-sm border-0 overflow-hidden ${
                           isOwn 
                             ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-2xl rounded-tr-md' 
                             : 'bg-card/80 backdrop-blur-sm text-card-foreground rounded-2xl rounded-tl-md'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                        {msg.image_url && (
+                          <motion.img
+                            src={msg.image_url}
+                            alt="Chat image"
+                            className="max-w-full max-h-60 rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => setFullscreenImage(msg.image_url)}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          />
+                        )}
+                        {msg.message && (
+                          <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                        )}
                       </Card>
                       {isOwn && (
                         <Button
@@ -302,13 +424,91 @@ const PublicChat = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Image Preview */}
+      <AnimatePresence>
+        {imagePreview && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-background/80 backdrop-blur-xl border-t border-border/50 px-4 py-2"
+          >
+            <div className="max-w-3xl mx-auto relative inline-block">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="h-20 rounded-lg object-cover"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                onClick={clearSelectedImage}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input */}
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="sticky bottom-0 bg-background/80 backdrop-blur-xl border-t border-border/50 px-4 py-3 pb-safe"
       >
-        <form onSubmit={sendMessage} className="flex gap-2 max-w-3xl mx-auto">
+        <form onSubmit={sendMessage} className="flex gap-2 max-w-3xl mx-auto items-center">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          {/* Image upload button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={sending}
+            className="shrink-0 text-muted-foreground hover:text-primary"
+          >
+            <Image className="h-5 w-5" />
+          </Button>
+
+          {/* Emoji picker */}
+          <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={sending}
+                className="shrink-0 text-muted-foreground hover:text-primary"
+              >
+                <Smile className="h-5 w-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-auto p-0 border-0" 
+              side="top" 
+              align="start"
+            >
+              <Picker 
+                data={data} 
+                onEmojiSelect={addEmoji} 
+                theme="auto"
+                locale="sk"
+                previewPosition="none"
+                skinTonePosition="none"
+              />
+            </PopoverContent>
+          </Popover>
+
           <Input
             ref={inputRef}
             value={newMessage}
@@ -317,13 +517,18 @@ const PublicChat = () => {
             className="flex-1 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-full px-4"
             disabled={sending}
           />
+
           <Button 
             type="submit" 
             size="icon"
-            disabled={!newMessage.trim() || sending}
+            disabled={(!newMessage.trim() && !selectedImage) || sending}
             className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
           >
-            <Send className="h-4 w-4" />
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </form>
       </motion.div>
