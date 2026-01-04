@@ -2,12 +2,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { Car, Users, MapPin, Shield } from "lucide-react";
+import { useOnlineUsers } from "@/hooks/useOnlineUsers";
+import { Car, Users, MapPin, Shield, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
+
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const onlineCount = useOnlineUsers();
 
   useEffect(() => {
     if (loading) return;
@@ -61,6 +64,22 @@ const Index = () => {
             >
               <Car className="w-5 h-5" />
               <span className="font-medium">TakeMe</span>
+            </motion.div>
+
+            {/* Online users indicator */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 mb-6 ml-3"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+              </span>
+              <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                {onlineCount} online
+              </span>
             </motion.div>
 
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
