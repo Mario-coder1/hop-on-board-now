@@ -25,6 +25,7 @@ interface ChatMessage {
     id: string;
     full_name: string;
     avatar_url: string | null;
+    badge: string | null;
   };
 }
 
@@ -76,7 +77,8 @@ const PublicChat = () => {
               profiles:profile_id (
                 id,
                 full_name,
-                avatar_url
+                avatar_url,
+                badge
               )
             `)
             .eq('id', payload.new.id)
@@ -118,7 +120,8 @@ const PublicChat = () => {
           profiles:profile_id (
             id,
             full_name,
-            avatar_url
+            avatar_url,
+            badge
           )
         `)
         .order('created_at', { ascending: true })
@@ -375,9 +378,16 @@ const PublicChat = () => {
                   
                   <div className={`flex flex-col max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
                     {showAvatar && !isOwn && (
-                      <span className="text-xs text-muted-foreground mb-1 ml-1">
-                        {msg.profiles?.full_name}
-                      </span>
+                      <div className="flex items-center gap-1.5 mb-1 ml-1">
+                        <span className="text-xs text-muted-foreground">
+                          {msg.profiles?.full_name}
+                        </span>
+                        {msg.profiles?.badge && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium">
+                            {msg.profiles.badge}
+                          </span>
+                        )}
+                      </div>
                     )}
                     <div className="group relative">
                       <Card 
