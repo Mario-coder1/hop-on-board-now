@@ -303,7 +303,14 @@ const Profile = () => {
                 )}
               </div>
               <div>
-                <h2 className="font-display text-xl font-semibold">{profile.full_name}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-display text-xl font-semibold">{profile.full_name}</h2>
+                  {(profile as any).badge && (
+                    <Badge className="bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0 text-xs">
+                      {(profile as any).badge}
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
