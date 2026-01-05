@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,7 +41,7 @@ interface Notification {
 }
 
 const Profile = () => {
-  const { profile, refreshProfile, updateRole } = useAuth();
+  const { profile, refreshProfile, updateRole, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -372,6 +372,21 @@ const Profile = () => {
                 <span className="ml-auto text-xs text-muted-foreground group-hover:text-primary-foreground/70">
                   Chatuj s ostatnými
                 </span>
+              </Button>
+            </div>
+
+            {/* Logout Button */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <Button 
+                onClick={async () => {
+                  await signOut();
+                  navigate('/');
+                }} 
+                variant="outline" 
+                className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground transition-all duration-300"
+              >
+                <LogOut className="w-4 h-4" />
+                Odhlásiť sa
               </Button>
             </div>
           </div>
