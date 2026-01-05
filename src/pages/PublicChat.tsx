@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -32,6 +33,7 @@ interface ChatMessage {
 const PublicChat = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const onlineCount = useOnlineUsers();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -321,7 +323,13 @@ const PublicChat = () => {
             </div>
             <div>
               <h1 className="font-semibold text-foreground">Verejný chat</h1>
-              <p className="text-xs text-muted-foreground">Všetci používatelia</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                {onlineCount} online
+              </p>
             </div>
           </div>
           <MessageCircle className="h-5 w-5 text-muted-foreground" />
