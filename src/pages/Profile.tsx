@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,6 +48,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [roleLoading, setRoleLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -227,6 +228,72 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Neplatný súbor',
+        description: 'Prosím, nahrajte obrázok.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Súbor je príliš veľký',
+        description: 'Maximálna veľkosť je 5MB.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${profile.user_id}/${Date.now()}.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+
+      await refreshProfile();
+
+      toast({
+        title: 'Hotovo!',
+        description: 'Profilová fotka bola zmenená.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Chyba',
+        description: error.message || 'Nepodarilo sa nahrať fotku.',
+        variant: 'destructive'
+      });
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!profile) return;
 
@@ -291,16 +358,32 @@ const Profile = () => {
           {/* Profile Header */}
           <div className="p-6 rounded-2xl bg-card border border-border mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                {profile.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={`${profile.full_name} profilová fotka`}
-                    className="w-full h-full rounded-full object-cover"
+              <div className="relative group">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={`${profile.full_name} profilová fotka`}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-3xl">{profile.full_name.charAt(0)}</span>
+                  )}
+                </div>
+                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                    disabled={avatarUploading}
                   />
-                ) : (
-                  <span className="text-3xl">{profile.full_name.charAt(0)}</span>
-                )}
+                  {avatarUploading ? (
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-white" />
+                  )}
+                </label>
               </div>
               <div>
                 <div className="flex items-center gap-2">
