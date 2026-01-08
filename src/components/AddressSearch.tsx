@@ -56,7 +56,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
     try {
       // Include POIs, addresses, and places for better results like "Čadca Kaufland"
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&country=sk,cz,at,hu,pl&language=sk&limit=8&types=poi,address,place,locality,neighborhood`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&language=sk&limit=8&types=poi,address,place,locality,neighborhood`
       );
       const data = await response.json();
       setSuggestions(data.features || []);
