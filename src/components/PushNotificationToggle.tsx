@@ -1,4 +1,4 @@
-import { Bell, BellOff } from 'lucide-react';
+import { Bell, BellOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useToast } from '@/hooks/use-toast';
@@ -8,7 +8,11 @@ export function PushNotificationToggle() {
   const { toast } = useToast();
 
   if (!isSupported) {
-    return null;
+    return (
+      <p className="text-xs text-muted-foreground">
+        Push notifikácie nie sú podporované v tomto prehliadači.
+      </p>
+    );
   }
 
   const handleToggle = async () => {
@@ -18,6 +22,12 @@ export function PushNotificationToggle() {
         toast({
           title: 'Notifikácie vypnuté',
           description: 'Už nebudete dostávať push notifikácie.',
+        });
+      } else {
+        toast({
+          title: 'Chyba',
+          description: 'Nepodarilo sa vypnúť notifikácie.',
+          variant: 'destructive',
         });
       }
     } else {
@@ -33,6 +43,12 @@ export function PushNotificationToggle() {
           description: 'Povoľte notifikácie v nastaveniach prehliadača.',
           variant: 'destructive',
         });
+      } else {
+        toast({
+          title: 'Chyba',
+          description: 'Nepodarilo sa zapnúť notifikácie. Skúste to znova.',
+          variant: 'destructive',
+        });
       }
     }
   };
@@ -45,7 +61,12 @@ export function PushNotificationToggle() {
       disabled={isLoading}
       className="gap-2"
     >
-      {isSubscribed ? (
+      {isLoading ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Spracovávam...
+        </>
+      ) : isSubscribed ? (
         <>
           <Bell className="h-4 w-4" />
           Notifikácie zapnuté

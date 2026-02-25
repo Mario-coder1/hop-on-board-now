@@ -33,7 +33,9 @@ export function usePushNotifications() {
     
     if (supported) {
       setPermission(Notification.permission);
-      checkExistingSubscription();
+      if (profile?.id) {
+        checkExistingSubscription();
+      }
     }
   }, [profile?.id]);
 
@@ -42,10 +44,14 @@ export function usePushNotifications() {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await (registration as any).pushManager?.getSubscription();
+      const pm = (registration as any).pushManager;
+      if (!pm) {
+        console.warn('[Push] pushManager not available');
+        return;
+      }
+      const subscription = await pm.getSubscription();
       
       if (subscription) {
-        // Check if subscription exists in database
         const { data } = await supabase
           .from('push_subscriptions')
           .select('id')
@@ -58,7 +64,7 @@ export function usePushNotifications() {
         setIsSubscribed(false);
       }
     } catch (error) {
-      console.error('Error checking subscription:', error);
+      console.error('[Push] Error checking subscription:', error);
     }
   }, [profile?.id]);
 
@@ -67,7 +73,6 @@ export function usePushNotifications() {
       scope: '/'
     });
     
-    // Wait for the service worker to be ready
     await navigator.serviceWorker.ready;
     console.log('[Push] Service worker registered');
     
@@ -75,38 +80,42 @@ export function usePushNotifications() {
   };
 
   const subscribe = useCallback(async () => {
-    if (!profile?.id || !isSupported) return false;
+    if (!profile?.id || !isSupported) {
+      console.log('[Push] Cannot subscribe: no profile or not supported');
+      return false;
+    }
 
     setIsLoading(true);
     try {
-      // Request notification permission
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
       
       if (permissionResult !== 'granted') {
-        console.log('[Push] Permission denied');
+        console.log('[Push] Permission denied:', permissionResult);
         return false;
       }
 
-      // Register service worker
       const registration = await registerServiceWorker();
+      const pm = (registration as any).pushManager;
+      
+      if (!pm) {
+        console.error('[Push] pushManager not available on registration');
+        return false;
+      }
 
-      // Subscribe to push notifications
       const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-      const subscription = await (registration as any).pushManager.subscribe({
+      const subscription = await pm.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer
       });
 
-      console.log('[Push] Subscription created:', subscription);
+      console.log('[Push] Subscription created:', subscription.endpoint);
 
-      // Extract keys
       const keys = subscription.toJSON().keys;
       if (!keys?.p256dh || !keys?.auth) {
         throw new Error('Missing subscription keys');
       }
 
-      // Save to database
       const { error } = await supabase
         .from('push_subscriptions')
         .upsert({
@@ -141,13 +150,12 @@ export function usePushNotifications() {
     setIsLoading(true);
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await (registration as any).pushManager?.getSubscription();
+      const pm = (registration as any).pushManager;
+      const subscription = pm ? await pm.getSubscription() : null;
 
       if (subscription) {
-        // Unsubscribe from push
         await subscription.unsubscribe();
 
-        // Remove from database
         await supabase
           .from('push_subscriptions')
           .delete()
