@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useRideNotifications } from "@/hooks/useRideNotifications";
 import { useNotificationAlert } from "@/hooks/useNotificationAlert";
+import { useAutoSubscribePush } from "@/hooks/useAutoSubscribePush";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -50,6 +51,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const NotificationListener = () => {
   useRideNotifications();
   useNotificationAlert();
+  useAutoSubscribePush();
   return null;
 };
 
