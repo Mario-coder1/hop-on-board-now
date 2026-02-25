@@ -14,9 +14,9 @@ export const useRideNotifications = () => {
 
     subscribedRef.current = true;
 
-    // Subscribe to ride_requests changes for this passenger
-    const channel = supabase
-      .channel('ride-request-updates')
+    // Subscribe to ride_requests changes for this PASSENGER
+    const passengerChannel = supabase
+      .channel('ride-request-updates-passenger')
       .on(
         'postgres_changes',
         {
@@ -29,10 +29,8 @@ export const useRideNotifications = () => {
           const newStatus = payload.new.status;
           const oldStatus = payload.old.status;
 
-          // Only notify on status changes
           if (newStatus === oldStatus) return;
 
-          // Fetch ride details for the notification
           const { data: ride } = await supabase
             .from('rides')
             .select('origin_address, destination_address, driver:profiles!rides_driver_id_fkey(full_name)')
@@ -47,51 +45,30 @@ export const useRideNotifications = () => {
           if (newStatus === 'accepted') {
             notificationTitle = '🎉 Žiadosť prijatá!';
             notificationBody = `${driverName} prijal vašu žiadosť o jazdu. Môžete sledovať jeho polohu.`;
-            toast({
-              title: notificationTitle,
-              description: notificationBody,
-              duration: 8000,
-            });
-            playNotificationSound();
           } else if (newStatus === 'rejected') {
             notificationTitle = '😔 Žiadosť odmietnutá';
             notificationBody = `${driverName} odmietol vašu žiadosť. Skúste inú jazdu.`;
-            toast({
-              title: notificationTitle,
-              description: notificationBody,
-              variant: 'destructive',
-              duration: 8000,
-            });
-            playNotificationSound();
           } else if (newStatus === 'driver_arrived') {
             notificationTitle = '🚗 Vodič je na mieste!';
             notificationBody = `${driverName} práve prišiel na miesto vyzdvihnutia. Príďte k autu!`;
-            toast({
-              title: notificationTitle,
-              description: notificationBody,
-              duration: 10000,
-            });
-            playNotificationSound();
           } else if (newStatus === 'picked_up') {
             notificationTitle = '✅ Vyzdvihnutie potvrdené';
             notificationBody = `${driverName} potvrdil vaše vyzdvihnutie. Dobrú cestu!`;
-            toast({
-              title: notificationTitle,
-              description: notificationBody,
-              duration: 5000,
-            });
           } else if (newStatus === 'completed') {
             notificationTitle = '🏁 Jazda dokončená';
             notificationBody = `Vaša jazda s ${driverName} bola úspešne dokončená.`;
+          }
+
+          if (notificationTitle && notificationBody) {
             toast({
               title: notificationTitle,
               description: notificationBody,
-              duration: 5000,
+              duration: newStatus === 'driver_arrived' ? 10000 : 8000,
+              variant: newStatus === 'rejected' ? 'destructive' : undefined,
             });
-          }
+            playNotificationSound();
 
-          // Send push notification (works even when app is closed)
-          if (notificationTitle && notificationBody) {
+            // Send push notification to passenger (self) for when app is closed
             sendPushNotification(
               profile.id,
               notificationTitle,
@@ -103,11 +80,69 @@ export const useRideNotifications = () => {
       )
       .subscribe();
 
-    console.log('Subscribed to ride request notifications');
+    // Subscribe to NEW ride requests for this DRIVER
+    const driverChannel = supabase
+      .channel('ride-request-new-for-driver')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ride_requests',
+        },
+        async (payload) => {
+          const request = payload.new as {
+            id: string;
+            ride_id: string;
+            passenger_id: string;
+            pickup_address: string;
+            status: string;
+          };
+
+          // Check if this ride belongs to current user (driver)
+          const { data: ride } = await supabase
+            .from('rides')
+            .select('id, origin_address, destination_address, driver_id')
+            .eq('id', request.ride_id)
+            .eq('driver_id', profile.id)
+            .single();
+
+          if (!ride) return; // Not our ride
+
+          // Get passenger name
+          const { data: passenger } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', request.passenger_id)
+            .single();
+
+          const passengerName = passenger?.full_name || 'Cestujúci';
+          const notificationTitle = '🙋 Nová žiadosť o jazdu!';
+          const notificationBody = `${passengerName} sa chce pripojiť k vašej jazde z ${ride.origin_address}.`;
+
+          toast({
+            title: notificationTitle,
+            description: notificationBody,
+            duration: 10000,
+          });
+          playNotificationSound();
+
+          // Send push to driver (self)
+          sendPushNotification(
+            profile.id,
+            notificationTitle,
+            notificationBody,
+            { rideId: request.ride_id, requestId: request.id, type: 'new_request' }
+          );
+        }
+      )
+      .subscribe();
+
+    console.log('Subscribed to ride notifications (passenger + driver)');
 
     return () => {
-      console.log('Unsubscribing from ride request notifications');
-      supabase.removeChannel(channel);
+      supabase.removeChannel(passengerChannel);
+      supabase.removeChannel(driverChannel);
       subscribedRef.current = false;
     };
   }, [profile?.id, toast]);
