@@ -87,7 +87,12 @@ export function usePushNotifications() {
 
     setIsLoading(true);
     try {
-      const permissionResult = await Notification.requestPermission();
+      let permissionResult: NotificationPermission = Notification.permission;
+
+      if (permissionResult !== 'granted') {
+        permissionResult = await Notification.requestPermission();
+      }
+
       setPermission(permissionResult);
       
       if (permissionResult !== 'granted') {
@@ -106,7 +111,7 @@ export function usePushNotifications() {
       const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const subscription = await pm.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: applicationServerKey.buffer as ArrayBuffer
+        applicationServerKey
       });
 
       console.log('[Push] Subscription created:', subscription.endpoint);

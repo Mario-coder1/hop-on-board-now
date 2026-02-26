@@ -14,8 +14,9 @@ export function useAutoSubscribePush() {
   useEffect(() => {
     if (!profile?.id || !isSupported || isSubscribed || attemptedRef.current) return;
 
-    // Don't prompt if user already denied
-    if (permission === 'denied') return;
+    // Auto-subscribe only when permission is already granted.
+    // Browser permission prompt must be triggered by a direct user click.
+    if (permission !== 'granted') return;
 
     attemptedRef.current = true;
 

@@ -37,7 +37,7 @@ export function PushNotificationToggle() {
           title: 'Notifikácie povolené',
           description: 'Budete dostávať upozornenia aj keď je aplikácia zatvorená.',
         });
-      } else if (permission === 'denied') {
+      } else if ((typeof Notification !== 'undefined' ? Notification.permission : permission) === 'denied') {
         toast({
           title: 'Notifikácie zablokované',
           description: 'Povoľte notifikácie v nastaveniach prehliadača.',
