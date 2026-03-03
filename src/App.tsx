@@ -26,6 +26,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
+import TopDrivers from "./pages/TopDrivers";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const AppRoutes = () => {
         <Route path="/manage-passengers/:rideId" element={<ProtectedRoute><ManagePassengers /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
+        <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
         <Route path="/install" element={<Install />} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
