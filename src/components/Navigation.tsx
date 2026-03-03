@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield } from 'lucide-react';
+import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,11 +24,13 @@ const Navigation: React.FC = () => {
         { path: '/driver', icon: Home, label: 'Domov' },
         { path: '/create-ride', icon: PlusCircle, label: 'Nová jazda' },
         { path: '/my-rides', icon: Car, label: 'Moje jazdy' },
+        { path: '/top-drivers', icon: Trophy, label: 'TOP 5' },
       ]
     : [
         { path: '/passenger', icon: Home, label: 'Domov' },
         { path: '/search', icon: Search, label: 'Hľadať' },
         { path: '/my-trips', icon: MapPin, label: 'Moje cesty' },
+        { path: '/top-drivers', icon: Trophy, label: 'TOP 5' },
       ];
 
   return (
