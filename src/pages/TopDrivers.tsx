@@ -32,6 +32,7 @@ const TopDrivers: React.FC = () => {
       .select('id, full_name, avatar_url, rating, total_rides, car_model, badge')
       .eq('selected_role', 'driver')
       .not('rating', 'is', null)
+      .gt('total_rides', 0)
       .order('rating', { ascending: false })
       .order('total_rides', { ascending: false })
       .limit(5);
