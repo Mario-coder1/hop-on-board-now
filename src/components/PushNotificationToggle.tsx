@@ -4,13 +4,24 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useToast } from '@/hooks/use-toast';
 
 export function PushNotificationToggle() {
-  const { isSupported, isSubscribed, permission, isLoading, subscribe, unsubscribe } = usePushNotifications();
+  const {
+    isSupported,
+    isSubscribed,
+    permission,
+    isLoading,
+    unsupportedReason,
+    lastError,
+    subscribe,
+    unsubscribe
+  } = usePushNotifications();
   const { toast } = useToast();
 
   if (!isSupported) {
     return (
       <p className="text-xs text-muted-foreground">
-        Push notifikácie nie sú podporované v tomto prehliadači.
+        {unsupportedReason === 'ios_install_required'
+          ? 'Na iPhone fungujú push notifikácie až po nainštalovaní aplikácie na plochu (Zdieľať → Pridať na plochu).'
+          : 'Push notifikácie nie sú podporované v tomto prehliadači.'}
       </p>
     );
   }
@@ -41,6 +52,18 @@ export function PushNotificationToggle() {
         toast({
           title: 'Notifikácie zablokované',
           description: 'Povoľte notifikácie v nastaveniach prehliadača.',
+          variant: 'destructive',
+        });
+      } else if (lastError === 'ios_install_required') {
+        toast({
+          title: 'Najprv nainštalujte appku',
+          description: 'Na iPhone fungujú push notifikácie až po Pridať na plochu.',
+          variant: 'destructive',
+        });
+      } else if (lastError === 'database_error') {
+        toast({
+          title: 'Chyba uloženia',
+          description: 'Nepodarilo sa uložiť odber notifikácií, skúste to znova.',
           variant: 'destructive',
         });
       } else {

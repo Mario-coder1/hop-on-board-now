@@ -5,6 +5,25 @@ import { useAuth } from '@/contexts/AuthContext';
 // VAPID public key - must match the one in edge function
 const VAPID_PUBLIC_KEY = 'BNlR7VxH3G8jE4o8z2bF3pK5cQ9wY1nM6vS0hX4tA7iU2dL8rO9sP5jN3kW1yZ6mE8xC0bV4gF2aH7qJ5uT9oI3';
 
+type PushUnsupportedReason = 'browser_not_supported' | 'ios_install_required' | null;
+type PushSubscriptionError =
+  | 'not_supported'
+  | 'ios_install_required'
+  | 'permission_denied'
+  | 'service_worker_error'
+  | 'subscription_error'
+  | 'database_error'
+  | null;
+
+function isIOSDevice(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isStandalonePWA(): boolean {
+  return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+}
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
@@ -26,18 +45,8 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
-    setIsSupported(supported);
-    
-    if (supported) {
-      setPermission(Notification.permission);
-      if (profile?.id) {
-        checkExistingSubscription();
-      }
-    }
-  }, [profile?.id]);
+  const [unsupportedReason, setUnsupportedReason] = useState<PushUnsupportedReason>(null);
+  const [lastError, setLastError] = useState<PushSubscriptionError>(null);
 
   const checkExistingSubscription = useCallback(async () => {
     if (!profile?.id) return;
@@ -50,7 +59,7 @@ export function usePushNotifications() {
         return;
       }
       const subscription = await pm.getSubscription();
-      
+
       if (subscription) {
         const { data } = await supabase
           .from('push_subscriptions')
@@ -58,7 +67,7 @@ export function usePushNotifications() {
           .eq('profile_id', profile.id)
           .eq('endpoint', subscription.endpoint)
           .single();
-        
+
         setIsSubscribed(!!data);
       } else {
         setIsSubscribed(false);
@@ -68,20 +77,44 @@ export function usePushNotifications() {
     }
   }, [profile?.id]);
 
+  useEffect(() => {
+    const browserSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    const requiresStandalonePWA = browserSupported && isIOSDevice() && !isStandalonePWA();
+
+    setIsSupported(browserSupported && !requiresStandalonePWA);
+    setUnsupportedReason(
+      !browserSupported ? 'browser_not_supported' : requiresStandalonePWA ? 'ios_install_required' : null
+    );
+
+    if (browserSupported) {
+      setPermission(Notification.permission);
+      if (profile?.id && !requiresStandalonePWA) {
+        checkExistingSubscription();
+      }
+    }
+  }, [profile?.id, checkExistingSubscription]);
+
   const registerServiceWorker = async (): Promise<ServiceWorkerRegistration> => {
     const registration = await navigator.serviceWorker.register('/sw.js', {
       scope: '/'
     });
-    
+
     await navigator.serviceWorker.ready;
     console.log('[Push] Service worker registered');
-    
+
     return registration;
   };
 
   const subscribe = useCallback(async () => {
-    if (!profile?.id || !isSupported) {
-      console.log('[Push] Cannot subscribe: no profile or not supported');
+    setLastError(null);
+
+    if (!profile?.id) {
+      setLastError('not_supported');
+      return false;
+    }
+
+    if (!isSupported) {
+      setLastError(unsupportedReason === 'ios_install_required' ? 'ios_install_required' : 'not_supported');
       return false;
     }
 
@@ -94,16 +127,18 @@ export function usePushNotifications() {
       }
 
       setPermission(permissionResult);
-      
+
       if (permissionResult !== 'granted') {
+        setLastError('permission_denied');
         console.log('[Push] Permission denied:', permissionResult);
         return false;
       }
 
       const registration = await registerServiceWorker();
       const pm = (registration as any).pushManager;
-      
+
       if (!pm) {
+        setLastError('service_worker_error');
         console.error('[Push] pushManager not available on registration');
         return false;
       }
@@ -118,6 +153,7 @@ export function usePushNotifications() {
 
       const keys = subscription.toJSON().keys;
       if (!keys?.p256dh || !keys?.auth) {
+        setLastError('subscription_error');
         throw new Error('Missing subscription keys');
       }
 
@@ -133,21 +169,29 @@ export function usePushNotifications() {
         });
 
       if (error) {
+        setLastError('database_error');
         console.error('[Push] Error saving subscription:', error);
         throw error;
       }
 
       setIsSubscribed(true);
+      setLastError(null);
       console.log('[Push] Successfully subscribed');
       return true;
 
     } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+      if (message.includes('standalone') || message.includes('add to home screen')) {
+        setLastError('ios_install_required');
+      } else if (!lastError) {
+        setLastError('subscription_error');
+      }
       console.error('[Push] Error subscribing:', error);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [profile?.id, isSupported]);
+  }, [profile?.id, isSupported, unsupportedReason, lastError]);
 
   const unsubscribe = useCallback(async () => {
     if (!profile?.id) return false;
@@ -169,6 +213,7 @@ export function usePushNotifications() {
       }
 
       setIsSubscribed(false);
+      setLastError(null);
       console.log('[Push] Successfully unsubscribed');
       return true;
 
@@ -185,6 +230,8 @@ export function usePushNotifications() {
     isSubscribed,
     permission,
     isLoading,
+    unsupportedReason,
+    lastError,
     subscribe,
     unsubscribe
   };
