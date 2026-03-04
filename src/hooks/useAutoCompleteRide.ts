@@ -141,9 +141,9 @@ export const useAutoCompleteRide = (
 
       console.log(`Distance to destination: ${distance.toFixed(1)}m`);
 
-      // Auto-complete if within 5 meters
-      if (distance <= 5 && !hasCompletedRef.current) {
-        console.log('Within 5m of destination, completing ride...');
+      // Auto-complete if within 50 meters (GPS accuracy on mobile is ±10-30m)
+      if (distance <= 50 && !hasCompletedRef.current) {
+        console.log('Within 50m of destination, completing ride...');
         await completeRide();
       }
     };
@@ -179,8 +179,8 @@ export const useAutoCompleteRide = (
 
             console.log(`Real-time distance to destination: ${distance.toFixed(1)}m`);
 
-            if (distance <= 5 && !hasCompletedRef.current) {
-              console.log('Within 5m of destination (real-time), completing ride...');
+            if (distance <= 50 && !hasCompletedRef.current) {
+              console.log('Within 50m of destination (real-time), completing ride...');
               await completeRide();
             }
           }
