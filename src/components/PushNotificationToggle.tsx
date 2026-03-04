@@ -10,7 +10,6 @@ export function PushNotificationToggle() {
     permission,
     isLoading,
     unsupportedReason,
-    lastError,
     subscribe,
     unsubscribe
   } = usePushNotifications();
@@ -41,39 +40,63 @@ export function PushNotificationToggle() {
           variant: 'destructive',
         });
       }
-    } else {
-      const success = await subscribe();
-      if (success) {
-        toast({
-          title: 'Notifikácie povolené',
-          description: 'Budete dostávať upozornenia aj keď je aplikácia zatvorená.',
-        });
-      } else if ((typeof Notification !== 'undefined' ? Notification.permission : permission) === 'denied') {
+      return;
+    }
+
+    const result = await subscribe();
+    if (result.success) {
+      toast({
+        title: 'Notifikácie povolené',
+        description: 'Budete dostávať upozornenia aj keď je aplikácia zatvorená.',
+      });
+      return;
+    }
+
+    if ('error' in result) {
+      const error = result.error;
+
+      if ((typeof Notification !== 'undefined' ? Notification.permission : permission) === 'denied' || error === 'permission_denied') {
         toast({
           title: 'Notifikácie zablokované',
           description: 'Povoľte notifikácie v nastaveniach prehliadača.',
           variant: 'destructive',
         });
-      } else if (lastError === 'ios_install_required') {
+        return;
+      }
+
+      if (error === 'ios_install_required') {
         toast({
           title: 'Najprv nainštalujte appku',
           description: 'Na iPhone fungujú push notifikácie až po Pridať na plochu.',
           variant: 'destructive',
         });
-      } else if (lastError === 'database_error') {
+        return;
+      }
+
+      if (error === 'database_error') {
         toast({
           title: 'Chyba uloženia',
           description: 'Nepodarilo sa uložiť odber notifikácií, skúste to znova.',
           variant: 'destructive',
         });
-      } else {
+        return;
+      }
+
+      if (error === 'service_worker_error') {
         toast({
-          title: 'Chyba',
-          description: 'Nepodarilo sa zapnúť notifikácie. Skúste to znova.',
+          title: 'Chyba služby notifikácií',
+          description: 'Skúste appku úplne zavrieť a otvoriť znova.',
           variant: 'destructive',
         });
+        return;
       }
     }
+
+    toast({
+      title: 'Chyba',
+      description: 'Nepodarilo sa zapnúť notifikácie. Skúste to znova.',
+      variant: 'destructive',
+    });
   };
 
   return (

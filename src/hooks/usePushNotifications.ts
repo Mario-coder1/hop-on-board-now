@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const VAPID_PUBLIC_KEY = 'BNlR7VxH3G8jE4o8z2bF3pK5cQ9wY1nM6vS0hX4tA7iU2dL8rO9sP5jN3kW1yZ6mE8xC0bV4gF2aH7qJ5uT9oI3';
 
 type PushUnsupportedReason = 'browser_not_supported' | 'ios_install_required' | null;
-type PushSubscriptionError =
+export type PushSubscriptionError =
   | 'not_supported'
   | 'ios_install_required'
   | 'permission_denied'
@@ -14,6 +14,10 @@ type PushSubscriptionError =
   | 'subscription_error'
   | 'database_error'
   | null;
+
+export type PushSubscribeResult =
+  | { success: true }
+  | { success: false; error: Exclude<PushSubscriptionError, null> };
 
 function isIOSDevice(): boolean {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -105,17 +109,18 @@ export function usePushNotifications() {
     return registration;
   };
 
-  const subscribe = useCallback(async () => {
+  const subscribe = useCallback(async (): Promise<PushSubscribeResult> => {
     setLastError(null);
 
     if (!profile?.id) {
       setLastError('not_supported');
-      return false;
+      return { success: false, error: 'not_supported' };
     }
 
     if (!isSupported) {
-      setLastError(unsupportedReason === 'ios_install_required' ? 'ios_install_required' : 'not_supported');
-      return false;
+      const error = unsupportedReason === 'ios_install_required' ? 'ios_install_required' : 'not_supported';
+      setLastError(error);
+      return { success: false, error };
     }
 
     setIsLoading(true);
@@ -131,7 +136,7 @@ export function usePushNotifications() {
       if (permissionResult !== 'granted') {
         setLastError('permission_denied');
         console.log('[Push] Permission denied:', permissionResult);
-        return false;
+        return { success: false, error: 'permission_denied' };
       }
 
       const registration = await registerServiceWorker();
@@ -140,7 +145,7 @@ export function usePushNotifications() {
       if (!pm) {
         setLastError('service_worker_error');
         console.error('[Push] pushManager not available on registration');
-        return false;
+        return { success: false, error: 'service_worker_error' };
       }
 
       const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -171,27 +176,33 @@ export function usePushNotifications() {
       if (error) {
         setLastError('database_error');
         console.error('[Push] Error saving subscription:', error);
-        throw error;
+        return { success: false, error: 'database_error' };
       }
 
       setIsSubscribed(true);
       setLastError(null);
       console.log('[Push] Successfully subscribed');
-      return true;
+      return { success: true };
 
     } catch (error) {
       const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+
+      let derivedError: Exclude<PushSubscriptionError, null> = 'subscription_error';
       if (message.includes('standalone') || message.includes('add to home screen')) {
-        setLastError('ios_install_required');
-      } else if (!lastError) {
-        setLastError('subscription_error');
+        derivedError = 'ios_install_required';
+      } else if (message.includes('service worker') || message.includes('pushmanager')) {
+        derivedError = 'service_worker_error';
+      } else if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        derivedError = 'permission_denied';
       }
+
+      setLastError(derivedError);
       console.error('[Push] Error subscribing:', error);
-      return false;
+      return { success: false, error: derivedError };
     } finally {
       setIsLoading(false);
     }
-  }, [profile?.id, isSupported, unsupportedReason, lastError]);
+  }, [profile?.id, isSupported, unsupportedReason]);
 
   const unsubscribe = useCallback(async () => {
     if (!profile?.id) return false;
