@@ -22,8 +22,8 @@ export function useAutoSubscribePush() {
 
     // Small delay to let the app settle after login
     const timer = setTimeout(() => {
-      subscribe().then((success) => {
-        if (success) {
+      subscribe().then((result) => {
+        if (result.success) {
           console.log('[AutoPush] Successfully auto-subscribed to push notifications');
         }
       });
