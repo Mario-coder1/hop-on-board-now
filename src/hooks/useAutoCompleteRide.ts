@@ -29,6 +29,8 @@ const calculateDistance = (
   return R * c; // Distance in meters
 };
 
+const PROXIMITY_THRESHOLD = 50; // meters
+
 export const useAutoCompleteRide = (
   rideId: string | null,
   destination: Destination | null,
@@ -111,26 +113,63 @@ export const useAutoCompleteRide = (
   }, [rideId, toast]);
 
   useEffect(() => {
-    if (!rideId || !destination || !profileId || !isTracking) {
+    if (!rideId || !destination || !profileId) {
       return;
     }
 
     // Reset completion flag when ride changes
     hasCompletedRef.current = false;
 
-    const checkProximity = async () => {
+    if (!navigator.geolocation) {
+      console.error('Geolocation not available');
+      return;
+    }
+
+    // Use direct GPS for proximity checks - much more reliable than DB round-trip
+    const checkProximityViaGPS = () => {
       if (hasCompletedRef.current) return;
 
-      // Get current driver location
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          if (hasCompletedRef.current) return;
+
+          const distance = calculateDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            destination.lat,
+            destination.lng
+          );
+
+          console.log(`[AutoComplete] GPS distance to destination: ${distance.toFixed(1)}m`);
+
+          if (distance <= PROXIMITY_THRESHOLD && !hasCompletedRef.current) {
+            console.log(`Within ${PROXIMITY_THRESHOLD}m of destination, completing ride...`);
+            await completeRide();
+          }
+        },
+        (error) => {
+          console.warn('[AutoComplete] GPS error, falling back to DB:', error.message);
+          // Fallback: check from user_locations table
+          checkProximityFromDB();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 3000
+        }
+      );
+    };
+
+    const checkProximityFromDB = async () => {
+      if (hasCompletedRef.current) return;
+
       const { data: locationData, error } = await supabase
         .from('user_locations')
         .select('lat, lng')
         .eq('profile_id', profileId)
         .maybeSingle();
 
-      if (error || !locationData) {
-        return;
-      }
+      if (error || !locationData) return;
 
       const distance = calculateDistance(
         Number(locationData.lat),
@@ -139,60 +178,61 @@ export const useAutoCompleteRide = (
         destination.lng
       );
 
-      console.log(`Distance to destination: ${distance.toFixed(1)}m`);
+      console.log(`[AutoComplete] DB distance to destination: ${distance.toFixed(1)}m`);
 
-      // Auto-complete if within 50 meters (GPS accuracy on mobile is ±10-30m)
-      if (distance <= 50 && !hasCompletedRef.current) {
-        console.log('Within 50m of destination, completing ride...');
+      if (distance <= PROXIMITY_THRESHOLD && !hasCompletedRef.current) {
+        console.log(`Within ${PROXIMITY_THRESHOLD}m of destination (DB), completing ride...`);
         await completeRide();
       }
     };
 
     // Check immediately
-    checkProximity();
+    checkProximityViaGPS();
 
-    // Check every 3 seconds while tracking
-    const interval = setInterval(checkProximity, 3000);
+    // Check every 5 seconds via GPS
+    const interval = setInterval(checkProximityViaGPS, 5000);
 
-    // Also subscribe to location updates for real-time checking
-    const channel = supabase
-      .channel(`auto-complete-${rideId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_locations',
-          filter: `profile_id=eq.${profileId}`
-        },
-        async (payload) => {
+    // Also use watchPosition for continuous monitoring
+    let watchId: number | null = null;
+    try {
+      watchId = navigator.geolocation.watchPosition(
+        async (position) => {
           if (hasCompletedRef.current) return;
-          
-          if (payload.new && typeof payload.new === 'object') {
-            const newData = payload.new as any;
-            const distance = calculateDistance(
-              Number(newData.lat),
-              Number(newData.lng),
-              destination.lat,
-              destination.lng
-            );
 
-            console.log(`Real-time distance to destination: ${distance.toFixed(1)}m`);
+          const distance = calculateDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            destination.lat,
+            destination.lng
+          );
 
-            if (distance <= 50 && !hasCompletedRef.current) {
-              console.log('Within 50m of destination (real-time), completing ride...');
-              await completeRide();
-            }
+          console.log(`[AutoComplete] Watch distance: ${distance.toFixed(1)}m`);
+
+          if (distance <= PROXIMITY_THRESHOLD && !hasCompletedRef.current) {
+            console.log(`Within ${PROXIMITY_THRESHOLD}m (watch), completing ride...`);
+            await completeRide();
           }
+        },
+        (error) => {
+          console.warn('[AutoComplete] Watch error:', error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 2000
         }
-      )
-      .subscribe();
+      );
+    } catch (e) {
+      console.warn('[AutoComplete] watchPosition not available');
+    }
 
     return () => {
       clearInterval(interval);
-      supabase.removeChannel(channel);
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
     };
-  }, [rideId, destination, profileId, isTracking, completeRide]);
+  }, [rideId, destination, profileId, completeRide]);
 
   return { completeRide };
 };
