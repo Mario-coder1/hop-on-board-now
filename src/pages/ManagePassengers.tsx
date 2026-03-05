@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,13 +54,22 @@ const ManagePassengers = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPassenger, setSelectedPassenger] = useState<AcceptedPassenger | null>(null);
 
-  // Auto-complete ride when driver arrives at destination (within 5m)
-  useAutoCompleteRide(
+  // Auto-complete ride when driver arrives at destination (within 50m)
+  const { completeRide } = useAutoCompleteRide(
     rideId || null,
     ride ? { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) } : null,
     profile?.id || null,
     isTracking
   );
+
+  const [completing, setCompleting] = useState(false);
+
+  const handleManualComplete = async () => {
+    setCompleting(true);
+    await completeRide();
+    setCompleting(false);
+    navigate('/driver');
+  };
 
   useEffect(() => {
     if (rideId && profile) {
@@ -312,11 +321,24 @@ const ManagePassengers = () => {
           </p>
           
           {isTracking && (
-            <p className="text-sm text-muted-foreground mb-6 flex items-center gap-2">
+            <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              Jazda sa automaticky ukončí po príchode do cieľa (5m)
+              Jazda sa automaticky ukončí po príchode do cieľa (50m)
             </p>
           )}
+
+          {/* Manual complete button */}
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              onClick={handleManualComplete}
+              disabled={completing}
+            >
+              <Flag className="w-4 h-4" />
+              {completing ? 'Dokončujem...' : 'Dokončiť jazdu manuálne'}
+            </Button>
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Passengers List */}
