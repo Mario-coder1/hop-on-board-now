@@ -157,17 +157,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify shared internal secret
-    const internalSecret = Deno.env.get('INTERNAL_PUSH_SECRET');
-    const providedSecret = req.headers.get('x-internal-secret');
-    if (!internalSecret || providedSecret !== internalSecret) {
-      console.warn('[InternalPush] Invalid or missing internal secret');
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const vapidPub = Deno.env.get('VAPID_PUBLIC_KEY') || 'BNlR7VxH3G8jE4o8z2bF3pK5cQ9wY1nM6vS0hX4tA7iU2dL8rO9sP5jN3kW1yZ6mE8xC0bV4gF2aH7qJ5uT9oI3';
@@ -176,6 +165,26 @@ serve(async (req) => {
     if (!vapidPriv) {
       return new Response(JSON.stringify({ error: 'Push not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify shared internal secret (loaded from private.app_config table)
+    const { data: secretRow } = await supabase
+      .schema('private' as never)
+      .from('app_config' as never)
+      .select('value')
+      .eq('key', 'internal_push_secret')
+      .maybeSingle();
+
+    const expectedSecret = (secretRow as { value?: string } | null)?.value;
+    const providedSecret = req.headers.get('x-internal-secret');
+    if (!expectedSecret || providedSecret !== expectedSecret) {
+      console.warn('[InternalPush] Invalid or missing internal secret');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
