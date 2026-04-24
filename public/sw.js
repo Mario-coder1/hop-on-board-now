@@ -1,4 +1,9 @@
-// Service Worker for Push Notifications
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
+
+// Service Worker for PWA + Push Notifications
+precacheAndRoute(self.__WB_MANIFEST || []);
+cleanupOutdatedCaches();
+
 self.addEventListener('push', function(event) {
   console.log('[SW] Push received:', event);
   
