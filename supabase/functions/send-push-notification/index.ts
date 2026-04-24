@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import webpush from "https://esm.sh/web-push@3.6.7?target=deno";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,37 +14,19 @@ interface PushPayload {
   tag?: string;
 }
 
-function base64UrlDecode(str: string): Uint8Array {
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
-  while (str.length % 4) str += '=';
-  const binary = atob(str);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
 async function sendWebPush(
-  endpoint: string,
-  p256dh: string,
-  auth: string,
-  payload: string,
-  vapidPublicKeyBase64: string,
-  vapidPrivateKeyBase64: string
+  supabaseUrl: string,
+  internalSecret: string,
+  payload: PushPayload
 ): Promise<Response> {
-  const normalizedPrivateKey = (() => {
-    const bytes = base64UrlDecode(vapidPrivateKeyBase64);
-    return bytes.length > 32
-      ? btoa(String.fromCharCode(...bytes.slice(bytes.length - 32))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-      : vapidPrivateKeyBase64;
-  })();
-
-  webpush.setVapidDetails('mailto:noreply@takeme.app', vapidPublicKeyBase64, normalizedPrivateKey);
-
-  return await webpush.sendNotification(
-    { endpoint, keys: { p256dh, auth } },
-    payload,
-    { TTL: 86400, urgency: 'high' }
-  );
+  return fetch(`${supabaseUrl}/functions/v1/internal-send-push`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-internal-secret': internalSecret,
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 // --- Main Handler ---
