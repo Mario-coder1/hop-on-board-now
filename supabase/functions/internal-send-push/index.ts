@@ -170,13 +170,16 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify shared internal secret. We use the service role key as the shared secret
-    // since both the database (via vault/config) and the edge function have access to it.
-    const expectedSecret = supabaseServiceKey;
+    // Verify shared internal secret via secure RPC (only service_role can execute it).
+    const { data: secretValue, error: secretErr } = await supabase.rpc('get_internal_push_secret' as never);
+    if (secretErr) {
+      console.error('[InternalPush] Failed to load secret:', secretErr);
+    }
+    const expectedSecret = (secretValue as string | null) ?? undefined;
     const providedSecret = req.headers.get('x-internal-secret');
 
     if (!expectedSecret || providedSecret !== expectedSecret) {
-      console.warn('[InternalPush] Invalid or missing internal secret');
+      console.warn('[InternalPush] Invalid or missing internal secret', { hasExpected: !!expectedSecret, hasProvided: !!providedSecret });
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
