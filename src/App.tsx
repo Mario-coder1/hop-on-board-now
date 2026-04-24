@@ -27,6 +27,7 @@ import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
 import TopDrivers from "./pages/TopDrivers";
+import ActiveRideFAB from "./components/ActiveRideFAB";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const AppRoutes = () => {
   return (
     <>
       <NotificationListener />
+      <ActiveRideFAB />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
