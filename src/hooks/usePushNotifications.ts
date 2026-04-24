@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-// VAPID public key - must match the one in edge function (VAPID_PRIVATE_KEY secret)
-const VAPID_PUBLIC_KEY = 'BMFdbQaBbu2krFATfk2b2HZBGKYSWWYc8_wUKKZUxiW9pOBaNW14JbnUj8ofrummU89lycrSXaXjaJlQ0t_qtfk';
+// VAPID public key - must match the one hardcoded in supabase/functions/internal-send-push/index.ts
+const VAPID_PUBLIC_KEY = 'BJvuHuOuT9RaGband3V0sHNlQdlOrdJ5SLk2l45kt5pOw29dgC8LvVVBLiM8fqHHU-tShI-f5zmW8EMYC9kcAxU';
 
 type PushUnsupportedReason = 'browser_not_supported' | 'ios_install_required' | null;
 export type PushSubscriptionError =
