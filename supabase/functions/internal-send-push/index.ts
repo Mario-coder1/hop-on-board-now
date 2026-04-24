@@ -170,16 +170,11 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify shared internal secret. Prefer env var (fast, reliable).
-    // Fallback: query private.app_config via RPC (the JS client cannot read non-public schemas directly).
-    let expectedSecret: string | undefined = Deno.env.get('INTERNAL_PUSH_SECRET') ?? undefined;
-
-    if (!expectedSecret) {
-      const { data: secretRow } = await supabase.rpc('get_internal_push_secret' as never);
-      expectedSecret = (secretRow as string | null) ?? undefined;
-    }
-
+    // Verify shared internal secret. We use the service role key as the shared secret
+    // since both the database (via vault/config) and the edge function have access to it.
+    const expectedSecret = supabaseServiceKey;
     const providedSecret = req.headers.get('x-internal-secret');
+
     if (!expectedSecret || providedSecret !== expectedSecret) {
       console.warn('[InternalPush] Invalid or missing internal secret');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
