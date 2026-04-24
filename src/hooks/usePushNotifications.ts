@@ -148,6 +148,12 @@ export function usePushNotifications() {
         return { success: false, error: 'service_worker_error' };
       }
 
+      const existingSubscription = await pm.getSubscription();
+      if (existingSubscription) {
+        console.log('[Push] Existing subscription found, refreshing it');
+        await existingSubscription.unsubscribe();
+      }
+
       const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const subscription = await pm.subscribe({
         userVisibleOnly: true,
@@ -192,6 +198,8 @@ export function usePushNotifications() {
         derivedError = 'ios_install_required';
       } else if (message.includes('service worker') || message.includes('pushmanager')) {
         derivedError = 'service_worker_error';
+      } else if (message.includes('invalidstateerror') || message.includes('already subscribed')) {
+        derivedError = 'subscription_error';
       } else if (error instanceof DOMException && error.name === 'NotAllowedError') {
         derivedError = 'permission_denied';
       }
