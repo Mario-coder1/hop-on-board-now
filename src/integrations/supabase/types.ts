@@ -835,6 +835,7 @@ export type Database = {
     }
     Functions: {
       current_profile_id: { Args: never; Returns: string }
+      get_internal_push_secret: { Args: never; Returns: string }
       has_ride_request: { Args: { _ride_id: string }; Returns: boolean }
       has_role: {
         Args: {
