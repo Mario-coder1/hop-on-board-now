@@ -45,9 +45,8 @@ async function importVapidKeys(publicKeyBase64: string, privateKeyBase64: string
   );
 
   let privateKey: CryptoKey;
-  
+
   if (privateKeyBytes.length === 32) {
-    // Raw 32-byte private key - wrap in PKCS8 structure
     const pkcs8Header = new Uint8Array([
       0x30, 0x41, 0x02, 0x01, 0x00, 0x30, 0x13, 0x06, 0x07,
       0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08,
@@ -55,22 +54,23 @@ async function importVapidKeys(publicKeyBase64: string, privateKeyBase64: string
       0x27, 0x30, 0x25, 0x02, 0x01, 0x01, 0x04, 0x20
     ]);
     const pkcs8 = concat(pkcs8Header, privateKeyBytes);
-    privateKey = await crypto.subtle.importKey(
-      'pkcs8',
-      pkcs8,
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
-      ['sign']
-    );
+    privateKey = await crypto.subtle.importKey('pkcs8', pkcs8, { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
   } else {
-    // Already PKCS8 format
-    privateKey = await crypto.subtle.importKey(
-      'pkcs8',
-      privateKeyBytes,
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
-      ['sign']
-    );
+    try {
+      privateKey = await crypto.subtle.importKey('pkcs8', privateKeyBytes, { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
+    } catch {
+      const maybeRawPrivateKey = privateKeyBytes.length > 32
+        ? privateKeyBytes.slice(privateKeyBytes.length - 32)
+        : privateKeyBytes;
+      const pkcs8Header = new Uint8Array([
+        0x30, 0x41, 0x02, 0x01, 0x00, 0x30, 0x13, 0x06, 0x07,
+        0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08,
+        0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07, 0x04,
+        0x27, 0x30, 0x25, 0x02, 0x01, 0x01, 0x04, 0x20
+      ]);
+      const pkcs8 = concat(pkcs8Header, maybeRawPrivateKey);
+      privateKey = await crypto.subtle.importKey('pkcs8', pkcs8, { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
+    }
   }
 
   return { publicKey, privateKey, publicKeyBytes };
@@ -309,7 +309,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY') || 'BNlR7VxH3G8jE4o8z2bF3pK5cQ9wY1nM6vS0hX4tA7iU2dL8rO9sP5jN3kW1yZ6mE8xC0bV4gF2aH7qJ5uT9oI3';
+    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY') || 'BNhAdOr-WSdStFchoXGKtkQCfhv3JpoMBEgA433DV3tDLSxKwYvZwFwDZpCoKvfu_WCK7qdRXmWUleRf9n-JsEM';
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
 
     if (!vapidPrivateKey) {
