@@ -159,7 +159,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const vapidPub = Deno.env.get('VAPID_PUBLIC_KEY') || 'BMXQaCFjd8lhW3dxZFjsSGQn0e5_lf5vucIG1mFqNbqpIDTvXsk2-Ewhj5JW9YuwY6wLwSJF6OTRVWJqSnTSeog';
+    const vapidPub = Deno.env.get('VAPID_PUBLIC_KEY') || 'BMr68zmE3tPjZrDv9MAdiOFFIsX7TgBXIARD4PaqOnKBFg40PNjcnR4QhBy5kSEdLEtix23CeHlIVbKd95UfD0E';
     const vapidPriv = Deno.env.get('VAPID_PRIVATE_KEY');
 
     if (!vapidPriv) {
