@@ -170,15 +170,15 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify shared internal secret (loaded from private.app_config table)
-    const { data: secretRow } = await supabase
-      .schema('private' as never)
-      .from('app_config' as never)
-      .select('value')
-      .eq('key', 'internal_push_secret')
-      .maybeSingle();
+    // Verify shared internal secret. Prefer env var (fast, reliable).
+    // Fallback: query private.app_config via RPC (the JS client cannot read non-public schemas directly).
+    let expectedSecret: string | undefined = Deno.env.get('INTERNAL_PUSH_SECRET') ?? undefined;
 
-    const expectedSecret = (secretRow as { value?: string } | null)?.value;
+    if (!expectedSecret) {
+      const { data: secretRow } = await supabase.rpc('get_internal_push_secret' as never);
+      expectedSecret = (secretRow as string | null) ?? undefined;
+    }
+
     const providedSecret = req.headers.get('x-internal-secret');
     if (!expectedSecret || providedSecret !== expectedSecret) {
       console.warn('[InternalPush] Invalid or missing internal secret');
