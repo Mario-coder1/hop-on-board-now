@@ -195,8 +195,6 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const { data: subscriptions, error: subError } = await supabase
       .from('push_subscriptions')
       .select('*')
