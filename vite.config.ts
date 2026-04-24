@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => ({
       strategies: "injectManifest",
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      injectManifest: {
+        injectionPoint: undefined,
+      },
       // Disable SW in dev to prevent caching issues
       devOptions: {
         enabled: false,
