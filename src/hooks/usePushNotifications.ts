@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 // VAPID public key - must match the one in edge function (VAPID_PRIVATE_KEY secret)
-const VAPID_PUBLIC_KEY = 'BAiDT0GTKY-bto0BBkja2tFtecg6bkHZTmA3QUwBTwpzTvYMzC0QkmInEB_8J2XKywVla66a1JhIip22LurJBM4';
+const VAPID_PUBLIC_KEY = 'BMXQaCFjd8lhW3dxZFjsSGQn0e5_lf5vucIG1mFqNbqpIDTvXsk2-Ewhj5JW9YuwY6wLwSJF6OTRVWJqSnTSeog';
 
 type PushUnsupportedReason = 'browser_not_supported' | 'ios_install_required' | null;
 export type PushSubscriptionError =
