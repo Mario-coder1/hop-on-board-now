@@ -40,16 +40,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY') || 'BNhAdOr-WSdStFchoXGKtkQCfhv3JpoMBEgA433DV3tDLSxKwYvZwFwDZpCoKvfu_WCK7qdRXmWUleRf9n-JsEM';
-    const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
-
-    if (!vapidPrivateKey) {
-      console.error('[Push] VAPID_PRIVATE_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'Push notifications not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -152,51 +142,28 @@ serve(async (req) => {
 
     console.log(`[Push] Found ${subscriptions.length} subscription(s)`);
 
-    const notificationPayload = JSON.stringify({
-      title,
-      body,
-      icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
-      data: data || {},
-      tag: tag || 'takeme-notification',
-    });
-
-    let sent = 0;
-    const errors: string[] = [];
-
-    for (const sub of subscriptions) {
-      try {
-        const response = await sendWebPush(
-          sub.endpoint,
-          sub.p256dh,
-          sub.auth,
-          notificationPayload,
-          vapidPublicKey,
-          vapidPrivateKey
-        );
-
-        if (response.status === 201 || response.status === 200) {
-          sent++;
-          console.log(`[Push] Sent successfully to ${sub.endpoint.substring(0, 50)}...`);
-        } else if (response.status === 410 || response.status === 404) {
-          // Subscription expired, remove it
-          console.log(`[Push] Subscription expired, removing: ${sub.id}`);
-          await supabase.from('push_subscriptions').delete().eq('id', sub.id);
-        } else {
-          const errorBody = await response.text();
-          console.error(`[Push] Failed with status ${response.status}: ${errorBody}`);
-          errors.push(`${response.status}: ${errorBody}`);
-        }
-      } catch (error) {
-        console.error(`[Push] Error sending to subscription ${sub.id}:`, error);
-        errors.push(String(error));
-      }
+    const { data: secretValue, error: secretErr } = await supabase.rpc('get_internal_push_secret' as never);
+    if (secretErr || !secretValue) {
+      console.error('[Push] Failed to load internal push secret', secretErr);
+      return new Response(
+        JSON.stringify({ error: 'Push notifications not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    return new Response(
-      JSON.stringify({ success: sent > 0, sent, total: subscriptions.length, errors }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const response = await sendWebPush(supabaseUrl, secretValue as string, {
+      profile_id,
+      title,
+      body,
+      data,
+      tag,
+    });
+
+    const responseBody = await response.text();
+    return new Response(responseBody, {
+      status: response.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
     console.error('[Push] Error:', error);
