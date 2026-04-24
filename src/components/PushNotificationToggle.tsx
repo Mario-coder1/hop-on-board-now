@@ -1,10 +1,7 @@
-import { useState } from 'react';
-import { Bell, BellOff, Loader2, Send } from 'lucide-react';
+import { Bell, BellOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
 export function PushNotificationToggle() {
   const {
@@ -17,8 +14,6 @@ export function PushNotificationToggle() {
     unsubscribe
   } = usePushNotifications();
   const { toast } = useToast();
-  const { profile } = useAuth();
-  const [testLoading, setTestLoading] = useState(false);
 
   if (!isSupported) {
     return (
@@ -104,101 +99,30 @@ export function PushNotificationToggle() {
     });
   };
 
-  const handleSendTest = async () => {
-    if (!profile?.id) return;
-    setTestLoading(true);
-    try {
-      const { count, error: countError } = await supabase
-        .from('push_subscriptions')
-        .select('id', { count: 'exact', head: true })
-        .eq('profile_id', profile.id);
-
-      if (countError) throw countError;
-
-      if (!count || count === 0) {
-        toast({
-          title: 'Žiadny aktívny odber',
-          description: 'Najprv zapnite notifikácie a povoľte ich v prehliadači.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const { error } = await supabase.functions.invoke('send-push-notification', {
-        body: {
-          profile_id: profile.id,
-          title: '🔔 Testovacia notifikácia',
-          body: 'Skvelé! Push notifikácie fungujú správne.',
-          data: { type: 'test' },
-          tag: 'test-push',
-        },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Test odoslaný',
-        description: `Notifikácia bola odoslaná na ${count} zariadenie(í).`,
-      });
-    } catch (error: any) {
-      console.error('[Push] Test error:', error);
-      toast({
-        title: 'Chyba odoslania',
-        description: error?.message || 'Nepodarilo sa odoslať testovaciu notifikáciu.',
-        variant: 'destructive',
-      });
-    } finally {
-      setTestLoading(false);
-    }
-  };
-
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        variant={isSubscribed ? 'secondary' : 'outline'}
-        size="sm"
-        onClick={handleToggle}
-        disabled={isLoading}
-        className="gap-2"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Spracovávam...
-          </>
-        ) : isSubscribed ? (
-          <>
-            <Bell className="h-4 w-4" />
-            Notifikácie zapnuté
-          </>
-        ) : (
-          <>
-            <BellOff className="h-4 w-4" />
-            Zapnúť notifikácie
-          </>
-        )}
-      </Button>
-      {isSubscribed && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSendTest}
-          disabled={testLoading}
-          className="gap-2"
-        >
-          {testLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Odosielam...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4" />
-              Pošli mi test push
-            </>
-          )}
-        </Button>
+    <Button
+      variant={isSubscribed ? 'secondary' : 'outline'}
+      size="sm"
+      onClick={handleToggle}
+      disabled={isLoading}
+      className="gap-2"
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Spracovávam...
+        </>
+      ) : isSubscribed ? (
+        <>
+          <Bell className="h-4 w-4" />
+          Notifikácie zapnuté
+        </>
+      ) : (
+        <>
+          <BellOff className="h-4 w-4" />
+          Zapnúť notifikácie
+        </>
       )}
-    </div>
+    </Button>
   );
 }
