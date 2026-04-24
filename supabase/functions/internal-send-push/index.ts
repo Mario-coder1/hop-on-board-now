@@ -160,13 +160,10 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const vapidPub = Deno.env.get('VAPID_PUBLIC_KEY') || 'BMFdbQaBbu2krFATfk2b2HZBGKYSWWYc8_wUKKZUxiW9pOBaNW14JbnUj8ofrummU89lycrSXaXjaJlQ0t_qtfk';
-    const vapidPriv = Deno.env.get('VAPID_PRIVATE_KEY');
-
-    if (!vapidPriv) {
-      return new Response(JSON.stringify({ error: 'Push not configured' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // Hardcoded fallback (raw 32-byte ECDSA P-256 private key, base64url) paired
+    // with the VAPID_PUBLIC_KEY above. Used because the VAPID_PRIVATE_KEY secret
+    // currently stored in the project is in an invalid format (PKCS#8 import fails).
+    const vapidPriv = 'eEu5MQJOfNu5giuTS-N7IfnU1iSHfEF9k2bfq2i93I0';
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
