@@ -1,4 +1,9 @@
-// Service Worker for Push Notifications
+// Placeholder required by vite-plugin-pwa injectManifest so this custom
+// service worker becomes the single SW handling both PWA lifecycle and push.
+self.__WB_MANIFEST;
+
+// Service Worker for PWA + Push Notifications
+
 self.addEventListener('push', function(event) {
   console.log('[SW] Push received:', event);
   
