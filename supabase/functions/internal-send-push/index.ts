@@ -47,25 +47,29 @@ function concat(...arrays: Uint8Array[]): Uint8Array {
 
 async function importVapidKeys(publicKeyBase64: string, privateKeyBase64: string) {
   const publicKeyBytes = base64UrlDecode(publicKeyBase64);
-  const privateKeyBytes = base64UrlDecode(privateKeyBase64);
 
   const publicKey = await crypto.subtle.importKey(
     'raw', publicKeyBytes, { name: 'ECDSA', namedCurve: 'P-256' }, true, []
   );
 
-  let privateKey: CryptoKey;
-  if (privateKeyBytes.length === 32) {
-    const pkcs8Header = new Uint8Array([
-      0x30, 0x41, 0x02, 0x01, 0x00, 0x30, 0x13, 0x06, 0x07,
-      0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08,
-      0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07, 0x04,
-      0x27, 0x30, 0x25, 0x02, 0x01, 0x01, 0x04, 0x20
-    ]);
-    const pkcs8 = concat(pkcs8Header, privateKeyBytes);
-    privateKey = await crypto.subtle.importKey('pkcs8', pkcs8, { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
-  } else {
-    privateKey = await crypto.subtle.importKey('pkcs8', privateKeyBytes, { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
+  // Import private key as JWK. The public key (uncompressed: 0x04 || X || Y)
+  // gives us x and y, while d is the raw 32-byte private scalar.
+  if (publicKeyBytes.length !== 65 || publicKeyBytes[0] !== 0x04) {
+    throw new Error('Invalid VAPID public key (expected uncompressed P-256, 65 bytes)');
   }
+  const x = base64UrlEncode(publicKeyBytes.slice(1, 33).buffer);
+  const y = base64UrlEncode(publicKeyBytes.slice(33, 65).buffer);
+  const jwk: JsonWebKey = {
+    kty: 'EC',
+    crv: 'P-256',
+    x,
+    y,
+    d: privateKeyBase64,
+    ext: true,
+  };
+  const privateKey = await crypto.subtle.importKey(
+    'jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']
+  );
   return { publicKey, privateKey, publicKeyBytes };
 }
 
