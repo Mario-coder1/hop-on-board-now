@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { sendPushNotification } from '@/hooks/usePushNotifications';
+
 
 interface ActiveRide {
   id: string;
@@ -88,13 +88,6 @@ const ActiveRideFAB: React.FC = () => {
     setCompleting(true);
 
     try {
-      // Get all picked_up/accepted passengers
-      const { data: passengers } = await supabase
-        .from('ride_requests')
-        .select('id, passenger_id')
-        .eq('ride_id', activeRide.id)
-        .in('status', ['accepted', 'driver_arrived', 'picked_up']);
-
       // Update ride
       const { error: rideError } = await supabase
         .from('rides')
@@ -103,27 +96,12 @@ const ActiveRideFAB: React.FC = () => {
 
       if (rideError) throw rideError;
 
-      // Update requests
+      // Update requests - push notifications are sent via DB trigger
       await supabase
         .from('ride_requests')
         .update({ status: 'completed' })
         .eq('ride_id', activeRide.id)
         .in('status', ['accepted', 'driver_arrived', 'picked_up']);
-
-      // Notify passengers
-      if (passengers && passengers.length > 0) {
-        for (const p of passengers) {
-          try {
-            await sendPushNotification(
-              p.passenger_id,
-              '🏁 Jazda dokončená!',
-              'Ďakujeme za spolujazdu!'
-            );
-          } catch (err) {
-            console.error('Push error:', err);
-          }
-        }
-      }
 
       toast({
         title: '🏁 Jazda dokončená',

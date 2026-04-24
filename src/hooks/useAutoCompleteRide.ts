@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { sendPushNotification } from '@/hooks/usePushNotifications';
 
 interface Destination {
   lat: number;
@@ -61,18 +60,8 @@ export const useAutoCompleteRide = (
         return;
       }
 
-      // Get all picked_up passengers for this ride
-      const { data: passengers, error: passengersError } = await supabase
-        .from('ride_requests')
-        .select('id, passenger_id')
-        .eq('ride_id', rideId)
-        .eq('status', 'picked_up');
-
-      if (passengersError) {
-        console.error('Error fetching passengers:', passengersError);
-      }
-
       // Update all passenger requests to completed
+      // Push notifications are sent automatically via DB trigger
       const { error: requestsError } = await supabase
         .from('ride_requests')
         .update({ status: 'completed' })
@@ -81,21 +70,6 @@ export const useAutoCompleteRide = (
 
       if (requestsError) {
         console.error('Error completing requests:', requestsError);
-      }
-
-      // Send push notifications to all passengers
-      if (passengers && passengers.length > 0) {
-        for (const passenger of passengers) {
-          try {
-            await sendPushNotification(
-              passenger.passenger_id,
-              '🏁 Jazda dokončená!',
-              'Dorazili ste do cieľa. Ďakujeme za spolujazdu!'
-            );
-          } catch (err) {
-            console.error('Error sending notification:', err);
-          }
-        }
       }
 
       toast({
