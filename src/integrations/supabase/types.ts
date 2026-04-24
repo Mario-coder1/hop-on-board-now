@@ -844,6 +844,15 @@ export type Database = {
         Returns: boolean
       }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
+      send_push_via_edge: {
+        Args: {
+          _body: string
+          _data?: Json
+          _profile_id: string
+          _title: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

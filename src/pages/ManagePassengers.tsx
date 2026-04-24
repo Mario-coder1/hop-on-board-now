@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
-import { sendPushNotification } from '@/hooks/usePushNotifications';
+
 interface AcceptedPassenger {
   id: string;
   status: string;
@@ -151,9 +151,6 @@ const ManagePassengers = () => {
   };
 
   const handleDropoff = async (requestId: string, passengerName: string) => {
-    // Find the passenger to get their profile ID
-    const passengerData = passengers.find(p => p.id === requestId);
-    
     const { error } = await supabase
       .from('ride_requests')
       .update({ status: 'completed' })
@@ -167,21 +164,8 @@ const ManagePassengers = () => {
           .update({ available_seats: (passengers.length > 0 ? passengers.length - 1 : 0) })
           .eq('id', ride.id);
       }
-      
-      // Send push notification to passenger
-      if (passengerData) {
-        try {
-          await sendPushNotification(
-            passengerData.passenger.id,
-            '🏁 Vystúpili ste!',
-            `Vaša jazda s vodičom ${profile?.full_name || 'vodič'} bola úspešne dokončená. Ďakujeme!`,
-            { type: 'ride_completed', rideId: ride?.id }
-          );
-        } catch (e) {
-          console.error('Push notification error:', e);
-        }
-      }
-      
+
+      // Push notification is sent automatically via DB trigger
       toast({
         title: 'Pasažier vystúpil',
         description: `${passengerName} bol označený ako vystúpený.`,

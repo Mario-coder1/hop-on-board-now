@@ -2,3 +2,6 @@ project_id = "cufiyqtmfpwnogxtgrru"
 
 [functions.send-push-notification]
 verify_jwt = false
+
+[functions.internal-send-push]
+verify_jwt = false

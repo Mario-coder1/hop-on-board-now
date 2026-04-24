@@ -328,19 +328,69 @@ serve(async (req) => {
       );
     }
 
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const { data: { user }, error: authError } = await userClient.auth.getUser();
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const token = authHeader.replace('Bearer ', '').trim();
+    const isServerCall = token === supabaseServiceKey;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Authorize: either server-side (trigger) or authenticated user with valid relationship
+    if (!isServerCall) {
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const { data: { user }, error: authError } = await userClient.auth.getUser();
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const { profile_id } = await req.clone().json() as PushPayload;
+
+      const { data: callerProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!callerProfile) {
+        return new Response(
+          JSON.stringify({ error: 'Profile not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Authorization: Check ride relationship
+      const { data: driverRelation } = await supabase
+        .from('rides')
+        .select('id, ride_requests!inner(passenger_id)')
+        .eq('driver_id', callerProfile.id)
+        .eq('ride_requests.passenger_id', profile_id)
+        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
+        .limit(1);
+
+      const { data: passengerRelation } = await supabase
+        .from('rides')
+        .select('id, ride_requests!inner(passenger_id)')
+        .eq('driver_id', profile_id)
+        .eq('ride_requests.passenger_id', callerProfile.id)
+        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
+        .limit(1);
+
+      const isAuthorized = (driverRelation && driverRelation.length > 0) ||
+                           (passengerRelation && passengerRelation.length > 0) ||
+                           callerProfile.id === profile_id;
+
+      if (!isAuthorized) {
+        return new Response(
+          JSON.stringify({ error: 'Not authorized' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     const { profile_id, title, body, data, tag } = await req.json() as PushPayload;
 
     if (!profile_id || !title || !body) {
@@ -350,49 +400,8 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[Push] Sending to profile: ${profile_id}, title: ${title}`);
+    console.log(`[Push] Sending to profile: ${profile_id}, title: ${title}, server: ${isServerCall}`);
 
-    // Get caller's profile
-    const { data: callerProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!callerProfile) {
-      return new Response(
-        JSON.stringify({ error: 'Profile not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Authorization: Check ride relationship
-    const { data: driverRelation } = await supabase
-      .from('rides')
-      .select('id, ride_requests!inner(passenger_id)')
-      .eq('driver_id', callerProfile.id)
-      .eq('ride_requests.passenger_id', profile_id)
-      .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
-      .limit(1);
-
-    const { data: passengerRelation } = await supabase
-      .from('rides')
-      .select('id, ride_requests!inner(passenger_id)')
-      .eq('driver_id', profile_id)
-      .eq('ride_requests.passenger_id', callerProfile.id)
-      .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
-      .limit(1);
-
-    const isAuthorized = (driverRelation && driverRelation.length > 0) ||
-                         (passengerRelation && passengerRelation.length > 0) ||
-                         callerProfile.id === profile_id;
-
-    if (!isAuthorized) {
-      return new Response(
-        JSON.stringify({ error: 'Not authorized' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Get all subscriptions
     const { data: subscriptions, error: subError } = await supabase

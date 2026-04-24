@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { sendPushNotification } from '@/hooks/usePushNotifications';
 
 export const useRideNotifications = () => {
   const { profile } = useAuth();
@@ -67,14 +66,8 @@ export const useRideNotifications = () => {
               variant: newStatus === 'rejected' ? 'destructive' : undefined,
             });
             playNotificationSound();
-
-            // Send push notification to passenger (self) for when app is closed
-            sendPushNotification(
-              profile.id,
-              notificationTitle,
-              notificationBody,
-              { rideId: payload.new.ride_id, status: newStatus }
-            );
+            // NOTE: push notifications are sent server-side via DB trigger
+            // so they work even when the app is closed.
           }
         }
       )
@@ -126,14 +119,7 @@ export const useRideNotifications = () => {
             duration: 10000,
           });
           playNotificationSound();
-
-          // Send push to driver (self)
-          sendPushNotification(
-            profile.id,
-            notificationTitle,
-            notificationBody,
-            { rideId: request.ride_id, requestId: request.id, type: 'new_request' }
-          );
+          // NOTE: push notifications sent server-side via DB trigger
         }
       )
       .subscribe();
