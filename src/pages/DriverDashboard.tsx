@@ -481,5 +481,3 @@ const DriverDashboard: React.FC = () => {
 };
 
 export default DriverDashboard;
-
-export default DriverDashboard;
