@@ -5,26 +5,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.5)]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-95 shadow-[0_10px_30px_-8px_hsl(var(--primary)/0.5)] hover:shadow-[0_14px_40px_-10px_hsl(var(--primary)/0.6)] transition-all",
-        success: "bg-green-600 text-white hover:bg-green-700",
-        glass: "glass-strong text-foreground hover:bg-white/80 transition-all",
-        coral: "bg-gradient-to-r from-accent to-[hsl(25_90%_55%)] text-accent-foreground hover:opacity-95 shadow-[0_10px_30px_-8px_hsl(var(--accent)/0.5)] transition-all",
+        outline: "border-2 border-border bg-background hover:bg-muted hover:border-primary/30",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+        ghost: "hover:bg-muted hover:text-foreground",
+        link: "text-primary underline-offset-4 hover:underline rounded-md",
+        hero: "bg-gradient-to-r from-primary to-[hsl(190_82%_48%)] text-primary-foreground hover:opacity-95 shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] hover:shadow-[0_16px_40px_-10px_hsl(var(--primary)/0.65)]",
+        success: "bg-[hsl(152_69%_45%)] text-white hover:bg-[hsl(152_69%_42%)] shadow-[0_6px_18px_-6px_hsl(152_69%_45%/0.5)]",
+        glass: "glass-strong text-foreground hover:bg-white/90",
+        coral: "bg-gradient-to-r from-accent to-[hsl(20_92%_60%)] text-accent-foreground hover:opacity-95 shadow-[var(--shadow-cta)]",
+        bento: "bg-card text-foreground border border-border hover:border-primary/40 hover:bg-muted",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-11 px-5 py-2",
+        sm: "h-9 rounded-xl px-3.5",
+        lg: "h-14 rounded-2xl px-8 text-base",
+        xl: "h-16 rounded-3xl px-10 text-base",
+        icon: "h-11 w-11 rounded-2xl",
       },
     },
     defaultVariants: {
