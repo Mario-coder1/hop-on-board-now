@@ -199,27 +199,28 @@ const MyTrips = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="font-display text-3xl font-bold">Moje cesty</h1>
-            <Button variant="hero" onClick={() => navigate('/search')}>
-              <Search className="w-4 h-4 mr-2" />
-              Hľadať jazdu
+          <div className="flex items-center justify-between mb-5 sm:mb-8 gap-3">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold">Moje cesty</h1>
+            <Button variant="hero" size="sm" onClick={() => navigate('/search')} className="shrink-0">
+              <Search className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Hľadať jazdu</span>
             </Button>
           </div>
 
           {/* Filters */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 mb-5 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
             {(['all', 'pending', 'accepted', 'completed'] as const).map(f => (
               <Button
                 key={f}
                 variant={filter === f ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilter(f)}
+                className="shrink-0"
               >
                 {f === 'all' ? 'Všetky' : 
                  f === 'pending' ? 'Čakajúce' : 
@@ -229,16 +230,16 @@ const MyTrips = () => {
           </div>
 
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="p-6 rounded-2xl bg-card border border-border animate-pulse">
+                <div key={i} className="p-5 rounded-2xl bg-card border border-border animate-pulse">
                   <div className="h-4 bg-muted rounded w-3/4 mb-4" />
                   <div className="h-4 bg-muted rounded w-1/2" />
                 </div>
               ))}
             </div>
           ) : filteredTrips.length === 0 ? (
-            <div className="p-12 rounded-2xl bg-card border border-border text-center">
+            <div className="p-10 sm:p-12 rounded-2xl bg-card border border-border text-center">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <MapPin className="w-8 h-8 text-muted-foreground" />
               </div>
@@ -249,83 +250,98 @@ const MyTrips = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {filteredTrips.map((trip, index) => {
                 const ride = trip.ride;
                 const driverName = ride?.driver?.full_name || 'Vodič';
+                const time = ride?.departure_time ? formatDbDate(ride.departure_time, 'HH:mm', { locale: sk }) : '—';
+                const date = ride?.departure_time ? formatDbDate(ride.departure_time, 'd. MMM', { locale: sk }) : '';
+                const canTrack = trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived';
+                const canCancel = trip.status === 'pending' || trip.status === 'accepted' || trip.status === 'driver_arrived';
 
                 return (
                   <motion.div
                     key={trip.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow"
+                    transition={{ delay: index * 0.04 }}
+                    className="p-4 sm:p-5 rounded-2xl bg-card border border-border hover:shadow-md transition-all"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusColors[trip.status] ?? ''}`}>
+                    {/* Header: status + date + price */}
+                    <div className="flex items-center justify-between mb-3 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className={`px-2 py-0.5 rounded-full text-[11px] font-medium flex items-center gap-1 ${statusColors[trip.status] ?? ''}`}>
                           {statusIcons[trip.status]}
-                          {statusLabels[trip.status] ?? trip.status}
+                          <span className="truncate">{statusLabels[trip.status] ?? trip.status}</span>
                         </div>
+                        {date && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {date}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-2xl font-bold text-primary">{ride?.price_per_seat ?? '—'}€</span>
+                      <span className="text-xl sm:text-2xl font-bold text-primary leading-none shrink-0">{ride?.price_per_seat ?? '—'}€</span>
                     </div>
 
                     {ride ? (
-                      <div className="mb-4 cursor-pointer" onClick={() => navigate(`/ride/${ride.id}`)}>
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="w-2 h-2 rounded-full bg-primary" />
-                          <span className="font-medium">{ride.origin_address}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-accent" />
-                          <span className="font-medium">{ride.destination_address}</span>
+                      <div className="cursor-pointer" onClick={() => navigate(`/ride/${ride.id}`)}>
+                        <div className="flex gap-3">
+                          <div className="flex flex-col items-center pt-1">
+                            <span className="text-sm font-semibold tabular-nums">{time}</span>
+                            <div className="flex flex-col items-center flex-1 my-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full border-2 border-primary" />
+                              <div className="w-px flex-1 min-h-[20px] border-l-2 border-dotted border-muted-foreground/40 my-1" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                            </div>
+                          </div>
+                          <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+                            <div className="truncate font-medium text-sm">{ride.origin_address}</div>
+                            <div className="h-5" />
+                            <div className="truncate font-medium text-sm">{ride.destination_address}</div>
+                          </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="mb-4 p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground">
+                      <div className="p-4 rounded-xl bg-muted/30 text-sm text-muted-foreground">
                         Táto jazda už nie je dostupná.
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    {/* Footer: driver + actions */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/60 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                           {ride?.driver?.avatar_url ? (
-                            <img src={ride.driver.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                            <img src={ride.driver.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <User className="w-5 h-5 text-primary" />
+                            <User className="w-4 h-4 text-primary" />
                           )}
                         </div>
-                        <span className="font-medium">{driverName}</span>
+                        <span className="font-medium text-xs truncate">{driverName}</span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          {ride?.departure_time ? formatDbDate(ride.departure_time, 'd. MMM HH:mm', { locale: sk }) : '—'}
-                        </span>
-                        {(trip.status === 'accepted' || trip.status === 'picked_up' || trip.status === 'driver_arrived') && (
+                      <div className="flex flex-wrap items-center gap-1.5 justify-end shrink-0">
+                        {canTrack && (
                           <Link to={`/track/${trip.id}`} onClick={(e) => e.stopPropagation()}>
-                            <Button size="sm" variant="hero" className="gap-1">
-                              <NavigationIcon className="w-4 h-4" />
-                              Sledovať
+                            <Button size="sm" variant="hero" className="gap-1 h-8 px-2.5">
+                              <NavigationIcon className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Sledovať</span>
                             </Button>
                           </Link>
                         )}
-                        {(trip.status === 'pending' || trip.status === 'accepted' || trip.status === 'driver_arrived') && (
+                        {canCancel && (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            className="gap-1 h-8 px-2.5 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
                               setCancellingTrip(trip);
                               setCancelDialogOpen(true);
                             }}
                           >
-                            <X className="w-4 h-4" />
-                            Zrušiť
+                            <X className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Zrušiť</span>
                           </Button>
                         )}
                         {trip.status === 'completed' && ride && (
