@@ -146,11 +146,11 @@
   }
 
   /* Auto-glassify all shadcn Cards across the app */
-  [class*="bg-card"]:not([class*="!bg-"]) {
-    background: linear-gradient(135deg, hsla(0 0% 100% / 0.55) 0%, hsla(0 0% 100% / 0.25) 100%) !important;
+  .bg-card {
+    background: linear-gradient(135deg, hsla(0 0% 100% / 0.6) 0%, hsla(0 0% 100% / 0.3) 100%) !important;
     backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
-    border-color: hsla(0 0% 100% / 0.4) !important;
+    border-color: hsla(0 0% 100% / 0.45) !important;
     box-shadow: 0 8px 28px -10px hsla(220 50% 20% / 0.18), inset 0 1px 0 0 hsla(0 0% 100% / 0.4);
   }
 
