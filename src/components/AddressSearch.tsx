@@ -54,12 +54,56 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
 
     setIsLoading(true);
     try {
-      // Include POIs, addresses, and places for better results like "Čadca Kaufland"
+      // Autocomplete endpoint with address-level precision (street + house number),
+      // POIs and places. Bias results toward Slovakia for better local matching,
+      // but allow worldwide fallback.
+      const params = new URLSearchParams({
+        access_token: MAPBOX_TOKEN,
+        language: 'sk',
+        limit: '8',
+        autocomplete: 'true',
+        country: 'sk,cz,at,hu,pl',
+        types: 'country,region,postcode,district,place,locality,neighborhood,address,poi',
+      });
+
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&language=sk&limit=8&types=country,region,postcode,district,place,locality,neighborhood,address,poi`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?${params.toString()}`
       );
       const data = await response.json();
-      setSuggestions(data.features || []);
+      let features: Suggestion[] = data.features || [];
+
+      // If user typed a house number (e.g. "Hlavná 12" or "Hlavná 12/3") and we
+      // got no address-level results, retry without country bias to widen search.
+      const hasHouseNumber = /\d/.test(searchQuery);
+      const hasAddressResult = features.some((f: any) =>
+        Array.isArray(f.place_type) ? f.place_type.includes('address') : false
+      );
+
+      if (hasHouseNumber && !hasAddressResult) {
+        const fallbackParams = new URLSearchParams({
+          access_token: MAPBOX_TOKEN,
+          language: 'sk',
+          limit: '8',
+          autocomplete: 'true',
+          types: 'address,place,locality,neighborhood,poi',
+        });
+        const fallback = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?${fallbackParams.toString()}`
+        );
+        const fbData = await fallback.json();
+        if (fbData.features?.length) {
+          // Merge, preferring address results first, dedupe by id
+          const merged = [...fbData.features, ...features];
+          const seen = new Set<string>();
+          features = merged.filter((f: Suggestion) => {
+            if (seen.has(f.id)) return false;
+            seen.add(f.id);
+            return true;
+          }).slice(0, 8);
+        }
+      }
+
+      setSuggestions(features);
       setShowSuggestions(true);
     } catch (error) {
       console.error('Geocoding error:', error);
