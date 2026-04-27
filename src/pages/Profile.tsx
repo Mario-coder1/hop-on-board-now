@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Navigation from '@/components/Navigation';
+import VehiclesManager from '@/components/VehiclesManager';
 import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -611,48 +612,9 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Car Info (for drivers) */}
+          {/* Vehicles (for drivers) */}
           {profile.selected_role === 'driver' && (
-            <div className="p-6 rounded-2xl bg-card border border-border mb-6">
-              <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
-                <Car className="w-5 h-5 text-primary" />
-                Informácie o vozidle
-              </h3>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Model auta</Label>
-                    <Input
-                      value={formData.car_model}
-                      onChange={(e) => setFormData({ ...formData, car_model: e.target.value })}
-                      placeholder="Napr. Škoda Octavia"
-                    />
-                  </div>
-                  <div>
-                    <Label>Farba</Label>
-                    <Input
-                      value={formData.car_color}
-                      onChange={(e) => setFormData({ ...formData, car_color: e.target.value })}
-                      placeholder="Napr. Biela"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>ŠPZ</Label>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={formData.license_plate}
-                      onChange={(e) => setFormData({ ...formData, license_plate: e.target.value })}
-                      placeholder="XX-XXXXX"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <VehiclesManager profileId={profile.id} />
           )}
 
           <Button

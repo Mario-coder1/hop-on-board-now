@@ -746,6 +746,42 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicles: {
+        Row: {
+          car_color: string | null
+          car_model: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string | null
+          license_plate: string | null
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          car_color?: string | null
+          car_model: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          license_plate?: string | null
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          car_color?: string | null
+          car_model?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          license_plate?: string | null
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           balance: number
