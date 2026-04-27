@@ -42,8 +42,8 @@ const Navigation: React.FC = () => {
       <div className="container mx-auto">
         <div className="bento-card !rounded-2xl px-3 md:px-4 flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] flex items-center justify-center shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]">
               <Car className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="font-display text-lg md:text-xl font-bold tracking-tight">
