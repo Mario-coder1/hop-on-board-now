@@ -40,13 +40,13 @@ const Navigation: React.FC = () => {
       className="sticky top-0 z-50 px-3 pt-3"
     >
       <div className="container mx-auto">
-        <div className="glass rounded-2xl px-3 md:px-4 flex items-center justify-between h-14 md:h-16">
+        <div className="bento-card !rounded-2xl px-3 md:px-4 flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] flex items-center justify-center shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] flex items-center justify-center shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]">
               <Car className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg md:text-xl font-bold">
+            <span className="font-display text-lg md:text-xl font-bold tracking-tight">
               Take<span className="text-primary">Me</span>
             </span>
           </Link>
@@ -60,7 +60,7 @@ const Navigation: React.FC = () => {
                   <Button
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
-                    className={`gap-2 rounded-xl ${isActive ? 'shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.5)]' : ''}`}
+                    className="gap-2"
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label}
@@ -73,7 +73,7 @@ const Navigation: React.FC = () => {
                 <Button
                   variant={location.pathname === '/admin' ? 'default' : 'ghost'}
                   size="sm"
-                  className="gap-2 rounded-xl"
+                  className="gap-2"
                 >
                   <Shield className="w-4 h-4" />
                   Admin
@@ -87,7 +87,7 @@ const Navigation: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="w-9 h-9 ring-2 ring-white/40">
+                  <Avatar className="w-9 h-9 ring-2 ring-primary/20">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold">
                       {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
@@ -95,30 +95,30 @@ const Navigation: React.FC = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 glass-strong border-white/40">
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl border-border shadow-lg">
                 <div className="px-3 py-2">
-                  <p className="font-medium">{profile?.full_name}</p>
+                  <p className="font-semibold">{profile?.full_name}</p>
                   <p className="text-xs text-muted-foreground">
                     {profile?.rating?.toFixed(1)} ⭐ · {profile?.total_rides} jázd
                   </p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                  <Link to="/profile" className="flex items-center gap-2 cursor-pointer rounded-xl">
                     <User className="w-4 h-4" />
                     Môj profil
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem asChild>
-                    <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                    <Link to="/admin" className="flex items-center gap-2 cursor-pointer rounded-xl">
                       <Shield className="w-4 h-4" />
                       Admin panel
                     </Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
+                <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer rounded-xl">
                   <LogOut className="w-4 h-4 mr-2" />
                   Odhlásiť sa
                 </DropdownMenuItem>
@@ -128,9 +128,9 @@ const Navigation: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Bento bottom bar */}
       <div className="md:hidden fixed bottom-3 left-3 right-3 z-50 safe-bottom">
-        <div className="glass-strong rounded-2xl px-2 py-2 shadow-glass-lg">
+        <div className="bento-card !rounded-3xl px-2 py-2">
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -138,40 +138,40 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
                     isActive
-                      ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">{item.label}</span>
+                  <span className="text-[10px] font-semibold">{item.label}</span>
                 </Link>
               );
             })}
             {isAdmin && (
               <Link
                 to="/admin"
-                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
                   location.pathname === '/admin'
-                    ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <Shield className="w-5 h-5" />
-                <span className="text-[10px] font-medium">Admin</span>
+                <span className="text-[10px] font-semibold">Admin</span>
               </Link>
             )}
             <Link
               to="/profile"
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
                 location.pathname === '/profile'
-                  ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <User className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Profil</span>
+              <span className="text-[10px] font-semibold">Profil</span>
             </Link>
           </div>
         </div>
