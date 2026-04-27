@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
-import { formatDbDate } from '@/lib/datetime';
+import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 
 interface RideStop {
   id: string;
@@ -44,6 +45,11 @@ const SearchRides = () => {
   const [searchOrigin, setSearchOrigin] = useState('');
   const [searchDestination, setSearchDestination] = useState('');
   const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [timeFrom, setTimeFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [timeTo, setTimeTo] = useState('');
 
   useEffect(() => {
     fetchRides();
@@ -71,16 +77,69 @@ const SearchRides = () => {
     setLoading(false);
   };
 
-  const filteredRides = rides.filter(ride => {
-    const matchOrigin = !searchOrigin || ride.origin_address.toLowerCase().includes(searchOrigin.toLowerCase());
-    const matchDestination = !searchDestination || ride.destination_address.toLowerCase().includes(searchDestination.toLowerCase());
-    return matchOrigin && matchDestination;
-  });
+  // Combine date+time inputs into Date or null
+  const fromDate = useMemo(() => {
+    if (!dateFrom) return null;
+    const d = new Date(`${dateFrom}T${timeFrom || '00:00'}:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [dateFrom, timeFrom]);
+
+  const toDate = useMemo(() => {
+    if (!dateTo) return null;
+    const d = new Date(`${dateTo}T${timeTo || '23:59'}:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [dateTo, timeTo]);
+
+  const filteredRides = useMemo(() => {
+    return rides.filter(ride => {
+      const origin = searchOrigin.trim().toLowerCase();
+      const dest = searchDestination.trim().toLowerCase();
+      const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
+
+      // Origin matches origin OR any stop (you can board at a stop)
+      const matchOrigin = !origin
+        || ride.origin_address.toLowerCase().includes(origin)
+        || stopsLower.some(a => a.includes(origin));
+
+      // Destination matches destination OR any stop (you can alight at a stop)
+      const matchDestination = !dest
+        || ride.destination_address.toLowerCase().includes(dest)
+        || stopsLower.some(a => a.includes(dest));
+
+      // Time window filter
+      const departure = parseDbTimestamp(ride.departure_time);
+      const matchFrom = !fromDate || (departure && departure >= fromDate);
+      const matchTo = !toDate || (departure && departure <= toDate);
+
+      return matchOrigin && matchDestination && matchFrom && matchTo;
+    });
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate]);
+
+  const activeFilterCount =
+    (searchOrigin ? 1 : 0) +
+    (searchDestination ? 1 : 0) +
+    (fromDate ? 1 : 0) +
+    (toDate ? 1 : 0);
+
+  const clearFilters = () => {
+    setSearchOrigin('');
+    setSearchDestination('');
+    setDateFrom('');
+    setTimeFrom('');
+    setDateTo('');
+    setTimeTo('');
+  };
 
   const markers = filteredRides.flatMap(ride => [
     { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
     { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
   ]);
+
+  const resultLabel = (n: number) => {
+    if (n === 1) return 'jazda';
+    if (n >= 2 && n <= 4) return 'jazdy';
+    return 'jázd';
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,12 +153,12 @@ const SearchRides = () => {
           <h1 className="font-display text-2xl sm:text-3xl font-bold mb-5 sm:mb-8">Hľadať jazdy</h1>
 
           {/* Search Bar */}
-          <div className="p-3 sm:p-4 rounded-2xl bg-card border border-border mb-6 sm:mb-8">
+          <div className="p-3 sm:p-4 rounded-2xl bg-card border border-border mb-4">
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                  placeholder="Odkiaľ"
+                  placeholder="Odkiaľ (vrátane zastávok)"
                   value={searchOrigin}
                   onChange={(e) => setSearchOrigin(e.target.value)}
                   className="pl-10"
@@ -108,27 +167,104 @@ const SearchRides = () => {
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                  placeholder="Kam"
+                  placeholder="Kam (vrátane zastávok)"
                   value={searchDestination}
                   onChange={(e) => setSearchDestination(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              <Button variant="hero" className="w-full">
+              <Button variant="hero" className="w-full" onClick={() => setShowFilters(false)}>
                 <Search className="w-4 h-4 mr-2" />
                 Hľadať
               </Button>
             </div>
+
+            {/* Advanced filters (time window) */}
+            <AnimatePresence initial={false}>
+              {showFilters && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4 mt-4 border-t border-border grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        Odchod od
+                      </Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          type="date"
+                          value={dateFrom}
+                          onChange={(e) => setDateFrom(e.target.value)}
+                        />
+                        <Input
+                          type="time"
+                          value={timeFrom}
+                          onChange={(e) => setTimeFrom(e.target.value)}
+                          disabled={!dateFrom}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        Odchod do
+                      </Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          type="date"
+                          value={dateTo}
+                          onChange={(e) => setDateTo(e.target.value)}
+                        />
+                        <Input
+                          type="time"
+                          value={timeTo}
+                          onChange={(e) => setTimeTo(e.target.value)}
+                          disabled={!dateTo}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Results */}
             <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {filteredRides.length} {filteredRides.length === 1 ? 'jazda' : 'jazdy'}
-                </p>
-                <Button variant="outline" size="sm">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-medium">
+                    <span className="text-primary font-bold">{filteredRides.length}</span>{' '}
+                    <span className="text-muted-foreground">{resultLabel(filteredRides.length)}</span>
+                  </p>
+                  {activeFilterCount > 0 && (
+                    <Badge variant="secondary" className="h-5 text-[10px]">
+                      {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filtre'}
+                    </Badge>
+                  )}
+                  {activeFilterCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-muted-foreground"
+                      onClick={clearFilters}
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Vymazať
+                    </Button>
+                  )}
+                </div>
+                <Button
+                  variant={showFilters ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
                   <Filter className="w-4 h-4 mr-2" />
                   Filtre
                 </Button>
