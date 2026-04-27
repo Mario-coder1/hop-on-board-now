@@ -239,18 +239,18 @@
       linear-gradient(180deg, hsl(20 70% 97%) 0%, hsl(174 50% 96%) 100%);
   }
 
-  /* Bento card system - clean white tiles with soft shadow */
+  /* Bento card system - clean white tiles, minimal */
   .bento-card {
     background: hsl(0 0% 100%);
-    border: 1px solid hsl(220 18% 92%);
-    border-radius: 1.5rem;
+    border: 1px solid hsl(220 16% 92%);
+    border-radius: 1.25rem;
     box-shadow: var(--shadow-bento);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bento-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    border-color: hsl(220 16% 86%);
+    box-shadow: var(--shadow-md);
   }
 
   .bento-tile-teal {
