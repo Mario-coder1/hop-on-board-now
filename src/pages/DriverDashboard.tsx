@@ -265,19 +265,17 @@ const DriverDashboard: React.FC = () => {
               { label: 'Celkovo jázd', value: profile?.total_rides || 0, icon: TrendingUp, color: 'text-success' },
               { label: 'Hodnotenie', value: `${profile?.rating?.toFixed(1) || '5.0'} ⭐`, icon: Users, color: 'text-warning' }
             ].map((stat, index) => (
-              <Card key={stat.label} className="border-0 shadow-card">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl bg-muted flex items-center justify-center ${stat.color}`}>
-                      <stat.icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    </div>
+              <div key={stat.label} className="glass rounded-2xl p-4 hover:shadow-glass-lg transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ${stat.color}`}>
+                    <stat.icon className="w-5 h-5" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <p className="text-2xl font-bold leading-tight">{stat.value}</p>
+                    <p className="text-xs text-foreground/60">{stat.label}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </motion.div>
 
@@ -287,57 +285,54 @@ const DriverDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-0 shadow-card h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-accent" />
-                  Žiadosti o jazdu
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {requests.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Zatiaľ žiadne žiadosti
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {requests.slice(0, 3).map((request) => (
-                      <div key={request.id} className="p-3 rounded-xl bg-muted/50">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-semibold">
-                            {request.passenger?.full_name?.charAt(0)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{request.passenger?.full_name}</p>
-                            <p className="text-xs text-muted-foreground">{request.passenger?.rating?.toFixed(1)} ⭐</p>
-                          </div>
+            <div className="glass rounded-2xl p-5 h-full">
+              <div className="flex items-center gap-2 mb-4">
+                <Bell className="w-5 h-5 text-accent" />
+                <h3 className="font-display text-lg font-semibold">Žiadosti o jazdu</h3>
+              </div>
+              {requests.length === 0 ? (
+                <p className="text-sm text-foreground/60 text-center py-6">
+                  Zatiaľ žiadne žiadosti
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {requests.slice(0, 3).map((request) => (
+                    <div key={request.id} className="p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/30">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-[hsl(25_90%_55%)] flex items-center justify-center text-accent-foreground font-semibold">
+                          {request.passenger?.full_name?.charAt(0)}
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3 truncate">
-                          📍 {request.pickup_address}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-green-600 hover:bg-green-700"
-                            onClick={() => handleRequest(request.id, 'accepted')}
-                          >
-                            Prijať
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => handleRequest(request.id, 'rejected')}
-                          >
-                            Odmietnuť
-                          </Button>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{request.passenger?.full_name}</p>
+                          <p className="text-xs text-foreground/60">{request.passenger?.rating?.toFixed(1)} ⭐</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <p className="text-xs text-foreground/70 mb-3 truncate">
+                        📍 {request.pickup_address}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="success"
+                          className="flex-1 rounded-xl"
+                          onClick={() => handleRequest(request.id, 'accepted')}
+                        >
+                          Prijať
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="glass"
+                          className="flex-1 rounded-xl"
+                          onClick={() => handleRequest(request.id, 'rejected')}
+                        >
+                          Odmietnuť
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         </div>
 
