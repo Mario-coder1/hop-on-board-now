@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Navigation from '@/components/Navigation';
+import VehiclesManager from '@/components/VehiclesManager';
 import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
