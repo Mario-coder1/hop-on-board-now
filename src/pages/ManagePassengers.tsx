@@ -271,29 +271,31 @@ const ManagePassengers = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <Button variant="ghost" onClick={() => navigate(-1)}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Späť
             </Button>
             
             {/* Tracking controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {isTracking ? (
-                <Button variant="outline" onClick={stopTracking} className="gap-2">
+                <Button variant="outline" size="sm" onClick={stopTracking} className="gap-2">
                   <CircleOff className="w-4 h-4" />
-                  Zastaviť zdieľanie
+                  <span className="hidden sm:inline">Zastaviť zdieľanie</span>
+                  <span className="sm:hidden">Stop GPS</span>
                 </Button>
               ) : (
-                <Button variant="secondary" onClick={startTracking} className="gap-2">
+                <Button variant="secondary" size="sm" onClick={startTracking} className="gap-2">
                   <Radio className="w-4 h-4" />
-                  Zdieľať polohu
+                  <span className="hidden sm:inline">Zdieľať polohu</span>
+                  <span className="sm:hidden">Štart GPS</span>
                 </Button>
               )}
               {isTracking && (
                 <Badge variant="default" className="bg-green-500 animate-pulse">
                   <Radio className="w-3 h-3 mr-1" />
-                  GPS aktívne
+                  GPS
                 </Badge>
               )}
             </div>
