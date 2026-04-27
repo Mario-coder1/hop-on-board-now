@@ -129,49 +129,51 @@ const Navigation: React.FC = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-border/50 px-2 py-2 safe-area-bottom">
-        <div className="flex items-center justify-around">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
+      <div className="md:hidden fixed bottom-3 left-3 right-3 z-50 safe-bottom">
+        <div className="glass-strong rounded-2xl px-2 py-2 shadow-glass-lg">
+          <div className="flex items-center justify-around">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                    isActive
+                      ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+            {isAdmin && (
               <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-                  isActive
-                    ? 'text-primary bg-primary/10'
+                to="/admin"
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                  location.pathname === '/admin'
+                    ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                <span className="text-[10px]">{item.label}</span>
+                <Shield className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Admin</span>
               </Link>
-            );
-          })}
-          {isAdmin && (
+            )}
             <Link
-              to="/admin"
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-                location.pathname === '/admin'
-                  ? 'text-primary bg-primary/10'
+              to="/profile"
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                location.pathname === '/profile'
+                  ? 'bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)]'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Shield className="w-5 h-5" />
-              <span className="text-[10px]">Admin</span>
+              <User className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Profil</span>
             </Link>
-          )}
-          <Link
-            to="/profile"
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-              location.pathname === '/profile'
-                ? 'text-primary bg-primary/10'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <User className="w-5 h-5" />
-            <span className="text-[10px]">Profil</span>
-          </Link>
+          </div>
         </div>
       </div>
     </motion.nav>
