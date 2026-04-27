@@ -343,18 +343,16 @@ const DriverDashboard: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="mt-6"
         >
-          <Card className="border-0 shadow-card overflow-hidden">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Vaše aktívne jazdy</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Map 
-                className="h-[300px] md:h-[400px]" 
-                markers={mapMarkers}
-                zoom={8}
-              />
-            </CardContent>
-          </Card>
+          <div className="glass rounded-2xl overflow-hidden">
+            <div className="px-5 pt-5 pb-3">
+              <h3 className="font-display text-lg font-semibold">Vaše aktívne jazdy</h3>
+            </div>
+            <Map 
+              className="h-[300px] md:h-[400px]" 
+              markers={mapMarkers}
+              zoom={8}
+            />
+          </div>
         </motion.div>
 
         {/* Active Rides List */}
@@ -374,94 +372,82 @@ const DriverDashboard: React.FC = () => {
           {loading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="border-0 shadow-card animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-muted rounded w-3/4 mb-4" />
-                    <div className="h-4 bg-muted rounded w-1/2 mb-4" />
-                    <div className="h-4 bg-muted rounded w-1/4" />
-                  </CardContent>
-                </Card>
+                <div key={i} className="glass rounded-2xl p-6 animate-pulse">
+                  <div className="h-4 bg-white/40 rounded w-3/4 mb-4" />
+                  <div className="h-4 bg-white/40 rounded w-1/2 mb-4" />
+                  <div className="h-4 bg-white/40 rounded w-1/4" />
+                </div>
               ))}
             </div>
           ) : rides.length === 0 ? (
-            <Card className="border-0 shadow-card">
-              <CardContent className="p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Car className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold mb-2">Zatiaľ žiadne jazdy</h3>
-                <p className="text-muted-foreground mb-4">Vytvorte svoju prvú jazdu a začnite zarábať</p>
-                <Link to="/create-ride">
-                  <Button variant="hero">Vytvoriť jazdu</Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="glass rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-[0_8px_24px_-6px_hsl(var(--primary)/0.5)]">
+                <Car className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <h3 className="font-display text-lg font-semibold mb-2">Zatiaľ žiadne jazdy</h3>
+              <p className="text-foreground/60 mb-4">Vytvorte svoju prvú jazdu a začnite zarábať</p>
+              <Link to="/create-ride">
+                <Button variant="hero" className="rounded-2xl">Vytvoriť jazdu</Button>
+              </Link>
+            </div>
           ) : activeRides.length === 0 ? (
-            <Card className="border-0 shadow-card">
-              <CardContent className="p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Car className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold mb-2">Žiadne aktívne jazdy</h3>
-                <p className="text-muted-foreground mb-4">Vytvorte novú jazdu a začnite zarábať</p>
-                <Link to="/create-ride">
-                  <Button variant="hero">Vytvoriť jazdu</Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="glass rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-[0_8px_24px_-6px_hsl(var(--primary)/0.5)]">
+                <Car className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <h3 className="font-display text-lg font-semibold mb-2">Žiadne aktívne jazdy</h3>
+              <p className="text-foreground/60 mb-4">Vytvorte novú jazdu a začnite zarábať</p>
+              <Link to="/create-ride">
+                <Button variant="hero" className="rounded-2xl">Vytvoriť jazdu</Button>
+              </Link>
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {activeRides.slice(0, 6).map((ride) => (
-                <Card key={ride.id} className="border-0 shadow-card hover:shadow-lg transition-shadow group">
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge variant={ride.status === 'active' ? 'default' : 'secondary'}>
-                          {ride.status === 'active' ? 'Aktívna' : ride.status === 'in_progress' ? 'Prebieha' : 'Ukončená'}
-                        </Badge>
-                        <span className="font-bold text-primary">{ride.price_per_seat}€</span>
-                      </div>
+                <div key={ride.id} className="glass rounded-2xl p-5 hover:shadow-glass-lg hover:scale-[1.01] transition-all group">
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge variant={ride.status === 'active' ? 'default' : 'secondary'} className="rounded-lg">
+                      {ride.status === 'active' ? 'Aktívna' : ride.status === 'in_progress' ? 'Prebieha' : 'Ukončená'}
+                    </Badge>
+                    <span className="font-bold text-xl text-gradient-hero">{ride.price_per_seat}€</span>
+                  </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-3">
-                          <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                          <div>
-                            <p className="font-medium">{ride.origin_address}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-2 h-2 rounded-full bg-accent mt-2" />
-                          <div>
-                            <p className="font-medium">{ride.destination_address}</p>
-                          </div>
-                        </div>
-                      </div>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 ring-4 ring-primary/15" />
+                      <p className="font-medium leading-tight">{ride.origin_address}</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-accent mt-2 ring-4 ring-accent/15" />
+                      <p className="font-medium leading-tight">{ride.destination_address}</p>
+                    </div>
+                  </div>
 
-                      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {formatDbDate(ride.departure_time, 'd MMM, HH:mm', { locale: sk })}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {ride.available_seats} miest
-                        </span>
-                      </div>
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/30 text-sm text-foreground/60">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {formatDbDate(ride.departure_time, 'd MMM, HH:mm', { locale: sk })}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      {ride.available_seats} miest
+                    </span>
+                  </div>
 
-                      <div className="flex gap-2 mt-4">
-                        <Link to={`/ride/${ride.id}`} className="flex-1">
-                          <Button variant="outline" size="sm" className="w-full">
-                            Detail
-                          </Button>
-                        </Link>
-                        <Link to={`/manage-passengers/${ride.id}`} className="flex-1">
-                          <Button variant="hero" size="sm" className="w-full gap-1">
-                            <NavIcon className="w-4 h-4" />
-                            Pasažieri
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="flex gap-2 mt-4">
+                    <Link to={`/ride/${ride.id}`} className="flex-1">
+                      <Button variant="glass" size="sm" className="w-full rounded-xl">
+                        Detail
+                      </Button>
+                    </Link>
+                    <Link to={`/manage-passengers/${ride.id}`} className="flex-1">
+                      <Button variant="hero" size="sm" className="w-full gap-1 rounded-xl">
+                        <NavIcon className="w-4 h-4" />
+                        Pasažieri
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
           )}
