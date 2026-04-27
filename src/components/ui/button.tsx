@@ -9,17 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.4)]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-background hover:bg-muted hover:border-foreground/20",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
-        ghost: "hover:bg-muted hover:text-foreground",
+        default: "bg-gradient-to-br from-primary to-[hsl(245_85%_65%)] text-primary-foreground hover:opacity-95 shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)]",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_4px_12px_-4px_hsl(var(--destructive)/0.4)]",
+        outline: "border border-border bg-white/60 backdrop-blur-md hover:bg-white hover:border-primary/40",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-white/60 hover:backdrop-blur-md hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline rounded-md",
-        hero: "bg-gradient-to-r from-primary to-[hsl(190_82%_45%)] text-primary-foreground hover:opacity-95 shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)]",
+        hero: "bg-gradient-to-r from-primary via-[hsl(222_89%_60%)] to-accent text-primary-foreground hover:opacity-95 shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)]",
         success: "bg-[hsl(152_69%_45%)] text-white hover:bg-[hsl(152_69%_42%)] shadow-[0_4px_12px_-4px_hsl(152_69%_45%/0.4)]",
-        glass: "glass-strong text-foreground hover:bg-white/90",
+        glass: "bg-white/70 backdrop-blur-xl border border-white/60 text-foreground hover:bg-white/90 shadow-md",
         coral: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-[var(--shadow-cta)]",
-        bento: "bg-card text-foreground border border-border hover:border-foreground/20 hover:bg-muted",
+        bento: "bg-white/70 backdrop-blur-md text-foreground border border-white/60 hover:border-primary/30 hover:bg-white",
       },
       size: {
         default: "h-10 px-4 py-2",
