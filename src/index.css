@@ -139,34 +139,43 @@
 
   body {
     background:
-      radial-gradient(at 18% 12%, hsla(174 80% 55% / 0.45) 0px, transparent 50%),
-      radial-gradient(at 82% 18%, hsla(195 90% 60% / 0.4) 0px, transparent 50%),
-      radial-gradient(at 75% 82%, hsla(220 80% 50% / 0.35) 0px, transparent 55%),
-      radial-gradient(at 12% 88%, hsla(190 75% 50% / 0.35) 0px, transparent 50%),
-      linear-gradient(180deg, hsl(174 60% 95%) 0%, hsl(195 70% 92%) 50%, hsl(215 75% 88%) 100%);
+      radial-gradient(at 15% 8%, hsla(174 80% 60% / 0.18) 0px, transparent 45%),
+      radial-gradient(at 85% 12%, hsla(195 85% 65% / 0.16) 0px, transparent 45%),
+      radial-gradient(at 75% 88%, hsla(235 75% 65% / 0.14) 0px, transparent 50%),
+      radial-gradient(at 10% 92%, hsla(190 75% 60% / 0.14) 0px, transparent 45%),
+      linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(195 35% 96%) 50%, hsl(210 35% 96%) 100%);
     background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 
-  /* Auto-glassify all shadcn Cards across the app */
+  /* Auto-modernize all shadcn Cards into bento style across the app */
   .bg-card {
-    background: linear-gradient(135deg, hsla(0 0% 100% / 0.6) 0%, hsla(0 0% 100% / 0.3) 100%) !important;
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
-    border-color: hsla(0 0% 100% / 0.45) !important;
-    box-shadow: 0 8px 28px -10px hsla(220 50% 20% / 0.18), inset 0 1px 0 0 hsla(0 0% 100% / 0.4);
+    background: hsl(0 0% 100%) !important;
+    border-color: hsla(220 18% 92% / 1) !important;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-bento);
   }
 
-  /* Inputs — softer glass look */
+  /* Inputs — clean bento look */
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
   textarea,
   select {
-    background-color: hsla(0 0% 100% / 0.65) !important;
-    backdrop-filter: blur(8px);
-    border-color: hsla(0 0% 100% / 0.5) !important;
+    background-color: hsl(220 20% 97%) !important;
+    border-color: hsla(220 18% 90% / 1) !important;
+    border-radius: 0.875rem !important;
+    transition: all 0.2s ease;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+  textarea:focus,
+  select:focus {
+    background-color: hsl(0 0% 100%) !important;
+    border-color: hsl(var(--primary) / 0.5) !important;
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.08) !important;
   }
 
   /* Make solid bg pages let the mesh show through where appropriate */
