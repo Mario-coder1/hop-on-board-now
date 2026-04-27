@@ -214,141 +214,166 @@ const DriverDashboard: React.FC = () => {
       <div className="pointer-events-none absolute top-40 -right-32 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
       <Navigation />
       
-      
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-5 sm:py-6 relative">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
+          className="flex items-center justify-between gap-3 mb-5"
         >
-          <div>
-            <h1 className="font-display text-3xl font-bold">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold truncate">
               Ahoj, <span className="gradient-text">{profile?.full_name?.split(' ')[0]}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-0.5 hidden sm:block">
               Pripravený na ďalšiu jazdu?
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {isTracking ? (
-              <Button variant="outline" onClick={stopTracking} className="gap-2">
-                <CircleOff className="w-4 h-4" />
-                Zastaviť zdieľanie
-              </Button>
-            ) : (
-              <Button variant="secondary" onClick={startTracking} className="gap-2">
-                <Radio className="w-4 h-4" />
-                Zdieľať polohu
-              </Button>
-            )}
-            <Link to="/create-ride">
-              <Button variant="hero" size="lg" className="gap-2">
-                <Plus className="w-5 h-5" />
-                Vytvoriť jazdu
-              </Button>
-            </Link>
-          </div>
+          <Link to="/create-ride" className="shrink-0">
+            <Button variant="hero" size="sm" className="gap-1.5 sm:size-default sm:gap-2">
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Vytvoriť jazdu</span>
+              <span className="sm:hidden">Nová</span>
+            </Button>
+          </Link>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {[
-              { label: 'Aktívne jazdy', value: activeRides.length, icon: Car, color: 'text-primary' },
-              { label: 'Čakajúce žiadosti', value: requests.length, icon: Bell, color: 'text-accent' },
-              { label: 'Celkovo jázd', value: profile?.total_rides || 0, icon: TrendingUp, color: 'text-success' },
-              { label: 'Hodnotenie', value: `${profile?.rating?.toFixed(1) || '5.0'} ⭐`, icon: Users, color: 'text-warning' }
-            ].map((stat, index) => (
-              <div key={stat.label} className="glass rounded-2xl p-4 hover:shadow-glass-lg transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ${stat.color}`}>
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold leading-tight">{stat.value}</p>
-                    <p className="text-xs text-foreground/60">{stat.label}</p>
-                  </div>
-                </div>
+        {/* Tracking pill */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-5"
+        >
+          {isTracking ? (
+            <button
+              onClick={stopTracking}
+              className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl glass border border-success/30 hover:border-success/50 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
+                </span>
+                <span className="font-medium">Zdieľaš svoju polohu</span>
               </div>
-            ))}
-          </motion.div>
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <CircleOff className="w-3.5 h-3.5" /> Vypnúť
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={startTracking}
+              className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl glass hover:border-primary/40 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <Radio className="w-4 h-4 text-primary" />
+                <span className="font-medium">Zdieľať polohu pasažierom</span>
+              </div>
+              <span className="text-xs text-primary font-medium">Zapnúť</span>
+            </button>
+          )}
+        </motion.div>
 
-          {/* Pending Requests */}
+        {/* Stats - simplified compact grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-5"
+        >
+          {[
+            { label: 'Aktívne', value: activeRides.length, icon: Car, color: 'text-primary' },
+            { label: 'Žiadosti', value: requests.length, icon: Bell, color: 'text-accent' },
+            { label: 'Jázd', value: profile?.total_rides || 0, icon: TrendingUp, color: 'text-success' },
+            { label: 'Hodnotenie', value: `${profile?.rating?.toFixed(1) || '5.0'}★`, icon: Users, color: 'text-warning' }
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-2xl bg-card border border-border p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">{stat.label}</p>
+              </div>
+              <p className="text-lg sm:text-xl font-bold leading-tight">{stat.value}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Pending Requests */}
+        {requests.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.15 }}
+            className="mb-5"
           >
-            <div className="glass rounded-2xl p-5 h-full">
-              <div className="flex items-center gap-2 mb-4">
-                <Bell className="w-5 h-5 text-accent" />
-                <h3 className="font-display text-lg font-semibold">Žiadosti o jazdu</h3>
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/60">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-accent" />
+                  <h3 className="font-display text-base font-semibold">Žiadosti</h3>
+                </div>
+                <Badge variant="secondary" className="text-xs">{requests.length}</Badge>
               </div>
-              {requests.length === 0 ? (
-                <p className="text-sm text-foreground/60 text-center py-6">
-                  Zatiaľ žiadne žiadosti
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {requests.slice(0, 3).map((request) => (
-                    <div key={request.id} className="p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/30">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-[hsl(25_90%_55%)] flex items-center justify-center text-accent-foreground font-semibold">
-                          {request.passenger?.full_name?.charAt(0)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{request.passenger?.full_name}</p>
-                          <p className="text-xs text-foreground/60">{request.passenger?.rating?.toFixed(1)} ⭐</p>
-                        </div>
+              <div className="divide-y divide-border/60">
+                {requests.slice(0, 3).map((request) => (
+                  <div key={request.id} className="p-3 sm:p-4">
+                    <div className="flex items-center gap-3 mb-2.5">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-[hsl(25_90%_55%)] flex items-center justify-center text-accent-foreground font-semibold text-sm shrink-0 overflow-hidden">
+                        {request.passenger?.avatar_url ? (
+                          <img src={request.passenger.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          request.passenger?.full_name?.charAt(0)
+                        )}
                       </div>
-                      <p className="text-xs text-foreground/70 mb-3 truncate">
-                        📍 {request.pickup_address}
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="success"
-                          className="flex-1 rounded-xl"
-                          onClick={() => handleRequest(request.id, 'accepted')}
-                        >
-                          Prijať
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="glass"
-                          className="flex-1 rounded-xl"
-                          onClick={() => handleRequest(request.id, 'rejected')}
-                        >
-                          Odmietnuť
-                        </Button>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{request.passenger?.full_name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          ⭐ {request.passenger?.rating?.toFixed(1)} · 📍 {request.pickup_address}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="success"
+                        className="flex-1 h-8 rounded-lg"
+                        onClick={() => handleRequest(request.id, 'accepted')}
+                      >
+                        Prijať
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-8 rounded-lg"
+                        onClick={() => handleRequest(request.id, 'rejected')}
+                      >
+                        Odmietnuť
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {requests.length > 3 && (
+                  <Link to="/my-rides" className="block px-4 py-2.5 text-xs text-primary text-center hover:bg-muted/40">
+                    + {requests.length - 3} ďalších
+                  </Link>
+                )}
+              </div>
             </div>
           </motion.div>
-        </div>
+        )}
 
         {/* Map */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-6"
+          transition={{ delay: 0.2 }}
+          className="mb-5"
         >
-          <div className="glass rounded-2xl overflow-hidden">
-            <div className="px-5 pt-5 pb-3">
-              <h3 className="font-display text-lg font-semibold">Vaše aktívne jazdy</h3>
+          <div className="rounded-2xl bg-card border border-border overflow-hidden">
+            <div className="px-4 sm:px-5 py-3 border-b border-border/60">
+              <h3 className="font-display text-base font-semibold">Vaše aktívne jazdy</h3>
             </div>
             <Map 
-              className="h-[300px] md:h-[400px]" 
+              className="h-[260px] sm:h-[340px]" 
               markers={mapMarkers}
               zoom={8}
             />
@@ -359,96 +384,94 @@ const DriverDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-6"
+          transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-xl font-bold">Vaše jazdy</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display text-lg sm:text-xl font-bold">Vaše jazdy</h2>
             <Link to="/my-rides" className="text-sm text-primary hover:underline flex items-center gap-1">
-              Zobraziť všetky <ChevronRight className="w-4 h-4" />
+              Všetky <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="glass rounded-2xl p-6 animate-pulse">
-                  <div className="h-4 bg-white/40 rounded w-3/4 mb-4" />
-                  <div className="h-4 bg-white/40 rounded w-1/2 mb-4" />
-                  <div className="h-4 bg-white/40 rounded w-1/4" />
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[1, 2].map((i) => (
+                <div key={i} className="rounded-2xl bg-card border border-border p-5 animate-pulse">
+                  <div className="h-4 bg-muted rounded w-3/4 mb-4" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
                 </div>
               ))}
             </div>
-          ) : rides.length === 0 ? (
-            <div className="glass rounded-2xl p-12 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-[0_8px_24px_-6px_hsl(var(--primary)/0.5)]">
-                <Car className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <h3 className="font-display text-lg font-semibold mb-2">Zatiaľ žiadne jazdy</h3>
-              <p className="text-foreground/60 mb-4">Vytvorte svoju prvú jazdu a začnite zarábať</p>
-              <Link to="/create-ride">
-                <Button variant="hero" className="rounded-2xl">Vytvoriť jazdu</Button>
-              </Link>
-            </div>
           ) : activeRides.length === 0 ? (
-            <div className="glass rounded-2xl p-12 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-[0_8px_24px_-6px_hsl(var(--primary)/0.5)]">
-                <Car className="w-8 h-8 text-primary-foreground" />
+            <div className="rounded-2xl bg-card border border-border p-10 sm:p-12 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4">
+                <Car className="w-7 h-7 text-primary-foreground" />
               </div>
-              <h3 className="font-display text-lg font-semibold mb-2">Žiadne aktívne jazdy</h3>
-              <p className="text-foreground/60 mb-4">Vytvorte novú jazdu a začnite zarábať</p>
+              <h3 className="font-display text-base font-semibold mb-1">Žiadne aktívne jazdy</h3>
+              <p className="text-sm text-muted-foreground mb-4">Vytvorte novú jazdu a začnite zarábať</p>
               <Link to="/create-ride">
-                <Button variant="hero" className="rounded-2xl">Vytvoriť jazdu</Button>
+                <Button variant="hero" size="sm">Vytvoriť jazdu</Button>
               </Link>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeRides.slice(0, 6).map((ride) => (
-                <div key={ride.id} className="glass rounded-2xl p-5 hover:shadow-glass-lg hover:scale-[1.01] transition-all group">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge variant={ride.status === 'active' ? 'default' : 'secondary'} className="rounded-lg">
-                      {ride.status === 'active' ? 'Aktívna' : ride.status === 'in_progress' ? 'Prebieha' : 'Ukončená'}
-                    </Badge>
-                    <span className="font-bold text-xl text-gradient-hero">{ride.price_per_seat}€</span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 ring-4 ring-primary/15" />
-                      <p className="font-medium leading-tight">{ride.origin_address}</p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {activeRides.slice(0, 6).map((ride) => {
+                const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
+                const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
+                return (
+                  <div key={ride.id} className="rounded-2xl bg-card border border-border hover:shadow-md hover:border-primary/30 transition-all p-4 sm:p-5">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span className="font-medium">{date}</span>
+                        <Badge variant={ride.status === 'in_progress' ? 'default' : 'secondary'} className="rounded-md h-5 px-1.5 text-[10px]">
+                          {ride.status === 'active' ? 'Aktívna' : 'Prebieha'}
+                        </Badge>
+                      </div>
+                      <span className="font-bold text-lg text-primary leading-none">{ride.price_per_seat}€</span>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full bg-accent mt-2 ring-4 ring-accent/15" />
-                      <p className="font-medium leading-tight">{ride.destination_address}</p>
+
+                    {/* BlaBlaCar route */}
+                    <div className="flex gap-3">
+                      <div className="flex flex-col items-center pt-1">
+                        <span className="text-sm font-semibold tabular-nums">{time}</span>
+                        <div className="flex flex-col items-center flex-1 my-1.5">
+                          <div className="w-2.5 h-2.5 rounded-full border-2 border-primary" />
+                          <div className="w-px flex-1 min-h-[20px] border-l-2 border-dotted border-muted-foreground/40 my-1" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+                        <div className="truncate font-medium text-sm">{ride.origin_address}</div>
+                        <div className="h-4" />
+                        <div className="truncate font-medium text-sm">{ride.destination_address}</div>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Users className="w-3.5 h-3.5" />
+                        {ride.available_seats} miest
+                      </span>
+                      <div className="flex gap-1.5">
+                        <Link to={`/ride/${ride.id}`}>
+                          <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs">
+                            Detail
+                          </Button>
+                        </Link>
+                        <Link to={`/manage-passengers/${ride.id}`}>
+                          <Button variant="hero" size="sm" className="h-8 px-2.5 text-xs gap-1">
+                            <NavIcon className="w-3.5 h-3.5" />
+                            Pasažieri
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/30 text-sm text-foreground/60">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {formatDbDate(ride.departure_time, 'd MMM, HH:mm', { locale: sk })}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {ride.available_seats} miest
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2 mt-4">
-                    <Link to={`/ride/${ride.id}`} className="flex-1">
-                      <Button variant="glass" size="sm" className="w-full rounded-xl">
-                        Detail
-                      </Button>
-                    </Link>
-                    <Link to={`/manage-passengers/${ride.id}`} className="flex-1">
-                      <Button variant="hero" size="sm" className="w-full gap-1 rounded-xl">
-                        <NavIcon className="w-4 h-4" />
-                        Pasažieri
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </motion.div>
@@ -456,5 +479,7 @@ const DriverDashboard: React.FC = () => {
     </div>
   );
 };
+
+export default DriverDashboard;
 
 export default DriverDashboard;
