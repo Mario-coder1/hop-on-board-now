@@ -142,6 +142,10 @@
 
   body {
     background: hsl(var(--background));
+    background-image:
+      radial-gradient(at 8% 0%, hsla(222 89% 65% / 0.18) 0px, transparent 45%),
+      radial-gradient(at 92% 8%, hsla(195 92% 65% / 0.16) 0px, transparent 45%),
+      radial-gradient(at 50% 100%, hsla(245 85% 70% / 0.14) 0px, transparent 50%);
     background-attachment: fixed;
   }
 
@@ -151,22 +155,26 @@
     font-weight: 700;
   }
 
-  /* Auto-modernize all shadcn Cards into clean minimal style */
+  /* Auto-modernize all shadcn Cards into frosted glass style */
   .bg-card {
-    background: hsl(0 0% 100%) !important;
-    border: 1px solid hsl(220 16% 92%) !important;
-    border-radius: 1.25rem;
+    background: hsla(0 0% 100% / 0.75) !important;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid hsla(0 0% 100% / 0.6) !important;
+    border-radius: 1.5rem;
     box-shadow: var(--shadow-bento);
   }
 
-  /* Inputs — minimal & clear */
+  /* Inputs — frosted & soft */
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
   textarea,
   select {
-    background-color: hsl(0 0% 100%) !important;
-    border: 1px solid hsl(220 16% 90%) !important;
-    border-radius: 0.875rem !important;
-    transition: all 0.18s ease;
+    background-color: hsla(0 0% 100% / 0.7) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(220 25% 90%) !important;
+    border-radius: 1rem !important;
+    transition: all 0.2s ease;
   }
 
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
@@ -174,7 +182,7 @@
   select:focus {
     background-color: hsl(0 0% 100%) !important;
     border-color: hsl(var(--primary)) !important;
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12) !important;
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15) !important;
   }
 
   /* Make solid bg pages let the bg show through where appropriate */
