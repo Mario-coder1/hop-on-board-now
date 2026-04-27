@@ -60,14 +60,14 @@
     --gradient-bento-indigo: linear-gradient(135deg, hsl(235 75% 62%) 0%, hsl(250 78% 68%) 100%);
     --gradient-bento-coral: linear-gradient(135deg, hsl(8 90% 68%) 0%, hsl(18 92% 62%) 100%);
 
-    /* Shadows - bento style: soft, layered */
-    --shadow-sm: 0 1px 3px hsla(220 30% 15% / 0.04), 0 1px 2px hsla(220 30% 15% / 0.06);
-    --shadow-md: 0 4px 16px -4px hsla(220 30% 15% / 0.08), 0 2px 6px hsla(220 30% 15% / 0.04);
-    --shadow-lg: 0 12px 32px -8px hsla(220 30% 15% / 0.12), 0 4px 12px hsla(220 30% 15% / 0.06);
-    --shadow-glow: 0 8px 32px -8px hsla(174 76% 41% / 0.45);
-    --shadow-card: 0 2px 12px -2px hsla(220 30% 15% / 0.06), 0 1px 4px hsla(220 30% 15% / 0.04);
-    --shadow-bento: 0 8px 24px -8px hsla(220 30% 15% / 0.1), 0 2px 6px hsla(220 30% 15% / 0.05);
-    --shadow-cta: 0 12px 28px -8px hsla(8 88% 66% / 0.5);
+    /* Shadows - clean & subtle */
+    --shadow-sm: 0 1px 2px hsla(220 30% 15% / 0.04);
+    --shadow-md: 0 2px 8px -2px hsla(220 30% 15% / 0.06), 0 1px 3px hsla(220 30% 15% / 0.04);
+    --shadow-lg: 0 8px 24px -8px hsla(220 30% 15% / 0.1), 0 2px 6px hsla(220 30% 15% / 0.04);
+    --shadow-glow: 0 8px 32px -8px hsla(174 78% 38% / 0.4);
+    --shadow-card: 0 1px 3px hsla(220 30% 15% / 0.04);
+    --shadow-bento: 0 1px 3px hsla(220 30% 15% / 0.04), 0 1px 2px hsla(220 30% 15% / 0.03);
+    --shadow-cta: 0 8px 24px -8px hsla(8 88% 64% / 0.5);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
