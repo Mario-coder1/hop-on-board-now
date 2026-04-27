@@ -558,20 +558,27 @@ const Admin = () => {
 
       if (error) throw error;
 
-      // Also send push notifications to all users
-      const { data: allProfiles } = await supabase
-        .from('profiles')
-        .select('id');
+      // Send push notifications to all users via server-side edge function.
+      // This is reliable and works even after admin closes the tab.
+      const { data: pushResult, error: pushError } = await supabase.functions.invoke('send-mass-push', {
+        body: {
+          title: massNotificationTitle,
+          body: massNotificationMessage,
+          data: { type: 'mass_notification' },
+          tag: 'takeme-mass-notification',
+        },
+      });
 
-      if (allProfiles) {
-        for (const profile of allProfiles) {
-          await sendPushNotification(profile.id, massNotificationTitle, massNotificationMessage);
-        }
+      if (pushError) {
+        console.error('[MassPush] edge function error:', pushError);
       }
+
+      const recipients = (pushResult as { recipients?: number; sent?: number } | null)?.recipients ?? 0;
+      const sent = (pushResult as { recipients?: number; sent?: number } | null)?.sent ?? 0;
 
       toast({
         title: 'Notifikácia odoslaná',
-        description: `Hromadná notifikácia bola odoslaná všetkým ${allProfiles?.length || 0} používateľom.`,
+        description: `Push notifikácia doručená ${sent} zariadeniam (${recipients} používateľov).`,
       });
 
       setMassNotificationTitle('');
