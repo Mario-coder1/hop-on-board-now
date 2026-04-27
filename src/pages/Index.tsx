@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
-import { Car, Users, MapPin, Shield, Circle } from "lucide-react";
+import { Car, Users, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 
