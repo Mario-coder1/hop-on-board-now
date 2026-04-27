@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.internal-send-push]
 verify_jwt = false
+
+[functions.send-mass-push]
+verify_jwt = false
