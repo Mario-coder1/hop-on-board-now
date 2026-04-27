@@ -9,17 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-foreground text-background hover:bg-foreground/90 shadow-[0_4px_16px_-6px_hsla(0_0%_0%_/_0.3)]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-card text-foreground hover:border-foreground/40 hover:bg-muted/50",
+        default: "bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground hover:shadow-[0_16px_36px_-8px_hsla(222_89%_55%_/_0.55)] shadow-cta",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md",
+        outline: "border border-border bg-card text-foreground hover:border-primary/40 hover:bg-primary/5 shadow-sm",
         secondary: "bg-muted text-foreground hover:bg-muted/70",
-        ghost: "text-foreground hover:bg-muted",
-        link: "text-foreground underline-offset-4 hover:underline rounded-md",
-        hero: "bg-foreground text-background hover:bg-foreground/90 shadow-[0_8px_24px_-8px_hsla(0_0%_0%_/_0.35)]",
-        success: "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:opacity-90",
-        glass: "bg-card border border-border text-foreground hover:border-foreground/40",
-        coral: "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:opacity-90",
-        bento: "bg-card text-foreground border border-border hover:border-foreground/40",
+        ghost: "text-foreground hover:bg-primary/5 hover:text-primary",
+        link: "text-primary underline-offset-4 hover:underline rounded-md",
+        hero: "bg-gradient-to-br from-primary via-[hsl(var(--primary-glow))] to-accent text-primary-foreground shadow-cta hover:shadow-[0_20px_44px_-8px_hsla(222_89%_55%_/_0.6)]",
+        success: "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:opacity-90 shadow-md",
+        glass: "glass text-foreground hover:border-primary/40",
+        coral: "bg-gradient-to-br from-accent to-[hsl(190_95%_60%)] text-accent-foreground hover:opacity-95 shadow-md",
+        bento: "bg-card text-foreground border border-border hover:border-primary/40 shadow-sm",
       },
       size: {
         default: "h-10 px-5",
