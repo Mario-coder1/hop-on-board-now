@@ -492,13 +492,13 @@ const ManagePassengers = () => {
             </div>
 
             {/* Map */}
-            <div className="lg:sticky lg:top-24">
+            <div className="order-1 lg:order-2 lg:sticky lg:top-24">
               <Card className="border-0 shadow-card overflow-hidden">
                 <CardContent className="p-0">
                   <Map 
                     markers={markers}
                     showRoute
-                    className="h-[500px]"
+                    className="h-[260px] sm:h-[360px] lg:h-[500px]"
                     center={selectedPassenger ? [
                       Number(selectedPassenger.pickup_lng),
                       Number(selectedPassenger.pickup_lat)
@@ -509,13 +509,14 @@ const ManagePassengers = () => {
               </Card>
               
                 {selectedPassenger && selectedPassenger.passenger && (
-                <div className="mt-4 p-4 rounded-xl bg-card border border-border">
-                  <p className="text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
-                  <p className="font-semibold">{selectedPassenger.passenger.full_name}</p>
-                  <p className="text-sm text-green-600">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
-                  <p className="text-sm text-red-500">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
+                <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-card border border-border">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
+                  <p className="font-semibold text-sm sm:text-base break-words">{selectedPassenger.passenger.full_name}</p>
+                  <p className="text-xs sm:text-sm text-green-600 break-words">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
+                  <p className="text-xs sm:text-sm text-red-500 break-words">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
                   <Button
                     variant="hero"
+                    size="sm"
                     className="w-full mt-3 gap-2"
                     onClick={() => openNavigation(
                       Number(selectedPassenger.pickup_lat),
@@ -529,6 +530,7 @@ const ManagePassengers = () => {
                   {selectedPassenger.dropoff_address && selectedPassenger.dropoff_lat && selectedPassenger.dropoff_lng && (
                     <Button
                       variant="outline"
+                      size="sm"
                       className="w-full mt-2 gap-2"
                       onClick={() => openNavigation(
                         Number(selectedPassenger.dropoff_lat),
