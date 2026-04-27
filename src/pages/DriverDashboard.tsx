@@ -209,8 +209,11 @@ const DriverDashboard: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 pb-20 md:pb-0">
+    <div className="min-h-screen bg-mesh pb-32 md:pb-8 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/25 blur-3xl" />
+      <div className="pointer-events-none absolute top-40 -right-32 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
       <Navigation />
+      
       
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
