@@ -128,9 +128,9 @@ const Navigation: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation - Bento bottom bar */}
+      {/* Mobile Navigation - clean bottom bar */}
       <div className="md:hidden fixed bottom-3 left-3 right-3 z-50 safe-bottom">
-        <div className="bento-card !rounded-3xl px-2 py-2">
+        <div className="bento-card !rounded-2xl px-1.5 py-1.5">
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -138,9 +138,9 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
                     isActive
-                      ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                      ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
@@ -152,9 +152,9 @@ const Navigation: React.FC = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
+                className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
                   location.pathname === '/admin'
-                    ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                    ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
@@ -164,9 +164,9 @@ const Navigation: React.FC = () => {
             )}
             <Link
               to="/profile"
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl transition-all ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
                 location.pathname === '/profile'
-                  ? 'bg-gradient-to-br from-primary to-[hsl(190_82%_48%)] text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.6)] scale-105'
+                  ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
