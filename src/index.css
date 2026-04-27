@@ -125,13 +125,48 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground antialiased;
+  html, body {
+    @apply text-foreground antialiased;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  body {
+    background:
+      radial-gradient(at 18% 12%, hsla(174 80% 55% / 0.45) 0px, transparent 50%),
+      radial-gradient(at 82% 18%, hsla(195 90% 60% / 0.4) 0px, transparent 50%),
+      radial-gradient(at 75% 82%, hsla(220 80% 50% / 0.35) 0px, transparent 55%),
+      radial-gradient(at 12% 88%, hsla(190 75% 50% / 0.35) 0px, transparent 50%),
+      linear-gradient(180deg, hsl(174 60% 95%) 0%, hsl(195 70% 92%) 50%, hsl(215 75% 88%) 100%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  /* Auto-glassify all shadcn Cards across the app */
+  [class*="bg-card"]:not([class*="!bg-"]) {
+    background: linear-gradient(135deg, hsla(0 0% 100% / 0.55) 0%, hsla(0 0% 100% / 0.25) 100%) !important;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-color: hsla(0 0% 100% / 0.4) !important;
+    box-shadow: 0 8px 28px -10px hsla(220 50% 20% / 0.18), inset 0 1px 0 0 hsla(0 0% 100% / 0.4);
+  }
+
+  /* Inputs — softer glass look */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  textarea,
+  select {
+    background-color: hsla(0 0% 100% / 0.65) !important;
+    backdrop-filter: blur(8px);
+    border-color: hsla(0 0% 100% / 0.5) !important;
+  }
+
+  /* Make solid bg pages let the mesh show through where appropriate */
+  .min-h-screen.bg-background,
+  .min-h-screen.bg-muted\/30 {
+    background: transparent !important;
   }
 }
 
