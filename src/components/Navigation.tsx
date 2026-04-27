@@ -37,16 +37,16 @@ const Navigation: React.FC = () => {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-50 glass border-b border-border/50"
+      className="sticky top-0 z-50 px-3 pt-3"
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto">
+        <div className="glass rounded-2xl px-3 md:px-4 flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] flex items-center justify-center">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary to-[hsl(190_80%_45%)] flex items-center justify-center shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]">
               <Car className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold">
+            <span className="font-display text-lg md:text-xl font-bold">
               Take<span className="text-primary">Me</span>
             </span>
           </Link>
@@ -60,7 +60,7 @@ const Navigation: React.FC = () => {
                   <Button
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
-                    className="gap-2"
+                    className={`gap-2 rounded-xl ${isActive ? 'shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.5)]' : ''}`}
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label}
@@ -73,7 +73,7 @@ const Navigation: React.FC = () => {
                 <Button
                   variant={location.pathname === '/admin' ? 'default' : 'ghost'}
                   size="sm"
-                  className="gap-2"
+                  className="gap-2 rounded-xl"
                 >
                   <Shield className="w-4 h-4" />
                   Admin
@@ -84,19 +84,18 @@ const Navigation: React.FC = () => {
 
           {/* User Menu */}
           <div className="flex items-center">
-            {/* Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="w-9 h-9">
+                  <Avatar className="w-9 h-9 ring-2 ring-white/40">
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold">
                       {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 glass-strong border-white/40">
                 <div className="px-3 py-2">
                   <p className="font-medium">{profile?.full_name}</p>
                   <p className="text-xs text-muted-foreground">
