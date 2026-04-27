@@ -29,6 +29,8 @@ export function PushNotificationToggle() {
     if (isSubscribed) {
       const success = await unsubscribe();
       if (success) {
+        // Mark as opted out so the auto-subscribe hook doesn't re-enable it.
+        localStorage.setItem('takeme_push_optout', 'true');
         toast({
           title: 'Notifikácie vypnuté',
           description: 'Už nebudete dostávať push notifikácie.',
@@ -45,6 +47,8 @@ export function PushNotificationToggle() {
 
     const result = await subscribe();
     if (result.success) {
+      // Clear opt-out so future logins keep notifications on automatically.
+      localStorage.removeItem('takeme_push_optout');
       toast({
         title: 'Notifikácie povolené',
         description: 'Budete dostávať upozornenia aj keď je aplikácia zatvorená.',
