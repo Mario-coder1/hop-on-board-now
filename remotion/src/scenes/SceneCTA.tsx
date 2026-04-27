@@ -102,7 +102,7 @@ export const SceneCTA: React.FC = () => {
           letterSpacing: 1,
         }}
       >
-        takeme.app
+        www.takeme.sk
       </div>
     </AbsoluteFill>
   );
