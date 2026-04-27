@@ -79,9 +79,75 @@ export const useDriverTracking = (driverProfileId: string | null) => {
   return { location, isLoading, error };
 };
 
+const TRACKING_STORAGE_KEY = 'takeme_location_tracking_active';
+
+// Module-level singleton so tracking persists across component remounts within the session
+let activeWatchId: number | null = null;
+let activeProfileId: string | null = null;
+
+const startWatch = (profileId: string): number => {
+  return navigator.geolocation.watchPosition(
+    async (position) => {
+      const { latitude, longitude, heading, speed } = position.coords;
+      console.log('Broadcasting location:', { latitude, longitude });
+
+      const { error } = await supabase
+        .from('user_locations')
+        .upsert({
+          profile_id: profileId,
+          lat: latitude,
+          lng: longitude,
+          heading: heading,
+          speed: speed,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'profile_id'
+        });
+
+      if (error) {
+        console.error('Error updating location:', error);
+      }
+    },
+    (error) => {
+      console.error('Geolocation error:', error);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+};
+
 export const useLocationBroadcast = (profileId: string | null) => {
-  const [isTracking, setIsTracking] = useState(false);
-  const [watchId, setWatchId] = useState<number | null>(null);
+  const [isTracking, setIsTracking] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(TRACKING_STORAGE_KEY) === 'true';
+  });
+
+  // Auto-resume tracking on mount if it was active before navigation
+  useEffect(() => {
+    if (!profileId || !navigator.geolocation) return;
+
+    const wasActive = localStorage.getItem(TRACKING_STORAGE_KEY) === 'true';
+    if (!wasActive) return;
+
+    // Already tracking for this profile — just sync UI state
+    if (activeWatchId !== null && activeProfileId === profileId) {
+      setIsTracking(true);
+      return;
+    }
+
+    // Clear stale watch from a previous profile
+    if (activeWatchId !== null) {
+      navigator.geolocation.clearWatch(activeWatchId);
+      activeWatchId = null;
+    }
+
+    activeWatchId = startWatch(profileId);
+    activeProfileId = profileId;
+    setIsTracking(true);
+  }, [profileId]);
 
   const startTracking = useCallback(async () => {
     if (!profileId || !navigator.geolocation) {
@@ -89,59 +155,25 @@ export const useLocationBroadcast = (profileId: string | null) => {
       return;
     }
 
+    if (activeWatchId !== null) {
+      navigator.geolocation.clearWatch(activeWatchId);
+    }
+
+    activeWatchId = startWatch(profileId);
+    activeProfileId = profileId;
+    localStorage.setItem(TRACKING_STORAGE_KEY, 'true');
     setIsTracking(true);
-
-    const id = navigator.geolocation.watchPosition(
-      async (position) => {
-        const { latitude, longitude, heading, speed } = position.coords;
-        
-        console.log('Broadcasting location:', { latitude, longitude });
-
-        const { error } = await supabase
-          .from('user_locations')
-          .upsert({
-            profile_id: profileId,
-            lat: latitude,
-            lng: longitude,
-            heading: heading,
-            speed: speed,
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'profile_id'
-          });
-
-        if (error) {
-          console.error('Error updating location:', error);
-        }
-      },
-      (error) => {
-        console.error('Geolocation error:', error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-
-    setWatchId(id);
   }, [profileId]);
 
   const stopTracking = useCallback(() => {
-    if (watchId !== null) {
-      navigator.geolocation.clearWatch(watchId);
-      setWatchId(null);
+    if (activeWatchId !== null) {
+      navigator.geolocation.clearWatch(activeWatchId);
+      activeWatchId = null;
+      activeProfileId = null;
     }
+    localStorage.removeItem(TRACKING_STORAGE_KEY);
     setIsTracking(false);
-  }, [watchId]);
-
-  useEffect(() => {
-    return () => {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-    };
-  }, [watchId]);
+  }, []);
 
   return { isTracking, startTracking, stopTracking };
 };
