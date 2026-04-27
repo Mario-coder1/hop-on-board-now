@@ -91,13 +91,17 @@ serve(async (req) => {
     const uniqueProfiles = new Set(subscriptions.map((s) => s.profile_id)).size;
     console.log(`[MassPush] Sending to ${subscriptions.length} subscription(s) across ${uniqueProfiles} user(s)`);
 
+    // Use a unique tag per broadcast so each mass notification stays visible
+    // separately (the previous one isn't replaced/collapsed by the OS).
+    const uniqueTag = `${tag || 'takeme-mass-notification'}-${Date.now()}`;
     const payload = JSON.stringify({
       title,
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
       data: data || { type: 'mass_notification' },
-      tag: tag || 'takeme-mass-notification',
+      tag: uniqueTag,
+      requireInteraction: true,
     });
 
     const expiredIds: string[] = [];
