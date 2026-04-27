@@ -349,9 +349,9 @@ const ManagePassengers = () => {
                     }`}
                     onClick={() => setSelectedPassenger(passenger)}
                   >
-                    <CardContent className="p-5">
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <CardContent className="p-3 sm:p-5">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           {passenger.passenger.avatar_url ? (
                             <img 
                               src={passenger.passenger.avatar_url} 
@@ -359,22 +359,22 @@ const ManagePassengers = () => {
                               className="w-full h-full rounded-full object-cover" 
                             />
                           ) : (
-                            <span className="text-xl font-semibold text-primary">
+                            <span className="text-lg sm:text-xl font-semibold text-primary">
                               {passenger.passenger.full_name.charAt(0)}
                             </span>
                           )}
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-display font-semibold">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 className="font-display font-semibold text-sm sm:text-base break-words">
                               {passenger.passenger.full_name}
                             </h3>
                             <Badge 
                               variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
                               className={
-                                passenger.status === 'picked_up' ? 'bg-green-500' : 
-                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white' : ''
+                                passenger.status === 'picked_up' ? 'bg-green-500 text-xs' : 
+                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white text-xs' : 'text-xs'
                               }
                             >
                               {passenger.status === 'picked_up' ? 'Vyzdvihnutý' : 
@@ -382,27 +382,27 @@ const ManagePassengers = () => {
                             </Badge>
                           </div>
                           
-                          <p className="text-sm text-muted-foreground mb-1">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-1">
                             ⭐ {passenger.passenger.rating?.toFixed(1) || '5.0'}
                           </p>
                           
-                          <div className="flex items-start gap-1 text-sm">
+                          <div className="flex items-start gap-1 text-xs sm:text-sm">
                             <MapPin className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground">
+                            <span className="text-muted-foreground break-words min-w-0">
                               <span className="font-medium text-foreground">Nastúpenie:</span> {passenger.pickup_address}
                             </span>
                           </div>
                           
-                          <div className="flex items-start gap-1 text-sm mt-1">
+                          <div className="flex items-start gap-1 text-xs sm:text-sm mt-1">
                             <MapPin className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground">
+                            <span className="text-muted-foreground break-words min-w-0">
                               <span className="font-medium text-foreground">Vystúpenie:</span>{' '}
                               {passenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}
                             </span>
                           </div>
 
                           {passenger.message && (
-                            <div className="mt-2 p-2 rounded-lg bg-muted/50 text-sm">
+                            <div className="mt-2 p-2 rounded-lg bg-muted/50 text-xs sm:text-sm break-words">
                               <MessageCircle className="w-3 h-3 inline mr-1" />
                               {passenger.message}
                             </div>
