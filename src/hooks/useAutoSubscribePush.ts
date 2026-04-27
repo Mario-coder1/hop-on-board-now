@@ -48,10 +48,12 @@ export function useAutoSubscribePush() {
           console.log('[AutoPush] Successfully subscribed after first interaction');
           return;
         }
-        console.log('[AutoPush] Subscription not granted:', result.error);
-        // Remember opt-out so we don't keep re-prompting on every interaction.
-        if (result.error === 'permission_denied') {
-          localStorage.setItem(DISMISS_KEY, 'true');
+        if ('error' in result) {
+          console.log('[AutoPush] Subscription not granted:', result.error);
+          // Remember opt-out so we don't keep re-prompting on every interaction.
+          if (result.error === 'permission_denied') {
+            localStorage.setItem(DISMISS_KEY, 'true');
+          }
         }
       } finally {
         cleanup();
