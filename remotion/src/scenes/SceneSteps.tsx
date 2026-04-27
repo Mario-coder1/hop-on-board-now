@@ -77,7 +77,7 @@ export const SceneSteps: React.FC = () => {
                 borderRadius: 32,
                 padding: "28px 36px",
                 border: "1px solid rgba(255,255,255,0.1)",
-                backdropFilter: "blur(20px)",
+                // no backdrop-filter (sandbox)
               }}
             >
               <div
