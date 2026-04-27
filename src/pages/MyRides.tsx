@@ -223,77 +223,89 @@ const MyRides = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredRides.map((ride, index) => (
-                <motion.div
-                  key={ride.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="p-6 rounded-2xl bg-card border border-border hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[ride.status]}`}>
+              {filteredRides.map((ride, index) => {
+                const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
+                const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
+                return (
+                  <motion.div
+                    key={ride.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.04 }}
+                    onClick={() => navigate(`/ride/${ride.id}`)}
+                    className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    {/* Header row: date + status + menu */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span className="font-medium">{date}</span>
+                        <span className={`ml-2 px-2 py-0.5 rounded-full text-[11px] font-medium ${statusColors[ride.status]}`}>
                           {statusLabels[ride.status]}
                         </span>
                         {ride.requests_count > 0 && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                            {ride.requests_count} žiadostí
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary">
+                            {ride.requests_count}
                           </span>
                         )}
                       </div>
-
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <span className="font-medium">{ride.origin_address}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-accent" />
-                        <span className="font-medium">{ride.destination_address}</span>
-                      </div>
-
-                      <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {formatDbDate(ride.departure_time, 'd. MMM HH:mm', { locale: sk })}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {ride.available_seats} miest
-                        </span>
-                        <span className="font-medium text-primary">{ride.price_per_seat}€</span>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => navigate(`/ride/${ride.id}`)}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Zobraziť
+                            </DropdownMenuItem>
+                            {ride.status === 'active' && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setCancellingRide(ride);
+                                  setCancelDialogOpen(true);
+                                }}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Zrušiť
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/ride/${ride.id}`)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Zobraziť
-                        </DropdownMenuItem>
-                        {ride.status === 'active' && (
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              setCancellingRide(ride);
-                              setCancelDialogOpen(true);
-                            }} 
-                            className="text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Zrušiť
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </motion.div>
-              ))}
+                    {/* BlaBlaCar-style route: time | dotted line | addresses */}
+                    <div className="flex gap-3">
+                      <div className="flex flex-col items-center pt-1">
+                        <span className="text-sm font-semibold tabular-nums">{time}</span>
+                        <div className="flex flex-col items-center flex-1 my-1.5">
+                          <div className="w-2.5 h-2.5 rounded-full border-2 border-primary" />
+                          <div className="w-px flex-1 min-h-[20px] border-l-2 border-dotted border-muted-foreground/40 my-1" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+                        <div className="truncate font-medium text-sm">{ride.origin_address}</div>
+                        <div className="h-5" />
+                        <div className="truncate font-medium text-sm">{ride.destination_address}</div>
+                      </div>
+                    </div>
+
+                    {/* Footer: seats + price */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/60">
+                      <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        {ride.available_seats} {ride.available_seats === 1 ? 'miesto' : 'miest'}
+                      </span>
+                      <span className="text-lg font-bold text-primary">{ride.price_per_seat}€</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>
