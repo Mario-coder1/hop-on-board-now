@@ -87,15 +87,19 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex">
+    <div className="min-h-screen bg-mesh flex relative overflow-hidden">
+      {/* Floating decorative blobs */}
+      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl animate-float" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-accent/25 blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+
       {/* Left side - Branding */}
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 bg-secondary relative overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary via-secondary to-[hsl(220_30%_20%)] relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMGI0YTgiIG9wYWNpdHk9IjAuMSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(circle at 20% 30%, hsl(174 80% 45% / 0.4), transparent 50%), radial-gradient(circle at 80% 70%, hsl(195 90% 55% / 0.3), transparent 50%)' }} />
         
         <div className="relative z-10 flex flex-col justify-center px-12 py-16">
           <motion.div
@@ -161,7 +165,7 @@ const Auth: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="glass rounded-2xl p-8 shadow-card"
+            className="glass-strong rounded-3xl p-8 shadow-glass-lg"
           >
             <h2 className="font-display text-2xl font-bold mb-2">
               {isLogin ? 'Vitajte späť' : 'Vytvorte si účet'}
