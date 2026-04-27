@@ -8,39 +8,39 @@
 
 @layer base {
   :root {
-    /* Core palette - Vibrant Teal & Electric Blue */
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    /* Core palette - Bento (clean white + electric teal) */
+    --background: 210 30% 98%;
+    --foreground: 222 30% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card-foreground: 222 30% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover-foreground: 222 30% 12%;
 
     /* Primary - Electric Teal */
-    --primary: 174 72% 40%;
+    --primary: 174 76% 41%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Deep Navy */
-    --secondary: 220 25% 15%;
+    /* Secondary - Indigo (bento purple-blue) */
+    --secondary: 235 70% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 220 16% 95%;
+    --muted-foreground: 220 12% 45%;
 
-    /* Accent - Warm Coral */
-    --accent: 12 85% 60%;
+    /* Accent - Warm Coral CTA */
+    --accent: 8 88% 66%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 174 72% 40%;
+    --border: 220 18% 92%;
+    --input: 220 18% 92%;
+    --ring: 174 76% 41%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     /* Custom tokens */
     --success: 152 69% 45%;
