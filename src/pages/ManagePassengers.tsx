@@ -301,23 +301,24 @@ const ManagePassengers = () => {
             </div>
           </div>
 
-          <h1 className="font-display text-3xl font-bold mb-2">Pasažieri na vyzdvihnutie</h1>
-          <p className="text-muted-foreground mb-4">
+          <h1 className="font-display text-xl sm:text-3xl font-bold mb-2">Pasažieri na vyzdvihnutie</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4 break-words">
             {ride?.origin_address} → {ride?.destination_address}
           </p>
           
           {isTracking && (
-            <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              Jazda sa automaticky ukončí po príchode do cieľa (50m)
+            <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 flex items-start gap-2">
+              <span className="w-2 h-2 mt-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+              <span>Jazda sa automaticky ukončí po príchode do cieľa (50m)</span>
             </p>
           )}
 
           {/* Manual complete button */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Button
               variant="outline"
-              className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              size="sm"
+              className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground w-full sm:w-auto"
               onClick={handleManualComplete}
               disabled={completing}
             >
@@ -326,9 +327,9 @@ const ManagePassengers = () => {
             </Button>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Passengers List */}
-            <div className="space-y-4">
+            <div className="order-2 lg:order-1 space-y-3 sm:space-y-4">
               {passengers.length === 0 ? (
                 <Card className="border-0 shadow-card">
                   <CardContent className="p-8 text-center">
