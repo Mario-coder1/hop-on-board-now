@@ -121,18 +121,46 @@ const CreateRide = () => {
       return;
     }
 
-    if (!departureTime) {
-      toast({
-        title: 'Chyba',
-        description: 'Zadajte čas odchodu.',
-        variant: 'destructive'
-      });
+    if (isRecurring) {
+      if (recurringDays.length === 0) {
+        toast({ title: 'Chyba', description: 'Vyber aspoň jeden deň.', variant: 'destructive' });
+        return;
+      }
+    } else if (!departureTime) {
+      toast({ title: 'Chyba', description: 'Zadajte čas odchodu.', variant: 'destructive' });
       return;
     }
-    
+
     setLoading(true);
     try {
-      // Insert ride
+      if (isRecurring) {
+        const { error: tplError } = await supabase
+          .from('ride_templates')
+          .insert({
+            driver_id: profile.id,
+            origin_address: origin.address,
+            origin_lat: origin.lat,
+            origin_lng: origin.lng,
+            destination_address: destination.address,
+            destination_lat: destination.lat,
+            destination_lng: destination.lng,
+            departure_time: recurringTime + ':00',
+            weekdays: recurringDays,
+            available_seats: seats,
+            price_per_seat: price,
+            active: true,
+          });
+        if (tplError) throw tplError;
+
+        toast({
+          title: 'Pravidelná jazda nastavená! 🔁',
+          description: 'Jazdy sa budú generovať automaticky každý týždeň.',
+        });
+        navigate('/driver');
+        return;
+      }
+
+      // Insert single ride
       const { data: rideData, error: rideError } = await supabase
         .from('rides')
         .insert({
@@ -171,7 +199,6 @@ const CreateRide = () => {
 
         if (stopsError) {
           console.error('Error inserting stops:', stopsError);
-          // Don't fail the whole ride creation, just log it
         }
       }
 
