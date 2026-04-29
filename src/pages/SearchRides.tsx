@@ -362,6 +362,14 @@ const SearchRides = () => {
             </AnimatePresence>
           </div>
 
+          {/* Route alerts */}
+          <div className="mb-4">
+            <RouteAlerts
+              prefilledOrigin={searchOrigin}
+              prefilledDestination={searchDestination}
+            />
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Results */}
             <div className="space-y-3 sm:space-y-4">
