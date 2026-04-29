@@ -13,6 +13,7 @@ import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { RatingDialog } from '@/components/RatingDialog';
 import { ReportDialog } from '@/components/ReportDialog';
 import { CancellationDialog } from '@/components/CancellationDialog';
+import SEO from '@/components/SEO';
 
 interface Trip {
   id: string;
@@ -197,6 +198,7 @@ const MyTrips = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Moje cesty" description="Prehľad tvojich rezervovaných ciest ako pasažier." path="/my-trips" noindex />
       <Navigation />
       
       <div className="container mx-auto px-4 py-6 sm:py-8">

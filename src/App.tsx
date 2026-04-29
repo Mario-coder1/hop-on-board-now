@@ -61,8 +61,10 @@ const NotificationListener = () => {
 const AppRoutes = () => {
   return (
     <>
+      <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
       <NotificationListener />
       <ActiveRideFAB />
+      <div id="main-content">
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
@@ -84,6 +86,7 @@ const AppRoutes = () => {
         <Route path="/gdpr" element={<GDPR />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </div>
     </>
   );
 };

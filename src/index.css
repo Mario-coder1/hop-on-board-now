@@ -136,6 +136,31 @@
     background-attachment: fixed;
   }
 
+  /* Skip-to-content link for keyboard / screen-reader users */
+  .skip-to-content {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 9999;
+    padding: 0.75rem 1rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 0 0 0.5rem 0;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .skip-to-content:focus { left: 0; }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', system-ui, sans-serif;
     letter-spacing: -0.025em;
