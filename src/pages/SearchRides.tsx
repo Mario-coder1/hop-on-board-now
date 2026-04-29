@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
+import SEO from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -143,6 +144,11 @@ const SearchRides = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Vyhľadať jazdu"
+        description="Prehľadaj dostupné spolujazdy po celom Slovensku. Filtruj podľa trasy, ceny a času. Bratislava, Košice, Žilina, Trnava, Banská Bystrica."
+        path="/search"
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-6 sm:py-8">

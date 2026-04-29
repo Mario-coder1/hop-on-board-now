@@ -2,12 +2,18 @@ import { ArrowLeft, Scale, FileCheck, UserCheck, Download, Trash2, Shield, Alert
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
+import SEO from '@/components/SEO';
 
 const GDPR = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="GDPR — Vaše práva"
+        description="Informácie o spracovaní osobných údajov v TakeMe podľa nariadenia GDPR (EÚ) 2016/679."
+        path="/gdpr"
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">

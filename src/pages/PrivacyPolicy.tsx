@@ -2,12 +2,18 @@ import { ArrowLeft, Shield, Database, Eye, Lock, Mail, Trash2, Users } from 'luc
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
+import SEO from '@/components/SEO';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Zásady ochrany súkromia"
+        description="Zásady ochrany súkromia aplikácie TakeMe — ako spracúvame osobné údaje používateľov v súlade s GDPR."
+        path="/privacy"
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">

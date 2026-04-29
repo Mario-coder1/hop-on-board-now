@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Star, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SEO from '@/components/SEO';
 
 interface TopDriver {
   id: string;
@@ -63,6 +64,11 @@ const TopDrivers: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="TOP vodiči"
+        description="Najlepšie hodnotení vodiči TakeMe na Slovensku. Pozri si rebríček TOP 5 vodičov podľa hodnotení a počtu jázd."
+        path="/top-drivers"
+      />
       <Navigation />
       <div className="container mx-auto px-4 py-8 max-w-lg">
         <motion.div
