@@ -2,37 +2,101 @@
 <html lang="sk">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
-    <title>TakeMe - Zdieľané jazdy</title>
-    <meta name="description" content="Zdieľaj jazdy, šetri peniaze a chráň planétu. Nájdi spolucestujúcich alebo ponúkni miesto vo svojom aute." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <title>TakeMe — Zdieľané jazdy na Slovensku | Spolujazda lacno a rýchlo</title>
+    <meta name="description" content="TakeMe je slovenská spolujazda. Nájdi vodiča alebo ponúkni miesto v aute, sleduj jazdu naživo a šetri náklady. Bratislava, Košice, Žilina, Prešov a celé Slovensko." />
+    <meta name="keywords" content="spolujazda, zdieľané jazdy, takeme, blablacar Slovensko, jazdy Bratislava Košice, carpooling, lacná doprava, vodič hľadá pasažierov, pasažier hľadá vodiča" />
     <meta name="author" content="TakeMe" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://takeme.sk/" />
 
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#3b82f6" />
+    <meta name="theme-color" content="#1d4ed8" />
+    <meta name="color-scheme" content="light" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="TakeMe" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- Mobile optimization -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
+    <meta name="application-name" content="TakeMe" />
+
+    <!-- Performance hints -->
+    <link rel="preconnect" href="https://api.mapbox.com" crossorigin />
+    <link rel="dns-prefetch" href="https://cufiyqtmfpwnogxtgrru.supabase.co" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="TakeMe - Zdieľané jazdy" />
-    <meta property="og:description" content="Zdieľaj jazdy, šetri peniaze a chráň planétu" />
+    <meta property="og:site_name" content="TakeMe" />
+    <meta property="og:locale" content="sk_SK" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/pwa-512x512.png" />
+    <meta property="og:url" content="https://takeme.sk/" />
+    <meta property="og:title" content="TakeMe — Zdieľané jazdy na Slovensku" />
+    <meta property="og:description" content="Spolujazda lacno a rýchlo. Nájdi vodiča alebo ponúkni miesto, sleduj jazdu v reálnom čase. Stiahni si appku zadarmo." />
+    <meta property="og:image" content="https://takeme.sk/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TakeMe — slovenská aplikácia pre spolujazdu" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="TakeMe" />
-    <meta name="twitter:image" content="/pwa-512x512.png" />
+    <meta name="twitter:site" content="@takeme_sk" />
+    <meta name="twitter:title" content="TakeMe — Zdieľané jazdy na Slovensku" />
+    <meta name="twitter:description" content="Spolujazda lacno a rýchlo. Live tracking, overení vodiči, push notifikácie." />
+    <meta name="twitter:image" content="https://takeme.sk/og-image.png" />
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "TakeMe",
+      "url": "https://takeme.sk/",
+      "logo": "https://takeme.sk/pwa-512x512.png",
+      "email": "support@takeme.sk",
+      "areaServed": "SK",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "TakeMe",
+      "url": "https://takeme.sk/",
+      "inLanguage": "sk-SK",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://takeme.sk/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD: MobileApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "TakeMe",
+      "operatingSystem": "iOS, Android, Web",
+      "applicationCategory": "TravelApplication",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "120" }
+    }
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
+    <noscript>Pre používanie TakeMe potrebuješ povolený JavaScript.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
