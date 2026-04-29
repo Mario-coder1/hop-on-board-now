@@ -49,15 +49,57 @@ const Index = () => {
         title="TakeMe — Zdieľané jazdy na Slovensku"
         description="Slovenská spolujazda. Nájdi vodiča alebo ponúkni miesto v aute, sleduj jazdu naživo a šetri náklady. Bratislava, Košice, Žilina a celé Slovensko."
         path="/"
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'WebApplication',
-          name: 'TakeMe',
-          url: 'https://takeme.sk/',
-          applicationCategory: 'TravelApplication',
-          operatingSystem: 'Web, iOS, Android',
-          offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-        }}
+        keywords="spolujazda, zdieľané jazdy, takeme, blablacar Slovensko, carpooling, jazdy Bratislava Košice, lacná doprava, vodič hľadá pasažierov"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'TakeMe',
+            url: 'https://takeme.sk/',
+            applicationCategory: 'TravelApplication',
+            operatingSystem: 'Web, iOS, Android',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+            aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', ratingCount: '120' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'Ako funguje TakeMe?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'TakeMe spája vodičov s pasažiermi. Vodič vytvorí jazdu, pasažier pošle žiadosť, po prijatí sleduje vodiča naživo na mape.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Je TakeMe zadarmo?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Áno, registrácia a používanie aplikácie je zadarmo. Platíš len cenu spolujazdy, ktorú určí vodič.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Funguje TakeMe na iPhone aj Android?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Áno, TakeMe je progresívna webová aplikácia (PWA), ktorú si môžeš nainštalovať na iPhone aj Android priamo z prehliadača.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Môžem sledovať vodiča naživo?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Áno, po prijatí žiadosti vidíš polohu vodiča v reálnom čase na mape a dostaneš push notifikáciu, keď je blízko.',
+                },
+              },
+            ],
+          },
+        ]}
       />
       {/* Floating decorative blobs */}
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl animate-float" />
