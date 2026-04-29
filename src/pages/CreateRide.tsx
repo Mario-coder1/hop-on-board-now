@@ -337,17 +337,73 @@ const CreateRide = () => {
               </div>
 
               <div className="p-6 rounded-2xl bg-card border border-border">
-                <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Dátum a čas
-                </h2>
-                
-                <Input
-                  type="datetime-local"
-                  value={departureTime}
-                  onChange={(e) => setDepartureTime(e.target.value)}
-                  min={new Date().toISOString().slice(0, 16)}
-                />
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div>
+                    <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                      <Repeat className="w-5 h-5 text-primary" />
+                      Pravidelná jazda
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Automaticky vytvor jazdy pre vybrané dni v týždni.
+                    </p>
+                  </div>
+                  <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
+                </div>
+
+                {isRecurring ? (
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-xs">Dni v týždni</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {WEEKDAYS.map((d) => {
+                          const active = recurringDays.includes(d.value);
+                          return (
+                            <button
+                              key={d.value}
+                              type="button"
+                              onClick={() => toggleDay(d.value)}
+                              className={`min-w-[44px] h-9 px-3 rounded-full text-xs font-semibold border transition-all ${
+                                active
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'bg-background text-muted-foreground border-border hover:text-foreground'
+                              }`}
+                            >
+                              {d.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Čas odchodu
+                      </Label>
+                      <Input
+                        type="time"
+                        value={recurringTime}
+                        onChange={(e) => setRecurringTime(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      💡 Jazdy sa generujú automaticky každý deň o 03:00 na nasledujúcich 7 dní.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <Label className="flex items-center gap-2 text-sm mb-1.5">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      Dátum a čas odchodu
+                    </Label>
+                    <Input
+                      type="datetime-local"
+                      value={departureTime}
+                      onChange={(e) => setDepartureTime(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="p-6 rounded-2xl bg-card border border-border">
