@@ -12,6 +12,7 @@ import {
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
+import RouteAlerts from '@/components/RouteAlerts';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -359,6 +360,14 @@ const SearchRides = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* Route alerts */}
+          <div className="mb-4">
+            <RouteAlerts
+              prefilledOrigin={searchOrigin}
+              prefilledDestination={searchDestination}
+            />
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">

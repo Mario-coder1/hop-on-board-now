@@ -543,6 +543,63 @@ export type Database = {
           },
         ]
       }
+      ride_templates: {
+        Row: {
+          active: boolean
+          available_seats: number
+          created_at: string
+          departure_time: string
+          destination_address: string
+          destination_lat: number
+          destination_lng: number
+          driver_id: string
+          id: string
+          last_generated_date: string | null
+          origin_address: string
+          origin_lat: number
+          origin_lng: number
+          price_per_seat: number
+          updated_at: string
+          weekdays: number[]
+        }
+        Insert: {
+          active?: boolean
+          available_seats?: number
+          created_at?: string
+          departure_time: string
+          destination_address: string
+          destination_lat: number
+          destination_lng: number
+          driver_id: string
+          id?: string
+          last_generated_date?: string | null
+          origin_address: string
+          origin_lat: number
+          origin_lng: number
+          price_per_seat: number
+          updated_at?: string
+          weekdays: number[]
+        }
+        Update: {
+          active?: boolean
+          available_seats?: number
+          created_at?: string
+          departure_time?: string
+          destination_address?: string
+          destination_lat?: number
+          destination_lng?: number
+          driver_id?: string
+          id?: string
+          last_generated_date?: string | null
+          origin_address?: string
+          origin_lat?: number
+          origin_lng?: number
+          price_per_seat?: number
+          updated_at?: string
+          weekdays?: number[]
+        }
+        Relationships: []
+      }
       rides: {
         Row: {
           available_seats: number
@@ -562,6 +619,7 @@ export type Database = {
           price_per_seat: number
           route_polyline: string | null
           status: Database["public"]["Enums"]["ride_status"] | null
+          template_id: string | null
           updated_at: string
         }
         Insert: {
@@ -582,6 +640,7 @@ export type Database = {
           price_per_seat: number
           route_polyline?: string | null
           status?: Database["public"]["Enums"]["ride_status"] | null
+          template_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -602,6 +661,7 @@ export type Database = {
           price_per_seat?: number
           route_polyline?: string | null
           status?: Database["public"]["Enums"]["ride_status"] | null
+          template_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -634,6 +694,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      route_alerts: {
+        Row: {
+          active: boolean
+          created_at: string
+          destination_text: string
+          id: string
+          max_price: number | null
+          origin_text: string
+          passenger_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          destination_text: string
+          id?: string
+          max_price?: number | null
+          origin_text: string
+          passenger_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          destination_text?: string
+          id?: string
+          max_price?: number | null
+          origin_text?: string
+          passenger_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
