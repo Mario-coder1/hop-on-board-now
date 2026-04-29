@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Car, MapPin, Users, ArrowRight, Mail, Lock, User } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -88,6 +89,12 @@ const Auth: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mesh flex relative overflow-hidden">
+      <SEO
+        title={isLogin ? 'Prihlásenie' : 'Registrácia'}
+        description="Prihlás sa do TakeMe alebo si vytvor účet zadarmo. Zdieľaj jazdy a šetri náklady na cestovanie."
+        path="/auth"
+        noindex
+      />
       {/* Floating decorative blobs */}
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl animate-float" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-accent/25 blur-3xl animate-float" style={{ animationDelay: '3s' }} />

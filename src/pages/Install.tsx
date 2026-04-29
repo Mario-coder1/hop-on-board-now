@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Smartphone, Check, Share, MoreVertical, Zap, Wifi, Bell, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SEO from '@/components/SEO';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
