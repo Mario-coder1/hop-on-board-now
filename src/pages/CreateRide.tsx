@@ -439,9 +439,9 @@ const CreateRide = () => {
                 size="lg"
                 className="w-full"
                 onClick={handleSubmit}
-                disabled={!origin.lat || !destination.lat || !departureTime || loading}
+                disabled={!origin.lat || !destination.lat || (isRecurring ? recurringDays.length === 0 : !departureTime) || loading}
               >
-                {loading ? 'Vytváranie...' : 'Vytvoriť jazdu'}
+                {loading ? 'Vytváranie...' : isRecurring ? 'Nastaviť pravidelnú jazdu' : 'Vytvoriť jazdu'}
               </Button>
             </div>
 
