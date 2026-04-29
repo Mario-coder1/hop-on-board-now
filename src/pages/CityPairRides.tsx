@@ -30,9 +30,10 @@ interface Ride {
 interface CityPairRidesProps {
   fromSlug?: string;
   toSlug?: string;
+  variantOverride?: import('@/data/seoVariants').PairVariant;
 }
 
-const CityPairRides = ({ fromSlug, toSlug }: CityPairRidesProps = {}) => {
+const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps = {}) => {
   const params = useParams<{ from?: string; to?: string; slug?: string }>();
   const from = fromSlug ?? params.from;
   const to = toSlug ?? params.to;
