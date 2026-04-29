@@ -7,10 +7,16 @@ import SEO from '@/components/SEO';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { CITIES, getCity, distanceKm, formatDuration, estimatedDurationMin } from '@/data/cities';
+import type { CityVariant } from '@/data/seoVariants';
 
-const CityRides = () => {
-  const { city } = useParams<{ city: string }>();
-  const cityObj = city ? getCity(city) : undefined;
+interface CityRidesProps {
+  variantOverride?: CityVariant;
+}
+
+const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
+  const { slug, city } = useParams<{ slug?: string; city?: string }>();
+  const key = slug || city;
+  const cityObj = key ? getCity(key) : undefined;
 
   if (!cityObj) return <Navigate to="/jazdy" replace />;
 
@@ -41,9 +47,14 @@ const CityRides = () => {
   }, [cityObj.slug]);
 
   const others = CITIES.filter((c) => c.slug !== cityObj.slug);
-  const title = `Spolujazda z ${cityObj.name} | Všetky trasy | TakeMe`;
-  const description = `Spolujazdy z ${cityObj.name} do celého Slovenska. Pozri si všetky dostupné trasy, ceny a aktuálne jazdy. Cestuj lacno autom z ${cityObj.name}.`;
-  const path = `/jazdy/${cityObj.slug}`;
+  const baseTitle = `Spolujazda z ${cityObj.name}`;
+  const title = variantOverride
+    ? `${baseTitle} — ${variantOverride.titleSuffix} | TakeMe`
+    : `${baseTitle} | Všetky trasy | TakeMe`;
+  const description = variantOverride
+    ? `${baseTitle} ${variantOverride.descSuffix} Pozri si všetky aktuálne trasy a ceny.`
+    : `Spolujazdy z ${cityObj.name} do celého Slovenska. Pozri si všetky dostupné trasy, ceny a aktuálne jazdy. Cestuj lacno autom z ${cityObj.name}.`;
+  const path = variantOverride ? `/jazdy/${cityObj.slug}/${variantOverride.slug}` : `/jazdy/${cityObj.slug}`;
 
   const jsonLd = {
     '@context': 'https://schema.org',

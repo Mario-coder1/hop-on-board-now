@@ -30,9 +30,10 @@ interface Ride {
 interface CityPairRidesProps {
   fromSlug?: string;
   toSlug?: string;
+  variantOverride?: import('@/data/seoVariants').PairVariant;
 }
 
-const CityPairRides = ({ fromSlug, toSlug }: CityPairRidesProps = {}) => {
+const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps = {}) => {
   const params = useParams<{ from?: string; to?: string; slug?: string }>();
   const from = fromSlug ?? params.from;
   const to = toSlug ?? params.to;
@@ -84,9 +85,15 @@ const CityPairRides = ({ fromSlug, toSlug }: CityPairRidesProps = {}) => {
     ? Math.round(rides.reduce((s, r) => s + Number(r.price_per_seat), 0) / rides.length * 10) / 10
     : estPrice;
 
-  const title = `Spolujazda ${fromCity.name} → ${toCity.name} | TakeMe`;
-  const description = `Nájdi spolujazdu z ${fromCity.name} do ${toCity.name}. ${km} km, cca ${duration}. Aktuálne ${rides.length} jázd, priemerná cena ${avgPrice} €. Lacná a rýchla doprava na trase ${fromCity.name} – ${toCity.name}.`;
-  const path = `/jazdy/${fromCity.slug}-${toCity.slug}`;
+  const title = variantOverride
+    ? `Spolujazda ${fromCity.name} → ${toCity.name} ${variantOverride.titleSuffix} | TakeMe`
+    : `Spolujazda ${fromCity.name} → ${toCity.name} | TakeMe`;
+  const description = variantOverride
+    ? `Spolujazda z ${fromCity.name} do ${toCity.name} ${variantOverride.titleSuffix}. ${variantOverride.descSuffix} ${km} km, cca ${duration}, priemerná cena ${avgPrice} €.`
+    : `Nájdi spolujazdu z ${fromCity.name} do ${toCity.name}. ${km} km, cca ${duration}. Aktuálne ${rides.length} jázd, priemerná cena ${avgPrice} €. Lacná a rýchla doprava na trase ${fromCity.name} – ${toCity.name}.`;
+  const path = variantOverride
+    ? `/jazdy/${fromCity.slug}-${toCity.slug}/${variantOverride.slug}`
+    : `/jazdy/${fromCity.slug}-${toCity.slug}`;
 
   const faq = [
     {
