@@ -45,6 +45,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-mesh relative overflow-hidden">
+      <SEO
+        title="TakeMe — Zdieľané jazdy na Slovensku"
+        description="Slovenská spolujazda. Nájdi vodiča alebo ponúkni miesto v aute, sleduj jazdu naživo a šetri náklady. Bratislava, Košice, Žilina a celé Slovensko."
+        path="/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'TakeMe',
+          url: 'https://takeme.sk/',
+          applicationCategory: 'TravelApplication',
+          operatingSystem: 'Web, iOS, Android',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+        }}
+      />
       {/* Floating decorative blobs */}
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl animate-float" />
       <div className="pointer-events-none absolute top-40 -right-32 w-96 h-96 rounded-full bg-accent/25 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
