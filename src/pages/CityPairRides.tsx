@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Clock, MapPin, Users, Star, Search } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -24,7 +25,7 @@ interface Ride {
   available_seats: number;
   price_per_seat: number;
   status: string;
-  driver: { full_name: string | null; rating: number | null; avatar_url: string | null } | null;
+  driver: { full_name: string | null; rating: number | null; avatar_url: string | null; total_rides: number | null } | null;
 }
 
 interface CityPairRidesProps {
@@ -65,7 +66,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
         .select(`
           id, origin_address, destination_address, departure_time,
           available_seats, price_per_seat, status,
-          driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url)
+          driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)
         `)
         .in('status', ['active', 'in_progress'])
         .gt('available_seats', 0)
@@ -275,6 +276,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                         <div className="flex items-center gap-2 text-xs">
                           <span className="font-medium">{ride.driver?.full_name || 'Vodič'}</span>
+                          <RideBadge totalRides={ride.driver?.total_rides} size="xs" />
                           {ride.driver?.rating && (
                             <span className="flex items-center gap-0.5 text-muted-foreground">
                               <Star className="w-3 h-3 fill-foreground text-foreground" />

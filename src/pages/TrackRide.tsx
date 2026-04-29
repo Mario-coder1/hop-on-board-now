@@ -10,6 +10,7 @@ import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
 import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
 
 interface DriverInfo {
   id: string;
@@ -19,6 +20,7 @@ interface DriverInfo {
   car_model: string | null;
   car_color: string | null;
   license_plate: string | null;
+  total_rides: number | null;
 }
 
 interface RideRequest {
@@ -94,7 +96,7 @@ const TrackRide: React.FC = () => {
     if (ride?.driver_id) {
       const { data: driverData, error: driverError } = await supabase
         .from('profiles')
-        .select('id, full_name, phone, avatar_url, car_model, car_color, license_plate')
+        .select('id, full_name, phone, avatar_url, car_model, car_color, license_plate, total_rides')
         .eq('id', ride.driver_id)
         .maybeSingle();
 
@@ -108,7 +110,8 @@ const TrackRide: React.FC = () => {
           avatar_url: driverData.avatar_url,
           car_model: driverData.car_model,
           car_color: driverData.car_color,
-          license_plate: driverData.license_plate
+          license_plate: driverData.license_plate,
+          total_rides: (driverData as any).total_rides ?? null,
         });
       }
     }
@@ -284,7 +287,10 @@ const TrackRide: React.FC = () => {
               </div>
               
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{displayDriver.full_name}</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-lg">{displayDriver.full_name}</h3>
+                  <RideBadge totalRides={(displayDriver as any).total_rides} size="sm" />
+                </div>
                 {displayDriver.car_model && (
                   <div className="flex items-center gap-2 text-muted-foreground mt-1">
                     <Car className="w-4 h-4" />
