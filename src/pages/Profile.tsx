@@ -32,6 +32,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
+import { BADGE_TIERS, getEarnedBadges } from '@/lib/badges';
 
 interface Notification {
   id: string;
@@ -389,8 +391,9 @@ const Profile = () => {
                 </label>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-display text-xl font-semibold">{profile.full_name}</h2>
+                  <RideBadge totalRides={profile.total_rides} size="sm" showLabel />
                   {(profile as any).badge && (
                     <Badge className="bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0 text-xs">
                       {(profile as any).badge}
@@ -435,6 +438,40 @@ const Profile = () => {
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Achievements / Auto-earned badges */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <Label className="text-sm text-muted-foreground mb-3 block">
+                🏆 Úspechy ({getEarnedBadges(profile.total_rides).length}/{BADGE_TIERS.length})
+              </Label>
+              <div className="grid grid-cols-5 gap-2">
+                {BADGE_TIERS.map((tier) => {
+                  const earned = (profile.total_rides ?? 0) >= tier.threshold;
+                  return (
+                    <div
+                      key={tier.threshold}
+                      title={`${tier.label} — ${tier.description}`}
+                      className={`relative flex flex-col items-center justify-center p-2 rounded-xl border text-center transition-all ${
+                        earned
+                          ? `bg-gradient-to-br ${tier.gradient} border-transparent shadow-md`
+                          : 'bg-muted/40 border-border opacity-50 grayscale'
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{tier.emoji}</span>
+                      <span className={`text-[9px] font-semibold mt-1 leading-tight ${earned ? 'text-white' : 'text-muted-foreground'}`}>
+                        {tier.label}
+                      </span>
+                      <span className={`text-[8px] tabular-nums ${earned ? 'text-white/80' : 'text-muted-foreground'}`}>
+                        {tier.threshold}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Odznaky získavaš automaticky za počet dokončených jázd. Najvyšší sa zobrazí pri tvojom mene.
+              </p>
             </div>
 
             {/* Push Notifications */}

@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import SEO from "@/components/SEO";
+import RideBadge from "@/components/RideBadge";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
@@ -28,6 +29,7 @@ interface ChatMessage {
     full_name: string;
     avatar_url: string | null;
     badge: string | null;
+    total_rides: number | null;
   };
 }
 
@@ -81,7 +83,8 @@ const PublicChat = () => {
                 id,
                 full_name,
                 avatar_url,
-                badge
+                badge,
+                total_rides
               )
             `)
             .eq('id', payload.new.id)
@@ -124,7 +127,8 @@ const PublicChat = () => {
             id,
             full_name,
             avatar_url,
-            badge
+            badge,
+            total_rides
           )
         `)
         .order('created_at', { ascending: true })
@@ -388,10 +392,11 @@ const PublicChat = () => {
                   
                   <div className={`flex flex-col max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
                     {showAvatar && !isOwn && (
-                      <div className="flex items-center gap-1.5 mb-1 ml-1">
+                      <div className="flex items-center gap-1.5 mb-1 ml-1 flex-wrap">
                         <span className="text-xs text-muted-foreground">
                           {msg.profiles?.full_name}
                         </span>
+                        <RideBadge totalRides={msg.profiles?.total_rides} size="xs" />
                         {msg.profiles?.badge && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium">
                             {msg.profiles.badge}

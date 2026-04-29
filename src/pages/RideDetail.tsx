@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -66,6 +67,7 @@ interface RideDetailData {
     bio: string | null;
     car_model: string | null;
     car_color: string | null;
+    total_rides: number | null;
   } | null;
 }
 
@@ -196,7 +198,8 @@ const RideDetail = () => {
             rating,
             bio,
             car_model,
-            car_color
+            car_color,
+            total_rides
           )
         `
       )
