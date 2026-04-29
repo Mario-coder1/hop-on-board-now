@@ -47,9 +47,14 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
   }, [cityObj.slug]);
 
   const others = CITIES.filter((c) => c.slug !== cityObj.slug);
-  const title = `Spolujazda z ${cityObj.name} | Všetky trasy | TakeMe`;
-  const description = `Spolujazdy z ${cityObj.name} do celého Slovenska. Pozri si všetky dostupné trasy, ceny a aktuálne jazdy. Cestuj lacno autom z ${cityObj.name}.`;
-  const path = `/jazdy/${cityObj.slug}`;
+  const baseTitle = `Spolujazda z ${cityObj.name}`;
+  const title = variantOverride
+    ? `${baseTitle} — ${variantOverride.titleSuffix} | TakeMe`
+    : `${baseTitle} | Všetky trasy | TakeMe`;
+  const description = variantOverride
+    ? `${baseTitle} ${variantOverride.descSuffix} Pozri si všetky aktuálne trasy a ceny.`
+    : `Spolujazdy z ${cityObj.name} do celého Slovenska. Pozri si všetky dostupné trasy, ceny a aktuálne jazdy. Cestuj lacno autom z ${cityObj.name}.`;
+  const path = variantOverride ? `/jazdy/${cityObj.slug}/${variantOverride.slug}` : `/jazdy/${cityObj.slug}`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
