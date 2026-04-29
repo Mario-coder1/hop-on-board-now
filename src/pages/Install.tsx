@@ -113,6 +113,11 @@ const Install = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Stiahnuť aplikáciu TakeMe"
+        description="Nainštaluj si TakeMe ako PWA na iPhone alebo Android. Rýchle, bez sťahovania z App Store, push notifikácie a offline podpora."
+        path="/install"
+      />
       {/* Header */}
       <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground px-4 pt-12 pb-16">
         <motion.div
