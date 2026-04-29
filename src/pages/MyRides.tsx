@@ -17,6 +17,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
+import SEO from '@/components/SEO';
 
 interface Ride {
   id: string;
@@ -172,6 +173,7 @@ const MyRides = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Moje jazdy" description="Prehľad tvojich vytvorených spolujázd ako vodič." path="/my-rides" noindex />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">

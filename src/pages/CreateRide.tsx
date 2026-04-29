@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { mapDatabaseError } from '@/lib/errorMapping';
+import SEO from '@/components/SEO';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
 const CreateRide = () => {
@@ -208,6 +209,7 @@ const CreateRide = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Vytvoriť jazdu" description="Ponúkni miesto v aute, zadaj trasu, čas, cenu a počet voľných miest." path="/create-ride" noindex />
       <NavigationBar />
       
       <div className="container mx-auto px-4 py-8">

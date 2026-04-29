@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+import SEO from '@/components/SEO';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -452,6 +453,7 @@ const RideDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <SEO title="Detail jazdy" description="Detail spolujazdy — trasa, cena, vodič, dostupné miesta a možnosť rezervácie cez TakeMe." path="/ride" noindex />
         <Navigation />
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

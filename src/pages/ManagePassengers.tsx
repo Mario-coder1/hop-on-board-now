@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
+import SEO from '@/components/SEO';
 
 interface AcceptedPassenger {
   id: string;
@@ -254,6 +255,7 @@ const ManagePassengers = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <SEO title="Správa pasažierov" description="Spravuj žiadosti pasažierov o tvoju jazdu." path="/manage-passengers" noindex />
         <NavigationBar />
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

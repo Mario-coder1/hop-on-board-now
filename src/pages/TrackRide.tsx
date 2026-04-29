@@ -9,6 +9,7 @@ import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
 import { RatingDialog } from '@/components/RatingDialog';
+import SEO from '@/components/SEO';
 
 interface DriverInfo {
   id: string;
@@ -189,6 +190,7 @@ const TrackRide: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <SEO title="Sledovanie jazdy naživo" description="Live sledovanie polohy vodiča v reálnom čase počas tvojej cesty." path="/track" noindex />
         <Navigation />
         <div className="flex items-center justify-center h-[80vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />

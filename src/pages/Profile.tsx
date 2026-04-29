@@ -31,6 +31,7 @@ import { PushNotificationToggle } from '@/components/PushNotificationToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import SEO from '@/components/SEO';
 
 interface Notification {
   id: string;
@@ -331,6 +332,7 @@ const Profile = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
+        <SEO title="Môj profil" description="Profil používateľa TakeMe — nastavenia, vozidlá, hodnotenia a notifikácie." path="/profile" noindex />
         <Navigation />
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
