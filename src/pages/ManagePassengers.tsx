@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
 
 interface AcceptedPassenger {
   id: string;
@@ -30,6 +31,7 @@ interface AcceptedPassenger {
     phone: string | null;
     avatar_url: string | null;
     rating: number;
+    total_rides: number | null;
   };
 }
 
@@ -121,7 +123,7 @@ const ManagePassengers = () => {
       .from('ride_requests')
       .select(`
         id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
-        passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating)
+        passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
       .eq('ride_id', rideId)
       .in('status', ['accepted', 'driver_arrived', 'picked_up']);
@@ -372,6 +374,7 @@ const ManagePassengers = () => {
                             <h3 className="font-display font-semibold text-sm sm:text-base break-words">
                               {passenger.passenger.full_name}
                             </h3>
+                            <RideBadge totalRides={passenger.passenger.total_rides} size="xs" />
                             <Badge 
                               variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
                               className={
