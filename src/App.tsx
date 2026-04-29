@@ -28,6 +28,9 @@ import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
 import TopDrivers from "./pages/TopDrivers";
+import RidesIndex from "./pages/RidesIndex";
+import CityRides from "./pages/CityRides";
+import CityPairRides from "./pages/CityPairRides";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
 
@@ -83,6 +86,9 @@ const AppRoutes = () => {
         <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
         <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
         <Route path="/install" element={<Install />} />
+        <Route path="/jazdy" element={<RidesIndex />} />
+        <Route path="/jazdy/:from-:to" element={<CityPairRides />} />
+        <Route path="/jazdy/:city" element={<CityRides />} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/gdpr" element={<GDPR />} />
