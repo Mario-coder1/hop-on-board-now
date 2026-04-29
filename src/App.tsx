@@ -31,6 +31,7 @@ import TopDrivers from "./pages/TopDrivers";
 import RidesIndex from "./pages/RidesIndex";
 import CityRides from "./pages/CityRides";
 import CityPairRides from "./pages/CityPairRides";
+import CityOrPairRoute from "./pages/CityOrPairRoute";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
 

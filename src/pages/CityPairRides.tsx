@@ -27,8 +27,15 @@ interface Ride {
   driver: { full_name: string | null; rating: number | null; avatar_url: string | null } | null;
 }
 
-const CityPairRides = () => {
-  const { from, to } = useParams<{ from: string; to: string }>();
+interface CityPairRidesProps {
+  fromSlug?: string;
+  toSlug?: string;
+}
+
+const CityPairRides = ({ fromSlug, toSlug }: CityPairRidesProps = {}) => {
+  const params = useParams<{ from?: string; to?: string; slug?: string }>();
+  const from = fromSlug ?? params.from;
+  const to = toSlug ?? params.to;
   const fromCity = from ? getCity(from) : undefined;
   const toCity = to ? getCity(to) : undefined;
 
