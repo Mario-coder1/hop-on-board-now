@@ -32,6 +32,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
+import { BADGE_TIERS, getEarnedBadges } from '@/lib/badges';
 
 interface Notification {
   id: string;
@@ -389,8 +391,9 @@ const Profile = () => {
                 </label>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-display text-xl font-semibold">{profile.full_name}</h2>
+                  <RideBadge totalRides={profile.total_rides} size="sm" showLabel />
                   {(profile as any).badge && (
                     <Badge className="bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0 text-xs">
                       {(profile as any).badge}
