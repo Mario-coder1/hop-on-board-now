@@ -89,6 +89,7 @@ const AppRoutes = () => {
         <Route path="/install" element={<Install />} />
         <Route path="/jazdy" element={<RidesIndex />} />
         <Route path="/jazdy/:slug" element={<CityOrPairRoute />} />
+        <Route path="/jazdy/:slug/:variant" element={<CityOrPairRoute />} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/gdpr" element={<GDPR />} />
