@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
+import SEO from "@/components/SEO";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
@@ -268,6 +269,7 @@ const PublicChat = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
+      <SEO title="Chat komunity" description="Verejný chat komunity TakeMe — diskutuj s ostatnými vodičmi a pasažiermi." path="/chat" noindex />
       {/* Fullscreen Image Modal */}
       <AnimatePresence>
         {fullscreenImage && (

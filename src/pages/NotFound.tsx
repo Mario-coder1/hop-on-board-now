@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import SEO from "@/components/SEO";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,15 +10,26 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+    <main className="flex min-h-screen items-center justify-center bg-muted px-4">
+      <SEO
+        title="Stránka nenájdená — 404"
+        description="Hľadaná stránka neexistuje. Vráť sa na úvod TakeMe."
+        path={location.pathname}
+        noindex
+      />
+      <div className="text-center max-w-md">
+        <h1 className="mb-4 text-6xl font-bold tracking-tight">404</h1>
+        <p className="mb-6 text-xl text-muted-foreground">
+          Táto stránka neexistuje alebo bola presunutá.
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Späť na úvod
+        </Link>
       </div>
-    </div>
+    </main>
   );
 };
 
