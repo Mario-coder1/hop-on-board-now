@@ -86,6 +86,7 @@ const AppRoutes = () => {
         <Route path="/gdpr" element={<GDPR />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </div>
     </>
   );
 };
