@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
 import TopDrivers from "./pages/TopDrivers";
 import ActiveRideFAB from "./components/ActiveRideFAB";
+import IOSInstallPrompt from "./components/IOSInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const AppRoutes = () => {
       <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
       <NotificationListener />
       <ActiveRideFAB />
+      <IOSInstallPrompt />
       <div id="main-content">
       <Routes>
         <Route path="/" element={<Index />} />
