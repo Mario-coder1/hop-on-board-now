@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Users, DollarSign, Locate, Loader2, Route } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import NavigationBar from '@/components/Navigation';
 import Map from '@/components/Map';
 import AddressSearch from '@/components/AddressSearch';
@@ -15,6 +16,16 @@ import { useToast } from '@/hooks/use-toast';
 import { mapDatabaseError } from '@/lib/errorMapping';
 import SEO from '@/components/SEO';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
+
+const WEEKDAYS = [
+  { value: 1, label: 'Po' },
+  { value: 2, label: 'Ut' },
+  { value: 3, label: 'St' },
+  { value: 4, label: 'Št' },
+  { value: 5, label: 'Pi' },
+  { value: 6, label: 'So' },
+  { value: 0, label: 'Ne' },
+];
 
 const CreateRide = () => {
   const { profile } = useAuth();
@@ -31,6 +42,15 @@ const CreateRide = () => {
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
+
+  // Recurring
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringTime, setRecurringTime] = useState('07:00');
+  const [recurringDays, setRecurringDays] = useState<number[]>([1, 2, 3, 4, 5]);
+
+  const toggleDay = (d: number) => {
+    setRecurringDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
+  };
 
   // Auto-detect location on mount
   useEffect(() => {
