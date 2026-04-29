@@ -212,6 +212,38 @@ const Index = () => {
             </Button>
           </div>
         </motion.div>
+
+        {/* Populárne trasy — interné SEO odkazy */}
+        <section className="mt-16 sm:mt-24">
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Populárne trasy</h2>
+            <a href="/jazdy" className="text-xs text-muted-foreground hover:text-foreground">
+              Všetky trasy →
+            </a>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ['bratislava','kosice','Bratislava → Košice'],
+              ['bratislava','zilina','Bratislava → Žilina'],
+              ['bratislava','banska-bystrica','Bratislava → Banská Bystrica'],
+              ['bratislava','nitra','Bratislava → Nitra'],
+              ['bratislava','trnava','Bratislava → Trnava'],
+              ['kosice','presov','Košice → Prešov'],
+              ['kosice','poprad','Košice → Poprad'],
+              ['zilina','martin','Žilina → Martin'],
+              ['kosice','bratislava','Košice → Bratislava'],
+              ['presov','bratislava','Prešov → Bratislava'],
+            ].map(([f, t, label]) => (
+              <a
+                key={`${f}-${t}`}
+                href={`/jazdy/${f}-${t}`}
+                className="px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:bg-foreground hover:text-background transition-colors"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
