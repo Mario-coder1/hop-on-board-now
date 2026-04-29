@@ -336,19 +336,49 @@ const CreateRide = () => {
                 </div>
               </div>
 
+              {/* Typ jazdy - oddelená sekcia */}
               <div className="p-6 rounded-2xl bg-card border border-border">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div>
-                    <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-                      <Repeat className="w-5 h-5 text-primary" />
-                      Pravidelná jazda
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Automaticky vytvor jazdy pre vybrané dni v týždni.
-                    </p>
-                  </div>
-                  <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
+                <h2 className="font-display text-lg font-semibold mb-3">Typ jazdy</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsRecurring(false)}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      !isRecurring
+                        ? 'bg-primary/10 border-primary text-foreground'
+                        : 'bg-background border-border text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-semibold text-sm">
+                      <Calendar className="w-4 h-4" />
+                      Jednorazová
+                    </div>
+                    <p className="text-[11px] mt-1 opacity-80">Jeden konkrétny dátum a čas</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsRecurring(true)}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      isRecurring
+                        ? 'bg-primary/10 border-primary text-foreground'
+                        : 'bg-background border-border text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-semibold text-sm">
+                      <Repeat className="w-4 h-4" />
+                      Pravidelná
+                    </div>
+                    <p className="text-[11px] mt-1 opacity-80">Opakuje sa každý týždeň</p>
+                  </button>
                 </div>
+              </div>
+
+              {/* Dátum/čas - samostatná sekcia podľa typu */}
+              <div className="p-6 rounded-2xl bg-card border border-border">
+                <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  {isRecurring ? 'Dni a čas odchodu' : 'Dátum a čas odchodu'}
+                </h2>
 
                 {isRecurring ? (
                   <div className="space-y-4">
@@ -375,10 +405,7 @@ const CreateRide = () => {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        Čas odchodu
-                      </Label>
+                      <Label className="text-xs">Čas odchodu</Label>
                       <Input
                         type="time"
                         value={recurringTime}
@@ -391,18 +418,12 @@ const CreateRide = () => {
                     </p>
                   </div>
                 ) : (
-                  <div>
-                    <Label className="flex items-center gap-2 text-sm mb-1.5">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      Dátum a čas odchodu
-                    </Label>
-                    <Input
-                      type="datetime-local"
-                      value={departureTime}
-                      onChange={(e) => setDepartureTime(e.target.value)}
-                      min={new Date().toISOString().slice(0, 16)}
-                    />
-                  </div>
+                  <Input
+                    type="datetime-local"
+                    value={departureTime}
+                    onChange={(e) => setDepartureTime(e.target.value)}
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
                 )}
               </div>
 
