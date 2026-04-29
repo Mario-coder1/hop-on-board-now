@@ -36,7 +36,9 @@ const ActiveRideFAB: React.FC = () => {
 
   // Hide on auth/install/landing routes
   const hiddenRoutes = ['/', '/auth', '/install', '/privacy', '/gdpr'];
-  const shouldHide = hiddenRoutes.includes(location.pathname);
+  const shouldHide =
+    hiddenRoutes.includes(location.pathname) ||
+    location.pathname.startsWith('/manage-passengers');
 
   const fetchActiveRide = async () => {
     if (!profile || !isDriver) {
