@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Star, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';
+import RideBadge from '@/components/RideBadge';
 
 interface TopDriver {
   id: string;
@@ -115,8 +116,9 @@ const TopDrivers: React.FC = () => {
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold truncate">{driver.full_name}</p>
+                        <RideBadge totalRides={driver.total_rides} size="xs" />
                         {driver.badge && <span className="text-sm">{driver.badge}</span>}
                       </div>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
