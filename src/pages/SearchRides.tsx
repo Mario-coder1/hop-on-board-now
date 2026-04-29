@@ -276,6 +276,85 @@ const SearchRides = () => {
                         />
                       </div>
                     </div>
+
+                    {/* Cena, miesta, rating */}
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Euro className="w-3.5 h-3.5" />
+                        Max. cena za miesto (€)
+                      </Label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        placeholder="napr. 10"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5" />
+                        Min. voľných miest
+                      </Label>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min="1"
+                        placeholder="napr. 2"
+                        value={minSeats}
+                        onChange={(e) => setMinSeats(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Star className="w-3.5 h-3.5" />
+                        Min. hodnotenie vodiča
+                      </Label>
+                      <Select value={minRating || 'any'} onValueChange={(v) => setMinRating(v === 'any' ? '' : v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Akékoľvek" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="any">Akékoľvek</SelectItem>
+                          <SelectItem value="3">3+ ★</SelectItem>
+                          <SelectItem value="4">4+ ★</SelectItem>
+                          <SelectItem value="4.5">4.5+ ★</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <ArrowUpDown className="w-3.5 h-3.5" />
+                        Zoradiť podľa
+                      </Label>
+                      <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="time-asc">Najbližší odchod</SelectItem>
+                          <SelectItem value="price-asc">Najlacnejšie</SelectItem>
+                          <SelectItem value="price-desc">Najdrahšie</SelectItem>
+                          <SelectItem value="rating-desc">Najlepšie hodnotenie</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="sm:col-span-2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setLiveOnly(!liveOnly)}
+                        className={`flex items-center gap-2 px-3 h-9 rounded-full border text-xs font-medium transition-all ${
+                          liveOnly
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : 'bg-background border-border text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Radio className={`w-3.5 h-3.5 ${liveOnly ? 'animate-pulse' : ''}`} />
+                        Iba prebiehajúce (LIVE)
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
