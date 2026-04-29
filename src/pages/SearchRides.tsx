@@ -1,11 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock, Euro, Star, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
@@ -51,6 +54,11 @@ const SearchRides = () => {
   const [timeFrom, setTimeFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [timeTo, setTimeTo] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minSeats, setMinSeats] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [liveOnly, setLiveOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<'time-asc' | 'price-asc' | 'price-desc' | 'rating-desc'>('time-asc');
 
   useEffect(() => {
     fetchRides();
@@ -92,35 +100,64 @@ const SearchRides = () => {
   }, [dateTo, timeTo]);
 
   const filteredRides = useMemo(() => {
-    return rides.filter(ride => {
+    const maxP = maxPrice ? Number(maxPrice) : null;
+    const minS = minSeats ? Number(minSeats) : null;
+    const minR = minRating ? Number(minRating) : null;
+
+    const list = rides.filter(ride => {
       const origin = searchOrigin.trim().toLowerCase();
       const dest = searchDestination.trim().toLowerCase();
       const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
 
-      // Origin matches origin OR any stop (you can board at a stop)
       const matchOrigin = !origin
         || ride.origin_address.toLowerCase().includes(origin)
         || stopsLower.some(a => a.includes(origin));
 
-      // Destination matches destination OR any stop (you can alight at a stop)
       const matchDestination = !dest
         || ride.destination_address.toLowerCase().includes(dest)
         || stopsLower.some(a => a.includes(dest));
 
-      // Time window filter
       const departure = parseDbTimestamp(ride.departure_time);
       const matchFrom = !fromDate || (departure && departure >= fromDate);
       const matchTo = !toDate || (departure && departure <= toDate);
 
-      return matchOrigin && matchDestination && matchFrom && matchTo;
+      const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
+      const matchSeats = minS === null || ride.available_seats >= minS;
+      const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
+      const matchLive = !liveOnly || ride.status === 'in_progress';
+
+      return matchOrigin && matchDestination && matchFrom && matchTo
+        && matchPrice && matchSeats && matchRating && matchLive;
     });
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate]);
+
+    const sorted = [...list].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-asc':
+          return Number(a.price_per_seat) - Number(b.price_per_seat);
+        case 'price-desc':
+          return Number(b.price_per_seat) - Number(a.price_per_seat);
+        case 'rating-desc':
+          return (b.driver?.rating ?? 0) - (a.driver?.rating ?? 0);
+        case 'time-asc':
+        default: {
+          const ta = parseDbTimestamp(a.departure_time)?.getTime() ?? 0;
+          const tb = parseDbTimestamp(b.departure_time)?.getTime() ?? 0;
+          return ta - tb;
+        }
+      }
+    });
+    return sorted;
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
     (searchDestination ? 1 : 0) +
     (fromDate ? 1 : 0) +
-    (toDate ? 1 : 0);
+    (toDate ? 1 : 0) +
+    (maxPrice ? 1 : 0) +
+    (minSeats ? 1 : 0) +
+    (minRating ? 1 : 0) +
+    (liveOnly ? 1 : 0);
 
   const clearFilters = () => {
     setSearchOrigin('');
@@ -129,6 +166,11 @@ const SearchRides = () => {
     setTimeFrom('');
     setDateTo('');
     setTimeTo('');
+    setMaxPrice('');
+    setMinSeats('');
+    setMinRating('');
+    setLiveOnly(false);
+    setSortBy('time-asc');
   };
 
   const markers = filteredRides.flatMap(ride => [
@@ -233,6 +275,85 @@ const SearchRides = () => {
                           disabled={!dateTo}
                         />
                       </div>
+                    </div>
+
+                    {/* Cena, miesta, rating */}
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Euro className="w-3.5 h-3.5" />
+                        Max. cena za miesto (€)
+                      </Label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        placeholder="napr. 10"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5" />
+                        Min. voľných miest
+                      </Label>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min="1"
+                        placeholder="napr. 2"
+                        value={minSeats}
+                        onChange={(e) => setMinSeats(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Star className="w-3.5 h-3.5" />
+                        Min. hodnotenie vodiča
+                      </Label>
+                      <Select value={minRating || 'any'} onValueChange={(v) => setMinRating(v === 'any' ? '' : v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Akékoľvek" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="any">Akékoľvek</SelectItem>
+                          <SelectItem value="3">3+ ★</SelectItem>
+                          <SelectItem value="4">4+ ★</SelectItem>
+                          <SelectItem value="4.5">4.5+ ★</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <ArrowUpDown className="w-3.5 h-3.5" />
+                        Zoradiť podľa
+                      </Label>
+                      <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="time-asc">Najbližší odchod</SelectItem>
+                          <SelectItem value="price-asc">Najlacnejšie</SelectItem>
+                          <SelectItem value="price-desc">Najdrahšie</SelectItem>
+                          <SelectItem value="rating-desc">Najlepšie hodnotenie</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="sm:col-span-2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setLiveOnly(!liveOnly)}
+                        className={`flex items-center gap-2 px-3 h-9 rounded-full border text-xs font-medium transition-all ${
+                          liveOnly
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : 'bg-background border-border text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Radio className={`w-3.5 h-3.5 ${liveOnly ? 'animate-pulse' : ''}`} />
+                        Iba prebiehajúce (LIVE)
+                      </button>
                     </div>
                   </div>
                 </motion.div>

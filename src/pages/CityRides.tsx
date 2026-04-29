@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, MapPin, Users } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+} from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { CITIES, getCity, distanceKm, formatDuration, estimatedDurationMin } from '@/data/cities';
 import type { CityVariant } from '@/data/seoVariants';
@@ -56,13 +59,43 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
     : `Spolujazdy z ${cityObj.name} do celého Slovenska. Pozri si všetky dostupné trasy, ceny a aktuálne jazdy. Cestuj lacno autom z ${cityObj.name}.`;
   const path = variantOverride ? `/jazdy/${cityObj.slug}/${variantOverride.slug}` : `/jazdy/${cityObj.slug}`;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: title,
-    description,
-    about: { '@type': 'City', name: cityObj.name, address: { '@type': 'PostalAddress', addressRegion: cityObj.region, addressCountry: 'SK' } },
-  };
+  const faq = [
+    {
+      q: `Koľko jázd denne odchádza z mesta ${cityObj.name}?`,
+      a: `Z mesta ${cityObj.name} pravidelne odchádzajú spolujazdy do všetkých krajských miest na Slovensku. Aktuálny počet voľných jázd vidíš pri každej trase v zozname nižšie — najviac smerov ide do Bratislavy, Košíc a Žiliny.`,
+    },
+    {
+      q: `Ako funguje rezervácia spolujazdy z ${cityObj.name}?`,
+      a: `Vyber si trasu, klikni na konkrétnu jazdu a pošli vodičovi žiadosť. Po schválení dostaneš push notifikáciu a počas jazdy môžeš sledovať polohu vodiča naživo na mape.`,
+    },
+    {
+      q: `Koľko stojí spolujazda z ${cityObj.name}?`,
+      a: `Cena závisí od vzdialenosti — vodiči si ju určujú sami. Priemerne sa pohybuje okolo 0,07–0,10 € za km, čo je výrazne menej ako autobus alebo vlak.`,
+    },
+    {
+      q: `Môžem ponúknuť vlastnú jazdu z ${cityObj.name}?`,
+      a: `Áno. Ak máš auto a voľné miesta, prepni sa v profile na rolu vodiča a vytvor jazdu cez "Nová jazda". Cestujúci ti pošlú žiadosti, ktoré môžeš schváliť alebo odmietnuť.`,
+    },
+  ];
+
+  const jsonLd: Record<string, unknown>[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: title,
+      description,
+      about: { '@type': 'City', name: cityObj.name, address: { '@type': 'PostalAddress', addressRegion: cityObj.region, addressCountry: 'SK' } },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-32 md:pb-8">
@@ -129,6 +162,19 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
                 </Link>
               ))}
           </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="mt-10">
+          <h2 className="text-xl font-bold tracking-tight mb-4">Časté otázky</h2>
+          <Accordion type="single" collapsible className="card-mono px-4">
+            {faq.map((f, i) => (
+              <AccordionItem key={i} value={`item-${i}`}>
+                <AccordionTrigger className="text-left text-sm font-semibold">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </section>
       </div>
     </div>
