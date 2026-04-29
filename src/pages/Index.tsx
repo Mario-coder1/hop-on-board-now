@@ -6,6 +6,7 @@ import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 import { Car, Users, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
+import SEO from "@/components/SEO";
 
 const Index = () => {
   const { user, profile, loading } = useAuth();
