@@ -13,6 +13,7 @@ import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
 import RouteAlerts from '@/components/RouteAlerts';
+import RideBadge from '@/components/RideBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -39,6 +40,7 @@ interface Ride {
     full_name: string | null;
     avatar_url: string | null;
     rating: number | null;
+    total_rides: number | null;
   } | null;
   ride_stops: RideStop[];
 }
@@ -70,7 +72,7 @@ const SearchRides = () => {
       .from('rides')
       .select(`
         *,
-        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating),
+        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating, total_rides),
         ride_stops(id, address, stop_order)
       `)
       .in('status', ['active', 'in_progress'])
@@ -500,7 +502,10 @@ const SearchRides = () => {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-medium text-xs truncate">{ride.driver?.full_name ?? 'Vodič'}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-medium text-xs truncate">{ride.driver?.full_name ?? 'Vodič'}</p>
+                              <RideBadge totalRides={ride.driver?.total_rides} size="xs" />
+                            </div>
                             <p className="text-[11px] text-muted-foreground">⭐ {ride.driver?.rating?.toFixed(1) ?? '5.0'}</p>
                           </div>
                         </div>
