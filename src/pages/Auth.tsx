@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Car, MapPin, Users, ArrowRight, Mail, Lock, User } from 'lucide-react';
 import SEO from '@/components/SEO';
+import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,7 +17,10 @@ const Auth: React.FC = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -253,6 +258,18 @@ const Auth: React.FC = () => {
               </Button>
             </form>
 
+            {isLogin && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Zabudli ste heslo?
+                </button>
+              </div>
+            )}
+
             <div className="mt-6 text-center">
               <button
                 type="button"
@@ -269,6 +286,56 @@ const Auth: React.FC = () => {
           </motion.div>
         </div>
       </motion.div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Obnova hesla</DialogTitle>
+            <DialogDescription>
+              Pošleme vám email s odkazom na nastavenie nového hesla.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!forgotEmail.trim()) return;
+              setForgotLoading(true);
+              const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+                redirectTo: `${window.location.origin}/reset-password`,
+              });
+              setForgotLoading(false);
+              if (error) {
+                toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+              } else {
+                toast({ title: 'Email odoslaný', description: 'Skontrolujte si schránku.' });
+                setForgotOpen(false);
+              }
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="forgot-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  placeholder="vas@email.sk"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="pl-11 h-12"
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" variant="hero" disabled={forgotLoading} className="w-full">
+                {forgotLoading ? 'Odosielam...' : 'Poslať odkaz na obnovu'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
