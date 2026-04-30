@@ -11,6 +11,7 @@ import { useAutoSubscribePush } from "@/hooks/useAutoSubscribePush";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import DriverDashboard from "./pages/DriverDashboard";
 import PassengerDashboard from "./pages/PassengerDashboard";
 import CreateRide from "./pages/CreateRide";
@@ -74,6 +75,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/driver" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
         <Route path="/passenger" element={<ProtectedRoute><PassengerDashboard /></ProtectedRoute>} />
         <Route path="/create-ride" element={<ProtectedRoute><CreateRide /></ProtectedRoute>} />
