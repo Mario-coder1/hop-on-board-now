@@ -50,6 +50,10 @@ const CreateRide = () => {
   const [recurringTime, setRecurringTime] = useState('07:00');
   const [recurringDays, setRecurringDays] = useState<number[]>([1, 2, 3, 4, 5]);
 
+  // University community
+  const { memberships } = useMyMemberships();
+  const [selectedUniversityId, setSelectedUniversityId] = useState<string>('');
+
   const toggleDay = (d: number) => {
     setRecurringDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
   };
