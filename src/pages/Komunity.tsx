@@ -121,12 +121,21 @@ const Komunity = () => {
       toast({ title: 'Chyba', description: data.error, variant: 'destructive' });
       return;
     }
-    toast({
-      title: 'Kód odoslaný 📧',
-      description: data?.email_sent
-        ? `Skontroluj si schránku ${trimmed}.`
-        : 'Skontroluj logy / kontaktuj admina (email služba nie je nakonfigurovaná).',
-    });
+    if (data?.dev_code) {
+      toast({
+        title: '🔑 Admin test kód',
+        description: `Kód: ${data.dev_code} (zobrazené iba adminom)`,
+        duration: 30000,
+      });
+      setCode(data.dev_code);
+    } else {
+      toast({
+        title: 'Kód odoslaný 📧',
+        description: data?.email_sent
+          ? `Skontroluj si schránku ${trimmed}.`
+          : 'Email služba ešte nie je nakonfigurovaná. Kontaktuj admina.',
+      });
+    }
     setStep('code');
   };
 
