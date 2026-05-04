@@ -109,41 +109,53 @@ Deno.serve(async (req) => {
       return json({ error: 'Nepodarilo sa vygenerovať kód' }, 500);
     }
 
-    // Send email via Resend if configured
-    const resendKey = Deno.env.get('RESEND_API_KEY');
+    // Check if caller is admin (for testing - admins can see code in response)
+    const { data: roleData } = await admin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userData.user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+    const isAdmin = !!roleData;
+
+    // Try to send email via Supabase Auth (native email system - same as password reset)
     let emailSent = false;
-    if (resendKey) {
-      try {
-        const html = buildEmailHtml(code, uni.short_name, uni.name);
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'TakeMe <onboarding@resend.dev>',
-            to: [email],
-            subject: `Overenie ${uni.short_name} – kód ${code}`,
-            html,
-          }),
-        });
-        emailSent = res.ok;
-        if (!res.ok) console.error('Resend error', await res.text());
-      } catch (e) {
-        console.error('Resend exception', e);
+    let emailError: string | null = null;
+    try {
+      const subject = `Overenie ${uni.short_name} – kód ${code}`;
+      const html = buildEmailHtml(code, uni.short_name, uni.name);
+
+      // Use Supabase admin generateLink - sends via configured email system
+      // We use 'magiclink' as transport but the user will only use OUR code
+      const { error: linkErr } = await admin.auth.admin.inviteUserByEmail(email, {
+        data: {
+          university_verification: true,
+          code,
+          university: uni.short_name,
+          subject,
+          html_message: html,
+        },
+      });
+      if (linkErr) {
+        emailError = linkErr.message;
+        console.error('[university-code] Supabase invite error:', linkErr);
+      } else {
+        emailSent = true;
       }
-    } else {
-      console.warn('[university-code] RESEND_API_KEY not set – code will be in logs only');
+    } catch (e) {
+      emailError = String(e);
+      console.error('[university-code] email exception', e);
     }
 
-    // Always log code in dev for testing/admin
+    // Always log code for admin/dev visibility
     console.log(`[university-code] Code for ${email} (${uni.short_name}): ${code}`);
 
     return json({
       success: true,
       email_sent: emailSent,
-      // Never return the code in production response
+      email_error: emailError,
+      // Return code only to admins for testing
+      ...(isAdmin ? { dev_code: code } : {}),
     });
   } catch (e) {
     console.error('Error', e);
