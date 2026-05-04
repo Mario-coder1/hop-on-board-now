@@ -194,6 +194,10 @@ const Auth: React.FC = () => {
             <p className="text-muted-foreground mt-2">Zdieľaj jazdu, cestuj spolu</p>
           </div>
 
+          <div className="lg:hidden mb-6">
+            <AuthOnboardingSteps />
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
