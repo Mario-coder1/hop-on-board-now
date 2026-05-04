@@ -109,9 +109,19 @@ Deno.serve(async (req) => {
       return json({ error: 'Nepodarilo sa vygenerovať kód' }, 500);
     }
 
-    // Send email via Resend if configured
+    // Check if caller is admin (for testing - admins can see code in response)
+    const { data: roleData } = await admin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userData.user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+    const isAdmin = !!roleData;
+
+    // Try to send email via Resend if configured
     const resendKey = Deno.env.get('RESEND_API_KEY');
     let emailSent = false;
+    let emailError: string | null = null;
     if (resendKey) {
       try {
         const html = buildEmailHtml(code, uni.short_name, uni.name);
@@ -129,21 +139,25 @@ Deno.serve(async (req) => {
           }),
         });
         emailSent = res.ok;
-        if (!res.ok) console.error('Resend error', await res.text());
+        if (!res.ok) {
+          emailError = await res.text();
+          console.error('[university-code] Resend error', emailError);
+        }
       } catch (e) {
-        console.error('Resend exception', e);
+        emailError = String(e);
+        console.error('[university-code] Resend exception', e);
       }
     } else {
-      console.warn('[university-code] RESEND_API_KEY not set – code will be in logs only');
+      console.warn('[university-code] No email provider configured – code only in logs');
     }
 
-    // Always log code in dev for testing/admin
     console.log(`[university-code] Code for ${email} (${uni.short_name}): ${code}`);
 
     return json({
       success: true,
       email_sent: emailSent,
-      // Never return the code in production response
+      email_error: emailError,
+      ...(isAdmin ? { dev_code: code } : {}),
     });
   } catch (e) {
     console.error('Error', e);
