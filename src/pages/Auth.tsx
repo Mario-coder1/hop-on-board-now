@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Car, MapPin, Users, ArrowRight, Mail, Lock, User } from 'lucide-react';
 import SEO from '@/components/SEO';
 import AnimatedAuthBackground from '@/components/AnimatedAuthBackground';
+import AuthOnboardingSteps from '@/components/AuthOnboardingSteps';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -158,6 +159,15 @@ const Auth: React.FC = () => {
               </motion.div>
             ))}
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="mt-12"
+          >
+            <AuthOnboardingSteps />
+          </motion.div>
         </div>
 
         {/* Decorative elements */}
@@ -182,6 +192,10 @@ const Auth: React.FC = () => {
               Take<span className="text-primary">Me</span>
             </h1>
             <p className="text-muted-foreground mt-2">Zdieľaj jazdu, cestuj spolu</p>
+          </div>
+
+          <div className="lg:hidden mb-6">
+            <AuthOnboardingSteps />
           </div>
 
           <motion.div
