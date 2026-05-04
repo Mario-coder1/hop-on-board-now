@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Car, MapPin, Users, ArrowRight, Mail, Lock, User } from 'lucide-react';
 import SEO from '@/components/SEO';
+import AnimatedAuthBackground from '@/components/AnimatedAuthBackground';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
