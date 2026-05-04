@@ -460,6 +460,27 @@ const CreateRide = () => {
                     />
                   </div>
                 </div>
+
+                {memberships.length > 0 && (
+                  <div className="mt-4">
+                    <Label>Univerzitná komunita (voliteľné)</Label>
+                    <select
+                      className="w-full mt-1 h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      value={selectedUniversityId}
+                      onChange={(e) => setSelectedUniversityId(e.target.value)}
+                    >
+                      <option value="">Verejná jazda (pre každého)</option>
+                      {memberships.map((m) => (
+                        <option key={m.university_id} value={m.university_id}>
+                          Iba pre {m.university?.short_name || 'univerzitu'}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ak vyberieš univerzitu, jazdu uvidia iba overení členovia.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <Button
