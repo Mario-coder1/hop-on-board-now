@@ -118,43 +118,45 @@ Deno.serve(async (req) => {
       .maybeSingle();
     const isAdmin = !!roleData;
 
-    // Try to send email via Supabase Auth (native email system - same as password reset)
+    // Try to send email via Resend if configured
+    const resendKey = Deno.env.get('RESEND_API_KEY');
     let emailSent = false;
     let emailError: string | null = null;
-    try {
-      const subject = `Overenie ${uni.short_name} – kód ${code}`;
-      const html = buildEmailHtml(code, uni.short_name, uni.name);
-
-      // Use Supabase admin generateLink - sends via configured email system
-      // We use 'magiclink' as transport but the user will only use OUR code
-      const { error: linkErr } = await admin.auth.admin.inviteUserByEmail(email, {
-        data: {
-          university_verification: true,
-          code,
-          university: uni.short_name,
-          subject,
-          html_message: html,
-        },
-      });
-      if (linkErr) {
-        emailError = linkErr.message;
-        console.error('[university-code] Supabase invite error:', linkErr);
-      } else {
-        emailSent = true;
+    if (resendKey) {
+      try {
+        const html = buildEmailHtml(code, uni.short_name, uni.name);
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'TakeMe <onboarding@resend.dev>',
+            to: [email],
+            subject: `Overenie ${uni.short_name} – kód ${code}`,
+            html,
+          }),
+        });
+        emailSent = res.ok;
+        if (!res.ok) {
+          emailError = await res.text();
+          console.error('[university-code] Resend error', emailError);
+        }
+      } catch (e) {
+        emailError = String(e);
+        console.error('[university-code] Resend exception', e);
       }
-    } catch (e) {
-      emailError = String(e);
-      console.error('[university-code] email exception', e);
+    } else {
+      console.warn('[university-code] No email provider configured – code only in logs');
     }
 
-    // Always log code for admin/dev visibility
     console.log(`[university-code] Code for ${email} (${uni.short_name}): ${code}`);
 
     return json({
       success: true,
       email_sent: emailSent,
       email_error: emailError,
-      // Return code only to admins for testing
       ...(isAdmin ? { dev_code: code } : {}),
     });
   } catch (e) {
