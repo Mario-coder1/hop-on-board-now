@@ -113,8 +113,9 @@ const Auth: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary via-secondary to-[hsl(220_30%_20%)] relative overflow-hidden"
       >
-        <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(circle at 20% 30%, hsl(174 80% 45% / 0.4), transparent 50%), radial-gradient(circle at 80% 70%, hsl(195 90% 55% / 0.3), transparent 50%)' }} />
-        
+        <div className="absolute inset-0 opacity-40" style={{ background: 'radial-gradient(circle at 20% 30%, hsl(174 80% 45% / 0.35), transparent 55%), radial-gradient(circle at 80% 70%, hsl(195 90% 55% / 0.25), transparent 55%)' }} />
+        <AnimatedAuthBackground />
+
         <div className="relative z-10 flex flex-col justify-center px-12 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
