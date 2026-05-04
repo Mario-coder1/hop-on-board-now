@@ -29,6 +29,7 @@ import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
 import TopDrivers from "./pages/TopDrivers";
+import Komunity from "./pages/Komunity";
 import RidesIndex from "./pages/RidesIndex";
 import CityRides from "./pages/CityRides";
 import CityPairRides from "./pages/CityPairRides";
