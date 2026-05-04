@@ -116,6 +116,12 @@ const Navigation: React.FC = () => {
                       Môj profil
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/komunity" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
+                      <GraduationCap className="w-4 h-4" />
+                      Univerzitné komunity
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
