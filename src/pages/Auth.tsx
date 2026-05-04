@@ -106,6 +106,11 @@ const Auth: React.FC = () => {
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl animate-float" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-accent/25 blur-3xl animate-float" style={{ animationDelay: '3s' }} />
 
+      {/* Mobile/tablet animated map background */}
+      <div className="pointer-events-none absolute inset-0 z-0 lg:hidden opacity-70">
+        <AnimatedAuthBackground />
+      </div>
+
       {/* Left side - Branding */}
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
@@ -165,11 +170,14 @@ const Auth: React.FC = () => {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="flex-1 flex items-center justify-center px-8 py-12"
+        className="relative z-10 flex-1 flex items-center justify-center px-8 py-12"
       >
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
+            <div className="relative h-36 mb-6 overflow-hidden rounded-2xl border border-primary/20 bg-secondary/70 shadow-glass">
+              <AnimatedAuthBackground />
+            </div>
             <h1 className="font-display text-4xl font-bold">
               Take<span className="text-primary">Me</span>
             </h1>
