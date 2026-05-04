@@ -14,6 +14,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { mapDatabaseError } from '@/lib/errorMapping';
+import { useMyMemberships } from '@/hooks/useUniversities';
+import { GraduationCap } from 'lucide-react';
 import SEO from '@/components/SEO';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
@@ -47,6 +49,10 @@ const CreateRide = () => {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringTime, setRecurringTime] = useState('07:00');
   const [recurringDays, setRecurringDays] = useState<number[]>([1, 2, 3, 4, 5]);
+
+  // University community
+  const { memberships } = useMyMemberships();
+  const [selectedUniversityId, setSelectedUniversityId] = useState<string>('');
 
   const toggleDay = (d: number) => {
     setRecurringDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
@@ -175,7 +181,8 @@ const CreateRide = () => {
           available_seats: seats,
           price_per_seat: price,
           status: 'active',
-          route_polyline: routePolyline
+          route_polyline: routePolyline,
+          university_id: selectedUniversityId || null,
         })
         .select('id')
         .single();

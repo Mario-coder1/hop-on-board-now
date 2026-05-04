@@ -29,6 +29,7 @@ import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import PublicChat from "./pages/PublicChat";
 import TopDrivers from "./pages/TopDrivers";
+import Komunity from "./pages/Komunity";
 import RidesIndex from "./pages/RidesIndex";
 import CityRides from "./pages/CityRides";
 import CityPairRides from "./pages/CityPairRides";
@@ -88,6 +89,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
         <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
+        <Route path="/komunity" element={<ProtectedRoute><Komunity /></ProtectedRoute>} />
         <Route path="/install" element={<Install />} />
         <Route path="/jazdy" element={<RidesIndex />} />
         <Route path="/jazdy/:slug" element={<CityOrPairRoute />} />

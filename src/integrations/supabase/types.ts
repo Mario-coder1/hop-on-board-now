@@ -620,6 +620,7 @@ export type Database = {
           route_polyline: string | null
           status: Database["public"]["Enums"]["ride_status"] | null
           template_id: string | null
+          university_id: string | null
           updated_at: string
         }
         Insert: {
@@ -641,6 +642,7 @@ export type Database = {
           route_polyline?: string | null
           status?: Database["public"]["Enums"]["ride_status"] | null
           template_id?: string | null
+          university_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -662,6 +664,7 @@ export type Database = {
           route_polyline?: string | null
           status?: Database["public"]["Enums"]["ride_status"] | null
           template_id?: string | null
+          university_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -691,6 +694,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rides_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
             referencedColumns: ["id"]
           },
         ]
@@ -772,6 +782,121 @@ export type Database = {
             columns: ["wallet_id"]
             isOneToOne: false
             referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      universities: {
+        Row: {
+          active: boolean
+          city: string | null
+          code: string
+          color: string | null
+          created_at: string
+          email_domain: string
+          id: string
+          logo_url: string | null
+          name: string
+          short_name: string
+        }
+        Insert: {
+          active?: boolean
+          city?: string | null
+          code: string
+          color?: string | null
+          created_at?: string
+          email_domain: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          short_name: string
+        }
+        Update: {
+          active?: boolean
+          city?: string | null
+          code?: string
+          color?: string | null
+          created_at?: string
+          email_domain?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          short_name?: string
+        }
+        Relationships: []
+      }
+      university_email_verifications: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          profile_id: string
+          university_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          profile_id: string
+          university_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          profile_id?: string
+          university_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "university_email_verifications_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      university_memberships: {
+        Row: {
+          id: string
+          profile_id: string
+          university_id: string
+          verified_at: string
+          verified_email: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          university_id: string
+          verified_at?: string
+          verified_email: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          university_id?: string
+          verified_at?: string
+          verified_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "university_memberships_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
             referencedColumns: ["id"]
           },
         ]
@@ -977,6 +1102,10 @@ export type Database = {
         Returns: boolean
       }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
+      is_university_member: {
+        Args: { _university_id: string }
+        Returns: boolean
+      }
       send_push_via_edge: {
         Args: {
           _body: string
