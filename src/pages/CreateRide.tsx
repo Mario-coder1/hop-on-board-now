@@ -181,7 +181,8 @@ const CreateRide = () => {
           available_seats: seats,
           price_per_seat: price,
           status: 'active',
-          route_polyline: routePolyline
+          route_polyline: routePolyline,
+          university_id: selectedUniversityId || null,
         })
         .select('id')
         .single();
