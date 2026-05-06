@@ -55,10 +55,12 @@ const Komunity = () => {
       }
       setRidesLoading(true);
       const universityIds = memberships.map((m) => m.university_id);
+      // Show rides from my universities OR public rides (no university)
+      const orFilter = `university_id.is.null,university_id.in.(${universityIds.join(',')})`;
       const { data } = await supabase
         .from('rides')
         .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
-        .in('university_id', universityIds)
+        .or(orFilter)
         .in('status', ['active', 'in_progress'])
         .gte('departure_time', new Date().toISOString())
         .order('departure_time', { ascending: true })
