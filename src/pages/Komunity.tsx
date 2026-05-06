@@ -337,12 +337,16 @@ const Komunity = () => {
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          {uni && (
+                          {uni ? (
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
                               style={{ backgroundColor: uni.color || 'hsl(var(--primary))' }}
                             >
                               {uni.short_name}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground flex-shrink-0">
+                              Verejné
                             </span>
                           )}
                           <p className="text-sm font-semibold truncate">{ride.driver?.full_name || 'Vodič'}</p>
