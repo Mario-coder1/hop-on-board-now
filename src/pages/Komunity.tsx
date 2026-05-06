@@ -55,10 +55,12 @@ const Komunity = () => {
       }
       setRidesLoading(true);
       const universityIds = memberships.map((m) => m.university_id);
+      // Show rides from my universities OR public rides (no university)
+      const orFilter = `university_id.is.null,university_id.in.(${universityIds.join(',')})`;
       const { data } = await supabase
         .from('rides')
         .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
-        .in('university_id', universityIds)
+        .or(orFilter)
         .in('status', ['active', 'in_progress'])
         .gte('departure_time', new Date().toISOString())
         .order('departure_time', { ascending: true })
@@ -308,7 +310,7 @@ const Komunity = () => {
             className="mt-10"
           >
             <h2 className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-3">
-              Jazdy v tvojej komunite
+              Jazdy pre teba (univerzita + verejné)
             </h2>
             {ridesLoading ? (
               <div className="flex justify-center py-8">
@@ -335,12 +337,16 @@ const Komunity = () => {
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          {uni && (
+                          {uni ? (
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
                               style={{ backgroundColor: uni.color || 'hsl(var(--primary))' }}
                             >
                               {uni.short_name}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground flex-shrink-0">
+                              Verejné
                             </span>
                           )}
                           <p className="text-sm font-semibold truncate">{ride.driver?.full_name || 'Vodič'}</p>
