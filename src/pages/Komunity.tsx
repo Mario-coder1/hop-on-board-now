@@ -120,6 +120,13 @@ const Komunity = () => {
       return;
     }
     if (data?.error) {
+      // Už je členom — len obnov stav a zavri dialóg
+      if (data.error.toLowerCase().includes('už si overený')) {
+        toast({ title: '✅ Už si členom', description: `Komunita ${selectedUni.short_name} je odomknutá.` });
+        setVerifyOpen(false);
+        refresh();
+        return;
+      }
       toast({ title: 'Chyba', description: data.error, variant: 'destructive' });
       return;
     }
