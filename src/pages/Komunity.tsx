@@ -114,20 +114,28 @@ const Komunity = () => {
       body: { university_id: selectedUni.id, email: trimmed },
     });
     setSending(false);
-    if (error) {
-      const msg = (error as { message?: string }).message || 'Nepodarilo sa poslať kód';
-      toast({ title: 'Chyba', description: msg, variant: 'destructive' });
-      return;
+
+    // FunctionsHttpError exposes the JSON body via context.response
+    let errMsg: string | null = data?.error ?? null;
+    if (error && !errMsg) {
+      try {
+        const ctx = (error as { context?: Response }).context;
+        if (ctx && typeof ctx.json === 'function') {
+          const body = await ctx.json();
+          errMsg = body?.error ?? null;
+        }
+      } catch { /* ignore */ }
+      errMsg = errMsg || (error as { message?: string }).message || 'Nepodarilo sa poslať kód';
     }
-    if (data?.error) {
-      // Už je členom — len obnov stav a zavri dialóg
-      if (data.error.toLowerCase().includes('už si overený')) {
+
+    if (errMsg) {
+      if (errMsg.toLowerCase().includes('už si overený')) {
         toast({ title: '✅ Už si členom', description: `Komunita ${selectedUni.short_name} je odomknutá.` });
         setVerifyOpen(false);
         refresh();
         return;
       }
-      toast({ title: 'Chyba', description: data.error, variant: 'destructive' });
+      toast({ title: 'Chyba', description: errMsg, variant: 'destructive' });
       return;
     }
     if (data?.dev_code) {
