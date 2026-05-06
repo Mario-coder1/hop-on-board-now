@@ -310,7 +310,7 @@ const Komunity = () => {
             className="mt-10"
           >
             <h2 className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-3">
-              Jazdy v tvojej komunite
+              Jazdy pre teba (univerzita + verejné)
             </h2>
             {ridesLoading ? (
               <div className="flex justify-center py-8">
