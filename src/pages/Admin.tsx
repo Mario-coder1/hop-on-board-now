@@ -33,8 +33,10 @@ import {
   Key,
   UserX,
   Bell,
-  Megaphone
+  Megaphone,
+  BarChart3
 } from 'lucide-react';
+import VisitorsStats from '@/components/admin/VisitorsStats';
 import {
   Dialog,
   DialogContent,
