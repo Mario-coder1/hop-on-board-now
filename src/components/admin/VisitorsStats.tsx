@@ -24,23 +24,32 @@ interface PageViewRow {
   created_at: string;
 }
 
-const RANGE_DAYS = 30;
-
 export default function VisitorsStats() {
   const [rows, setRows] = useState<PageViewRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const since = new Date(Date.now() - RANGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .from('page_views')
-        .select('path, session_id, profile_id, created_at')
-        .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(10000);
-      if (!error && data) setRows(data as PageViewRow[]);
+      const PAGE = 1000;
+      const all: PageViewRow[] = [];
+      let from = 0;
+      // Paginate to bypass 1000-row limit and get ALL data
+      while (true) {
+        const { data, error, count } = await supabase
+          .from('page_views')
+          .select('path, session_id, profile_id, created_at', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .range(from, from + PAGE - 1);
+        if (error || !data) break;
+        all.push(...(data as PageViewRow[]));
+        if (count !== null) setTotalCount(count);
+        if (data.length < PAGE) break;
+        from += PAGE;
+        if (from > 200000) break; // safety
+      }
+      setRows(all);
       setLoading(false);
     })();
   }, []);
