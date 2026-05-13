@@ -68,6 +68,7 @@ const NotificationListener = () => {
   useRideNotifications();
   useNotificationAlert();
   useAutoSubscribePush();
+  usePageViewTracking();
   return null;
 };
 
