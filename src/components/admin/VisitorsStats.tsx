@@ -24,23 +24,32 @@ interface PageViewRow {
   created_at: string;
 }
 
-const RANGE_DAYS = 30;
-
 export default function VisitorsStats() {
   const [rows, setRows] = useState<PageViewRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const since = new Date(Date.now() - RANGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .from('page_views')
-        .select('path, session_id, profile_id, created_at')
-        .gte('created_at', since)
-        .order('created_at', { ascending: false })
-        .limit(10000);
-      if (!error && data) setRows(data as PageViewRow[]);
+      const PAGE = 1000;
+      const all: PageViewRow[] = [];
+      let from = 0;
+      // Paginate to bypass 1000-row limit and get ALL data
+      while (true) {
+        const { data, error, count } = await supabase
+          .from('page_views')
+          .select('path, session_id, profile_id, created_at', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .range(from, from + PAGE - 1);
+        if (error || !data) break;
+        all.push(...(data as PageViewRow[]));
+        if (count !== null) setTotalCount(count);
+        if (data.length < PAGE) break;
+        from += PAGE;
+        if (from > 200000) break; // safety
+      }
+      setRows(all);
       setLoading(false);
     })();
   }, []);
@@ -155,8 +164,8 @@ export default function VisitorsStats() {
             <div className="flex items-center gap-4">
               <Globe className="w-10 h-10 text-purple-500" />
               <div>
-                <p className="text-2xl font-bold tabular-nums">{stats.total}</p>
-                <p className="text-muted-foreground text-sm">Spolu (30 dní)</p>
+                <p className="text-2xl font-bold tabular-nums">{totalCount || stats.total}</p>
+                <p className="text-muted-foreground text-sm">Spolu (celá doba)</p>
               </div>
             </div>
           </CardContent>
@@ -201,7 +210,7 @@ export default function VisitorsStats() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Top stránky (30 dní)</CardTitle>
+          <CardTitle>Top stránky (celá doba)</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
