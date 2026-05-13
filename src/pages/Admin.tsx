@@ -33,8 +33,10 @@ import {
   Key,
   UserX,
   Bell,
-  Megaphone
+  Megaphone,
+  BarChart3
 } from 'lucide-react';
+import VisitorsStats from '@/components/admin/VisitorsStats';
 import {
   Dialog,
   DialogContent,
@@ -729,11 +731,19 @@ const Admin = () => {
               <Megaphone className="w-4 h-4" />
               Notifikácie
             </TabsTrigger>
+            <TabsTrigger value="visitors" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Návštevnosť
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
               Nastavenia
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="visitors" className="space-y-4">
+            <VisitorsStats />
+          </TabsContent>
 
           <TabsContent value="reports" className="space-y-4">
             {loadingData ? (

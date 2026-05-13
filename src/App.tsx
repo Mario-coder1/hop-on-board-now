@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useRideNotifications } from "@/hooks/useRideNotifications";
 import { useNotificationAlert } from "@/hooks/useNotificationAlert";
 import { useAutoSubscribePush } from "@/hooks/useAutoSubscribePush";
+import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
@@ -67,6 +68,7 @@ const NotificationListener = () => {
   useRideNotifications();
   useNotificationAlert();
   useAutoSubscribePush();
+  usePageViewTracking();
   return null;
 };
 
