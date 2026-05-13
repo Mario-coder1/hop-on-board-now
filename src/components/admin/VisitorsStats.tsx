@@ -164,8 +164,8 @@ export default function VisitorsStats() {
             <div className="flex items-center gap-4">
               <Globe className="w-10 h-10 text-purple-500" />
               <div>
-                <p className="text-2xl font-bold tabular-nums">{stats.total}</p>
-                <p className="text-muted-foreground text-sm">Spolu (30 dní)</p>
+                <p className="text-2xl font-bold tabular-nums">{totalCount || stats.total}</p>
+                <p className="text-muted-foreground text-sm">Spolu (celá doba)</p>
               </div>
             </div>
           </CardContent>
