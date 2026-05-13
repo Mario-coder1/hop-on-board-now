@@ -210,7 +210,7 @@ export default function VisitorsStats() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Top stránky (30 dní)</CardTitle>
+          <CardTitle>Top stránky (celá doba)</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
