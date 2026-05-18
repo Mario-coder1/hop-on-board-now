@@ -126,7 +126,23 @@ const Map: React.FC<MapProps> = ({
       });
     }
 
+    // Force resize once the map element is properly laid out — fixes blank map
+    // when the container is mounted inside an animated/conditionally-shown parent.
+    const resizeMap = () => map.current?.resize();
+    map.current.on('load', resizeMap);
+    const t1 = setTimeout(resizeMap, 100);
+    const t2 = setTimeout(resizeMap, 500);
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && mapContainer.current) {
+      ro = new ResizeObserver(() => resizeMap());
+      ro.observe(mapContainer.current);
+    }
+
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      ro?.disconnect();
       map.current?.remove();
     };
   }, [interactive]);
