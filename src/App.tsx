@@ -99,6 +99,7 @@ const AppRoutes = () => {
             <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
             <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
             <Route path="/komunity" element={<ProtectedRoute><Komunity /></ProtectedRoute>} />
+            <Route path="/co2" element={<Co2Calculator />} />
             <Route path="/install" element={<Install />} />
             <Route path="/jazdy" element={<RidesIndex />} />
             <Route path="/jazdy/:slug" element={<CityOrPairRoute />} />
