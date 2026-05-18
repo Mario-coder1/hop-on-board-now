@@ -38,6 +38,7 @@ const TopDrivers = lazy(() => import("./pages/TopDrivers"));
 const Komunity = lazy(() => import("./pages/Komunity"));
 const RidesIndex = lazy(() => import("./pages/RidesIndex"));
 const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
+const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
