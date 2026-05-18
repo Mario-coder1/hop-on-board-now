@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap } from 'lucide-react';
+import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -120,6 +120,12 @@ const Navigation: React.FC = () => {
                     <Link to="/komunity" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
                       <GraduationCap className="w-4 h-4" />
                       Univerzitné komunity
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/co2" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
+                      <Leaf className="w-4 h-4" />
+                      CO₂ kalkulačka
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
