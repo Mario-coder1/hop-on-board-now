@@ -37,7 +37,6 @@ export default function Co2Calculator() {
       <SEO
         title="CO₂ kalkulačka jazdy | takeme"
         description="Vypočítaj si ročnú produkciu CO₂ tvojho auta podľa spotreby a nájazdu kilometrov."
-        canonical="https://takeme.sk/co2"
       />
       <Navigation />
 
