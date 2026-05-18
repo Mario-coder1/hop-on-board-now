@@ -122,6 +122,12 @@ const Navigation: React.FC = () => {
                       Univerzitné komunity
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/co2" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
+                      <Leaf className="w-4 h-4" />
+                      CO₂ kalkulačka
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
