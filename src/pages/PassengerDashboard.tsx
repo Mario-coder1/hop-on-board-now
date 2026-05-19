@@ -137,7 +137,7 @@ const PassengerDashboard: React.FC = () => {
             <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{filteredRides.length} aktívnych</span>
           </div>
           <div className="card-mono overflow-hidden">
-            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={7} />
+            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={7} preferStatic />
           </div>
         </motion.div>
 
