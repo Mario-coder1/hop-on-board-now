@@ -69,7 +69,7 @@ const Map: React.FC<MapProps> = ({
       const color = (MARKER_COLORS[marker.type] || MARKER_COLORS.origin).replace('#', '');
       return `pin-s+${color}(${marker.lng},${marker.lat})`;
     }).join(',');
-    const viewport = overlay ? 'auto' : `${normalizedCenter[0]},${normalizedCenter[1]},${Math.min(Math.max(zoom, 1), 16)},0`;
+    const viewport = overlay ? 'auto' : `${normalizedCenter[0]},${normalizedCenter[1]},${Math.min(Math.max(zoom, 1), 16)},0,0`;
     const overlayPath = overlay ? `${overlay}/` : '';
     return `https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/static/${overlayPath}${viewport}/800x450@2x?padding=64&access_token=${MAPBOX_TOKEN}`;
   }, [normalizedCenter, safeMarkers, zoom]);
