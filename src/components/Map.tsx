@@ -331,7 +331,7 @@ const Map: React.FC<MapProps> = ({
       );
       
       // Include all markers in bounds
-      markers.forEach(m => {
+      safeMarkers.forEach(m => {
         bounds.extend([m.lng, m.lat]);
       });
 
@@ -343,11 +343,17 @@ const Map: React.FC<MapProps> = ({
     } else {
       map.current.on('load', addRoute);
     }
-  }, [route, markers]);
+  }, [route, safeMarkers]);
 
   return (
-    <div className={`relative rounded-2xl overflow-hidden ${className}`}>
-      <div ref={mapContainer} className="absolute inset-0" />
+    <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
+      <img
+        src={staticMapUrl}
+        alt="Mapa jázd"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${mapReady && !mapUnavailable && !preferStatic ? 'opacity-0' : 'opacity-100'}`}
+        loading="lazy"
+      />
+      {!preferStatic && <div ref={mapContainer} className="absolute inset-0" />}
     </div>
   );
 };
