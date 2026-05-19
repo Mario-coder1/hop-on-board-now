@@ -19,12 +19,24 @@ interface MapProps {
   onRouteCalculated?: (routePolyline: string) => void; // Callback with encoded polyline
   className?: string;
   interactive?: boolean;
+  preferStatic?: boolean;
 }
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
+const DEFAULT_CENTER: [number, number] = [19.699, 48.669];
+const MARKER_COLORS: Record<string, string> = {
+  driver: '#20b4a8',
+  passenger: '#ef6c4c',
+  origin: '#20b4a8',
+  destination: '#ef6c4c',
+  pickup: '#22c55e',
+  stop: '#8b5cf6',
+  dropoff: '#ef4444'
+};
+
 const Map: React.FC<MapProps> = ({
-  center = [19.699, 48.669],
+  center = DEFAULT_CENTER,
   zoom = 7,
   markers = [],
   waypoints = [],
@@ -33,16 +45,38 @@ const Map: React.FC<MapProps> = ({
   onMapClick,
   onRouteCalculated,
   className = '',
-  interactive = true
+  interactive = true,
+  preferStatic = false
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [fetchedRoute, setFetchedRoute] = useState<Array<[number, number]> | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
+
+  const normalizedCenter = React.useMemo<[number, number]>(() => (
+    Number.isFinite(center[0]) && Number.isFinite(center[1]) ? center : DEFAULT_CENTER
+  ), [center]);
+
+  const safeMarkers = React.useMemo(
+    () => markers.filter(marker => Number.isFinite(marker.lat) && Number.isFinite(marker.lng)),
+    [markers]
+  );
+
+  const staticMapUrl = React.useMemo(() => {
+    const overlay = safeMarkers.slice(0, 12).map(marker => {
+      const color = (MARKER_COLORS[marker.type] || MARKER_COLORS.origin).replace('#', '');
+      return `pin-s+${color}(${marker.lng},${marker.lat})`;
+    }).join(',');
+    const viewport = overlay ? 'auto' : `${normalizedCenter[0]},${normalizedCenter[1]},${Math.min(Math.max(zoom, 1), 16)},0`;
+    const overlayPath = overlay ? `${overlay}/` : '';
+    return `https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/static/${overlayPath}${viewport}/800x450@2x?padding=64&access_token=${MAPBOX_TOKEN}`;
+  }, [normalizedCenter, safeMarkers, zoom]);
 
   // Find origin and destination from markers for route fetching
-  const originMarker = markers.find(m => m.type === 'origin');
-  const destinationMarker = markers.find(m => m.type === 'destination');
+  const originMarker = safeMarkers.find(m => m.type === 'origin');
+  const destinationMarker = safeMarkers.find(m => m.type === 'destination');
 
   // Fetch route from Mapbox Directions API with waypoints
   useEffect(() => {
