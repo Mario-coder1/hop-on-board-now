@@ -125,37 +125,51 @@ const Map: React.FC<MapProps> = ({
   }, []);
 
   // Store initial center to prevent map recreation on every center change
-  const initialCenterRef = useRef<[number, number]>(center);
+  const initialCenterRef = useRef<[number, number]>(normalizedCenter);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || preferStatic) return;
 
     mapboxgl.accessToken = MAPBOX_TOKEN;
+    setMapReady(false);
+    setMapUnavailable(false);
 
-    map.current = new mapboxgl.Map({
+    const instance = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: initialCenterRef.current,
       zoom: zoom,
       interactive: interactive,
     });
+    map.current = instance;
 
-    map.current.addControl(
+    instance.on('load', () => {
+      setMapReady(true);
+      instance.resize();
+    });
+    instance.on('error', (event) => {
+      console.warn('Mapbox map error:', event.error || event);
+      setMapUnavailable(true);
+    });
+
+    instance.addControl(
       new mapboxgl.NavigationControl({ visualizePitch: true }),
       'top-right'
     );
 
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true
-      }),
-      'top-right'
-    );
+    if ('geolocation' in navigator) {
+      instance.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+    }
 
     if (onMapClick) {
-      map.current.on('click', (e) => {
+      instance.on('click', (e) => {
         onMapClick(e.lngLat.lng, e.lngLat.lat);
       });
     }
@@ -163,9 +177,11 @@ const Map: React.FC<MapProps> = ({
     // Force resize once the map element is properly laid out — fixes blank map
     // when the container is mounted inside an animated/conditionally-shown parent.
     const resizeMap = () => map.current?.resize();
-    map.current.on('load', resizeMap);
     const t1 = setTimeout(resizeMap, 100);
     const t2 = setTimeout(resizeMap, 500);
+    const fallbackTimer = setTimeout(() => {
+      if (!instance.loaded()) setMapUnavailable(true);
+    }, 7000);
 
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined' && mapContainer.current) {
@@ -176,10 +192,12 @@ const Map: React.FC<MapProps> = ({
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(fallbackTimer);
       ro?.disconnect();
-      map.current?.remove();
+      instance.remove();
+      if (map.current === instance) map.current = null;
     };
-  }, [interactive]);
+  }, [interactive, preferStatic]);
 
   // Update center smoothly without recreating the map
   useEffect(() => {
