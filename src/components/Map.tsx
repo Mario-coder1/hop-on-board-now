@@ -353,7 +353,12 @@ const Map: React.FC<MapProps> = ({
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${mapReady && !mapUnavailable && !preferStatic ? 'opacity-0' : 'opacity-100'}`}
         loading="lazy"
       />
-      {!preferStatic && <div ref={mapContainer} className="absolute inset-0" />}
+      {!preferStatic && (
+        <div
+          ref={mapContainer}
+          className={`absolute inset-0 transition-opacity duration-300 ${mapReady && !mapUnavailable ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        />
+      )}
     </div>
   );
 };
