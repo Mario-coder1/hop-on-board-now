@@ -201,23 +201,23 @@ const Map: React.FC<MapProps> = ({
 
   // Update center smoothly without recreating the map
   useEffect(() => {
-    if (map.current && center) {
+    if (map.current && normalizedCenter) {
       // Only fly to if map is loaded and center is significantly different
       const currentCenter = map.current.getCenter();
       const distance = Math.sqrt(
-        Math.pow(currentCenter.lng - center[0], 2) + 
-        Math.pow(currentCenter.lat - center[1], 2)
+        Math.pow(currentCenter.lng - normalizedCenter[0], 2) + 
+        Math.pow(currentCenter.lat - normalizedCenter[1], 2)
       );
       
       // Only move if distance is significant (avoid micro-movements)
       if (distance > 0.0001) {
         map.current.easeTo({
-          center: center,
+          center: normalizedCenter,
           duration: 500
         });
       }
     }
-  }, [center]);
+  }, [normalizedCenter]);
 
   useEffect(() => {
     if (!map.current) return;
@@ -225,20 +225,10 @@ const Map: React.FC<MapProps> = ({
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    markers.forEach(markerData => {
+    safeMarkers.forEach(markerData => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
       
-      const colors: Record<string, string> = {
-        driver: '#20b4a8',
-        passenger: '#ef6c4c',
-        origin: '#20b4a8',
-        destination: '#ef6c4c',
-        pickup: '#22c55e',
-        stop: '#8b5cf6',
-        dropoff: '#ef4444'
-      };
-
       const icons: Record<string, string> = {
         driver: '🚗',
         passenger: '👤',
@@ -254,7 +244,7 @@ const Map: React.FC<MapProps> = ({
       markerDiv.style.cssText = `
         width: 40px;
         height: 40px;
-        background: ${colors[markerData.type] || '#888'};
+        background: ${MARKER_COLORS[markerData.type] || '#888'};
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -287,7 +277,7 @@ const Map: React.FC<MapProps> = ({
 
       markersRef.current.push(marker);
     });
-  }, [markers]);
+  }, [safeMarkers]);
 
   // Draw route on map
   useEffect(() => {
