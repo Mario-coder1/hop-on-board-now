@@ -19,12 +19,24 @@ interface MapProps {
   onRouteCalculated?: (routePolyline: string) => void; // Callback with encoded polyline
   className?: string;
   interactive?: boolean;
+  preferStatic?: boolean;
 }
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
+const DEFAULT_CENTER: [number, number] = [19.699, 48.669];
+const MARKER_COLORS: Record<string, string> = {
+  driver: '#20b4a8',
+  passenger: '#ef6c4c',
+  origin: '#20b4a8',
+  destination: '#ef6c4c',
+  pickup: '#22c55e',
+  stop: '#8b5cf6',
+  dropoff: '#ef4444'
+};
+
 const Map: React.FC<MapProps> = ({
-  center = [19.699, 48.669],
+  center = DEFAULT_CENTER,
   zoom = 7,
   markers = [],
   waypoints = [],
@@ -33,16 +45,39 @@ const Map: React.FC<MapProps> = ({
   onMapClick,
   onRouteCalculated,
   className = '',
-  interactive = true
+  interactive = true,
+  preferStatic = false
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [fetchedRoute, setFetchedRoute] = useState<Array<[number, number]> | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
+
+  const normalizedCenter = React.useMemo<[number, number]>(() => (
+    Number.isFinite(center[0]) && Number.isFinite(center[1]) ? center : DEFAULT_CENTER
+  ), [center]);
+
+  const safeMarkers = React.useMemo(
+    () => markers.filter(marker => Number.isFinite(marker.lat) && Number.isFinite(marker.lng)),
+    [markers]
+  );
+
+  const staticMapUrl = React.useMemo(() => {
+    const overlay = safeMarkers.slice(0, 12).map(marker => {
+      const color = (MARKER_COLORS[marker.type] || MARKER_COLORS.origin).replace('#', '');
+      return `pin-s+${color}(${marker.lng},${marker.lat})`;
+    }).join(',');
+    const viewport = overlay ? 'auto' : `${normalizedCenter[0]},${normalizedCenter[1]},${Math.min(Math.max(zoom, 1), 16)},0,0`;
+    const overlayPath = overlay ? `${overlay}/` : '';
+    const padding = overlay ? 'padding=64&' : '';
+    return `https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/static/${overlayPath}${viewport}/800x450@2x?${padding}access_token=${MAPBOX_TOKEN}`;
+  }, [normalizedCenter, safeMarkers, zoom]);
 
   // Find origin and destination from markers for route fetching
-  const originMarker = markers.find(m => m.type === 'origin');
-  const destinationMarker = markers.find(m => m.type === 'destination');
+  const originMarker = safeMarkers.find(m => m.type === 'origin');
+  const destinationMarker = safeMarkers.find(m => m.type === 'destination');
 
   // Fetch route from Mapbox Directions API with waypoints
   useEffect(() => {
@@ -91,37 +126,51 @@ const Map: React.FC<MapProps> = ({
   }, []);
 
   // Store initial center to prevent map recreation on every center change
-  const initialCenterRef = useRef<[number, number]>(center);
+  const initialCenterRef = useRef<[number, number]>(normalizedCenter);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || preferStatic) return;
 
     mapboxgl.accessToken = MAPBOX_TOKEN;
+    setMapReady(false);
+    setMapUnavailable(false);
 
-    map.current = new mapboxgl.Map({
+    const instance = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: initialCenterRef.current,
       zoom: zoom,
       interactive: interactive,
     });
+    map.current = instance;
 
-    map.current.addControl(
+    instance.on('load', () => {
+      setMapReady(true);
+      instance.resize();
+    });
+    instance.on('error', (event) => {
+      console.warn('Mapbox map error:', event.error || event);
+      setMapUnavailable(true);
+    });
+
+    instance.addControl(
       new mapboxgl.NavigationControl({ visualizePitch: true }),
       'top-right'
     );
 
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true
-      }),
-      'top-right'
-    );
+    if ('geolocation' in navigator) {
+      instance.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+    }
 
     if (onMapClick) {
-      map.current.on('click', (e) => {
+      instance.on('click', (e) => {
         onMapClick(e.lngLat.lng, e.lngLat.lat);
       });
     }
@@ -129,9 +178,11 @@ const Map: React.FC<MapProps> = ({
     // Force resize once the map element is properly laid out — fixes blank map
     // when the container is mounted inside an animated/conditionally-shown parent.
     const resizeMap = () => map.current?.resize();
-    map.current.on('load', resizeMap);
     const t1 = setTimeout(resizeMap, 100);
     const t2 = setTimeout(resizeMap, 500);
+    const fallbackTimer = setTimeout(() => {
+      if (!instance.loaded()) setMapUnavailable(true);
+    }, 7000);
 
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined' && mapContainer.current) {
@@ -142,30 +193,32 @@ const Map: React.FC<MapProps> = ({
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(fallbackTimer);
       ro?.disconnect();
-      map.current?.remove();
+      instance.remove();
+      if (map.current === instance) map.current = null;
     };
-  }, [interactive]);
+  }, [interactive, preferStatic]);
 
   // Update center smoothly without recreating the map
   useEffect(() => {
-    if (map.current && center) {
+    if (map.current && normalizedCenter) {
       // Only fly to if map is loaded and center is significantly different
       const currentCenter = map.current.getCenter();
       const distance = Math.sqrt(
-        Math.pow(currentCenter.lng - center[0], 2) + 
-        Math.pow(currentCenter.lat - center[1], 2)
+        Math.pow(currentCenter.lng - normalizedCenter[0], 2) + 
+        Math.pow(currentCenter.lat - normalizedCenter[1], 2)
       );
       
       // Only move if distance is significant (avoid micro-movements)
       if (distance > 0.0001) {
         map.current.easeTo({
-          center: center,
+          center: normalizedCenter,
           duration: 500
         });
       }
     }
-  }, [center]);
+  }, [normalizedCenter]);
 
   useEffect(() => {
     if (!map.current) return;
@@ -173,20 +226,10 @@ const Map: React.FC<MapProps> = ({
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    markers.forEach(markerData => {
+    safeMarkers.forEach(markerData => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
       
-      const colors: Record<string, string> = {
-        driver: '#20b4a8',
-        passenger: '#ef6c4c',
-        origin: '#20b4a8',
-        destination: '#ef6c4c',
-        pickup: '#22c55e',
-        stop: '#8b5cf6',
-        dropoff: '#ef4444'
-      };
-
       const icons: Record<string, string> = {
         driver: '🚗',
         passenger: '👤',
@@ -202,7 +245,7 @@ const Map: React.FC<MapProps> = ({
       markerDiv.style.cssText = `
         width: 40px;
         height: 40px;
-        background: ${colors[markerData.type] || '#888'};
+        background: ${MARKER_COLORS[markerData.type] || '#888'};
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -235,7 +278,7 @@ const Map: React.FC<MapProps> = ({
 
       markersRef.current.push(marker);
     });
-  }, [markers]);
+  }, [safeMarkers]);
 
   // Draw route on map
   useEffect(() => {
@@ -289,7 +332,7 @@ const Map: React.FC<MapProps> = ({
       );
       
       // Include all markers in bounds
-      markers.forEach(m => {
+      safeMarkers.forEach(m => {
         bounds.extend([m.lng, m.lat]);
       });
 
@@ -301,11 +344,22 @@ const Map: React.FC<MapProps> = ({
     } else {
       map.current.on('load', addRoute);
     }
-  }, [route, markers]);
+  }, [route, safeMarkers]);
 
   return (
-    <div className={`relative rounded-2xl overflow-hidden ${className}`}>
-      <div ref={mapContainer} className="absolute inset-0" />
+    <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
+      <img
+        src={staticMapUrl}
+        alt="Mapa jázd"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${mapReady && !mapUnavailable && !preferStatic ? 'opacity-0' : 'opacity-100'}`}
+        loading="lazy"
+      />
+      {!preferStatic && (
+        <div
+          ref={mapContainer}
+          className={`absolute inset-0 transition-opacity duration-300 ${mapReady && !mapUnavailable ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        />
+      )}
     </div>
   );
 };
