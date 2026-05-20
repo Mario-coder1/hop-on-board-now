@@ -333,13 +333,13 @@ const ManagePassengers = () => {
 
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Passengers List */}
-            <div className="order-2 lg:order-1 space-y-3 sm:space-y-4">
+            <div className="order-2 lg:order-1 space-y-2.5 sm:space-y-4 min-w-0">
               {passengers.length === 0 ? (
                 <Card className="border-0 shadow-card">
-                  <CardContent className="p-8 text-center">
-                    <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-display text-lg font-semibold mb-2">Žiadni pasažieri</h3>
-                    <p className="text-muted-foreground">
+                  <CardContent className="p-6 sm:p-8 text-center">
+                    <User className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                    <h3 className="font-display text-base sm:text-lg font-semibold mb-2">Žiadni pasažieri</h3>
+                    <p className="text-sm text-muted-foreground">
                       Zatiaľ nemáte žiadnych prijatých pasažierov pre túto jazdu.
                     </p>
                   </CardContent>
@@ -348,14 +348,14 @@ const ManagePassengers = () => {
                 passengers.filter(p => p.passenger !== null).map((passenger) => (
                   <Card 
                     key={passenger.id} 
-                    className={`border-0 shadow-card cursor-pointer transition-all ${
+                    className={`border-0 shadow-card cursor-pointer transition-all overflow-hidden ${
                       selectedPassenger?.id === passenger.id ? 'ring-2 ring-primary' : ''
                     }`}
                     onClick={() => setSelectedPassenger(passenger)}
                   >
-                    <CardContent className="p-3 sm:p-5">
-                      <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <CardContent className="p-3 sm:p-5 min-w-0">
+                      <div className="flex items-start gap-2.5 sm:gap-4 min-w-0">
+                        <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           {passenger.passenger.avatar_url ? (
                             <img 
                               src={passenger.passenger.avatar_url} 
@@ -363,23 +363,23 @@ const ManagePassengers = () => {
                               className="w-full h-full rounded-full object-cover" 
                             />
                           ) : (
-                            <span className="text-lg sm:text-xl font-semibold text-primary">
+                            <span className="text-base sm:text-xl font-semibold text-primary">
                               {passenger.passenger.full_name.charAt(0)}
                             </span>
                           )}
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <h3 className="font-display font-semibold text-sm sm:text-base break-words">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                            <h3 className="font-display font-semibold text-[13px] sm:text-base break-words leading-tight">
                               {passenger.passenger.full_name}
                             </h3>
                             <RideBadge totalRides={passenger.passenger.total_rides} size="xs" />
                             <Badge 
                               variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
                               className={
-                                passenger.status === 'picked_up' ? 'bg-green-500 text-xs' : 
-                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white text-xs' : 'text-xs'
+                                passenger.status === 'picked_up' ? 'bg-green-500 text-[10px] sm:text-xs px-1.5 py-0' : 
+                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white text-[10px] sm:text-xs px-1.5 py-0' : 'text-[10px] sm:text-xs px-1.5 py-0'
                               }
                             >
                               {passenger.status === 'picked_up' ? 'Vyzdvihnutý' : 
@@ -387,19 +387,19 @@ const ManagePassengers = () => {
                             </Badge>
                           </div>
                           
-                          <p className="text-xs sm:text-sm text-muted-foreground mb-1">
+                          <p className="text-[11px] sm:text-sm text-muted-foreground mb-1">
                             ⭐ {passenger.passenger.rating?.toFixed(1) || '5.0'}
                           </p>
                           
-                          <div className="flex items-start gap-1 text-xs sm:text-sm">
-                            <MapPin className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <div className="flex items-start gap-1 text-[11px] sm:text-sm">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-muted-foreground break-words min-w-0">
                               <span className="font-medium text-foreground">Nastúpenie:</span> {passenger.pickup_address}
                             </span>
                           </div>
                           
-                          <div className="flex items-start gap-1 text-xs sm:text-sm mt-1">
-                            <MapPin className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                          <div className="flex items-start gap-1 text-[11px] sm:text-sm mt-1">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 flex-shrink-0 mt-0.5" />
                             <span className="text-muted-foreground break-words min-w-0">
                               <span className="font-medium text-foreground">Vystúpenie:</span>{' '}
                               {passenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}
@@ -407,7 +407,7 @@ const ManagePassengers = () => {
                           </div>
 
                           {passenger.message && (
-                            <div className="mt-2 p-2 rounded-lg bg-muted/50 text-xs sm:text-sm break-words">
+                            <div className="mt-2 p-2 rounded-lg bg-muted/50 text-[11px] sm:text-sm break-words">
                               <MessageCircle className="w-3 h-3 inline mr-1" />
                               {passenger.message}
                             </div>
@@ -415,11 +415,11 @@ const ManagePassengers = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mt-4">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
                         <Button
                           variant="hero"
                           size="sm"
-                          className="gap-2"
+                          className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3"
                           onClick={(e) => {
                             e.stopPropagation();
                             openNavigation(
@@ -429,7 +429,7 @@ const ManagePassengers = () => {
                             );
                           }}
                         >
-                          <NavIcon className="w-4 h-4" />
+                          <NavIcon className="w-3.5 h-3.5" />
                           Navigovať
                         </Button>
                         
@@ -437,13 +437,13 @@ const ManagePassengers = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="gap-2"
+                            className="gap-1.5 h-8 px-2.5 sm:h-9 sm:px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               window.open(`tel:${passenger.passenger.phone}`, '_self');
                             }}
                           >
-                            <Phone className="w-4 h-4" />
+                            <Phone className="w-3.5 h-3.5" />
                           </Button>
                         )}
 
@@ -451,13 +451,13 @@ const ManagePassengers = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-2 border-amber-500 text-amber-600 hover:bg-amber-50"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 border-amber-500 text-amber-600 hover:bg-amber-50"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleArrived(passenger.id, passenger.passenger.full_name);
                             }}
                           >
-                            <Bell className="w-4 h-4" />
+                            <Bell className="w-3.5 h-3.5" />
                             Som na mieste
                           </Button>
                         )}
@@ -465,13 +465,13 @@ const ManagePassengers = () => {
                         {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && (
                           <Button
                             size="sm"
-                            className="gap-2 bg-green-600 hover:bg-green-700"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-green-600 hover:bg-green-700"
                             onClick={(e) => {
                               e.stopPropagation();
                               handlePickup(passenger.id);
                             }}
                           >
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="w-3.5 h-3.5" />
                             Vyzdvihnutý
                           </Button>
                         )}
@@ -479,13 +479,13 @@ const ManagePassengers = () => {
                         {passenger.status === 'picked_up' && (
                           <Button
                             size="sm"
-                            className="gap-2 bg-blue-600 hover:bg-blue-700"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-blue-600 hover:bg-blue-700"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDropoff(passenger.id, passenger.passenger.full_name);
                             }}
                           >
-                            <LogOut className="w-4 h-4" />
+                            <LogOut className="w-3.5 h-3.5" />
                             Vystúpil
                           </Button>
                         )}
