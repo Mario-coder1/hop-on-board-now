@@ -50,6 +50,7 @@ const PassengerDashboard: React.FC = () => {
   const [searchFrom, setSearchFrom] = useState('');
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [qrOpen, setQrOpen] = useState(false);
 
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
