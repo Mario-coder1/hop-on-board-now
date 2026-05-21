@@ -478,18 +478,25 @@ const ManagePassengers = () => {
                           </Button>
                         )}
                         
-                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && (
+                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && !passenger.driver_confirmed_at && (
                           <Button
                             size="sm"
-                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-green-600 hover:bg-green-700"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-primary hover:bg-primary/90"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handlePickup(passenger.id);
+                              setPinDialogFor(passenger);
                             }}
                           >
-                            <CheckCircle className="w-3.5 h-3.5" />
-                            Vyzdvihnutý
+                            <KeyRound className="w-3.5 h-3.5" />
+                            Potvrdiť nástup
                           </Button>
+                        )}
+
+                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && passenger.driver_confirmed_at && !passenger.passenger_confirmed_at && (
+                          <Badge variant="secondary" className="text-[10px] sm:text-xs px-2 py-1">
+                            <CheckCircle className="w-3 h-3 mr-1 text-green-600" />
+                            Čakám na pasažiera
+                          </Badge>
                         )}
 
                         {passenger.status === 'picked_up' && (
@@ -502,7 +509,7 @@ const ManagePassengers = () => {
                             }}
                           >
                             <LogOut className="w-3.5 h-3.5" />
-                            Vystúpil
+                            Dokončiť jazdu
                           </Button>
                         )}
                       </div>
