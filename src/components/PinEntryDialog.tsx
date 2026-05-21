@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { KeyRound, Loader2 } from 'lucide-react';
+import { KeyRound, Loader2, ScanLine } from 'lucide-react';
+import QrScannerDialog from './QrScannerDialog';
 
 interface PinEntryDialogProps {
   open: boolean;
