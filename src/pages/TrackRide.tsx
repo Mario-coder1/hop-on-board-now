@@ -414,11 +414,24 @@ const TrackRide: React.FC = () => {
                         <span className="font-semibold">PIN overený vodičom</span>
                       </div>
                     ) : (
-                      <div className="text-5xl font-mono font-bold tracking-[0.4em] text-primary select-all">
-                        {rideRequest.pin_code}
-                      </div>
+                      <>
+                        <div className="text-5xl font-mono font-bold tracking-[0.4em] text-primary select-all">
+                          {rideRequest.pin_code}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-4 gap-2 rounded-full"
+                          onClick={() => setQrOpen(true)}
+                        >
+                          <QrCode className="w-4 h-4" />
+                          Zobraziť ako QR kód
+                        </Button>
+                      </>
                     )}
                   </div>
+
+                  <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={rideRequest.pin_code} />
 
                   {rideRequest.passenger_confirmed_at ? (
                     <div className="text-center text-sm text-green-600 flex items-center justify-center gap-1">
