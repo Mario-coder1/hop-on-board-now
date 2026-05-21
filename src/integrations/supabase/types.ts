@@ -461,16 +461,21 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           created_at: string
+          driver_confirmed_at: string | null
           driver_near_notified_at: string | null
           dropoff_address: string | null
           dropoff_lat: number | null
           dropoff_lng: number | null
           id: string
           message: string | null
+          passenger_confirmed_at: string | null
           passenger_id: string
           pickup_address: string
           pickup_lat: number
           pickup_lng: number
+          pin_code: string | null
+          pin_used: boolean
+          pin_verified_at: string | null
           ride_id: string
           status: Database["public"]["Enums"]["request_status"] | null
           updated_at: string
@@ -479,16 +484,21 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          driver_confirmed_at?: string | null
           driver_near_notified_at?: string | null
           dropoff_address?: string | null
           dropoff_lat?: number | null
           dropoff_lng?: number | null
           id?: string
           message?: string | null
+          passenger_confirmed_at?: string | null
           passenger_id: string
           pickup_address: string
           pickup_lat: number
           pickup_lng: number
+          pin_code?: string | null
+          pin_used?: boolean
+          pin_verified_at?: string | null
           ride_id: string
           status?: Database["public"]["Enums"]["request_status"] | null
           updated_at?: string
@@ -497,16 +507,21 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string
+          driver_confirmed_at?: string | null
           driver_near_notified_at?: string | null
           dropoff_address?: string | null
           dropoff_lat?: number | null
           dropoff_lng?: number | null
           id?: string
           message?: string | null
+          passenger_confirmed_at?: string | null
           passenger_id?: string
           pickup_address?: string
           pickup_lat?: number
           pickup_lng?: number
+          pin_code?: string | null
+          pin_used?: boolean
+          pin_verified_at?: string | null
           ride_id?: string
           status?: Database["public"]["Enums"]["request_status"] | null
           updated_at?: string
@@ -1144,6 +1159,10 @@ export type Database = {
           _title: string
         }
         Returns: undefined
+      }
+      verify_ride_request_pin: {
+        Args: { _pin: string; _request_id: string }
+        Returns: Json
       }
     }
     Enums: {

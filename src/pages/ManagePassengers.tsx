@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { PinEntryDialog } from '@/components/PinEntryDialog';
 
 interface AcceptedPassenger {
   id: string;
@@ -25,6 +26,9 @@ interface AcceptedPassenger {
   dropoff_lat: number | null;
   dropoff_lng: number | null;
   message: string | null;
+  pin_verified_at: string | null;
+  driver_confirmed_at: string | null;
+  passenger_confirmed_at: string | null;
   passenger: {
     id: string;
     full_name: string;
@@ -56,6 +60,7 @@ const ManagePassengers = () => {
   const [ride, setRide] = useState<RideInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPassenger, setSelectedPassenger] = useState<AcceptedPassenger | null>(null);
+  const [pinDialogFor, setPinDialogFor] = useState<AcceptedPassenger | null>(null);
 
   // Auto-complete ride when driver arrives at destination (within 50m)
   const { completeRide } = useAutoCompleteRide(
@@ -123,6 +128,7 @@ const ManagePassengers = () => {
       .from('ride_requests')
       .select(`
         id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
+        pin_verified_at, driver_confirmed_at, passenger_confirmed_at,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
       .eq('ride_id', rideId)
@@ -138,19 +144,29 @@ const ManagePassengers = () => {
     setLoading(false);
   };
 
-  const handlePickup = async (requestId: string) => {
-    const { error } = await supabase
+  // Auto-promote to picked_up once both driver and passenger have confirmed
+  const maybeActivate = async (requestId: string) => {
+    const { data } = await supabase
       .from('ride_requests')
-      .update({ status: 'picked_up' })
-      .eq('id', requestId);
+      .select('status, driver_confirmed_at, passenger_confirmed_at, pin_verified_at')
+      .eq('id', requestId)
+      .maybeSingle();
 
-    if (!error) {
-      toast({
-        title: 'Pasažier vyzdvihnutý',
-        description: 'Pasažier bol označený ako vyzdvihnutý.',
-      });
-      fetchRideAndPassengers();
+    if (
+      data &&
+      data.pin_verified_at &&
+      data.driver_confirmed_at &&
+      data.passenger_confirmed_at &&
+      data.status !== 'picked_up' &&
+      data.status !== 'completed'
+    ) {
+      await supabase.from('ride_requests').update({ status: 'picked_up' }).eq('id', requestId);
     }
+  };
+
+  const handlePinVerified = async (requestId: string) => {
+    await maybeActivate(requestId);
+    fetchRideAndPassengers();
   };
 
   const handleDropoff = async (requestId: string, passengerName: string) => {
@@ -462,18 +478,25 @@ const ManagePassengers = () => {
                           </Button>
                         )}
                         
-                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && (
+                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && !passenger.driver_confirmed_at && (
                           <Button
                             size="sm"
-                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-green-600 hover:bg-green-700"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-primary hover:bg-primary/90"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handlePickup(passenger.id);
+                              setPinDialogFor(passenger);
                             }}
                           >
-                            <CheckCircle className="w-3.5 h-3.5" />
-                            Vyzdvihnutý
+                            <KeyRound className="w-3.5 h-3.5" />
+                            Potvrdiť nástup
                           </Button>
+                        )}
+
+                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && passenger.driver_confirmed_at && !passenger.passenger_confirmed_at && (
+                          <Badge variant="secondary" className="text-[10px] sm:text-xs px-2 py-1">
+                            <CheckCircle className="w-3 h-3 mr-1 text-green-600" />
+                            Čakám na pasažiera
+                          </Badge>
                         )}
 
                         {passenger.status === 'picked_up' && (
@@ -486,7 +509,7 @@ const ManagePassengers = () => {
                             }}
                           >
                             <LogOut className="w-3.5 h-3.5" />
-                            Vystúpil
+                            Dokončiť jazdu
                           </Button>
                         )}
                       </div>
@@ -553,6 +576,16 @@ const ManagePassengers = () => {
           </div>
         </motion.div>
       </div>
+
+      {pinDialogFor && (
+        <PinEntryDialog
+          open={!!pinDialogFor}
+          onOpenChange={(o) => { if (!o) setPinDialogFor(null); }}
+          requestId={pinDialogFor.id}
+          passengerName={pinDialogFor.passenger?.full_name || 'Pasažier'}
+          onVerified={() => handlePinVerified(pinDialogFor.id)}
+        />
+      )}
     </div>
   );
 };
