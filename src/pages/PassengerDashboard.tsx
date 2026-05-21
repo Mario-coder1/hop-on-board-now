@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Users, Star, ArrowRight, Radio } from 'lucide-react';
+import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -11,6 +11,16 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+
+interface ActiveRequest {
+  id: string;
+  ride_id: string;
+  status: string;
+  pin_code: string | null;
+  pin_used: boolean;
+  pin_verified_at: string | null;
+  ride: { origin_address: string; destination_address: string } | null;
+}
 
 interface Ride {
   id: string;
@@ -40,7 +50,32 @@ const PassengerDashboard: React.FC = () => {
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
+
   useEffect(() => { fetchRides(); }, []);
+
+  useEffect(() => {
+    if (!profile) return;
+    fetchActiveRequest();
+    const channel = supabase
+      .channel('passenger-active-req')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ride_requests', filter: `passenger_id=eq.${profile.id}` }, () => fetchActiveRequest())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [profile]);
+
+  const fetchActiveRequest = async () => {
+    if (!profile) return;
+    const { data } = await supabase
+      .from('ride_requests')
+      .select('id, ride_id, status, pin_code, pin_used, pin_verified_at, ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)')
+      .eq('passenger_id', profile.id)
+      .in('status', ['accepted', 'driver_arrived'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setActiveRequest(data as unknown as ActiveRequest | null);
+  };
 
   const fetchRides = async () => {
     const { data, error } = await supabase
@@ -86,6 +121,39 @@ const PassengerDashboard: React.FC = () => {
             <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}?</span>
           </h1>
         </motion.div>
+
+        {/* ACTIVE RIDE PIN BANNER */}
+        {activeRequest && activeRequest.pin_code && !activeRequest.pin_used && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Link to={`/track-ride/${activeRequest.ride_id}`}>
+              <div className="card-ink rounded-2xl p-4 sm:p-5 flex items-center gap-4 active:scale-[0.99] transition-transform">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-5 h-5 text-background" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-1">
+                    {activeRequest.status === 'driver_arrived' ? 'Vodič je na mieste · ukáž PIN' : 'Tvoj PIN pre vodiča'}
+                  </p>
+                  <p className="display-mono text-3xl sm:text-4xl text-background tracking-[0.3em] leading-none">
+                    {activeRequest.pin_code}
+                  </p>
+                  {activeRequest.ride && (
+                    <p className="text-[11px] text-background/60 mt-2 truncate">
+                      {activeRequest.ride.origin_address} → {activeRequest.ride.destination_address}
+                    </p>
+                  )}
+                </div>
+                <ChevronRight className="w-5 h-5 text-background/70 shrink-0" />
+              </div>
+            </Link>
+          </motion.div>
+        )}
+
+
 
         {/* SEARCH BAR — flat hairline */}
         <motion.div
