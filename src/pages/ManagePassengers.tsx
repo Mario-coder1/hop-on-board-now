@@ -26,6 +26,9 @@ interface AcceptedPassenger {
   dropoff_lat: number | null;
   dropoff_lng: number | null;
   message: string | null;
+  pin_verified_at: string | null;
+  driver_confirmed_at: string | null;
+  passenger_confirmed_at: string | null;
   passenger: {
     id: string;
     full_name: string;
