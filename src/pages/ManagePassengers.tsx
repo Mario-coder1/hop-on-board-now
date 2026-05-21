@@ -128,6 +128,7 @@ const ManagePassengers = () => {
       .from('ride_requests')
       .select(`
         id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
+        pin_verified_at, driver_confirmed_at, passenger_confirmed_at,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
       .eq('ride_id', rideId)
@@ -143,19 +144,29 @@ const ManagePassengers = () => {
     setLoading(false);
   };
 
-  const handlePickup = async (requestId: string) => {
-    const { error } = await supabase
+  // Auto-promote to picked_up once both driver and passenger have confirmed
+  const maybeActivate = async (requestId: string) => {
+    const { data } = await supabase
       .from('ride_requests')
-      .update({ status: 'picked_up' })
-      .eq('id', requestId);
+      .select('status, driver_confirmed_at, passenger_confirmed_at, pin_verified_at')
+      .eq('id', requestId)
+      .maybeSingle();
 
-    if (!error) {
-      toast({
-        title: 'Pasažier vyzdvihnutý',
-        description: 'Pasažier bol označený ako vyzdvihnutý.',
-      });
-      fetchRideAndPassengers();
+    if (
+      data &&
+      data.pin_verified_at &&
+      data.driver_confirmed_at &&
+      data.passenger_confirmed_at &&
+      data.status !== 'picked_up' &&
+      data.status !== 'completed'
+    ) {
+      await supabase.from('ride_requests').update({ status: 'picked_up' }).eq('id', requestId);
     }
+  };
+
+  const handlePinVerified = async (requestId: string) => {
+    await maybeActivate(requestId);
+    fetchRideAndPassengers();
   };
 
   const handleDropoff = async (requestId: string, passengerName: string) => {
