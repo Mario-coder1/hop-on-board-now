@@ -60,6 +60,7 @@ const ManagePassengers = () => {
   const [ride, setRide] = useState<RideInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPassenger, setSelectedPassenger] = useState<AcceptedPassenger | null>(null);
+  const [pinDialogFor, setPinDialogFor] = useState<AcceptedPassenger | null>(null);
 
   // Auto-complete ride when driver arrives at destination (within 50m)
   const { completeRide } = useAutoCompleteRide(
