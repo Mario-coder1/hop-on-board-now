@@ -201,6 +201,36 @@ const TrackRide: React.FC = () => {
     setShowRatingDialog(false);
   };
 
+  const handleConfirmInVehicle = async () => {
+    if (!rideRequest) return;
+    if (!rideRequest.pin_verified_at || !rideRequest.driver_confirmed_at) {
+      toast({
+        title: 'Vodič ešte nepotvrdil nástup',
+        description: 'Ukážte vodičovi váš PIN, aby ho overil.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setConfirmingPresence(true);
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ passenger_confirmed_at: new Date().toISOString() })
+      .eq('id', rideRequest.id);
+
+    if (!error) {
+      // If everything confirmed, activate ride (picked_up)
+      await supabase
+        .from('ride_requests')
+        .update({ status: 'picked_up' })
+        .eq('id', rideRequest.id);
+      toast({ title: '✅ Potvrdené', description: 'Príjemnú cestu!' });
+      fetchRideRequest();
+    } else {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    }
+    setConfirmingPresence(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
