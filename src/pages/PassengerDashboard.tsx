@@ -122,6 +122,39 @@ const PassengerDashboard: React.FC = () => {
           </h1>
         </motion.div>
 
+        {/* ACTIVE RIDE PIN BANNER */}
+        {activeRequest && activeRequest.pin_code && !activeRequest.pin_used && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Link to={`/track-ride/${activeRequest.ride_id}`}>
+              <div className="card-ink rounded-2xl p-4 sm:p-5 flex items-center gap-4 active:scale-[0.99] transition-transform">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-5 h-5 text-background" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-1">
+                    {activeRequest.status === 'driver_arrived' ? 'Vodič je na mieste · ukáž PIN' : 'Tvoj PIN pre vodiča'}
+                  </p>
+                  <p className="display-mono text-3xl sm:text-4xl text-background tracking-[0.3em] leading-none">
+                    {activeRequest.pin_code}
+                  </p>
+                  {activeRequest.ride && (
+                    <p className="text-[11px] text-background/60 mt-2 truncate">
+                      {activeRequest.ride.origin_address} → {activeRequest.ride.destination_address}
+                    </p>
+                  )}
+                </div>
+                <ChevronRight className="w-5 h-5 text-background/70 shrink-0" />
+              </div>
+            </Link>
+          </motion.div>
+        )}
+
+
+
         {/* SEARCH BAR — flat hairline */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
