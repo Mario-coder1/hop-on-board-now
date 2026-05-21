@@ -48,11 +48,13 @@ const TrackRide: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [rideRequest, setRideRequest] = useState<RideRequest | null>(null);
   const [driver, setDriver] = useState<DriverInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
+  const [confirmingPresence, setConfirmingPresence] = useState(false);
   const previousStatus = useRef<string | null>(null);
 
   const fetchRideRequest = async () => {
@@ -67,6 +69,10 @@ const TrackRide: React.FC = () => {
         pickup_lat,
         pickup_lng,
         pickup_address,
+        pin_code,
+        pin_verified_at,
+        driver_confirmed_at,
+        passenger_confirmed_at,
         ride:rides!inner (
           id,
           destination_lat,
