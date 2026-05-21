@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
@@ -29,6 +30,10 @@ interface RideRequest {
   pickup_lat: number;
   pickup_lng: number;
   pickup_address: string;
+  pin_code: string | null;
+  pin_verified_at: string | null;
+  driver_confirmed_at: string | null;
+  passenger_confirmed_at: string | null;
   ride: {
     id: string;
     destination_lat: number;
