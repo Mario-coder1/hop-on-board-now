@@ -390,6 +390,64 @@ const TrackRide: React.FC = () => {
               </div>
             </div>
 
+            {/* PIN verification block — show while ride not yet active */}
+            {(rideRequest.status === 'accepted' || rideRequest.status === 'driver_arrived') && rideRequest.pin_code && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 pt-6 border-t border-border"
+              >
+                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 p-5">
+                  <div className="flex items-center gap-2 mb-2 text-primary">
+                    <KeyRound className="w-5 h-5" />
+                    <h3 className="font-semibold">Váš PIN pre vodiča</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Ukážte tento PIN vodičovi. Po jeho zadaní a potvrdení nástupu kliknite na „Som vo vozidle".
+                  </p>
+                  <div className="text-center py-4">
+                    {rideRequest.pin_verified_at ? (
+                      <div className="inline-flex items-center gap-2 text-green-600">
+                        <CheckCircle className="w-6 h-6" />
+                        <span className="font-semibold">PIN overený vodičom</span>
+                      </div>
+                    ) : (
+                      <div className="text-5xl font-mono font-bold tracking-[0.4em] text-primary select-all">
+                        {rideRequest.pin_code}
+                      </div>
+                    )}
+                  </div>
+
+                  {rideRequest.passenger_confirmed_at ? (
+                    <div className="text-center text-sm text-green-600 flex items-center justify-center gap-1">
+                      <CheckCircle className="w-4 h-4" />
+                      Potvrdili ste nástup — čaká sa na začiatok jazdy
+                    </div>
+                  ) : (
+                    <Button
+                      variant="hero"
+                      className="w-full gap-2"
+                      onClick={handleConfirmInVehicle}
+                      disabled={confirmingPresence || !rideRequest.driver_confirmed_at}
+                    >
+                      {confirmingPresence ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                      {rideRequest.driver_confirmed_at ? 'Som vo vozidle' : 'Čakám na vodiča...'}
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {rideRequest.status === 'picked_up' && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-center">
+                  <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <p className="font-semibold text-green-600">Jazda prebieha</p>
+                  <p className="text-sm text-muted-foreground">Ste vo vozidle — príjemnú cestu!</p>
+                </div>
+              </div>
+            )}
+
             {/* Completed Status */}
             {rideRequest.status === 'completed' && (
               <motion.div
