@@ -50,7 +50,32 @@ const PassengerDashboard: React.FC = () => {
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
+
   useEffect(() => { fetchRides(); }, []);
+
+  useEffect(() => {
+    if (!profile) return;
+    fetchActiveRequest();
+    const channel = supabase
+      .channel('passenger-active-req')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ride_requests', filter: `passenger_id=eq.${profile.id}` }, () => fetchActiveRequest())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [profile]);
+
+  const fetchActiveRequest = async () => {
+    if (!profile) return;
+    const { data } = await supabase
+      .from('ride_requests')
+      .select('id, ride_id, status, pin_code, pin_used, pin_verified_at, ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)')
+      .eq('passenger_id', profile.id)
+      .in('status', ['accepted', 'driver_arrived'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setActiveRequest(data as unknown as ActiveRequest | null);
+  };
 
   const fetchRides = async () => {
     const { data, error } = await supabase
