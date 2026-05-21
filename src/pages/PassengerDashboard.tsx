@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Users, Star, ArrowRight, Radio } from 'lucide-react';
+import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -11,6 +11,16 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+
+interface ActiveRequest {
+  id: string;
+  ride_id: string;
+  status: string;
+  pin_code: string | null;
+  pin_used: boolean;
+  pin_verified_at: string | null;
+  ride: { origin_address: string; destination_address: string } | null;
+}
 
 interface Ride {
   id: string;
