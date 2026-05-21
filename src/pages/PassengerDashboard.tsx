@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight } from 'lucide-react';
+import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight, QrCode } from 'lucide-react';
+import PinQrDialog from '@/components/PinQrDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
