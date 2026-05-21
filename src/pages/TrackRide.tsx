@@ -56,6 +56,7 @@ const TrackRide: React.FC = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [confirmingPresence, setConfirmingPresence] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const previousStatus = useRef<string | null>(null);
 
   const fetchRideRequest = async () => {
