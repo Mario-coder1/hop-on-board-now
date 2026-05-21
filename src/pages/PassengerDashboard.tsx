@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight } from 'lucide-react';
+import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight, QrCode } from 'lucide-react';
+import PinQrDialog from '@/components/PinQrDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -49,6 +50,7 @@ const PassengerDashboard: React.FC = () => {
   const [searchFrom, setSearchFrom] = useState('');
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [qrOpen, setQrOpen] = useState(false);
 
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
@@ -129,8 +131,8 @@ const PassengerDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Link to={`/track-ride/${activeRequest.ride_id}`}>
-              <div className="card-ink rounded-2xl p-4 sm:p-5 flex items-center gap-4 active:scale-[0.99] transition-transform">
+            <div className="card-ink rounded-2xl p-4 sm:p-5">
+              <div className="flex items-center gap-4">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
                   <KeyRound className="w-5 h-5 text-background" />
                 </div>
@@ -147,11 +149,33 @@ const PassengerDashboard: React.FC = () => {
                     </p>
                   )}
                 </div>
-                <ChevronRight className="w-5 h-5 text-background/70 shrink-0" />
               </div>
-            </Link>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="flex-1 gap-2 rounded-full"
+                  onClick={() => setQrOpen(true)}
+                >
+                  <QrCode className="w-4 h-4" />
+                  Zobraziť QR
+                </Button>
+                <Link to={`/track-ride/${activeRequest.ride_id}`} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full gap-1 rounded-full bg-transparent border-background/30 text-background hover:bg-background/10 hover:text-background">
+                    Detail
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </motion.div>
         )}
+
+        {activeRequest?.pin_code && (
+          <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={activeRequest.pin_code} />
+        )}
+
+
 
 
 
