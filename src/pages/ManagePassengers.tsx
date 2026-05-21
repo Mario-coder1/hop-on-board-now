@@ -576,6 +576,16 @@ const ManagePassengers = () => {
           </div>
         </motion.div>
       </div>
+
+      {pinDialogFor && (
+        <PinEntryDialog
+          open={!!pinDialogFor}
+          onOpenChange={(o) => { if (!o) setPinDialogFor(null); }}
+          requestId={pinDialogFor.id}
+          passengerName={pinDialogFor.passenger?.full_name || 'Pasažier'}
+          onVerified={() => handlePinVerified(pinDialogFor.id)}
+        />
+      )}
     </div>
   );
 };
