@@ -273,25 +273,25 @@ const TrackRide: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32 md:pb-8">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-3 sm:space-y-6"
         >
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/my-trips">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 shrink-0">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold">Sledovanie jazdy</h1>
-              <p className="text-muted-foreground">
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">Sledovanie jazdy</h1>
+              <p className="text-xs sm:text-base text-muted-foreground truncate">
                 {rideRequest.status === 'accepted' && 'Vodič je na ceste'}
                 {rideRequest.status === 'picked_up' && 'Ste na ceste k cieľu'}
                 {rideRequest.status === 'completed' && 'Jazda dokončená'}
@@ -310,7 +310,7 @@ const TrackRide: React.FC = () => {
               lat: Number(ride.destination_lat),
               lng: Number(ride.destination_lng)
             }}
-            className="h-[50vh] rounded-2xl overflow-hidden"
+            className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
           />
 
           {/* Driver Info Card */}
@@ -318,7 +318,7 @@ const TrackRide: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-card rounded-2xl p-6 border border-border"
+            className="bg-card rounded-2xl p-4 sm:p-6 border border-border"
           >
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
