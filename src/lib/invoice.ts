@@ -54,8 +54,16 @@ function fmtMoney(n: number, currency: string): string {
   return `${n.toFixed(2)} ${symbol}`;
 }
 
+const VAT_RATE = 0.23; // SK štandardná sadzba DPH 23 %
+
 function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
-  const total = fmtMoney(data.amount, data.currency);
+  const gross = data.amount;
+  const base = Math.round((gross / (1 + VAT_RATE)) * 100) / 100;
+  const vat = Math.round((gross - base) * 100) / 100;
+  const totalGross = fmtMoney(gross, data.currency);
+  const totalBase = fmtMoney(base, data.currency);
+  const totalVat = fmtMoney(vat, data.currency);
+
 
   return {
     pageSize: 'A4',
@@ -141,11 +149,13 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
       // ── Service table ───────────────────────────────────────────
       {
         table: {
-          widths: ['*', 'auto'],
+          widths: ['*', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'POPIS SLUŽBY', style: 'tableHead', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
-              { text: 'SUMA', style: 'tableHead', alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
+              { text: 'ZÁKLAD', style: 'tableHead', alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
+              { text: 'DPH 23 %', style: 'tableHead', alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
+              { text: 'SPOLU', style: 'tableHead', alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
             ],
             [
               {
@@ -158,15 +168,9 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
                   { text: `Vodič: ${data.driverName}`, color: MUTED, margin: [0, 2, 0, 0] },
                 ],
               },
-              {
-                text: total,
-                alignment: 'right',
-                bold: true,
-                fontSize: 12,
-                border: [false, false, false, true],
-                borderColor: [LINE, LINE, LINE, LINE],
-                margin: [0, 10, 0, 10],
-              },
+              { text: totalBase, alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
+              { text: totalVat, alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
+              { text: totalGross, alignment: 'right', bold: true, fontSize: 12, border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
             ],
           ],
         },
@@ -175,7 +179,26 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
           hLineColor: () => LINE,
           hLineWidth: () => 0.7,
         },
-        margin: [0, 0, 0, 18],
+        margin: [0, 0, 0, 12],
+      },
+
+      // ── VAT recap ───────────────────────────────────────────────
+      {
+        columns: [
+          { text: '', width: '*' },
+          {
+            width: 'auto',
+            table: {
+              widths: ['auto', 'auto'],
+              body: [
+                [{ text: 'Základ DPH', color: MUTED }, { text: totalBase, alignment: 'right' }],
+                [{ text: 'DPH 23 %', color: MUTED }, { text: totalVat, alignment: 'right' }],
+              ],
+            },
+            layout: 'noBorders',
+          },
+        ],
+        margin: [0, 0, 0, 14],
       },
 
       // ── Total card ───────────────────────────────────────────────
@@ -189,9 +212,9 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
             columns: [
               { stack: [
                 { text: 'CELKOM K ÚHRADE', style: 'label' },
-                { text: 'Uhradené online kartou', color: MUTED, fontSize: 9, margin: [0, 2, 0, 0] },
+                { text: 'Uhradené online kartou · vrátane DPH', color: MUTED, fontSize: 9, margin: [0, 2, 0, 0] },
               ]},
-              { width: 'auto', stack: [{ text: total, style: 'totalValue', alignment: 'right' }] },
+              { width: 'auto', stack: [{ text: totalGross, style: 'totalValue', alignment: 'right' }] },
             ],
           }]],
         },
@@ -199,7 +222,7 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
       },
 
       {
-        text: 'Dodávateľ nie je platiteľ DPH v zmysle §4 zákona o DPH.',
+        text: `Dodávateľ je platiteľ DPH. IČ DPH: ${ISSUER.icDph}. Sadzba DPH 23 % v zmysle zákona č. 222/2004 Z. z. o DPH.`,
         style: 'footer',
         margin: [0, 18, 0, 0],
       },
