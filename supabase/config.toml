@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.send-mass-push]
 verify_jwt = false
+
+[functions.create-ride-payment]
+verify_jwt = false
+
+[functions.payments-webhook]
+verify_jwt = false
+
+[functions.refund-ride-payment]
+verify_jwt = false
