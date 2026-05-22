@@ -28,6 +28,17 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
       window.navigator.standalone === true);
   const isSecure = typeof window !== 'undefined' && (window.isSecureContext || location.hostname === 'localhost');
 
+  const getPreferredCameraId = async () => {
+    const cameras = await Html5Qrcode.getCameras();
+    if (!cameras.length) return null;
+
+    const backCamera = cameras.find((camera) =>
+      /back|rear|environment|zadn|hlavn/i.test(camera.label || '')
+    );
+
+    return (backCamera || cameras[cameras.length - 1] || cameras[0]).id;
+  };
+
   const stop = async () => {
     const s = scannerRef.current;
     scannerRef.current = null;
@@ -53,8 +64,9 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
     }
     setPerm('requesting');
     try {
+      await stop();
       // Explicit getUserMedia call triggered by user tap — this is the moment iOS/Android shows the permission prompt.
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       // Immediately stop this probe stream — html5-qrcode will open its own.
       stream.getTracks().forEach((t) => t.stop());
       setPerm('granted');
@@ -67,8 +79,11 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
 
       const scanner = new Html5Qrcode(elementId, { verbose: false });
       scannerRef.current = scanner;
+      const cameraId = await getPreferredCameraId();
+      if (!cameraId) throw new Error('Nenašla sa žiadna kamera.');
+
       await scanner.start(
-        { facingMode: { ideal: 'environment' } },
+        cameraId,
         {
           fps: 15,
           qrbox: { width: box, height: box },
@@ -99,9 +114,12 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
       } else if (name === 'NotFoundError') {
         setPerm('denied');
         setErrorMsg('Nenašla sa žiadna kamera.');
+      } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+        setPerm('denied');
+        setErrorMsg('Kamera je pravdepodobne otvorená v inej aplikácii. Zatvor ju a skús znova.');
       } else {
         setPerm('denied');
-        setErrorMsg(e?.message || 'Kameru sa nepodarilo spustiť.');
+        setErrorMsg(typeof e === 'string' ? e : e?.message || 'Kameru sa nepodarilo spustiť.');
       }
     }
   };
