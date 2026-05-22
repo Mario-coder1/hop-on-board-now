@@ -748,6 +748,13 @@ const RideDetail = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <CancellationDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        onConfirm={handleCancelRequest}
+        loading={cancelling}
+      />
     </div>
   );
 };
