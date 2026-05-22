@@ -132,6 +132,48 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          bank_iban: string | null
+          created_at: string
+          driver_id: string
+          id: string
+          note: string | null
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          bank_iban?: string | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          bank_iban?: string | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           description: string | null
@@ -458,72 +500,108 @@ export type Database = {
       }
       ride_requests: {
         Row: {
+          amount_paid: number | null
           cancellation_reason: string | null
           cancelled_at: string | null
+          commission_amount: number | null
           created_at: string
+          currency: string | null
           driver_confirmed_at: string | null
           driver_near_notified_at: string | null
+          driver_payout_amount: number | null
           dropoff_address: string | null
           dropoff_lat: number | null
           dropoff_lng: number | null
           id: string
           message: string | null
+          paid_at: string | null
           passenger_confirmed_at: string | null
           passenger_id: string
+          payment_status: string
+          payout_released_at: string | null
           pickup_address: string
           pickup_lat: number
           pickup_lng: number
           pin_code: string | null
           pin_used: boolean
           pin_verified_at: string | null
+          price_per_seat_snapshot: number | null
+          refunded_at: string | null
           ride_id: string
           status: Database["public"]["Enums"]["request_status"] | null
+          stripe_payment_intent_id: string | null
+          stripe_refund_id: string | null
+          stripe_session_id: string | null
           updated_at: string
         }
         Insert: {
+          amount_paid?: number | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          commission_amount?: number | null
           created_at?: string
+          currency?: string | null
           driver_confirmed_at?: string | null
           driver_near_notified_at?: string | null
+          driver_payout_amount?: number | null
           dropoff_address?: string | null
           dropoff_lat?: number | null
           dropoff_lng?: number | null
           id?: string
           message?: string | null
+          paid_at?: string | null
           passenger_confirmed_at?: string | null
           passenger_id: string
+          payment_status?: string
+          payout_released_at?: string | null
           pickup_address: string
           pickup_lat: number
           pickup_lng: number
           pin_code?: string | null
           pin_used?: boolean
           pin_verified_at?: string | null
+          price_per_seat_snapshot?: number | null
+          refunded_at?: string | null
           ride_id: string
           status?: Database["public"]["Enums"]["request_status"] | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Update: {
+          amount_paid?: number | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          commission_amount?: number | null
           created_at?: string
+          currency?: string | null
           driver_confirmed_at?: string | null
           driver_near_notified_at?: string | null
+          driver_payout_amount?: number | null
           dropoff_address?: string | null
           dropoff_lat?: number | null
           dropoff_lng?: number | null
           id?: string
           message?: string | null
+          paid_at?: string | null
           passenger_confirmed_at?: string | null
           passenger_id?: string
+          payment_status?: string
+          payout_released_at?: string | null
           pickup_address?: string
           pickup_lat?: number
           pickup_lng?: number
           pin_code?: string | null
           pin_used?: boolean
           pin_verified_at?: string | null
+          price_per_seat_snapshot?: number | null
+          refunded_at?: string | null
           ride_id?: string
           status?: Database["public"]["Enums"]["request_status"] | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1053,6 +1131,7 @@ export type Database = {
           balance: number
           created_at: string
           id: string
+          pending_payout_amount: number
           profile_id: string
           updated_at: string
         }
@@ -1060,6 +1139,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          pending_payout_amount?: number
           profile_id: string
           updated_at?: string
         }
@@ -1067,6 +1147,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          pending_payout_amount?: number
           profile_id?: string
           updated_at?: string
         }
