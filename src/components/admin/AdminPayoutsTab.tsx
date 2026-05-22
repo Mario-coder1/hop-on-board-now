@@ -54,6 +54,7 @@ const AdminPayoutsTab = () => {
       supabase
         .from('payout_requests')
         .select('*')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false }),
       supabase
         .from('ride_requests')
