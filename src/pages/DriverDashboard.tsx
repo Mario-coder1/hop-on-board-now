@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface Ride {
   id: string;
