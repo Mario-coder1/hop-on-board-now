@@ -14,6 +14,7 @@ import { RatingDialog } from '@/components/RatingDialog';
 import { ReportDialog } from '@/components/ReportDialog';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import SEO from '@/components/SEO';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface Trip {
   id: string;
