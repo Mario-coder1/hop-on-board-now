@@ -106,6 +106,9 @@ const RideDetail = () => {
 
   const [hasRequested, setHasRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
   const [stops, setStops] = useState<RideStop[]>([]);
