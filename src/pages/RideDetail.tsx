@@ -660,6 +660,23 @@ const RideDetail = () => {
           </div>
         </motion.div>
       </main>
+
+      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Zaplatiť rezerváciu ({ride?.price_per_seat} €)</DialogTitle>
+          </DialogHeader>
+          {ride && pickup.lat !== 0 && (
+            <RidePaymentCheckout
+              rideId={ride.id}
+              pickup={pickup}
+              dropoff={dropoff.lat ? dropoff : {}}
+              message={message}
+              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
