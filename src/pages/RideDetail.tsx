@@ -99,6 +99,7 @@ const RideDetail = () => {
 
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState('');
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [hasRequested, setHasRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
