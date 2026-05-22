@@ -54,8 +54,16 @@ function fmtMoney(n: number, currency: string): string {
   return `${n.toFixed(2)} ${symbol}`;
 }
 
+const VAT_RATE = 0.23; // SK štandardná sadzba DPH 23 %
+
 function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
-  const total = fmtMoney(data.amount, data.currency);
+  const gross = data.amount;
+  const base = Math.round((gross / (1 + VAT_RATE)) * 100) / 100;
+  const vat = Math.round((gross - base) * 100) / 100;
+  const totalGross = fmtMoney(gross, data.currency);
+  const totalBase = fmtMoney(base, data.currency);
+  const totalVat = fmtMoney(vat, data.currency);
+
 
   return {
     pageSize: 'A4',
