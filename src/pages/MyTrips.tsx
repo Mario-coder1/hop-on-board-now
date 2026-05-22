@@ -14,6 +14,7 @@ import { RatingDialog } from '@/components/RatingDialog';
 import { ReportDialog } from '@/components/ReportDialog';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import SEO from '@/components/SEO';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface Trip {
   id: string;
@@ -138,6 +139,15 @@ const MyTrips = () => {
         .from('rides')
         .update({ available_seats: cancellingTrip.ride.available_seats + 1 })
         .eq('id', cancellingTrip.ride_id);
+    }
+
+    // Auto-refund the passenger if they paid
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: cancellingTrip.id, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
     }
 
     // Send push notification to driver

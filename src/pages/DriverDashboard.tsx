@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface Ride {
   id: string;
@@ -105,6 +106,16 @@ const DriverDashboard: React.FC = () => {
       if (ride && ride.available_seats > 0) {
         await supabase.from('rides').update({ available_seats: ride.available_seats - 1 }).eq('id', request.ride_id);
         setRides(prev => prev.map(r => r.id === request.ride_id ? { ...r, available_seats: r.available_seats - 1 } : r));
+      }
+    }
+    if (action === 'rejected') {
+      // Auto-refund the passenger
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment() },
+        });
+      } catch (e) {
+        console.error('refund error', e);
       }
     }
     fetchData();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2, Wallet as WalletIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -686,6 +686,23 @@ const Profile = () => {
               Napísať na WhatsApp
             </a>
           </div>
+
+          {/* Wallet */}
+          <Link
+            to="/wallet"
+            className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-between hover:from-primary/15 hover:to-primary/10 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+                <WalletIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-semibold">Moja peňaženka</div>
+                <div className="text-xs text-muted-foreground">Zostatok, transakcie, výplaty</div>
+              </div>
+            </div>
+            <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
+          </Link>
 
           {/* Legal Links */}
           <div className="p-6 rounded-2xl bg-card border border-border mt-6">

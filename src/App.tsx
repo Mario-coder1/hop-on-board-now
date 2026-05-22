@@ -41,6 +41,7 @@ const RidesIndex = lazy(() => import("./pages/RidesIndex"));
 const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
 const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
 const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
+const Wallet = lazy(() => import("./pages/Wallet"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,6 +112,7 @@ const AppRoutes = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
+            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
