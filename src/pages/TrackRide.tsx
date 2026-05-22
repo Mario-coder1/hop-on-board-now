@@ -273,25 +273,25 @@ const TrackRide: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32 md:pb-8">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-3 sm:space-y-6"
         >
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/my-trips">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 shrink-0">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold">Sledovanie jazdy</h1>
-              <p className="text-muted-foreground">
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">Sledovanie jazdy</h1>
+              <p className="text-xs sm:text-base text-muted-foreground truncate">
                 {rideRequest.status === 'accepted' && 'Vodič je na ceste'}
                 {rideRequest.status === 'picked_up' && 'Ste na ceste k cieľu'}
                 {rideRequest.status === 'completed' && 'Jazda dokončená'}
@@ -310,7 +310,7 @@ const TrackRide: React.FC = () => {
               lat: Number(ride.destination_lat),
               lng: Number(ride.destination_lng)
             }}
-            className="h-[50vh] rounded-2xl overflow-hidden"
+            className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
           />
 
           {/* Driver Info Card */}
@@ -318,7 +318,7 @@ const TrackRide: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-card rounded-2xl p-6 border border-border"
+            className="bg-card rounded-2xl p-4 sm:p-6 border border-border"
           >
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
@@ -397,31 +397,31 @@ const TrackRide: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 pt-6 border-t border-border"
+                className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border"
               >
-                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 p-5">
-                  <div className="flex items-center gap-2 mb-2 text-primary">
-                    <KeyRound className="w-5 h-5" />
-                    <h3 className="font-semibold">Váš PIN pre vodiča</h3>
+                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 p-3 sm:p-5">
+                  <div className="flex items-center gap-2 mb-1.5 text-primary">
+                    <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <h3 className="font-semibold text-sm sm:text-base">Váš PIN pre vodiča</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Ukážte tento PIN vodičovi. Po jeho zadaní a potvrdení nástupu kliknite na „Som vo vozidle".
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
+                    Ukážte PIN vodičovi. Po potvrdení nástupu kliknite na „Som vo vozidle".
                   </p>
-                  <div className="text-center py-4">
+                  <div className="text-center py-2 sm:py-4">
                     {rideRequest.pin_verified_at ? (
                       <div className="inline-flex items-center gap-2 text-green-600">
-                        <CheckCircle className="w-6 h-6" />
-                        <span className="font-semibold">PIN overený vodičom</span>
+                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <span className="font-semibold text-sm sm:text-base">PIN overený vodičom</span>
                       </div>
                     ) : (
                       <>
-                        <div className="text-5xl font-mono font-bold tracking-[0.4em] text-primary select-all">
+                        <div className="text-3xl sm:text-5xl font-mono font-bold tracking-[0.3em] sm:tracking-[0.4em] text-primary select-all">
                           {rideRequest.pin_code}
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="mt-4 gap-2 rounded-full"
+                          className="mt-2 sm:mt-4 gap-2 rounded-full"
                           onClick={() => setQrOpen(true)}
                         >
                           <QrCode className="w-4 h-4" />
@@ -434,9 +434,9 @@ const TrackRide: React.FC = () => {
                   <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={rideRequest.pin_code} />
 
                   {rideRequest.passenger_confirmed_at ? (
-                    <div className="text-center text-sm text-green-600 flex items-center justify-center gap-1">
+                    <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
                       <CheckCircle className="w-4 h-4" />
-                      Potvrdili ste nástup — čaká sa na začiatok jazdy
+                      Potvrdili ste nástup — čaká sa na začiatok
                     </div>
                   ) : (
                     <Button
@@ -452,6 +452,7 @@ const TrackRide: React.FC = () => {
                 </div>
               </motion.div>
             )}
+
 
             {rideRequest.status === 'picked_up' && (
               <div className="mt-6 pt-6 border-t border-border">
