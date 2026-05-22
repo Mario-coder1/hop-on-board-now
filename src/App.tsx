@@ -79,6 +79,7 @@ const AppRoutes = () => {
   return (
     <>
       <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
+      <PaymentTestModeBanner />
       <NotificationListener />
       <ActiveRideFAB />
       <IOSInstallPrompt />
