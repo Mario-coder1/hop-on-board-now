@@ -40,6 +40,7 @@ const Komunity = lazy(() => import("./pages/Komunity"));
 const RidesIndex = lazy(() => import("./pages/RidesIndex"));
 const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
 const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
+const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
