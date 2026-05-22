@@ -736,11 +736,19 @@ const Admin = () => {
               <BarChart3 className="w-4 h-4" />
               Návštevnosť
             </TabsTrigger>
+            <TabsTrigger value="payouts" className="gap-2">
+              <Wallet className="w-4 h-4" />
+              Platby
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
               Nastavenia
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="payouts" className="space-y-4">
+            <AdminPayoutsTab />
+          </TabsContent>
 
           <TabsContent value="visitors" className="space-y-4">
             <VisitorsStats />
