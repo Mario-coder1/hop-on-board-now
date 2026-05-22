@@ -14,6 +14,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
+import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 
 // Lazy-load all non-critical routes for faster initial load
 const Auth = lazy(() => import("./pages/Auth"));
