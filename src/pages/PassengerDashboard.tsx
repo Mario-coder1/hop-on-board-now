@@ -115,14 +115,15 @@ const PassengerDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 sm:mb-10"
+          className="mb-4 sm:mb-10"
         >
           <p className="section-label mb-2">Pasažier · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
-          <h1 className="text-[34px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
+          <h1 className="text-[26px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
             Kam dnes,<br />
             <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}?</span>
           </h1>
         </motion.div>
+
 
         {/* ACTIVE RIDE PIN BANNER */}
         {activeRequest && activeRequest.pin_code && !activeRequest.pin_used && (
@@ -229,7 +230,7 @@ const PassengerDashboard: React.FC = () => {
             <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{filteredRides.length} aktívnych</span>
           </div>
           <div className="card-mono overflow-hidden">
-            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={7} preferStatic />
+            <Map className="h-[200px] sm:h-[360px]" markers={mapMarkers} zoom={7} preferStatic />
           </div>
         </motion.div>
 
@@ -279,9 +280,9 @@ const PassengerDashboard: React.FC = () => {
                     transition={{ delay: 0.04 * Math.min(index, 8) }}
                   >
                     <Link to={`/ride/${ride.id}`}>
-                      <div className="card-mono hover:border-foreground/40 transition-all p-5 cursor-pointer group">
+                      <div className="card-mono hover:border-foreground/40 transition-all p-3.5 sm:p-5 cursor-pointer group">
                         {/* Top: date + LIVE + price */}
-                        <div className="flex items-center justify-between mb-4 gap-2">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
                           <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
                             <span className="tabular-nums uppercase tracking-wider font-medium shrink-0">{date}</span>
                             {ride.status === 'in_progress' && (
@@ -291,30 +292,30 @@ const PassengerDashboard: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <span className="display-mono text-2xl text-foreground leading-none shrink-0">
-                            {ride.price_per_seat}<span className="text-base text-muted-foreground">€</span>
+                          <span className="display-mono text-xl sm:text-2xl text-foreground leading-none shrink-0">
+                            {ride.price_per_seat}<span className="text-sm sm:text-base text-muted-foreground">€</span>
                           </span>
                         </div>
 
                         {/* Route */}
-                        <div className="flex gap-3.5">
+                        <div className="flex gap-3">
                           <div className="flex flex-col items-center pt-1">
                             <span className="text-xs font-mono font-semibold tabular-nums">{time}</span>
                             <div className="flex flex-col items-center flex-1 my-1.5">
                               <div className="w-2 h-2 rounded-full bg-foreground" />
-                              <div className="w-px flex-1 min-h-[24px] bg-border my-1" />
+                              <div className="w-px flex-1 min-h-[18px] bg-border my-1" />
                               <div className="w-2 h-2 rounded-full border border-foreground" />
                             </div>
                           </div>
                           <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
-                            <div className="truncate font-semibold text-sm tracking-tight">{ride.origin_address}</div>
-                            <div className="h-5" />
-                            <div className="truncate font-semibold text-sm tracking-tight">{ride.destination_address}</div>
+                            <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.origin_address}</div>
+                            <div className="h-4 sm:h-5" />
+                            <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.destination_address}</div>
                           </div>
                         </div>
 
                         {/* Footer */}
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border gap-2">
+                        <div className="flex items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center text-foreground font-semibold text-xs shrink-0 overflow-hidden">
                               {ride.driver?.avatar_url ? (
@@ -343,6 +344,7 @@ const PassengerDashboard: React.FC = () => {
                           </div>
                         </div>
                       </div>
+
                     </Link>
                   </motion.div>
                 );
