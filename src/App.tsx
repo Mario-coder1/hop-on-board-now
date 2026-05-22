@@ -112,6 +112,7 @@ const AppRoutes = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
+            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
