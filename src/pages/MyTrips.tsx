@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, Navigation as NavigationIcon, X } from 'lucide-react';
+import { Search, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, Navigation as NavigationIcon, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,6 +15,7 @@ import { ReportDialog } from '@/components/ReportDialog';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import SEO from '@/components/SEO';
 import { getStripeEnvironment } from '@/lib/stripe';
+import { buildInvoiceNumber, downloadInvoice } from '@/lib/invoice';
 
 interface Trip {
   id: string;
@@ -22,6 +23,11 @@ interface Trip {
   pickup_address: string;
   created_at: string;
   ride_id: string;
+  payment_status?: string | null;
+  amount_paid?: number | null;
+  paid_at?: string | null;
+  currency?: string | null;
+  refunded_at?: string | null;
   ride: {
     id: string;
     origin_address: string;
@@ -370,6 +376,32 @@ const MyTrips = () => {
                               rideId={ride.id}
                             />
                           </>
+                        )}
+                        {trip.payment_status === 'paid' && !trip.refunded_at && trip.amount_paid && trip.paid_at && ride && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 h-8 px-2.5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const paidAt = new Date(trip.paid_at!);
+                              downloadInvoice({
+                                invoiceNumber: buildInvoiceNumber(trip.id, paidAt),
+                                issueDate: paidAt,
+                                paidAt,
+                                amount: Number(trip.amount_paid),
+                                currency: trip.currency || 'eur',
+                                passengerName: profile?.full_name || 'Pasažier',
+                                driverName: driverName,
+                                origin: ride.origin_address,
+                                destination: ride.destination_address,
+                                rideDate: new Date(ride.departure_time),
+                              });
+                            }}
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Faktúra</span>
+                          </Button>
                         )}
                       </div>
                     </div>
