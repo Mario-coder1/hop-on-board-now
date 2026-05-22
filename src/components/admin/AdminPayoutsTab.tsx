@@ -97,28 +97,7 @@ const AdminPayoutsTab = () => {
       return;
     }
 
-    // Adjust wallet
-    const { data: wallet } = await supabase
-      .from('wallets').select('id, balance, pending_payout_amount')
-      .eq('profile_id', payout.driver_id).maybeSingle();
-
-    if (wallet) {
-      const amt = Number(payout.amount);
-      const newPending = Math.max(0, Number(wallet.pending_payout_amount) - amt);
-      if (action === 'paid') {
-        await supabase.from('wallets').update({
-          balance: Number(wallet.balance) - amt,
-          pending_payout_amount: newPending,
-        }).eq('id', wallet.id);
-        await supabase.from('transactions').insert({
-          wallet_id: wallet.id, type: 'payout', amount: -amt,
-          description: 'Výplata na účet (admin)',
-        });
-      } else {
-        await supabase.from('wallets').update({ pending_payout_amount: newPending }).eq('id', wallet.id);
-      }
-    }
-
+    // Wallet adjustments are handled automatically by DB trigger
     toast({ title: action === 'paid' ? 'Vyplatené' : 'Zamietnuté' });
     setActionDialog(null);
     setAdminNote('');
