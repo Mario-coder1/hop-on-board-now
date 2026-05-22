@@ -53,7 +53,7 @@ const AdminPayoutsTab = () => {
     const [{ data: po }, { data: pay }] = await Promise.all([
       supabase
         .from('payout_requests')
-        .select('*, driver:profiles!payout_requests_driver_id_fkey(full_name, phone)')
+        .select('*')
         .order('created_at', { ascending: false }),
       supabase
         .from('ride_requests')
@@ -62,7 +62,17 @@ const AdminPayoutsTab = () => {
         .order('paid_at', { ascending: false })
         .limit(50),
     ]);
-    setPayouts((po as unknown as PayoutRow[]) || []);
+
+    let payoutRows = (po as any[]) || [];
+    if (payoutRows.length) {
+      const driverIds = Array.from(new Set(payoutRows.map(p => p.driver_id)));
+      const { data: drivers } = await supabase
+        .from('profiles').select('id, full_name, phone').in('id', driverIds);
+      const map = new Map((drivers || []).map(d => [d.id, d]));
+      payoutRows = payoutRows.map(p => ({ ...p, driver: map.get(p.driver_id) || null }));
+    }
+
+    setPayouts(payoutRows as PayoutRow[]);
     setPayments((pay as unknown as PaidRequestRow[]) || []);
     setLoading(false);
   };
