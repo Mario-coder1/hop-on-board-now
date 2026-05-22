@@ -320,45 +320,45 @@ const DriverDashboard: React.FC = () => {
                 const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
                 const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
                 return (
-                  <div key={ride.id} className="card-mono p-5 hover:border-foreground/40 transition-colors">
+                  <div key={ride.id} className="card-mono p-3.5 sm:p-5 hover:border-foreground/40 transition-colors">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span className="tabular-nums uppercase tracking-wider font-medium">{date}</span>
+                    <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
+                        <Clock className="w-3 h-3 shrink-0" />
+                        <span className="tabular-nums uppercase tracking-wider font-medium truncate">{date}</span>
                         {ride.status === 'in_progress' && (
-                          <Badge className="bg-foreground text-background h-4 px-1.5 text-[9px] rounded-sm font-mono uppercase">
+                          <Badge className="bg-foreground text-background h-4 px-1.5 text-[9px] rounded-sm font-mono uppercase shrink-0">
                             Live
                           </Badge>
                         )}
                       </div>
-                      <span className="display-mono text-xl text-foreground">{ride.price_per_seat}<span className="text-sm text-muted-foreground">€</span></span>
+                      <span className="display-mono text-lg sm:text-xl text-foreground shrink-0">{ride.price_per_seat}<span className="text-sm text-muted-foreground">€</span></span>
                     </div>
 
                     {/* Route */}
-                    <div className="flex gap-3.5">
+                    <div className="flex gap-3">
                       <div className="flex flex-col items-center pt-1">
                         <span className="text-xs font-mono font-semibold tabular-nums">{time}</span>
                         <div className="flex flex-col items-center flex-1 my-1.5">
                           <div className="w-2 h-2 rounded-full bg-foreground" />
-                          <div className="w-px flex-1 min-h-[24px] bg-border my-1" />
+                          <div className="w-px flex-1 min-h-[18px] bg-border my-1" />
                           <div className="w-2 h-2 rounded-full border border-foreground" />
                         </div>
                       </div>
                       <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
-                        <div className="truncate font-semibold text-sm tracking-tight">{ride.origin_address}</div>
-                        <div className="h-5" />
-                        <div className="truncate font-semibold text-sm tracking-tight">{ride.destination_address}</div>
+                        <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.origin_address}</div>
+                        <div className="h-4 sm:h-5" />
+                        <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.destination_address}</div>
                       </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                      <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
+                      <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
                         <Users className="w-3 h-3" />
                         <span className="tabular-nums">{ride.available_seats}</span> miest
                       </span>
-                      <div className="flex gap-1.5">
+                      <div className="flex gap-1.5 shrink-0">
                         <Link to={`/ride/${ride.id}`}>
                           <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] rounded-full">
                             Detail
@@ -372,6 +372,7 @@ const DriverDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
                 );
               })}
             </div>
