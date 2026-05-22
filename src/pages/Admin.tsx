@@ -37,6 +37,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
+import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import {
   Dialog,
   DialogContent,
