@@ -64,7 +64,6 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
     }
     setPerm('requesting');
     try {
-      await stop();
       // Explicit getUserMedia call triggered by user tap — this is the moment iOS/Android shows the permission prompt.
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       // Immediately stop this probe stream — html5-qrcode will open its own.
