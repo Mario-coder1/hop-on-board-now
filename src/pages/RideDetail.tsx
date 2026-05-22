@@ -322,59 +322,17 @@ const RideDetail = () => {
 
   const handleRequest = async () => {
     if (!profile || !ride) return;
-
     if (!pickup.lat || !pickup.lng || !pickup.address) {
-      toast({
-        title: 'Chyba',
-        description: 'Vyberte miesto nastúpenia.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Chyba', description: 'Vyberte miesto nastúpenia.', variant: 'destructive' });
       return;
     }
-
     if (ride.available_seats <= 0) {
-      toast({
-        title: 'Plné',
-        description: 'Táto jazda už nemá voľné miesta.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Plné', description: 'Táto jazda už nemá voľné miesta.', variant: 'destructive' });
       return;
     }
-
-    setRequesting(true);
-    try {
-      const { error } = await supabase.from('ride_requests').insert({
-        ride_id: ride.id,
-        passenger_id: profile.id,
-        pickup_address: pickup.address,
-        pickup_lat: pickup.lat,
-        pickup_lng: pickup.lng,
-        dropoff_address: dropoff.address || null,
-        dropoff_lat: dropoff.lat || null,
-        dropoff_lng: dropoff.lng || null,
-        message: message || null,
-        status: 'pending',
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Žiadosť odoslaná!',
-        description: 'Vodič bol notifikovaný o vašej žiadosti.',
-      });
-
-      setHasRequested(true);
-      setRequestStatus('pending');
-    } catch (error: any) {
-      toast({
-        title: 'Chyba',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setRequesting(false);
-    }
+    setPaymentOpen(true);
   };
+
 
   const requestStatusLabel = useMemo(() => {
     switch (requestStatus) {
