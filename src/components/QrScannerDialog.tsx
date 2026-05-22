@@ -46,7 +46,9 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
       try {
         if (s.isScanning) await s.stop();
         await s.clear();
-      } catch {}
+      } catch {
+        return;
+      }
     }
   };
 
@@ -105,8 +107,9 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
         video.style.height = '100%';
         video.style.objectFit = 'cover';
       }
-    } catch (e: any) {
-      const name = e?.name || '';
+    } catch (e: unknown) {
+      const err = e instanceof Error ? e : null;
+      const name = err?.name || '';
       if (name === 'NotAllowedError' || name === 'SecurityError') {
         setPerm('denied');
         setErrorMsg('Prístup ku kamere bol zamietnutý.');
@@ -118,7 +121,7 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
         setErrorMsg('Kamera je pravdepodobne otvorená v inej aplikácii. Zatvor ju a skús znova.');
       } else {
         setPerm('denied');
-        setErrorMsg(typeof e === 'string' ? e : e?.message || 'Kameru sa nepodarilo spustiť.');
+        setErrorMsg(typeof e === 'string' ? e : err?.message || 'Kameru sa nepodarilo spustiť.');
       }
     }
   };
