@@ -246,6 +246,62 @@ const RideDetail = () => {
 
     setHasRequested(!!data);
     setRequestStatus((data?.status as RequestStatus) ?? null);
+    setRequestId((data?.id as string) ?? null);
+  };
+
+  const handleCancelRequest = async (reason: string) => {
+    if (!requestId || !ride || !profile) return;
+    setCancelling(true);
+    const wasAccepted = requestStatus === 'accepted' || requestStatus === 'driver_arrived';
+
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ status: 'cancelled', cancellation_reason: reason, cancelled_at: new Date().toISOString() })
+      .eq('id', requestId);
+
+    if (error) {
+      toast({ title: 'Chyba', description: 'Nepodarilo sa zrušiť žiadosť.', variant: 'destructive' });
+      setCancelling(false);
+      return;
+    }
+
+    if (wasAccepted) {
+      await supabase
+        .from('rides')
+        .update({ available_seats: ride.available_seats + 1 })
+        .eq('id', ride.id);
+    }
+
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: requestId, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
+    }
+
+    try {
+      const passengerName = profile?.full_name || 'Pasažier';
+      await sendPushNotification(
+        ride.driver_id,
+        '❌ Zrušená rezervácia',
+        `${passengerName} zrušil rezerváciu. Dôvod: ${reason}`
+      );
+    } catch (err) {
+      console.error('push error', err);
+    }
+
+    toast({
+      title: 'Žiadosť zrušená',
+      description: wasAccepted
+        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené. Platba bude vrátená.'
+        : 'Vaša žiadosť bola zrušená. Platba bude vrátená.',
+    });
+
+    setCancelOpen(false);
+    setCancelling(false);
+    void checkExistingRequest();
+    void fetchRide();
   };
 
   const fetchAcceptedPassengers = async () => {
