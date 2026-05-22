@@ -754,7 +754,7 @@ const RideDetail = () => {
         onOpenChange={setCancelOpen}
         onConfirm={handleCancelRequest}
         loading={cancelling}
-        type="passenger"
+        type="request"
       />
     </div>
   );
