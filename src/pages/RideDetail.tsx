@@ -25,6 +25,8 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
