@@ -47,6 +47,7 @@ interface RideInfo {
   origin_lng: number;
   destination_lat: number;
   destination_lng: number;
+  available_seats?: number;
 }
 
 const ManagePassengers = () => {
@@ -175,22 +176,30 @@ const ManagePassengers = () => {
       .update({ status: 'completed' })
       .eq('id', requestId);
 
-    if (!error) {
-      // Restore available seat
-      if (ride) {
-        await supabase
-          .from('rides')
-          .update({ available_seats: (passengers.length > 0 ? passengers.length - 1 : 0) })
-          .eq('id', ride.id);
-      }
-
-      // Push notification is sent automatically via DB trigger
+    if (error) {
+      console.error('[Dropoff] update failed:', error);
       toast({
-        title: 'Pasažier vystúpil',
-        description: `${passengerName} bol označený ako vystúpený.`,
+        title: 'Nepodarilo sa dokončiť jazdu',
+        description: error.message,
+        variant: 'destructive',
       });
-      fetchRideAndPassengers();
+      return;
     }
+
+    // Restore available seat (increment by 1)
+    if (ride) {
+      const { error: seatErr } = await supabase
+        .from('rides')
+        .update({ available_seats: (ride.available_seats ?? 0) + 1 })
+        .eq('id', ride.id);
+      if (seatErr) console.warn('[Dropoff] seat update failed:', seatErr);
+    }
+
+    toast({
+      title: 'Pasažier vystúpil',
+      description: `${passengerName} bol označený ako vystúpený.`,
+    });
+    fetchRideAndPassengers();
   };
 
   const handleArrived = async (requestId: string, passengerName: string) => {
