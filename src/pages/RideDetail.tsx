@@ -641,7 +641,7 @@ const RideDetail = () => {
                         onClick={handleRequest}
                         disabled={requesting}
                       >
-                        {requesting ? 'Odosielanie...' : 'Poslať žiadosť'}
+                        {requesting ? 'Odosielanie...' : `Rezervovať a zaplatiť ${ride.price_per_seat} €`}
                       </Button>
                     </>
                   )}
