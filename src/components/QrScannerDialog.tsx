@@ -59,13 +59,21 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
       stream.getTracks().forEach((t) => t.stop());
       setPerm('granted');
 
-      // Slight delay to let dialog/container mount
-      await new Promise((r) => setTimeout(r, 50));
+      // Wait for the container to become visible and measured
+      await new Promise((r) => setTimeout(r, 80));
+      const el = document.getElementById(elementId);
+      const size = el ? Math.min(el.clientWidth, el.clientHeight) : 280;
+      const box = Math.max(180, Math.floor(size * 0.75));
+
       const scanner = new Html5Qrcode(elementId, { verbose: false });
       scannerRef.current = scanner;
       await scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
+        { facingMode: { ideal: 'environment' } },
+        {
+          fps: 15,
+          qrbox: { width: box, height: box },
+          aspectRatio: 1,
+        },
         (decodedText) => {
           const pin = decodedText.replace(/\D/g, '').slice(0, 4);
           if (pin.length === 4) {
@@ -75,6 +83,14 @@ export const QrScannerDialog = ({ open, onOpenChange, onScanned }: QrScannerDial
         },
         () => {}
       );
+
+      // Force the injected <video> to fill the square container
+      const video = el?.querySelector('video');
+      if (video) {
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.style.objectFit = 'cover';
+      }
     } catch (e: any) {
       const name = e?.name || '';
       if (name === 'NotAllowedError' || name === 'SecurityError') {
