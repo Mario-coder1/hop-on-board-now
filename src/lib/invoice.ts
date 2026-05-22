@@ -62,7 +62,7 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
     pageMargins: [40, 40, 40, 60],
     defaultStyle: { font: 'Roboto', fontSize: 10, color: INK, lineHeight: 1.35 },
     styles: {
-      h1: { fontSize: 26, bold: true, color: INK, letterSpacing: 1 },
+      h1: { fontSize: 26, bold: true, color: INK, characterSpacing: 1 },
       label: { fontSize: 8, color: MUTED, characterSpacing: 1, bold: true },
       value: { fontSize: 10, color: INK },
       sectionTitle: { fontSize: 9, color: MUTED, bold: true, characterSpacing: 1 },
