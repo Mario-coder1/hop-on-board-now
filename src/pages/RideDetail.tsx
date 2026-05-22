@@ -636,7 +636,16 @@ const RideDetail = () => {
                         <MessageCircle className="w-6 h-6 text-green-600" />
                       </div>
                       <p className="font-medium text-green-600">{requestStatusLabel?.title ?? 'Žiadosť odoslaná'}</p>
-                      <p className="text-sm text-muted-foreground">{requestStatusLabel?.desc ?? 'Čakajte na odpoveď vodiča'}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{requestStatusLabel?.desc ?? 'Čakajte na odpoveď vodiča'}</p>
+                      {(requestStatus === 'pending' || requestStatus === 'accepted' || requestStatus === 'driver_arrived') && (
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={() => setCancelOpen(true)}
+                        >
+                          Zrušiť rezerváciu
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     <>
