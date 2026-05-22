@@ -115,14 +115,15 @@ const PassengerDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 sm:mb-10"
+          className="mb-4 sm:mb-10"
         >
           <p className="section-label mb-2">Pasažier · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
-          <h1 className="text-[34px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
+          <h1 className="text-[26px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
             Kam dnes,<br />
             <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}?</span>
           </h1>
         </motion.div>
+
 
         {/* ACTIVE RIDE PIN BANNER */}
         {activeRequest && activeRequest.pin_code && !activeRequest.pin_used && (
