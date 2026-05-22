@@ -397,31 +397,31 @@ const TrackRide: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 pt-6 border-t border-border"
+                className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border"
               >
-                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 p-5">
-                  <div className="flex items-center gap-2 mb-2 text-primary">
-                    <KeyRound className="w-5 h-5" />
-                    <h3 className="font-semibold">Váš PIN pre vodiča</h3>
+                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 p-3 sm:p-5">
+                  <div className="flex items-center gap-2 mb-1.5 text-primary">
+                    <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <h3 className="font-semibold text-sm sm:text-base">Váš PIN pre vodiča</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Ukážte tento PIN vodičovi. Po jeho zadaní a potvrdení nástupu kliknite na „Som vo vozidle".
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
+                    Ukážte PIN vodičovi. Po potvrdení nástupu kliknite na „Som vo vozidle".
                   </p>
-                  <div className="text-center py-4">
+                  <div className="text-center py-2 sm:py-4">
                     {rideRequest.pin_verified_at ? (
                       <div className="inline-flex items-center gap-2 text-green-600">
-                        <CheckCircle className="w-6 h-6" />
-                        <span className="font-semibold">PIN overený vodičom</span>
+                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <span className="font-semibold text-sm sm:text-base">PIN overený vodičom</span>
                       </div>
                     ) : (
                       <>
-                        <div className="text-5xl font-mono font-bold tracking-[0.4em] text-primary select-all">
+                        <div className="text-3xl sm:text-5xl font-mono font-bold tracking-[0.3em] sm:tracking-[0.4em] text-primary select-all">
                           {rideRequest.pin_code}
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="mt-4 gap-2 rounded-full"
+                          className="mt-2 sm:mt-4 gap-2 rounded-full"
                           onClick={() => setQrOpen(true)}
                         >
                           <QrCode className="w-4 h-4" />
@@ -434,9 +434,9 @@ const TrackRide: React.FC = () => {
                   <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={rideRequest.pin_code} />
 
                   {rideRequest.passenger_confirmed_at ? (
-                    <div className="text-center text-sm text-green-600 flex items-center justify-center gap-1">
+                    <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
                       <CheckCircle className="w-4 h-4" />
-                      Potvrdili ste nástup — čaká sa na začiatok jazdy
+                      Potvrdili ste nástup — čaká sa na začiatok
                     </div>
                   ) : (
                     <Button
@@ -452,6 +452,7 @@ const TrackRide: React.FC = () => {
                 </div>
               </motion.div>
             )}
+
 
             {rideRequest.status === 'picked_up' && (
               <div className="mt-6 pt-6 border-t border-border">
