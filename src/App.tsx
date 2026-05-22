@@ -14,6 +14,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
+import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 
 // Lazy-load all non-critical routes for faster initial load
 const Auth = lazy(() => import("./pages/Auth"));
@@ -39,6 +40,7 @@ const Komunity = lazy(() => import("./pages/Komunity"));
 const RidesIndex = lazy(() => import("./pages/RidesIndex"));
 const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
 const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
+const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +79,7 @@ const AppRoutes = () => {
   return (
     <>
       <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
+      <PaymentTestModeBanner />
       <NotificationListener />
       <ActiveRideFAB />
       <IOSInstallPrompt />
@@ -107,6 +110,7 @@ const AppRoutes = () => {
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/gdpr" element={<GDPR />} />
+            <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

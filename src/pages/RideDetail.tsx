@@ -25,6 +25,8 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -97,6 +99,7 @@ const RideDetail = () => {
 
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState('');
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [hasRequested, setHasRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
@@ -319,59 +322,17 @@ const RideDetail = () => {
 
   const handleRequest = async () => {
     if (!profile || !ride) return;
-
     if (!pickup.lat || !pickup.lng || !pickup.address) {
-      toast({
-        title: 'Chyba',
-        description: 'Vyberte miesto nastúpenia.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Chyba', description: 'Vyberte miesto nastúpenia.', variant: 'destructive' });
       return;
     }
-
     if (ride.available_seats <= 0) {
-      toast({
-        title: 'Plné',
-        description: 'Táto jazda už nemá voľné miesta.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Plné', description: 'Táto jazda už nemá voľné miesta.', variant: 'destructive' });
       return;
     }
-
-    setRequesting(true);
-    try {
-      const { error } = await supabase.from('ride_requests').insert({
-        ride_id: ride.id,
-        passenger_id: profile.id,
-        pickup_address: pickup.address,
-        pickup_lat: pickup.lat,
-        pickup_lng: pickup.lng,
-        dropoff_address: dropoff.address || null,
-        dropoff_lat: dropoff.lat || null,
-        dropoff_lng: dropoff.lng || null,
-        message: message || null,
-        status: 'pending',
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Žiadosť odoslaná!',
-        description: 'Vodič bol notifikovaný o vašej žiadosti.',
-      });
-
-      setHasRequested(true);
-      setRequestStatus('pending');
-    } catch (error: any) {
-      toast({
-        title: 'Chyba',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setRequesting(false);
-    }
+    setPaymentOpen(true);
   };
+
 
   const requestStatusLabel = useMemo(() => {
     switch (requestStatus) {
@@ -680,7 +641,7 @@ const RideDetail = () => {
                         onClick={handleRequest}
                         disabled={requesting}
                       >
-                        {requesting ? 'Odosielanie...' : 'Poslať žiadosť'}
+                        {requesting ? 'Odosielanie...' : `Rezervovať a zaplatiť ${ride.price_per_seat} €`}
                       </Button>
                     </>
                   )}
@@ -699,6 +660,23 @@ const RideDetail = () => {
           </div>
         </motion.div>
       </main>
+
+      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Zaplatiť rezerváciu ({ride?.price_per_seat} €)</DialogTitle>
+          </DialogHeader>
+          {ride && pickup.lat !== 0 && (
+            <RidePaymentCheckout
+              rideId={ride.id}
+              pickup={pickup}
+              dropoff={dropoff.lat ? dropoff : {}}
+              message={message}
+              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
