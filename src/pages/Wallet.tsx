@@ -126,14 +126,7 @@ const Wallet = () => {
       return;
     }
 
-    // Reserve pending payout
-    if (walletId) {
-      await supabase
-        .from('wallets')
-        .update({ pending_payout_amount: pendingPayout + amt })
-        .eq('id', walletId);
-    }
-
+    // Wallet pending amount is updated automatically by DB trigger
     toast({ title: 'Žiadosť odoslaná', description: 'Admin ti pošle peniaze na účet.' });
     setOpen(false);
     setAmount(''); setNote('');
