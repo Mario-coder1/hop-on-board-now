@@ -1,0 +1,28 @@
+# TakeMe
+
+> TakeMe je slovenská aplikácia pre spolujazdu (ridesharing). Vodiči ponúkajú voľné miesta v aute, pasažieri si rezervujú jazdu a sledujú vodiča v reálnom čase.
+
+TakeMe spája vodičov a pasažierov na celom Slovensku — Bratislava, Košice, Žilina, Prešov, Nitra, Trnava, Banská Bystrica, Trenčín a ďalšie mestá. Platba prebieha cez aplikáciu, podpora live tracking, hodnotenia a inštalácia ako PWA na iOS aj Android.
+
+## Pages
+
+- [Domov](/): Úvod, vyhľadávanie jázd, ako TakeMe funguje.
+- [Všetky jazdy a trasy](/jazdy): Prehľad všetkých spolujázd a trás.
+- [Vyhľadávanie jázd](/search): Hľadaj vodiča podľa odkiaľ/kam a dátumu.
+- [TOP vodiči](/top-drivers): Rebríček najlepšie hodnotených vodičov.
+- [CO₂ kalkulačka](/co2-calculator): Vypočítaj úsporu emisií spolujazdou.
+- [Inštalácia aplikácie](/install): Návod na nainštalovanie PWA.
+
+## Popular routes
+
+- [Bratislava → Košice](/jazdy/bratislava-kosice)
+- [Bratislava → Žilina](/jazdy/bratislava-zilina)
+- [Bratislava → Banská Bystrica](/jazdy/bratislava-banska-bystrica)
+- [Bratislava → Nitra](/jazdy/bratislava-nitra)
+- [Bratislava → Trnava](/jazdy/bratislava-trnava)
+- [Košice → Prešov](/jazdy/kosice-presov)
+
+## Optional
+
+- [Ochrana súkromia](/privacy): Zásady spracovania osobných údajov.
+- [GDPR](/gdpr): Informácie o GDPR.

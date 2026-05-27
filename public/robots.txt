@@ -8,8 +8,8 @@ Disallow: /my-rides
 Disallow: /my-trips
 Disallow: /profile
 
-Sitemap: https://takeme.sk/sitemap.xml
-Sitemap: https://takeme.sk/sitemap-core.xml
-Sitemap: https://takeme.sk/sitemap-cities.xml
-Sitemap: https://takeme.sk/sitemap-pairs.xml
-Sitemap: https://takeme.sk/sitemap-pair-variants.xml
+Sitemap: https://www.takeme.sk/sitemap.xml
+Sitemap: https://www.takeme.sk/sitemap-core.xml
+Sitemap: https://www.takeme.sk/sitemap-cities.xml
+Sitemap: https://www.takeme.sk/sitemap-pairs.xml
+Sitemap: https://www.takeme.sk/sitemap-pair-variants.xml
