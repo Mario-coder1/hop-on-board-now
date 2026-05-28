@@ -169,6 +169,7 @@ const CreateRide = () => {
             available_seats: seats,
             price_per_seat: price,
             active: true,
+            ...preferences,
           });
         if (tplError) throw tplError;
 
@@ -197,6 +198,7 @@ const CreateRide = () => {
           status: 'active',
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
+          ...preferences,
         })
         .select('id')
         .single();
