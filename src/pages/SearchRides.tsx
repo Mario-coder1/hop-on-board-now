@@ -92,13 +92,15 @@ const SearchRides = () => {
   };
 
   // Live driver tracking for in_progress rides
-  const inProgressDriverIds = useMemo(
-    () => rides.filter(r => r.status === 'in_progress').map(r => r.driver_id),
+  const liveDriverIds = useMemo(
+    () => rides
+      .filter(r => r.status === 'active' || r.status === 'in_progress')
+      .map(r => r.driver_id),
     [rides]
   );
 
   useEffect(() => {
-    if (inProgressDriverIds.length === 0) {
+    if (liveDriverIds.length === 0) {
       setLiveLocations({});
       return;
     }
@@ -108,7 +110,7 @@ const SearchRides = () => {
       const { data } = await supabase
         .from('user_locations')
         .select('profile_id, lat, lng')
-        .in('profile_id', inProgressDriverIds);
+        .in('profile_id', liveDriverIds);
       if (cancelled || !data) return;
       const map: Record<string, { lat: number; lng: number }> = {};
       data.forEach((row: any) => {
@@ -126,7 +128,7 @@ const SearchRides = () => {
         (payload: any) => {
           const row = payload.new || payload.old;
           if (!row) return;
-          if (!inProgressDriverIds.includes(row.profile_id)) return;
+          if (!liveDriverIds.includes(row.profile_id)) return;
           setLiveLocations(prev => ({
             ...prev,
             [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) },
@@ -139,7 +141,7 @@ const SearchRides = () => {
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [inProgressDriverIds.join(',')]);
+  }, [liveDriverIds.join(',')]);
 
   // Combine date+time inputs into Date or null
   const fromDate = useMemo(() => {
@@ -231,7 +233,7 @@ const SearchRides = () => {
   // Only show real live driver positions. Never fall back to origin/destination points.
   const markers = useMemo(() => {
     return filteredRides.flatMap(ride => {
-      const live = ride.status === 'in_progress' ? liveLocations[ride.driver_id] : null;
+      const live = liveLocations[ride.driver_id];
       if (!live) return [];
       return {
         id: ride.id,
