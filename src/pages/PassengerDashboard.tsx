@@ -161,7 +161,7 @@ const PassengerDashboard: React.FC = () => {
                   <QrCode className="w-4 h-4" />
                   Zobraziť QR
                 </Button>
-                <Link to={`/track-ride/${activeRequest.ride_id}`} className="flex-1">
+                <Link to={`/track/${activeRequest.id}`} className="flex-1">
                   <Button variant="outline" size="sm" className="w-full gap-1 rounded-full bg-transparent border-background/30 text-background hover:bg-background/10 hover:text-background">
                     Detail
                     <ChevronRight className="w-4 h-4" />
