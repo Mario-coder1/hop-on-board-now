@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat,
-  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee
+  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee, Fuel
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,6 +67,18 @@ const CreateRide = () => {
   // University community
   const { memberships } = useMyMemberships();
   const [selectedUniversityId, setSelectedUniversityId] = useState<string>('');
+
+  // Gas station partner
+  const [gasStations, setGasStations] = useState<Array<{ id: string; name: string; address: string; lat: number; lng: number; discount_note: string | null }>>([]);
+  const [selectedGasStationId, setSelectedGasStationId] = useState<string>('');
+
+  useEffect(() => {
+    const fetchStations = async () => {
+      const { data } = await supabase.from('gas_stations').select('id, name, address, lat, lng, discount_note').eq('active', true).order('name');
+      if (data) setGasStations(data);
+    };
+    fetchStations();
+  }, []);
 
   const toggleDay = (d: number) => {
     setRecurringDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
@@ -198,6 +210,7 @@ const CreateRide = () => {
           status: 'active',
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
+          gas_station_id: selectedGasStationId || null,
           ...preferences,
         })
         .select('id')
@@ -266,6 +279,18 @@ const CreateRide = () => {
   
   if (destination.lat && destination.lng) {
     markers.push({ id: 'dest', lat: destination.lat, lng: destination.lng, type: 'destination' as const, popup: 'Cieľ' });
+  }
+
+  // Add selected gas station marker
+  const selectedStation = gasStations.find(s => s.id === selectedGasStationId);
+  if (selectedStation && selectedStation.lat && selectedStation.lng) {
+    markers.push({
+      id: 'gas-station',
+      lat: selectedStation.lat,
+      lng: selectedStation.lng,
+      type: 'gas_station' as const,
+      popup: `⛽ ${selectedStation.name} ${selectedStation.discount_note ? '— ' + selectedStation.discount_note : ''}`
+    });
   }
 
   // Waypoints for route calculation (only stops with valid coordinates)
@@ -494,6 +519,31 @@ const CreateRide = () => {
                     </select>
                     <p className="text-xs text-muted-foreground mt-1">
                       Ak vyberieš univerzitu, jazdu uvidia iba overení členovia.
+                    </p>
+                  </div>
+                )}
+
+                {/* Gas Station Partner */}
+                {gasStations.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Fuel className="w-4 h-4 text-primary" />
+                      <Label className="text-sm">Partnerská čerpacia stanica</Label>
+                    </div>
+                    <select
+                      className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      value={selectedGasStationId}
+                      onChange={(e) => setSelectedGasStationId(e.target.value)}
+                    >
+                      <option value="">Žiadna stanica</option>
+                      {gasStations.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} {s.discount_note ? `— ${s.discount_note}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Vodiči sa môžu zastaviť na partnerskej stanici. Výhodné pre šetrenie nákladov.
                     </p>
                   </div>
                 )}

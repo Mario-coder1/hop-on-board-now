@@ -36,10 +36,12 @@ import {
   Bell,
   Megaphone,
   BarChart3,
-  Wifi
+  Wifi,
+  Fuel
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
+import AdminGasStations from '@/components/admin/AdminGasStations';
 import {
   Dialog,
   DialogContent,
@@ -758,6 +760,10 @@ const Admin = () => {
               <Settings className="w-4 h-4" />
               Nastavenia
             </TabsTrigger>
+            <TabsTrigger value="gas_stations" className="gap-2">
+              <Fuel className="w-4 h-4" />
+              Stanice
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="payouts" className="space-y-4">
@@ -1444,6 +1450,10 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="gas_stations" className="space-y-4">
+            <AdminGasStations />
           </TabsContent>
         </Tabs>
       </div>

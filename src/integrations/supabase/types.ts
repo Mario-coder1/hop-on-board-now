@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      gas_stations: {
+        Row: {
+          active: boolean
+          address: string
+          created_at: string
+          discount_note: string | null
+          id: string
+          lat: number
+          lng: number
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          address: string
+          created_at?: string
+          discount_note?: string | null
+          id?: string
+          lat: number
+          lng: number
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          active?: boolean
+          address?: string
+          created_at?: string
+          discount_note?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       notification_reads: {
         Row: {
           id: string
@@ -498,6 +534,48 @@ export type Database = {
           },
         ]
       }
+      ride_gas_stops: {
+        Row: {
+          created_at: string
+          gas_station_id: string
+          id: string
+          ride_id: string
+          stopped_at: string
+          stopped_by: string
+        }
+        Insert: {
+          created_at?: string
+          gas_station_id: string
+          id?: string
+          ride_id: string
+          stopped_at?: string
+          stopped_by: string
+        }
+        Update: {
+          created_at?: string
+          gas_station_id?: string
+          id?: string
+          ride_id?: string
+          stopped_at?: string
+          stopped_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_gas_stops_gas_station_id_fkey"
+            columns: ["gas_station_id"]
+            isOneToOne: false
+            referencedRelation: "gas_stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_gas_stops_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ride_requests: {
         Row: {
           amount_paid: number | null
@@ -755,6 +833,7 @@ export type Database = {
           destination_lng: number
           driver_id: string
           food_allowed: boolean | null
+          gas_station_id: string | null
           id: string
           luggage_allowed: boolean | null
           music_allowed: boolean | null
@@ -783,6 +862,7 @@ export type Database = {
           destination_lng: number
           driver_id: string
           food_allowed?: boolean | null
+          gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
           music_allowed?: boolean | null
@@ -811,6 +891,7 @@ export type Database = {
           destination_lng?: number
           driver_id?: string
           food_allowed?: boolean | null
+          gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
           music_allowed?: boolean | null
@@ -853,6 +934,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rides_gas_station_id_fkey"
+            columns: ["gas_station_id"]
+            isOneToOne: false
+            referencedRelation: "gas_stations"
             referencedColumns: ["id"]
           },
           {

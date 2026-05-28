@@ -9,7 +9,7 @@ interface MapProps {
     id: string;
     lat: number;
     lng: number;
-    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff' | 'live-driver';
+    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff' | 'live-driver' | 'gas_station';
     popup?: string;
     avatarUrl?: string | null;
     label?: string;
@@ -35,7 +35,8 @@ const MARKER_COLORS: Record<string, string> = {
   destination: '#ef6c4c',
   pickup: '#22c55e',
   stop: '#8b5cf6',
-  dropoff: '#ef4444'
+  dropoff: '#ef4444',
+  gas_station: '#f59e0b'
 };
 
 const Map: React.FC<MapProps> = ({
@@ -321,7 +322,8 @@ const Map: React.FC<MapProps> = ({
           destination: '🎯',
           pickup: '🟢',
           stop: '🔵',
-          dropoff: '🔴'
+          dropoff: '🔴',
+          gas_station: '⛽'
         };
 
         // Use DOM API instead of innerHTML to prevent XSS

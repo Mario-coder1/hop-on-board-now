@@ -76,6 +76,15 @@ interface RideDetailData {
   music_allowed: boolean | null;
   ac_allowed: boolean | null;
   food_allowed: boolean | null;
+  gas_station_id: string | null;
+  gas_station: {
+    id: string;
+    name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    discount_note: string | null;
+  } | null;
   driver: {
     id: string | null;
     full_name: string | null;
@@ -218,6 +227,10 @@ const RideDetail = () => {
           music_allowed,
           ac_allowed,
           food_allowed,
+          gas_station_id,
+          gas_station:gas_stations!rides_gas_station_id_fkey(
+            id, name, address, lat, lng, discount_note
+          ),
           driver:public_profiles!rides_driver_id_fkey(
             id,
             full_name,
@@ -467,6 +480,13 @@ const RideDetail = () => {
           ? `Pasažier: ${p.passenger.full_name} — ${p.pickup_address}`
           : `Miesto nastúpenia: ${p.pickup_address}`,
       })),
+      ...(ride.gas_station ? [{
+        id: 'gas-station',
+        lat: Number(ride.gas_station.lat),
+        lng: Number(ride.gas_station.lng),
+        type: 'gas_station' as const,
+        popup: `⛽ ${ride.gas_station.name} ${ride.gas_station.discount_note ? '— ' + ride.gas_station.discount_note : ''}`,
+      }] : []),
     ];
 
     const pickupIsDifferentFromOrigin =
