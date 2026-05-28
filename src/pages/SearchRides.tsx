@@ -616,7 +616,11 @@ const SearchRides = () => {
 
             {/* Map - hidden on mobile, shown on lg */}
             <div className="hidden lg:block lg:sticky lg:top-24">
-              <Map markers={markers} className="h-[600px]" />
+              <Map markers={markers} onMarkerClick={handleMarkerClick} className="h-[600px]" />
+              <p className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                Živí vodiči práve teraz — klikni na hlavičku a pridaj sa do jazdy
+              </p>
             </div>
           </div>
         </motion.div>
