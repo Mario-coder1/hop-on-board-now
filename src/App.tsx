@@ -88,6 +88,7 @@ const AppRoutes = () => {
       <ActiveRideFAB />
       <IOSInstallPrompt />
       <WelcomeOnboardingDialog />
+      <RequireFullNameDialog />
       <div id="main-content">
         <Suspense fallback={<RouteFallback />}>
           <Routes>
