@@ -54,15 +54,13 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
 
     setIsLoading(true);
     try {
-      // Autocomplete endpoint with address-level precision (street + house number),
-      // POIs and places. Bias results toward Slovakia for better local matching,
-      // but allow worldwide fallback.
+      // Worldwide autocomplete — address-level precision (street + house number),
+      // POIs and places. No country restriction so users can search any address globally.
       const params = new URLSearchParams({
         access_token: MAPBOX_TOKEN,
         language: 'sk',
         limit: '8',
         autocomplete: 'true',
-        country: 'sk,cz,at,hu,pl',
         types: 'country,region,postcode,district,place,locality,neighborhood,address,poi',
       });
 
