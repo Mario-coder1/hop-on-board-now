@@ -111,6 +111,11 @@ const Index = () => {
 
       <InstallBanner />
 
+      {/* Top bar with language switcher */}
+      <div className="relative container mx-auto px-4 pt-4 flex justify-end">
+        <LanguageSwitcher />
+      </div>
+
       {/* Hero Section */}
       <div className="relative">
         <div className="container mx-auto px-4 pt-12 md:pt-20 pb-12">
