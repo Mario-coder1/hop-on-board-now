@@ -25,6 +25,7 @@ interface ActiveRequest {
 
 interface Ride {
   id: string;
+  driver_id: string;
   origin_address: string;
   destination_address: string;
   departure_time: string;
