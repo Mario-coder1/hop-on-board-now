@@ -104,10 +104,58 @@ const PassengerDashboard: React.FC = () => {
     return matchesFrom && matchesTo;
   });
 
-  const mapMarkers = filteredRides.flatMap(ride => [
-    { id: `${ride.id}-origin`, lat: Number(ride.origin_lat), lng: Number(ride.origin_lng), type: 'origin' as const, popup: `<strong>${ride.origin_address}</strong>` },
-    { id: `${ride.id}-dest`, lat: Number(ride.destination_lat), lng: Number(ride.destination_lng), type: 'destination' as const, popup: ride.destination_address }
-  ]);
+  // Live driver tracking
+  const liveDriverIds = useMemo(
+    () => Array.from(new Set(rides.map(r => r.driver_id).filter(Boolean))),
+    [rides]
+  );
+
+  useEffect(() => {
+    if (liveDriverIds.length === 0) { setLiveLocations({}); return; }
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase
+        .from('user_locations')
+        .select('profile_id, lat, lng')
+        .in('profile_id', liveDriverIds);
+      if (cancelled || !data) return;
+      const map: Record<string, { lat: number; lng: number }> = {};
+      data.forEach((row: any) => { map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng) }; });
+      setLiveLocations(map);
+    };
+    load();
+    const channel = supabase
+      .channel('passenger-dash-live-drivers')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_locations' }, (payload: any) => {
+        const row = payload.new || payload.old;
+        if (!row || !liveDriverIds.includes(row.profile_id)) return;
+        setLiveLocations(prev => ({ ...prev, [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) } }));
+      })
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
+  }, [liveDriverIds.join(',')]);
+
+  const mapMarkers = useMemo(() => filteredRides.flatMap(ride => {
+    const live = liveLocations[ride.driver_id];
+    if (!live) return [];
+    return [{
+      id: ride.id,
+      lat: live.lat,
+      lng: live.lng,
+      type: 'live-driver' as const,
+      avatarUrl: ride.driver?.avatar_url ?? null,
+      label: ride.driver?.full_name ?? 'Vodič',
+    }];
+  }), [filteredRides, liveLocations]);
+
+  const selectedMapRide = useMemo(
+    () => filteredRides.find(r => r.id === selectedMapRideId) || null,
+    [filteredRides, selectedMapRideId]
+  );
+
+  const handleMarkerClick = (id: string) => {
+    setSelectedMapRideId(prev => (prev === id ? null : id));
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32 md:pb-8">
