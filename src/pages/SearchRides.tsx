@@ -26,6 +26,7 @@ interface RideStop {
 
 interface Ride {
   id: string;
+  driver_id: string;
   origin_address: string;
   destination_address: string;
   origin_lat: number;
@@ -63,6 +64,8 @@ const SearchRides = () => {
   const [liveOnly, setLiveOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'time-asc' | 'price-asc' | 'price-desc' | 'rating-desc'>('time-asc');
 
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
+
   useEffect(() => {
     fetchRides();
   }, []);
@@ -88,6 +91,56 @@ const SearchRides = () => {
     setRides((data as unknown as Ride[]) ?? []);
     setLoading(false);
   };
+
+  // Live driver tracking for in_progress rides
+  const inProgressDriverIds = useMemo(
+    () => rides.filter(r => r.status === 'in_progress').map(r => r.driver_id),
+    [rides]
+  );
+
+  useEffect(() => {
+    if (inProgressDriverIds.length === 0) {
+      setLiveLocations({});
+      return;
+    }
+
+    let cancelled = false;
+    const loadLocations = async () => {
+      const { data } = await supabase
+        .from('user_locations')
+        .select('profile_id, lat, lng')
+        .in('profile_id', inProgressDriverIds);
+      if (cancelled || !data) return;
+      const map: Record<string, { lat: number; lng: number }> = {};
+      data.forEach((row: any) => {
+        map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng) };
+      });
+      setLiveLocations(map);
+    };
+    loadLocations();
+
+    const channel = supabase
+      .channel('search-rides-live-drivers')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_locations' },
+        (payload: any) => {
+          const row = payload.new || payload.old;
+          if (!row) return;
+          if (!inProgressDriverIds.includes(row.profile_id)) return;
+          setLiveLocations(prev => ({
+            ...prev,
+            [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) },
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [inProgressDriverIds.join(',')]);
 
   // Combine date+time inputs into Date or null
   const fromDate = useMemo(() => {
@@ -176,10 +229,37 @@ const SearchRides = () => {
     setSortBy('time-asc');
   };
 
-  const markers = filteredRides.flatMap(ride => [
-    { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
-    { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
-  ]);
+  const markers = useMemo(() => {
+    const base = filteredRides.flatMap(ride => [
+      { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
+      { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
+    ]);
+    const live = filteredRides
+      .filter(r => r.status === 'in_progress')
+      .map(r => {
+        const loc = liveLocations[r.driver_id];
+        if (!loc) return null;
+        return {
+          id: `live-${r.id}`,
+          lat: loc.lat,
+          lng: loc.lng,
+          type: 'live-driver' as const,
+          avatarUrl: r.driver?.avatar_url ?? null,
+          label: r.driver?.full_name ?? 'Vodič',
+        };
+      })
+      .filter((m): m is NonNullable<typeof m> => m !== null);
+    return [...base, ...live];
+  }, [filteredRides, liveLocations]);
+
+  const handleMarkerClick = (id: string) => {
+    if (id.startsWith('live-')) {
+      navigate(`/ride/${id.slice(5)}`);
+      return;
+    }
+    const rideId = id.replace(/-(origin|dest)$/, '');
+    if (rideId !== id) navigate(`/ride/${rideId}`);
+  };
 
   const resultLabel = (n: number) => {
     if (n === 1) return 'jazda';
@@ -536,7 +616,11 @@ const SearchRides = () => {
 
             {/* Map - hidden on mobile, shown on lg */}
             <div className="hidden lg:block lg:sticky lg:top-24">
-              <Map markers={markers} className="h-[600px]" />
+              <Map markers={markers} onMarkerClick={handleMarkerClick} className="h-[600px]" />
+              <p className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                Živí vodiči práve teraz — klikni na hlavičku a pridaj sa do jazdy
+              </p>
             </div>
           </div>
         </motion.div>

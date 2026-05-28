@@ -9,13 +9,16 @@ interface MapProps {
     id: string;
     lat: number;
     lng: number;
-    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff';
+    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff' | 'live-driver';
     popup?: string;
+    avatarUrl?: string | null;
+    label?: string;
   }>;
   waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
   route?: Array<[number, number]>;
   showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
+  onMarkerClick?: (id: string) => void;
   onRouteCalculated?: (routePolyline: string) => void; // Callback with encoded polyline
   className?: string;
   interactive?: boolean;
@@ -43,6 +46,7 @@ const Map: React.FC<MapProps> = ({
   route: providedRoute,
   showRoute = false,
   onMapClick,
+  onMarkerClick,
   onRouteCalculated,
   className = '',
   interactive = true,
@@ -229,42 +233,156 @@ const Map: React.FC<MapProps> = ({
     safeMarkers.forEach(markerData => {
       const el = document.createElement('div');
       el.className = 'custom-marker';
-      
-      const icons: Record<string, string> = {
-        driver: '🚗',
-        passenger: '👤',
-        origin: '📍',
-        destination: '🎯',
-        pickup: '🟢',
-        stop: '🔵',
-        dropoff: '🔴'
-      };
 
-      // Use DOM API instead of innerHTML to prevent XSS
-      const markerDiv = document.createElement('div');
-      markerDiv.style.cssText = `
-        width: 40px;
-        height: 40px;
-        background: ${MARKER_COLORS[markerData.type] || '#888'};
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        border: 3px solid white;
-        cursor: pointer;
-        transition: transform 0.2s;
-      `;
-      markerDiv.textContent = icons[markerData.type] || '📍';
-      el.appendChild(markerDiv);
+      if (markerData.type === 'live-driver') {
+        // Rich avatar marker for live drivers
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+          transition: transform 0.2s;
+          filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+        `;
 
-      el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.1)';
-      });
-      el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
-      });
+        const avatarRing = document.createElement('div');
+        avatarRing.style.cssText = `
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #20b4a8, #16a085);
+          padding: 3px;
+          position: relative;
+        `;
+
+        const avatar = document.createElement('div');
+        avatar.style.cssText = `
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: #fff center/cover no-repeat;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          color: #20b4a8;
+          font-weight: 700;
+          overflow: hidden;
+          border: 2px solid #fff;
+        `;
+        if (markerData.avatarUrl) {
+          const img = document.createElement('img');
+          img.src = markerData.avatarUrl;
+          img.alt = markerData.label || 'Vodič';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+          avatar.appendChild(img);
+        } else {
+          avatar.textContent = (markerData.label || 'V').charAt(0).toUpperCase();
+        }
+        avatarRing.appendChild(avatar);
+
+        // LIVE pulse dot
+        const pulse = document.createElement('span');
+        pulse.style.cssText = `
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 14px;
+          height: 14px;
+          background: #ef4444;
+          border-radius: 50%;
+          border: 2px solid #fff;
+          box-shadow: 0 0 0 0 rgba(239,68,68, 0.7);
+          animation: livePulse 1.6s infinite;
+        `;
+        avatarRing.appendChild(pulse);
+
+        if (!document.getElementById('live-marker-anim')) {
+          const style = document.createElement('style');
+          style.id = 'live-marker-anim';
+          style.textContent = `@keyframes livePulse {
+            0% { box-shadow: 0 0 0 0 rgba(239,68,68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239,68,68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239,68,68, 0); }
+          }`;
+          document.head.appendChild(style);
+        }
+
+        wrap.appendChild(avatarRing);
+
+        if (markerData.label) {
+          const tag = document.createElement('div');
+          tag.style.cssText = `
+            margin-top: 4px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          `;
+          tag.textContent = markerData.label;
+          wrap.appendChild(tag);
+        }
+
+        el.appendChild(wrap);
+        el.addEventListener('mouseenter', () => { wrap.style.transform = 'scale(1.08)'; });
+        el.addEventListener('mouseleave', () => { wrap.style.transform = 'scale(1)'; });
+        if (onMarkerClick) {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onMarkerClick(markerData.id);
+          });
+        }
+      } else {
+        const icons: Record<string, string> = {
+          driver: '🚗',
+          passenger: '👤',
+          origin: '📍',
+          destination: '🎯',
+          pickup: '🟢',
+          stop: '🔵',
+          dropoff: '🔴'
+        };
+
+        // Use DOM API instead of innerHTML to prevent XSS
+        const markerDiv = document.createElement('div');
+        markerDiv.style.cssText = `
+          width: 40px;
+          height: 40px;
+          background: ${MARKER_COLORS[markerData.type] || '#888'};
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          border: 3px solid white;
+          cursor: pointer;
+          transition: transform 0.2s;
+        `;
+        markerDiv.textContent = icons[markerData.type] || '📍';
+        el.appendChild(markerDiv);
+
+        el.addEventListener('mouseenter', () => {
+          el.style.transform = 'scale(1.1)';
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = 'scale(1)';
+        });
+        if (onMarkerClick) {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onMarkerClick(markerData.id);
+          });
+        }
+      }
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([markerData.lng, markerData.lat])
@@ -278,7 +396,7 @@ const Map: React.FC<MapProps> = ({
 
       markersRef.current.push(marker);
     });
-  }, [safeMarkers]);
+  }, [safeMarkers, onMarkerClick]);
 
   // Draw route on map
   useEffect(() => {
