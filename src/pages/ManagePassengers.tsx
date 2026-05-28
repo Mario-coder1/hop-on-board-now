@@ -237,6 +237,7 @@ const ManagePassengers = () => {
   };
 
   // Build map markers
+  const gasStations = useGasStations();
   const markers = [];
   
   if (ride) {
