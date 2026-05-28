@@ -9,13 +9,16 @@ interface MapProps {
     id: string;
     lat: number;
     lng: number;
-    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff';
+    type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'stop' | 'dropoff' | 'live-driver';
     popup?: string;
+    avatarUrl?: string | null;
+    label?: string;
   }>;
   waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
   route?: Array<[number, number]>;
   showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
+  onMarkerClick?: (id: string) => void;
   onRouteCalculated?: (routePolyline: string) => void; // Callback with encoded polyline
   className?: string;
   interactive?: boolean;
