@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Car, Users, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
 
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const onlineCount = useOnlineUsers();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (loading) return;
