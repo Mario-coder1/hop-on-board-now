@@ -611,10 +611,99 @@ const SearchRides = () => {
 
             {/* Map - hidden on mobile, shown on lg */}
             <div className="hidden lg:block lg:sticky lg:top-24">
-              <Map markers={markers} onMarkerClick={handleMarkerClick} className="h-[600px]" />
+              <div className="relative">
+                <Map markers={markers} onMarkerClick={handleMarkerClick} className="h-[600px]" />
+
+                <AnimatePresence>
+                  {selectedMapRide && (
+                    <motion.div
+                      key={selectedMapRide.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 12 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute left-3 right-3 bottom-3 z-10 rounded-2xl bg-card border border-border shadow-2xl p-4"
+                    >
+                      <button
+                        onClick={() => setSelectedMapRideId(null)}
+                        className="absolute top-2 right-2 p-1 rounded-full hover:bg-muted text-muted-foreground"
+                        aria-label="Zavrieť"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+
+                      <div className="flex items-center gap-3 mb-3 pr-6">
+                        <div className="w-11 h-11 rounded-full overflow-hidden bg-muted flex items-center justify-center font-semibold text-primary shrink-0">
+                          {selectedMapRide.driver?.avatar_url ? (
+                            <img
+                              src={selectedMapRide.driver.avatar_url}
+                              alt={selectedMapRide.driver.full_name ?? 'Vodič'}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            (selectedMapRide.driver?.full_name ?? 'V').charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold truncate">
+                            {selectedMapRide.driver?.full_name ?? 'Vodič'}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              {(selectedMapRide.driver?.rating ?? 5).toFixed(1)}
+                            </span>
+                            <span>·</span>
+                            <span>{selectedMapRide.driver?.total_rides ?? 0} jázd</span>
+                            {selectedMapRide.status === 'in_progress' && (
+                              <>
+                                <span>·</span>
+                                <RideBadge status="in_progress" />
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-sm mb-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-green-500 shrink-0" />
+                          <span className="truncate">{selectedMapRide.origin_address}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-red-500 shrink-0" />
+                          <span className="truncate">{selectedMapRide.destination_address}</span>
+                        </div>
+                        <div className="flex items-center gap-4 pt-1 text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {formatDbDate(selectedMapRide.departure_time, 'd. MMM HH:mm', { locale: sk })}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5" />
+                            {selectedMapRide.available_seats}
+                          </span>
+                          <span className="flex items-center gap-1 font-semibold text-foreground">
+                            <Euro className="w-3.5 h-3.5" />
+                            {Number(selectedMapRide.price_per_seat).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        onClick={() => navigate(`/ride/${selectedMapRide.id}`)}
+                      >
+                        Pripojiť sa do jazdy
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <p className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
                 <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                Živí vodiči práve teraz — klikni na hlavičku a pridaj sa do jazdy
+                Klikni na vodiča na mape — zobrazí sa detail a možnosť pripojiť sa
               </p>
             </div>
           </div>
