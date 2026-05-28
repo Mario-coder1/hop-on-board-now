@@ -11,6 +11,12 @@ import {
   Phone,
   Star,
   Users,
+  Dog,
+  Cigarette,
+  Briefcase,
+  Music,
+  Wind,
+  Coffee,
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
@@ -64,6 +70,12 @@ interface RideDetailData {
   available_seats: number;
   price_per_seat: number;
   status: string;
+  pets_allowed: boolean | null;
+  smoking_allowed: boolean | null;
+  luggage_allowed: boolean | null;
+  music_allowed: boolean | null;
+  ac_allowed: boolean | null;
+  food_allowed: boolean | null;
   driver: {
     id: string | null;
     full_name: string | null;
@@ -200,6 +212,12 @@ const RideDetail = () => {
           available_seats,
           price_per_seat,
           status,
+          pets_allowed,
+          smoking_allowed,
+          luggage_allowed,
+          music_allowed,
+          ac_allowed,
+          food_allowed,
           driver:public_profiles!rides_driver_id_fkey(
             id,
             full_name,
