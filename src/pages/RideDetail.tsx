@@ -11,6 +11,12 @@ import {
   Phone,
   Star,
   Users,
+  Dog,
+  Cigarette,
+  Briefcase,
+  Music,
+  Wind,
+  Coffee,
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
@@ -64,6 +70,12 @@ interface RideDetailData {
   available_seats: number;
   price_per_seat: number;
   status: string;
+  pets_allowed: boolean | null;
+  smoking_allowed: boolean | null;
+  luggage_allowed: boolean | null;
+  music_allowed: boolean | null;
+  ac_allowed: boolean | null;
+  food_allowed: boolean | null;
   driver: {
     id: string | null;
     full_name: string | null;
@@ -200,6 +212,12 @@ const RideDetail = () => {
           available_seats,
           price_per_seat,
           status,
+          pets_allowed,
+          smoking_allowed,
+          luggage_allowed,
+          music_allowed,
+          ac_allowed,
+          food_allowed,
           driver:public_profiles!rides_driver_id_fkey(
             id,
             full_name,
@@ -624,6 +642,38 @@ const RideDetail = () => {
                   </div>
                 )}
               </article>
+
+              {/* Ride Preferences */}
+              {ride && (
+                <article className="p-6 rounded-2xl bg-card border border-border">
+                  <h2 className="font-display font-semibold mb-4">Preferencie jazdy</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { key: 'pets_allowed' as const, label: 'Zvieratá', icon: Dog },
+                      { key: 'smoking_allowed' as const, label: 'Fajčenie', icon: Cigarette },
+                      { key: 'luggage_allowed' as const, label: 'Batožina', icon: Briefcase },
+                      { key: 'music_allowed' as const, label: 'Hudba', icon: Music },
+                      { key: 'ac_allowed' as const, label: 'Klimatizácia', icon: Wind },
+                      { key: 'food_allowed' as const, label: 'Občerstvenie', icon: Coffee },
+                    ].map((pref) => {
+                      const allowed = ride[pref.key] ?? (pref.key === 'pets_allowed' || pref.key === 'smoking_allowed' ? false : true);
+                      return (
+                        <div
+                          key={pref.key}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl text-sm ${
+                            allowed
+                              ? 'bg-primary/10 text-primary'
+                              : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          <pref.icon className="w-4 h-4 shrink-0" />
+                          <span className="font-medium">{pref.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+              )}
 
               {/* Request */}
               {!isDriver && profile && (

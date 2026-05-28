@@ -668,6 +668,7 @@ export type Database = {
       }
       ride_templates: {
         Row: {
+          ac_allowed: boolean | null
           active: boolean
           available_seats: number
           created_at: string
@@ -676,16 +677,22 @@ export type Database = {
           destination_lat: number
           destination_lng: number
           driver_id: string
+          food_allowed: boolean | null
           id: string
           last_generated_date: string | null
+          luggage_allowed: boolean | null
+          music_allowed: boolean | null
           origin_address: string
           origin_lat: number
           origin_lng: number
+          pets_allowed: boolean | null
           price_per_seat: number
+          smoking_allowed: boolean | null
           updated_at: string
           weekdays: number[]
         }
         Insert: {
+          ac_allowed?: boolean | null
           active?: boolean
           available_seats?: number
           created_at?: string
@@ -694,16 +701,22 @@ export type Database = {
           destination_lat: number
           destination_lng: number
           driver_id: string
+          food_allowed?: boolean | null
           id?: string
           last_generated_date?: string | null
+          luggage_allowed?: boolean | null
+          music_allowed?: boolean | null
           origin_address: string
           origin_lat: number
           origin_lng: number
+          pets_allowed?: boolean | null
           price_per_seat: number
+          smoking_allowed?: boolean | null
           updated_at?: string
           weekdays: number[]
         }
         Update: {
+          ac_allowed?: boolean | null
           active?: boolean
           available_seats?: number
           created_at?: string
@@ -712,12 +725,17 @@ export type Database = {
           destination_lat?: number
           destination_lng?: number
           driver_id?: string
+          food_allowed?: boolean | null
           id?: string
           last_generated_date?: string | null
+          luggage_allowed?: boolean | null
+          music_allowed?: boolean | null
           origin_address?: string
           origin_lat?: number
           origin_lng?: number
+          pets_allowed?: boolean | null
           price_per_seat?: number
+          smoking_allowed?: boolean | null
           updated_at?: string
           weekdays?: number[]
         }
@@ -725,6 +743,7 @@ export type Database = {
       }
       rides: {
         Row: {
+          ac_allowed: boolean | null
           available_seats: number
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -735,18 +754,24 @@ export type Database = {
           destination_lat: number
           destination_lng: number
           driver_id: string
+          food_allowed: boolean | null
           id: string
+          luggage_allowed: boolean | null
+          music_allowed: boolean | null
           origin_address: string
           origin_lat: number
           origin_lng: number
+          pets_allowed: boolean | null
           price_per_seat: number
           route_polyline: string | null
+          smoking_allowed: boolean | null
           status: Database["public"]["Enums"]["ride_status"] | null
           template_id: string | null
           university_id: string | null
           updated_at: string
         }
         Insert: {
+          ac_allowed?: boolean | null
           available_seats?: number
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -757,18 +782,24 @@ export type Database = {
           destination_lat: number
           destination_lng: number
           driver_id: string
+          food_allowed?: boolean | null
           id?: string
+          luggage_allowed?: boolean | null
+          music_allowed?: boolean | null
           origin_address: string
           origin_lat: number
           origin_lng: number
+          pets_allowed?: boolean | null
           price_per_seat: number
           route_polyline?: string | null
+          smoking_allowed?: boolean | null
           status?: Database["public"]["Enums"]["ride_status"] | null
           template_id?: string | null
           university_id?: string | null
           updated_at?: string
         }
         Update: {
+          ac_allowed?: boolean | null
           available_seats?: number
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -779,12 +810,17 @@ export type Database = {
           destination_lat?: number
           destination_lng?: number
           driver_id?: string
+          food_allowed?: boolean | null
           id?: string
+          luggage_allowed?: boolean | null
+          music_allowed?: boolean | null
           origin_address?: string
           origin_lat?: number
           origin_lng?: number
+          pets_allowed?: boolean | null
           price_per_seat?: number
           route_polyline?: string | null
+          smoking_allowed?: boolean | null
           status?: Database["public"]["Enums"]["ride_status"] | null
           template_id?: string | null
           university_id?: string | null

@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat } from 'lucide-react';
+import {
+  ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat,
+  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,6 +47,17 @@ const CreateRide = () => {
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
+
+  // Ride preferences (optional, like BlaBlaCar)
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [preferences, setPreferences] = useState({
+    pets_allowed: false,
+    smoking_allowed: false,
+    luggage_allowed: true,
+    music_allowed: true,
+    ac_allowed: true,
+    food_allowed: true,
+  });
 
   // Recurring
   const [isRecurring, setIsRecurring] = useState(false);
@@ -155,6 +169,7 @@ const CreateRide = () => {
             available_seats: seats,
             price_per_seat: price,
             active: true,
+            ...preferences,
           });
         if (tplError) throw tplError;
 
@@ -183,6 +198,7 @@ const CreateRide = () => {
           status: 'active',
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
+          ...preferences,
         })
         .select('id')
         .single();
@@ -479,6 +495,54 @@ const CreateRide = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       Ak vyberieš univerzitu, jazdu uvidia iba overení členovia.
                     </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Ride Preferences — optional, collapsible like BlaBlaCar */}
+              <div className="p-6 rounded-2xl bg-card border border-border">
+                <button
+                  type="button"
+                  onClick={() => setPreferencesOpen((p) => !p)}
+                  className="flex items-center justify-between w-full text-left"
+                >
+                  <div>
+                    <h2 className="font-display text-lg font-semibold">Preferencie jazdy</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">Voliteľné — upresni podmienky v aute</p>
+                  </div>
+                  {preferencesOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {preferencesOpen && (
+                  <div className="mt-4 pt-4 border-t border-border space-y-4">
+                    {[
+                      { key: 'pets_allowed' as const, label: 'Zvieratá povolené', icon: Dog, desc: 'Pes alebo mačka v prepravke' },
+                      { key: 'smoking_allowed' as const, label: 'Fajčenie povolené', icon: Cigarette, desc: 'Cigarety počas jazdy' },
+                      { key: 'luggage_allowed' as const, label: 'Veľká batožina', icon: Briefcase, desc: 'Kufor alebo batoh do kufra' },
+                      { key: 'music_allowed' as const, label: 'Hudba v aute', icon: Music, desc: 'Rádio alebo vlastný playlist' },
+                      { key: 'ac_allowed' as const, label: 'Klimatizácia', icon: Wind, desc: 'Chladenie/vykurovanie zapnuté' },
+                      { key: 'food_allowed' as const, label: 'Občerstvenie', icon: Coffee, desc: 'Jedlo a nápoje v aute' },
+                    ].map((pref) => (
+                      <div key={pref.key} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <pref.icon className="w-5 h-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium">{pref.label}</p>
+                            <p className="text-[11px] text-muted-foreground">{pref.desc}</p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={preferences[pref.key]}
+                          onCheckedChange={(checked) =>
+                            setPreferences((prev) => ({ ...prev, [pref.key]: checked }))
+                          }
+                        />
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
