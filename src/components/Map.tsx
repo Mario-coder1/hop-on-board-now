@@ -314,6 +314,47 @@ const Map: React.FC<MapProps> = ({
             onMarkerClick(markerData.id);
           });
         }
+      } else if (markerData.type === 'gas_station') {
+        // Circular logo marker for partner gas stations
+        const markerDiv = document.createElement('div');
+        const size = 36;
+        markerDiv.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          background: #fff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+          border: 2px solid ${MARKER_COLORS.gas_station};
+          cursor: pointer;
+          transition: transform 0.2s;
+          overflow: hidden;
+        `;
+        if (markerData.avatarUrl) {
+          const img = document.createElement('img');
+          img.src = markerData.avatarUrl;
+          img.alt = markerData.label || 'Stanica';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+          img.onerror = () => {
+            markerDiv.removeChild(img);
+            markerDiv.textContent = '⛽';
+          };
+          markerDiv.appendChild(img);
+        } else {
+          markerDiv.textContent = '⛽';
+        }
+        el.appendChild(markerDiv);
+        el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
+        el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
+        if (onMarkerClick) {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onMarkerClick(markerData.id);
+          });
+        }
       } else {
         const icons: Record<string, string> = {
           driver: '🚗',
@@ -323,7 +364,6 @@ const Map: React.FC<MapProps> = ({
           pickup: '🟢',
           stop: '🔵',
           dropoff: '🔴',
-          gas_station: '⛽'
         };
 
         // Use DOM API instead of innerHTML to prevent XSS
