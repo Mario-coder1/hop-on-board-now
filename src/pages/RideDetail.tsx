@@ -643,6 +643,38 @@ const RideDetail = () => {
                 )}
               </article>
 
+              {/* Ride Preferences */}
+              {ride && (
+                <article className="p-6 rounded-2xl bg-card border border-border">
+                  <h2 className="font-display font-semibold mb-4">Preferencie jazdy</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { key: 'pets_allowed' as const, label: 'Zvieratá', icon: Dog },
+                      { key: 'smoking_allowed' as const, label: 'Fajčenie', icon: Cigarette },
+                      { key: 'luggage_allowed' as const, label: 'Batožina', icon: Briefcase },
+                      { key: 'music_allowed' as const, label: 'Hudba', icon: Music },
+                      { key: 'ac_allowed' as const, label: 'Klimatizácia', icon: Wind },
+                      { key: 'food_allowed' as const, label: 'Občerstvenie', icon: Coffee },
+                    ].map((pref) => {
+                      const allowed = ride[pref.key] ?? (pref.key === 'pets_allowed' || pref.key === 'smoking_allowed' ? false : true);
+                      return (
+                        <div
+                          key={pref.key}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl text-sm ${
+                            allowed
+                              ? 'bg-primary/10 text-primary'
+                              : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          <pref.icon className="w-4 h-4 shrink-0" />
+                          <span className="font-medium">{pref.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+              )}
+
               {/* Request */}
               {!isDriver && profile && (
                 <article className="p-6 rounded-2xl bg-card border border-border">
