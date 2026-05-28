@@ -1,28 +1,47 @@
 # TakeMe
 
-> TakeMe je slovenská aplikácia pre spolujazdu (ridesharing). Vodiči ponúkajú voľné miesta v aute, pasažieri si rezervujú jazdu a sledujú vodiča v reálnom čase.
+> TakeMe — spolujazda / carpooling / ridesharing / Mitfahrgelegenheit / wspólne przejazdy / spolujízda / telekocsi. Vodiči ponúkajú voľné miesta, pasažieri si rezervujú jazdu a sledujú vodiča v reálnom čase. Slovensko, Česko, Poľsko, Rakúsko, Nemecko, Maďarsko a celá EÚ.
 
-TakeMe spája vodičov a pasažierov na celom Slovensku — Bratislava, Košice, Žilina, Prešov, Nitra, Trnava, Banská Bystrica, Trenčín a ďalšie mestá. Platba prebieha cez aplikáciu, podpora live tracking, hodnotenia a inštalácia ako PWA na iOS aj Android.
+## Languages
+- Slovenčina (SK) — predvolený jazyk
+- Čeština (CS) — pro Českou republiku
+- Polski (PL) — dla Polski
+- English (EN) — for international users
+- Deutsch (DE) — für Österreich und Deutschland
+- Magyar (HU) — Magyarországnak
+- Français (FR), Italiano (IT), Español (ES) — partial coverage
+
+## Summary (multilingual)
+
+- SK: TakeMe spája vodičov a pasažierov v EÚ. Platba cez aplikáciu, live tracking, hodnotenia, PWA na iOS a Android.
+- CS: TakeMe spojuje řidiče a spolujezdce v EU. Platba v aplikaci, sledování v reálném čase, hodnocení, PWA.
+- PL: TakeMe łączy kierowców i pasażerów w UE. Płatność w aplikacji, śledzenie na żywo, oceny, PWA.
+- EN: TakeMe connects drivers and passengers across the EU. In-app payments, live tracking, ratings, installable PWA.
+- DE: TakeMe verbindet Fahrer und Mitfahrer in der EU. In-App-Zahlung, Live-Tracking, Bewertungen, installierbare PWA.
+- HU: A TakeMe sofőröket és utasokat köt össze az EU-ban. Alkalmazáson belüli fizetés, élő követés, értékelések, PWA.
 
 ## Pages
 
-- [Domov](/): Úvod, vyhľadávanie jázd, ako TakeMe funguje.
-- [Všetky jazdy a trasy](/jazdy): Prehľad všetkých spolujázd a trás.
-- [Vyhľadávanie jázd](/search): Hľadaj vodiča podľa odkiaľ/kam a dátumu.
-- [TOP vodiči](/top-drivers): Rebríček najlepšie hodnotených vodičov.
-- [CO₂ kalkulačka](/co2-calculator): Vypočítaj úsporu emisií spolujazdou.
-- [Inštalácia aplikácie](/install): Návod na nainštalovanie PWA.
+- [Domov / Home / Strona główna / Startseite](/): Vyhľadávanie jázd, ako TakeMe funguje.
+- [Všetky jazdy a trasy / All rides](/jazdy)
+- [Vyhľadávanie jázd / Search rides](/search)
+- [TOP vodiči / Top drivers / Najlepsi kierowcy](/top-drivers)
+- [CO₂ kalkulačka / CO₂ calculator](/co2-calculator)
+- [Inštalácia aplikácie / Install app](/install)
 
-## Popular routes
+## Popular routes (domestic + international EU)
 
 - [Bratislava → Košice](/jazdy/bratislava-kosice)
-- [Bratislava → Žilina](/jazdy/bratislava-zilina)
-- [Bratislava → Banská Bystrica](/jazdy/bratislava-banska-bystrica)
-- [Bratislava → Nitra](/jazdy/bratislava-nitra)
-- [Bratislava → Trnava](/jazdy/bratislava-trnava)
-- [Košice → Prešov](/jazdy/kosice-presov)
+- [Bratislava → Praha / Prague](/jazdy/bratislava-praha)
+- [Bratislava → Wien / Vienna](/jazdy/bratislava-wien)
+- [Bratislava → Budapest](/jazdy/bratislava-budapest)
+- [Praha → Brno](/jazdy/praha-brno)
+- [Praha → Wien](/jazdy/praha-wien)
+- [Warszawa → Kraków](/jazdy/warszawa-krakow)
+- [Warszawa → Berlin](/jazdy/warszawa-berlin)
+- [Wien → München](/jazdy/wien-muenchen)
 
 ## Optional
 
-- [Ochrana súkromia](/privacy): Zásady spracovania osobných údajov.
-- [GDPR](/gdpr): Informácie o GDPR.
+- [Ochrana súkromia / Privacy](/privacy)
+- [GDPR](/gdpr)
