@@ -130,26 +130,48 @@ const translations: Record<Lang, Dict> = {
   },
 };
 
+function mapToSupported(raw: string | null | undefined): Lang | null {
+  if (!raw) return null;
+  const v = raw.toLowerCase();
+  const code = v.split("-")[0];
+  const region = v.split("-")[1];
+  if (region === "sk") return "sk";
+  if (region === "cz") return "cs";
+  if (region === "pl") return "pl";
+  if (code === "sk") return "sk";
+  if (code === "cs" || code === "cz") return "cs";
+  if (code === "pl") return "pl";
+  if (code === "en") return "en";
+  // DE/HU/FR/IT/ES and other EU langs → fall back to EN
+  if (["de", "hu", "fr", "it", "es", "nl", "ro", "hr", "sl"].includes(code)) return "en";
+  return null;
+}
+
 function detectLang(): Lang {
   if (typeof window === "undefined") return "sk";
+
+  // 1) URL ?lang= has the highest priority (hreflang + shared links)
+  try {
+    const url = new URL(window.location.href);
+    const fromUrl = mapToSupported(url.searchParams.get("lang"));
+    if (fromUrl) {
+      localStorage.setItem(STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
+  } catch {}
+
+  // 2) Stored preference
   const stored = localStorage.getItem(STORAGE_KEY) as Lang | null;
   if (stored && LANGS.includes(stored)) return stored;
 
+  // 3) Browser languages
   const candidates: string[] = [];
   const navAny = navigator as any;
   if (navAny.languages) candidates.push(...navAny.languages);
   if (navigator.language) candidates.push(navigator.language);
-
   for (const c of candidates) {
-    const code = c.toLowerCase().split("-")[0];
-    const region = c.toLowerCase().split("-")[1];
-    if (region === "sk") return "sk";
-    if (region === "cz") return "cs";
-    if (region === "pl") return "pl";
-    if (code === "sk") return "sk";
-    if (code === "cs") return "cs";
-    if (code === "pl") return "pl";
-    if (code === "en") return "en";
+    const mapped = mapToSupported(c);
+    if (mapped) return mapped;
   }
   return "sk";
 }
