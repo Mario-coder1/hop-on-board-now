@@ -336,18 +336,25 @@ const Map: React.FC<MapProps> = ({
           transition: transform 0.2s;
           overflow: hidden;
         `;
+        const initial = (markerData.label || 'S').charAt(0).toUpperCase();
         if (markerData.avatarUrl) {
           const img = document.createElement('img');
           img.src = markerData.avatarUrl;
           img.alt = markerData.label || 'Stanica';
-          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+          img.referrerPolicy = 'no-referrer';
+          img.crossOrigin = 'anonymous';
+          img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff;';
           img.onerror = () => {
-            markerDiv.removeChild(img);
-            markerDiv.textContent = '⛽';
+            if (img.parentNode) markerDiv.removeChild(img);
+            markerDiv.style.color = MARKER_COLORS.gas_station;
+            markerDiv.style.fontWeight = '700';
+            markerDiv.textContent = initial;
           };
           markerDiv.appendChild(img);
         } else {
-          markerDiv.textContent = '⛽';
+          markerDiv.style.color = MARKER_COLORS.gas_station;
+          markerDiv.style.fontWeight = '700';
+          markerDiv.textContent = initial;
         }
         el.appendChild(markerDiv);
         el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
