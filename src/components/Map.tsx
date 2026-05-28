@@ -468,7 +468,8 @@ const Map: React.FC<MapProps> = ({
       );
       
       // Include all markers in bounds
-      safeMarkers.forEach(m => {
+      // Include all non-context markers in bounds (skip gas stations)
+      safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
         bounds.extend([m.lng, m.lat]);
       });
 
