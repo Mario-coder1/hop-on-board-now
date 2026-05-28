@@ -357,13 +357,8 @@ const Map: React.FC<MapProps> = ({
           markerDiv.textContent = initial;
         }
         el.appendChild(markerDiv);
-        el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
-        el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
-        // Gas stations are context-only — never bubble to map's onMarkerClick
-        // (which can re-center the map). Mapbox will still open the popup.
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-        });
+        el.addEventListener('mouseenter', () => { markerDiv.style.transform = 'scale(1.15)'; });
+        el.addEventListener('mouseleave', () => { markerDiv.style.transform = 'scale(1)'; });
       } else {
         const icons: Record<string, string> = {
           driver: '🚗',
@@ -395,10 +390,10 @@ const Map: React.FC<MapProps> = ({
         el.appendChild(markerDiv);
 
         el.addEventListener('mouseenter', () => {
-          el.style.transform = 'scale(1.1)';
+          markerDiv.style.transform = 'scale(1.1)';
         });
         el.addEventListener('mouseleave', () => {
-          el.style.transform = 'scale(1)';
+          markerDiv.style.transform = 'scale(1)';
         });
         if (onMarkerClick) {
           el.addEventListener('click', (e) => {
@@ -426,6 +421,14 @@ const Map: React.FC<MapProps> = ({
           }
         });
         marker.setPopup(popup);
+
+        if (markerData.type === 'gas_station') {
+          el.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            popup.addTo(map.current!);
+          });
+        }
       }
 
       markersRef.current.push(marker);
