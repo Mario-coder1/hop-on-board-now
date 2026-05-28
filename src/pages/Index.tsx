@@ -40,10 +40,10 @@ const Index = () => {
   }
 
   const features = [
-    { icon: Car, title: "Ponúkni jazdu", desc: "Zdieľaj cestu a ušetri na nákladoch" },
-    { icon: Users, title: "Nájdi spolucestujúcich", desc: "Cestuj s overenými vodičmi" },
-    { icon: MapPin, title: "Live sledovanie", desc: "Sleduj polohu v reálnom čase" },
-    { icon: Shield, title: "Bezpečnosť", desc: "Overené profily a hodnotenia" },
+    { icon: Car, title: t("feature.offer.title"), desc: t("feature.offer.desc") },
+    { icon: Users, title: t("feature.find.title"), desc: t("feature.find.desc") },
+    { icon: MapPin, title: t("feature.live.title"), desc: t("feature.live.desc") },
+    { icon: Shield, title: t("feature.safety.title"), desc: t("feature.safety.desc") },
   ];
 
   return (
