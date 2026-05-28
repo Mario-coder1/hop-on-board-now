@@ -426,7 +426,7 @@ const Map: React.FC<MapProps> = ({
           el.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            popup.addTo(map.current!);
+            popup.setLngLat([markerData.lng, markerData.lat]).addTo(map.current!);
           });
         }
       }
