@@ -359,12 +359,11 @@ const Map: React.FC<MapProps> = ({
         el.appendChild(markerDiv);
         el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
         el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
-        if (onMarkerClick) {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            onMarkerClick(markerData.id);
-          });
-        }
+        // Gas stations are context-only — never bubble to map's onMarkerClick
+        // (which can re-center the map). Mapbox will still open the popup.
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
       } else {
         const icons: Record<string, string> = {
           driver: '🚗',
@@ -414,8 +413,18 @@ const Map: React.FC<MapProps> = ({
         .addTo(map.current!);
 
       if (markerData.popup) {
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setText(markerData.popup); // Use setText to prevent XSS
+        const popup = new mapboxgl.Popup({ offset: 25, closeButton: true })
+          .setText(markerData.popup);
+        // Preserve newlines in popup content (e.g. station name + address)
+        popup.on('open', () => {
+          const content = popup.getElement()?.querySelector('.mapboxgl-popup-content') as HTMLElement | null;
+          if (content) {
+            content.style.whiteSpace = 'pre-line';
+            content.style.maxWidth = '240px';
+            content.style.fontSize = '13px';
+            content.style.lineHeight = '1.4';
+          }
+        });
         marker.setPopup(popup);
       }
 
