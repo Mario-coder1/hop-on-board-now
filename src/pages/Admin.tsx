@@ -35,7 +35,8 @@ import {
   UserX,
   Bell,
   Megaphone,
-  BarChart3
+  BarChart3,
+  Wifi
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
