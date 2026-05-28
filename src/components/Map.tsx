@@ -413,8 +413,18 @@ const Map: React.FC<MapProps> = ({
         .addTo(map.current!);
 
       if (markerData.popup) {
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setText(markerData.popup); // Use setText to prevent XSS
+        const popup = new mapboxgl.Popup({ offset: 25, closeButton: true })
+          .setText(markerData.popup);
+        // Preserve newlines in popup content (e.g. station name + address)
+        popup.on('open', () => {
+          const content = popup.getElement()?.querySelector('.mapboxgl-popup-content') as HTMLElement | null;
+          if (content) {
+            content.style.whiteSpace = 'pre-line';
+            content.style.maxWidth = '240px';
+            content.style.fontSize = '13px';
+            content.style.lineHeight = '1.4';
+          }
+        });
         marker.setPopup(popup);
       }
 
