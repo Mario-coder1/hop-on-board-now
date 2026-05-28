@@ -47,11 +47,14 @@ interface Ride {
 
 const PassengerDashboard: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [rides, setRides] = useState<Ride[]>([]);
   const [searchFrom, setSearchFrom] = useState('');
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
   const [qrOpen, setQrOpen] = useState(false);
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
+  const [selectedMapRideId, setSelectedMapRideId] = useState<string | null>(null);
 
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
