@@ -70,7 +70,10 @@ const Map: React.FC<MapProps> = ({
   );
 
   const staticMapUrl = React.useMemo(() => {
-    const overlay = safeMarkers.slice(0, 12).map(marker => {
+    // Exclude gas stations from static preview — they're context, not focus,
+    // and a single station would otherwise cause auto-zoom onto it.
+    const focusMarkers = safeMarkers.filter(m => m.type !== 'gas_station');
+    const overlay = focusMarkers.slice(0, 12).map(marker => {
       const color = (MARKER_COLORS[marker.type] || MARKER_COLORS.origin).replace('#', '');
       return `pin-s+${color}(${marker.lng},${marker.lat})`;
     }).join(',');
