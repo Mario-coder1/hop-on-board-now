@@ -309,7 +309,7 @@ const PassengerDashboard: React.FC = () => {
                           </div>
                           <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                             <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.origin_address}</div>
-                            <div className="h-4 sm:h-5" />
+                            <div className="h-2 sm:h-5" />
                             <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.destination_address}</div>
                           </div>
                         </div>
