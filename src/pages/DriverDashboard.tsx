@@ -293,7 +293,7 @@ const DriverDashboard: React.FC = () => {
             <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Live</span>
           </div>
           <div className="card-mono overflow-hidden">
-            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={8} preferStatic />
+            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={8} />
           </div>
         </motion.div>
 
