@@ -229,10 +229,37 @@ const SearchRides = () => {
     setSortBy('time-asc');
   };
 
-  const markers = filteredRides.flatMap(ride => [
-    { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
-    { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
-  ]);
+  const markers = useMemo(() => {
+    const base = filteredRides.flatMap(ride => [
+      { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
+      { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
+    ]);
+    const live = filteredRides
+      .filter(r => r.status === 'in_progress')
+      .map(r => {
+        const loc = liveLocations[r.driver_id];
+        if (!loc) return null;
+        return {
+          id: `live-${r.id}`,
+          lat: loc.lat,
+          lng: loc.lng,
+          type: 'live-driver' as const,
+          avatarUrl: r.driver?.avatar_url ?? null,
+          label: r.driver?.full_name ?? 'Vodič',
+        };
+      })
+      .filter((m): m is NonNullable<typeof m> => m !== null);
+    return [...base, ...live];
+  }, [filteredRides, liveLocations]);
+
+  const handleMarkerClick = (id: string) => {
+    if (id.startsWith('live-')) {
+      navigate(`/ride/${id.slice(5)}`);
+      return;
+    }
+    const rideId = id.replace(/-(origin|dest)$/, '');
+    if (rideId !== id) navigate(`/ride/${rideId}`);
+  };
 
   const resultLabel = (n: number) => {
     if (n === 1) return 'jazda';
