@@ -26,6 +26,7 @@ interface RideStop {
 
 interface Ride {
   id: string;
+  driver_id: string;
   origin_address: string;
   destination_address: string;
   origin_lat: number;
