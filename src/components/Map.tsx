@@ -359,12 +359,11 @@ const Map: React.FC<MapProps> = ({
         el.appendChild(markerDiv);
         el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
         el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
-        if (onMarkerClick) {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            onMarkerClick(markerData.id);
-          });
-        }
+        // Gas stations are context-only — never bubble to map's onMarkerClick
+        // (which can re-center the map). Mapbox will still open the popup.
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
       } else {
         const icons: Record<string, string> = {
           driver: '🚗',
