@@ -17,6 +17,7 @@ import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
 import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import { WelcomeOnboardingDialog } from "./components/WelcomeOnboardingDialog";
+import RequireFullNameDialog from "./components/RequireFullNameDialog";
 
 // Lazy-load all non-critical routes for faster initial load
 const Auth = lazy(() => import("./pages/Auth"));
