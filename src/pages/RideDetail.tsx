@@ -613,7 +613,7 @@ const RideDetail = () => {
               </article>
 
               {/* Map with route */}
-              <Map markers={markers} waypoints={waypoints} showRoute className="h-[400px]" />
+              <Map markers={[...markers, ...gasStations]} waypoints={waypoints} showRoute className="h-[400px]" />
             </section>
 
             {/* Sidebar */}

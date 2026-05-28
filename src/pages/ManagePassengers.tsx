@@ -15,6 +15,7 @@ import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
+import { useGasStations } from '@/hooks/useGasStations';
 
 interface AcceptedPassenger {
   id: string;
@@ -533,7 +534,7 @@ const ManagePassengers = () => {
               <Card className="border-0 shadow-card overflow-hidden">
                 <CardContent className="p-0">
                   <Map 
-                    markers={markers}
+                    markers={[...markers, ...gasStations]}
                     showRoute
                     className="h-[260px] sm:h-[360px] lg:h-[500px]"
                     center={selectedPassenger ? [
