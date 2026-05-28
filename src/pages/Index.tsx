@@ -210,13 +210,13 @@ const Index = () => {
           <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{ background: 'radial-gradient(circle at 30% 20%, white, transparent 50%)' }} />
           <div className="relative">
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3">
-              Pripravený na cestu?
+              {t("cta.ready.title")}
             </h2>
             <p className="text-primary-foreground/85 mb-7 max-w-md mx-auto">
-              Vytvor si účet zadarmo a začni cestovať ešte dnes.
+              {t("cta.ready.desc")}
             </p>
             <Button variant="glass" size="lg" onClick={() => navigate("/auth")} className="text-base px-8 rounded-2xl h-12">
-              Registrovať sa
+              {t("cta.ready.button")}
             </Button>
           </div>
         </motion.div>
@@ -224,9 +224,9 @@ const Index = () => {
         {/* Populárne trasy — interné SEO odkazy */}
         <section className="mt-16 sm:mt-24">
           <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Populárne trasy</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{t("routes.title")}</h2>
             <a href="/jazdy" className="text-xs text-muted-foreground hover:text-foreground">
-              Všetky trasy →
+              {t("routes.all")}
             </a>
           </div>
           <div className="flex flex-wrap gap-2">
