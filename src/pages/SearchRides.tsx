@@ -229,36 +229,31 @@ const SearchRides = () => {
     setSortBy('time-asc');
   };
 
+  // One marker per ride at driver's position (live if in_progress, otherwise origin)
   const markers = useMemo(() => {
-    const base = filteredRides.flatMap(ride => [
-      { id: `${ride.id}-origin`, lat: ride.origin_lat, lng: ride.origin_lng, type: 'origin' as const },
-      { id: `${ride.id}-dest`, lat: ride.destination_lat, lng: ride.destination_lng, type: 'destination' as const },
-    ]);
-    const live = filteredRides
-      .filter(r => r.status === 'in_progress')
-      .map(r => {
-        const loc = liveLocations[r.driver_id];
-        if (!loc) return null;
-        return {
-          id: `live-${r.id}`,
-          lat: loc.lat,
-          lng: loc.lng,
-          type: 'live-driver' as const,
-          avatarUrl: r.driver?.avatar_url ?? null,
-          label: r.driver?.full_name ?? 'Vodič',
-        };
-      })
-      .filter((m): m is NonNullable<typeof m> => m !== null);
-    return [...base, ...live];
+    return filteredRides.map(ride => {
+      const live = ride.status === 'in_progress' ? liveLocations[ride.driver_id] : null;
+      const lat = live ? live.lat : ride.origin_lat;
+      const lng = live ? live.lng : ride.origin_lng;
+      return {
+        id: ride.id,
+        lat,
+        lng,
+        type: 'live-driver' as const,
+        avatarUrl: ride.driver?.avatar_url ?? null,
+        label: ride.driver?.full_name ?? 'Vodič',
+      };
+    });
   }, [filteredRides, liveLocations]);
 
+  const [selectedMapRideId, setSelectedMapRideId] = useState<string | null>(null);
+  const selectedMapRide = useMemo(
+    () => filteredRides.find(r => r.id === selectedMapRideId) || null,
+    [filteredRides, selectedMapRideId]
+  );
+
   const handleMarkerClick = (id: string) => {
-    if (id.startsWith('live-')) {
-      navigate(`/ride/${id.slice(5)}`);
-      return;
-    }
-    const rideId = id.replace(/-(origin|dest)$/, '');
-    if (rideId !== id) navigate(`/ride/${rideId}`);
+    setSelectedMapRideId(prev => (prev === id ? null : id));
   };
 
   const resultLabel = (n: number) => {
