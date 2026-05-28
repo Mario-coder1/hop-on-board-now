@@ -374,7 +374,7 @@ const SearchRides = () => {
 
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Results */}
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-4 min-w-0">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-medium">
