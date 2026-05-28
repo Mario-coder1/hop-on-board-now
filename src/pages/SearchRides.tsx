@@ -63,6 +63,8 @@ const SearchRides = () => {
   const [liveOnly, setLiveOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'time-asc' | 'price-asc' | 'price-desc' | 'rating-desc'>('time-asc');
 
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
+
   useEffect(() => {
     fetchRides();
   }, []);
