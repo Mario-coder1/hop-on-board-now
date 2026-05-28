@@ -13,7 +13,6 @@ import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
 import RouteAlerts from '@/components/RouteAlerts';
-import RideBadge from '@/components/RideBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -229,16 +228,15 @@ const SearchRides = () => {
     setSortBy('time-asc');
   };
 
-  // One marker per ride at driver's position (live if in_progress, otherwise origin)
+  // Only show real live driver positions. Never fall back to origin/destination points.
   const markers = useMemo(() => {
-    return filteredRides.map(ride => {
+    return filteredRides.flatMap(ride => {
       const live = ride.status === 'in_progress' ? liveLocations[ride.driver_id] : null;
-      const lat = live ? live.lat : ride.origin_lat;
-      const lng = live ? live.lng : ride.origin_lng;
+      if (!live) return [];
       return {
         id: ride.id,
-        lat,
-        lng,
+        lat: live.lat,
+        lng: live.lng,
         type: 'live-driver' as const,
         avatarUrl: ride.driver?.avatar_url ?? null,
         label: ride.driver?.full_name ?? 'Vodič',
@@ -531,34 +529,27 @@ const SearchRides = () => {
                         <span className="text-xl sm:text-2xl font-bold text-primary leading-none">{ride.price_per_seat}€</span>
                       </div>
 
-                      {/* BlaBlaCar route layout */}
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center pt-1">
-                          <span className="text-sm font-semibold tabular-nums">{time}</span>
-                          <div className="flex flex-col items-center flex-1 my-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full border-2 border-primary" />
-                            <div className="w-px flex-1 min-h-[20px] border-l-2 border-dotted border-muted-foreground/40 my-1" />
-                            {stops.map((stop) => (
-                              <div key={stop.id} className="flex flex-col items-center">
-                                <div className="w-2 h-2 rounded-full bg-orange-500" />
-                                <div className="w-px h-4 border-l-2 border-dotted border-muted-foreground/40 my-1" />
-                              </div>
-                            ))}
-                            <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                      {/* Route text only — no map-like points in the card */}
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <span className="w-12 shrink-0 text-sm font-semibold tabular-nums">{time}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Odkiaľ</p>
+                            <p className="truncate font-medium text-sm">{ride.origin_address}</p>
                           </div>
                         </div>
-                        <div className="flex-1 flex flex-col py-0.5 min-w-0">
-                          <div className="truncate font-medium text-sm">{ride.origin_address}</div>
-                          {stops.length > 0 && (
-                            <div className="flex flex-col gap-1 my-1.5">
-                              {stops.map((stop) => (
-                                <div key={stop.id} className="truncate text-xs text-muted-foreground">
-                                  {stop.address}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          <div className="truncate font-medium text-sm mt-auto">{ride.destination_address}</div>
+                        {stops.length > 0 && (
+                          <div className="pl-[60px] space-y-1">
+                            {stops.map((stop) => (
+                              <p key={stop.id} className="truncate text-xs text-muted-foreground">
+                                Zastávka · {stop.address}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-start gap-3 min-w-0">
+                          <span className="w-12 shrink-0 text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Kam</span>
+                          <p className="truncate font-medium text-sm min-w-0 flex-1">{ride.destination_address}</p>
                         </div>
                       </div>
 
@@ -579,7 +570,9 @@ const SearchRides = () => {
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
                               <p className="font-medium text-xs truncate">{ride.driver?.full_name ?? 'Vodič'}</p>
-                              <RideBadge totalRides={ride.driver?.total_rides} size="xs" />
+                              {ride.driver?.total_rides ? (
+                                <span className="text-[10px] text-muted-foreground">{ride.driver.total_rides} jázd</span>
+                              ) : null}
                             </div>
                             <p className="text-[11px] text-muted-foreground">⭐ {ride.driver?.rating?.toFixed(1) ?? '5.0'}</p>
                           </div>
