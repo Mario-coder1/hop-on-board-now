@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+import { useGasStations } from '@/hooks/useGasStations';
 
 interface ActiveRequest {
   id: string;
@@ -135,18 +136,22 @@ const PassengerDashboard: React.FC = () => {
     return () => { cancelled = true; supabase.removeChannel(channel); };
   }, [liveDriverIds.join(',')]);
 
-  const mapMarkers = useMemo(() => filteredRides.flatMap(ride => {
-    const live = liveLocations[ride.driver_id];
-    if (!live) return [];
-    return [{
-      id: ride.id,
-      lat: live.lat,
-      lng: live.lng,
-      type: 'live-driver' as const,
-      avatarUrl: ride.driver?.avatar_url ?? null,
-      label: ride.driver?.full_name ?? 'Vodič',
-    }];
-  }), [filteredRides, liveLocations]);
+  const gasStations = useGasStations();
+  const mapMarkers = useMemo(() => [
+    ...filteredRides.flatMap(ride => {
+      const live = liveLocations[ride.driver_id];
+      if (!live) return [];
+      return [{
+        id: ride.id,
+        lat: live.lat,
+        lng: live.lng,
+        type: 'live-driver' as const,
+        avatarUrl: ride.driver?.avatar_url ?? null,
+        label: ride.driver?.full_name ?? 'Vodič',
+      }];
+    }),
+    ...gasStations,
+  ], [filteredRides, liveLocations, gasStations]);
 
   const selectedMapRide = useMemo(
     () => filteredRides.find(r => r.id === selectedMapRideId) || null,

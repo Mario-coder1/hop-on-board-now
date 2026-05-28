@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
+import { useGasStations } from '@/hooks/useGasStations';
 import { getStripeEnvironment } from '@/lib/stripe';
 
 interface Ride {
@@ -121,11 +122,15 @@ const DriverDashboard: React.FC = () => {
     fetchData();
   };
 
+  const gasStations = useGasStations();
   const activeRides = rides.filter(r => r.status === 'active' || r.status === 'in_progress');
-  const mapMarkers = activeRides.flatMap(ride => [
-    { id: `${ride.id}-origin`, lat: Number(ride.origin_lat), lng: Number(ride.origin_lng), type: 'origin' as const, popup: ride.origin_address },
-    { id: `${ride.id}-dest`, lat: Number(ride.destination_lat), lng: Number(ride.destination_lng), type: 'destination' as const, popup: ride.destination_address }
-  ]);
+  const mapMarkers = [
+    ...activeRides.flatMap(ride => [
+      { id: `${ride.id}-origin`, lat: Number(ride.origin_lat), lng: Number(ride.origin_lng), type: 'origin' as const, popup: ride.origin_address },
+      { id: `${ride.id}-dest`, lat: Number(ride.destination_lat), lng: Number(ride.destination_lng), type: 'destination' as const, popup: ride.destination_address }
+    ]),
+    ...gasStations,
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-32 md:pb-8">

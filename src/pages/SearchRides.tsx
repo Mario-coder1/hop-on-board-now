@@ -16,6 +16,7 @@ import RouteAlerts from '@/components/RouteAlerts';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
+import { useGasStations } from '@/hooks/useGasStations';
 
 interface RideStop {
   id: string;
@@ -231,20 +232,22 @@ const SearchRides = () => {
   };
 
   // Only show real live driver positions. Never fall back to origin/destination points.
+  const gasStations = useGasStations();
   const markers = useMemo(() => {
-    return filteredRides.flatMap(ride => {
-      const live = liveLocations[ride.driver_id];
-      if (!live) return [];
-      return {
+    const live = filteredRides.flatMap(ride => {
+      const l = liveLocations[ride.driver_id];
+      if (!l) return [];
+      return [{
         id: ride.id,
-        lat: live.lat,
-        lng: live.lng,
+        lat: l.lat,
+        lng: l.lng,
         type: 'live-driver' as const,
         avatarUrl: ride.driver?.avatar_url ?? null,
         label: ride.driver?.full_name ?? 'Vodič',
-      };
+      }];
     });
-  }, [filteredRides, liveLocations]);
+    return [...live, ...gasStations];
+  }, [filteredRides, liveLocations, gasStations]);
 
   const [selectedMapRideId, setSelectedMapRideId] = useState<string | null>(null);
   const selectedMapRide = useMemo(

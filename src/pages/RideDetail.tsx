@@ -36,6 +36,7 @@ import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment } from '@/lib/stripe';
+import { useGasStations } from '@/hooks/useGasStations';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -446,6 +447,7 @@ const RideDetail = () => {
     }
   }, [requestStatus]);
 
+  const gasStations = useGasStations();
   const markers = useMemo(() => {
     if (!ride) return [];
 
@@ -613,7 +615,7 @@ const RideDetail = () => {
               </article>
 
               {/* Map with route */}
-              <Map markers={markers} waypoints={waypoints} showRoute className="h-[400px]" />
+              <Map markers={[...markers, ...gasStations]} waypoints={waypoints} showRoute className="h-[400px]" />
             </section>
 
             {/* Sidebar */}
