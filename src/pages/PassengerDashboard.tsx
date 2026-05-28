@@ -132,16 +132,16 @@ const PassengerDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="card-ink rounded-2xl p-4 sm:p-5">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
-                  <KeyRound className="w-5 h-5 text-background" />
+            <div className="card-ink rounded-2xl p-3 sm:p-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-background" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-1">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-0.5">
                     {activeRequest.status === 'driver_arrived' ? 'Vodič je na mieste · ukáž PIN' : 'Tvoj PIN pre vodiča'}
                   </p>
-                  <p className="display-mono text-3xl sm:text-4xl text-background tracking-[0.3em] leading-none">
+                  <p className="display-mono text-2xl sm:text-4xl text-background tracking-[0.25em] leading-none">
                     {activeRequest.pin_code}
                   </p>
                   {activeRequest.ride && (
@@ -151,7 +151,7 @@ const PassengerDashboard: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-3">
                 <Button
                   variant="secondary"
                   size="sm"
@@ -161,7 +161,7 @@ const PassengerDashboard: React.FC = () => {
                   <QrCode className="w-4 h-4" />
                   Zobraziť QR
                 </Button>
-                <Link to={`/track-ride/${activeRequest.ride_id}`} className="flex-1">
+                <Link to={`/track/${activeRequest.id}`} className="flex-1">
                   <Button variant="outline" size="sm" className="w-full gap-1 rounded-full bg-transparent border-background/30 text-background hover:bg-background/10 hover:text-background">
                     Detail
                     <ChevronRight className="w-4 h-4" />
@@ -309,7 +309,7 @@ const PassengerDashboard: React.FC = () => {
                           </div>
                           <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                             <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.origin_address}</div>
-                            <div className="h-4 sm:h-5" />
+                            <div className="h-2 sm:h-5" />
                             <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.destination_address}</div>
                           </div>
                         </div>
