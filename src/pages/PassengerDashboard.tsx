@@ -279,10 +279,65 @@ const PassengerDashboard: React.FC = () => {
         >
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="text-lg font-bold tracking-tight">Mapa jázd</h2>
-            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{filteredRides.length} aktívnych</span>
+            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{mapMarkers.length} live</span>
           </div>
-          <div className="card-mono overflow-hidden">
-            <Map className="h-[200px] sm:h-[360px]" markers={mapMarkers} zoom={7} preferStatic />
+          <div className="card-mono overflow-hidden relative">
+            <Map className="h-[260px] sm:h-[420px]" markers={mapMarkers} onMarkerClick={handleMarkerClick} zoom={7} preferStatic={false} />
+            <AnimatePresence>
+              {selectedMapRide && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 12 }}
+                  className="absolute left-3 right-3 bottom-3 z-10 bg-background border border-border rounded-2xl p-4 shadow-2xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden border border-border flex items-center justify-center font-semibold shrink-0">
+                      {selectedMapRide.driver?.avatar_url ? (
+                        <img src={selectedMapRide.driver.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (selectedMapRide.driver?.full_name?.charAt(0) || '?')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-sm truncate">{selectedMapRide.driver?.full_name}</p>
+                        {selectedMapRide.status === 'in_progress' && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase bg-foreground text-background px-1.5 py-0.5 rounded-sm">
+                            <Radio className="w-2 h-2" /> Live
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground flex items-center gap-1 mb-2">
+                        <Star className="w-2.5 h-2.5 fill-foreground text-foreground" />
+                        <span className="tabular-nums">{selectedMapRide.driver?.rating?.toFixed(1) || '5.0'}</span>
+                        {selectedMapRide.driver?.car_model && <span className="truncate">· {selectedMapRide.driver.car_model}</span>}
+                      </p>
+                      <div className="text-xs space-y-1 mb-3">
+                        <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Odkiaľ:</span><span className="truncate font-medium">{selectedMapRide.origin_address}</span></div>
+                        <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Kam:</span><span className="truncate font-medium">{selectedMapRide.destination_address}</span></div>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                          <span className="tabular-nums">{formatDbDate(selectedMapRide.departure_time, 'd. MMM HH:mm', { locale: sk })}</span>
+                          <span>· <Users className="w-3 h-3 inline" /> {selectedMapRide.available_seats}</span>
+                          <span>· {selectedMapRide.price_per_seat}€</span>
+                        </div>
+                        <Button size="sm" className="rounded-full h-8 text-xs" onClick={() => navigate(`/ride/${selectedMapRide.id}`)}>
+                          Pripojiť sa
+                        </Button>
+                      </div>
+                    </div>
+                    <button onClick={() => setSelectedMapRideId(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {mapMarkers.length === 0 && (
+              <div className="absolute inset-x-3 top-3 z-10 bg-background/90 backdrop-blur border border-border rounded-xl px-3 py-2 text-[11px] text-muted-foreground">
+                Žiadni vodiči práve teraz nezdieľajú polohu. Klikni na vodiča na mape pre detail a možnosť pripojiť sa.
+              </div>
+            )}
           </div>
         </motion.div>
 
