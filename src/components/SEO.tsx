@@ -18,8 +18,30 @@ interface SEOProps {
   locale?: string;
 }
 
-const SITE = 'https://takeme.sk';
+const SITE = 'https://www.takeme.sk';
 const DEFAULT_OG = `${SITE}/og-image.png`;
+
+// Languages we target across the EU for organic traffic.
+const HREFLANGS: { code: string; lang: string }[] = [
+  { code: 'sk', lang: 'sk' },
+  { code: 'sk-SK', lang: 'sk' },
+  { code: 'cs', lang: 'cs' },
+  { code: 'cs-CZ', lang: 'cs' },
+  { code: 'pl', lang: 'pl' },
+  { code: 'pl-PL', lang: 'pl' },
+  { code: 'en', lang: 'en' },
+  { code: 'en-GB', lang: 'en' },
+  { code: 'de', lang: 'de' },
+  { code: 'de-DE', lang: 'de' },
+  { code: 'de-AT', lang: 'de' },
+  { code: 'hu', lang: 'hu' },
+  { code: 'hu-HU', lang: 'hu' },
+  { code: 'fr', lang: 'fr' },
+  { code: 'it', lang: 'it' },
+  { code: 'es', lang: 'es' },
+];
+
+const OG_ALT_LOCALES = ['cs_CZ', 'pl_PL', 'en_GB', 'en_US', 'de_DE', 'de_AT', 'hu_HU', 'fr_FR', 'it_IT', 'es_ES'];
 
 const SEO = ({
   title,
@@ -54,6 +76,8 @@ const SEO = ({
     });
   }
 
+  const sep = path.includes('?') ? '&' : '?';
+
   return (
     <Helmet>
       <html lang="sk" />
@@ -67,8 +91,22 @@ const SEO = ({
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
       )}
 
+      {/* hreflang — surface this URL to search engines in every targeted EU language */}
+      {!noindex && <link rel="alternate" hrefLang="x-default" href={url} />}
+      {!noindex && HREFLANGS.map(({ code, lang }) => (
+        <link
+          key={code}
+          rel="alternate"
+          hrefLang={code}
+          href={`${url}${sep}lang=${lang}`}
+        />
+      ))}
+
       <meta property="og:site_name" content="TakeMe" />
       <meta property="og:locale" content={locale} />
+      {OG_ALT_LOCALES.filter((l) => l !== locale).map((l) => (
+        <meta key={l} property="og:locale:alternate" content={l} />
+      ))}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
