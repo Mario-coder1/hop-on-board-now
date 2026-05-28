@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat } from 'lucide-react';
+import {
+  ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat,
+  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,6 +47,17 @@ const CreateRide = () => {
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
+
+  // Ride preferences (optional, like BlaBlaCar)
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [preferences, setPreferences] = useState({
+    pets_allowed: false,
+    smoking_allowed: false,
+    luggage_allowed: true,
+    music_allowed: true,
+    ac_allowed: true,
+    food_allowed: true,
+  });
 
   // Recurring
   const [isRecurring, setIsRecurring] = useState(false);
