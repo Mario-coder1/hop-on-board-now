@@ -132,16 +132,16 @@ const PassengerDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="card-ink rounded-2xl p-4 sm:p-5">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
-                  <KeyRound className="w-5 h-5 text-background" />
+            <div className="card-ink rounded-2xl p-3 sm:p-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-background/10 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-background" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-1">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-background/60 font-semibold mb-0.5">
                     {activeRequest.status === 'driver_arrived' ? 'Vodič je na mieste · ukáž PIN' : 'Tvoj PIN pre vodiča'}
                   </p>
-                  <p className="display-mono text-3xl sm:text-4xl text-background tracking-[0.3em] leading-none">
+                  <p className="display-mono text-2xl sm:text-4xl text-background tracking-[0.25em] leading-none">
                     {activeRequest.pin_code}
                   </p>
                   {activeRequest.ride && (
