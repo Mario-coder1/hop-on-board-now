@@ -70,7 +70,10 @@ const Map: React.FC<MapProps> = ({
   );
 
   const staticMapUrl = React.useMemo(() => {
-    const overlay = safeMarkers.slice(0, 12).map(marker => {
+    // Exclude gas stations from static preview — they're context, not focus,
+    // and a single station would otherwise cause auto-zoom onto it.
+    const focusMarkers = safeMarkers.filter(m => m.type !== 'gas_station');
+    const overlay = focusMarkers.slice(0, 12).map(marker => {
       const color = (MARKER_COLORS[marker.type] || MARKER_COLORS.origin).replace('#', '');
       return `pin-s+${color}(${marker.lng},${marker.lat})`;
     }).join(',');
@@ -333,18 +336,25 @@ const Map: React.FC<MapProps> = ({
           transition: transform 0.2s;
           overflow: hidden;
         `;
+        const initial = (markerData.label || 'S').charAt(0).toUpperCase();
         if (markerData.avatarUrl) {
           const img = document.createElement('img');
           img.src = markerData.avatarUrl;
           img.alt = markerData.label || 'Stanica';
-          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+          img.referrerPolicy = 'no-referrer';
+          img.crossOrigin = 'anonymous';
+          img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff;';
           img.onerror = () => {
-            markerDiv.removeChild(img);
-            markerDiv.textContent = '⛽';
+            if (img.parentNode) markerDiv.removeChild(img);
+            markerDiv.style.color = MARKER_COLORS.gas_station;
+            markerDiv.style.fontWeight = '700';
+            markerDiv.textContent = initial;
           };
           markerDiv.appendChild(img);
         } else {
-          markerDiv.textContent = '⛽';
+          markerDiv.style.color = MARKER_COLORS.gas_station;
+          markerDiv.style.fontWeight = '700';
+          markerDiv.textContent = initial;
         }
         el.appendChild(markerDiv);
         el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.15)'; });
@@ -465,7 +475,8 @@ const Map: React.FC<MapProps> = ({
       );
       
       // Include all markers in bounds
-      safeMarkers.forEach(m => {
+      // Include all non-context markers in bounds (skip gas stations)
+      safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
         bounds.extend([m.lng, m.lat]);
       });
 
