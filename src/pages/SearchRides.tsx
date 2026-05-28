@@ -92,6 +92,56 @@ const SearchRides = () => {
     setLoading(false);
   };
 
+  // Live driver tracking for in_progress rides
+  const inProgressDriverIds = useMemo(
+    () => rides.filter(r => r.status === 'in_progress').map(r => r.driver_id),
+    [rides]
+  );
+
+  useEffect(() => {
+    if (inProgressDriverIds.length === 0) {
+      setLiveLocations({});
+      return;
+    }
+
+    let cancelled = false;
+    const loadLocations = async () => {
+      const { data } = await supabase
+        .from('user_locations')
+        .select('profile_id, lat, lng')
+        .in('profile_id', inProgressDriverIds);
+      if (cancelled || !data) return;
+      const map: Record<string, { lat: number; lng: number }> = {};
+      data.forEach((row: any) => {
+        map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng) };
+      });
+      setLiveLocations(map);
+    };
+    loadLocations();
+
+    const channel = supabase
+      .channel('search-rides-live-drivers')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_locations' },
+        (payload: any) => {
+          const row = payload.new || payload.old;
+          if (!row) return;
+          if (!inProgressDriverIds.includes(row.profile_id)) return;
+          setLiveLocations(prev => ({
+            ...prev,
+            [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) },
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [inProgressDriverIds.join(',')]);
+
   // Combine date+time inputs into Date or null
   const fromDate = useMemo(() => {
     if (!dateFrom) return null;
