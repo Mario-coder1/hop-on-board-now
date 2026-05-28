@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useRideNotifications } from "@/hooks/useRideNotifications";
 import { useNotificationAlert } from "@/hooks/useNotificationAlert";
 import { useAutoSubscribePush } from "@/hooks/useAutoSubscribePush";
@@ -126,17 +127,19 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppErrorBoundary>
-              <AppRoutes />
-            </AppErrorBoundary>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppErrorBoundary>
+                <AppRoutes />
+              </AppErrorBoundary>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </HelmetProvider>
   </QueryClientProvider>
 );

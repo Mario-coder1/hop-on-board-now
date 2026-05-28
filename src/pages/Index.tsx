@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Car, Users, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
 
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const onlineCount = useOnlineUsers();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (loading) return;
@@ -37,10 +40,10 @@ const Index = () => {
   }
 
   const features = [
-    { icon: Car, title: "Ponúkni jazdu", desc: "Zdieľaj cestu a ušetri na nákladoch" },
-    { icon: Users, title: "Nájdi spolucestujúcich", desc: "Cestuj s overenými vodičmi" },
-    { icon: MapPin, title: "Live sledovanie", desc: "Sleduj polohu v reálnom čase" },
-    { icon: Shield, title: "Bezpečnosť", desc: "Overené profily a hodnotenia" },
+    { icon: Car, title: t("feature.offer.title"), desc: t("feature.offer.desc") },
+    { icon: Users, title: t("feature.find.title"), desc: t("feature.find.desc") },
+    { icon: MapPin, title: t("feature.live.title"), desc: t("feature.live.desc") },
+    { icon: Shield, title: t("feature.safety.title"), desc: t("feature.safety.desc") },
   ];
 
   return (
@@ -108,6 +111,11 @@ const Index = () => {
 
       <InstallBanner />
 
+      {/* Top bar with language switcher */}
+      <div className="relative container mx-auto px-4 pt-4 flex justify-end">
+        <LanguageSwitcher />
+      </div>
+
       {/* Hero Section */}
       <div className="relative">
         <div className="container mx-auto px-4 pt-12 md:pt-20 pb-12">
@@ -138,24 +146,24 @@ const Index = () => {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {onlineCount} online
+                  {onlineCount} {t("hero.badge_online")}
                 </span>
               </motion.div>
             </div>
 
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 text-gradient-hero leading-[1.05]">
-              Cestuj spolu,
+              {t("hero.title_1")}
               <br />
-              ušetri viac
+              {t("hero.title_2")}
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/70 mb-8 max-w-xl mx-auto">
-              Pripoj sa k tisícom ľudí, ktorí zdieľajú cesty po celom Slovensku. Bezpečne, pohodlne a ekonomicky.
+              {t("hero.subtitle")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button variant="hero" size="lg" onClick={() => navigate("/auth")} className="text-base px-8 rounded-2xl h-12">
-                Začať teraz
+                {t("hero.cta_start")}
               </Button>
               <Button
                 variant="glass"
@@ -163,7 +171,7 @@ const Index = () => {
                 onClick={() => navigate("/search")}
                 className="text-base px-8 rounded-2xl h-12"
               >
-                Hľadať jazdy
+                {t("hero.cta_search")}
               </Button>
             </div>
           </motion.div>
@@ -202,13 +210,13 @@ const Index = () => {
           <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{ background: 'radial-gradient(circle at 30% 20%, white, transparent 50%)' }} />
           <div className="relative">
             <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3">
-              Pripravený na cestu?
+              {t("cta.ready.title")}
             </h2>
             <p className="text-primary-foreground/85 mb-7 max-w-md mx-auto">
-              Vytvor si účet zadarmo a začni cestovať ešte dnes.
+              {t("cta.ready.desc")}
             </p>
             <Button variant="glass" size="lg" onClick={() => navigate("/auth")} className="text-base px-8 rounded-2xl h-12">
-              Registrovať sa
+              {t("cta.ready.button")}
             </Button>
           </div>
         </motion.div>
@@ -216,9 +224,9 @@ const Index = () => {
         {/* Populárne trasy — interné SEO odkazy */}
         <section className="mt-16 sm:mt-24">
           <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Populárne trasy</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{t("routes.title")}</h2>
             <a href="/jazdy" className="text-xs text-muted-foreground hover:text-foreground">
-              Všetky trasy →
+              {t("routes.all")}
             </a>
           </div>
           <div className="flex flex-wrap gap-2">
