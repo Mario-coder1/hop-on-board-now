@@ -151,7 +151,7 @@ const PassengerDashboard: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-3">
                 <Button
                   variant="secondary"
                   size="sm"
