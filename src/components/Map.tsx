@@ -46,6 +46,7 @@ const Map: React.FC<MapProps> = ({
   route: providedRoute,
   showRoute = false,
   onMapClick,
+  onMarkerClick,
   onRouteCalculated,
   className = '',
   interactive = true,
