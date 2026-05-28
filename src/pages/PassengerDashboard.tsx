@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight, QrCode } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Users, Star, ArrowRight, Radio, KeyRound, ChevronRight, QrCode, X } from 'lucide-react';
 import PinQrDialog from '@/components/PinQrDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +25,7 @@ interface ActiveRequest {
 
 interface Ride {
   id: string;
+  driver_id: string;
   origin_address: string;
   destination_address: string;
   departure_time: string;
@@ -46,11 +47,14 @@ interface Ride {
 
 const PassengerDashboard: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [rides, setRides] = useState<Ride[]>([]);
   const [searchFrom, setSearchFrom] = useState('');
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
   const [qrOpen, setQrOpen] = useState(false);
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
+  const [selectedMapRideId, setSelectedMapRideId] = useState<string | null>(null);
 
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
@@ -100,10 +104,58 @@ const PassengerDashboard: React.FC = () => {
     return matchesFrom && matchesTo;
   });
 
-  const mapMarkers = filteredRides.flatMap(ride => [
-    { id: `${ride.id}-origin`, lat: Number(ride.origin_lat), lng: Number(ride.origin_lng), type: 'origin' as const, popup: `<strong>${ride.origin_address}</strong>` },
-    { id: `${ride.id}-dest`, lat: Number(ride.destination_lat), lng: Number(ride.destination_lng), type: 'destination' as const, popup: ride.destination_address }
-  ]);
+  // Live driver tracking
+  const liveDriverIds = useMemo(
+    () => Array.from(new Set(rides.map(r => r.driver_id).filter(Boolean))),
+    [rides]
+  );
+
+  useEffect(() => {
+    if (liveDriverIds.length === 0) { setLiveLocations({}); return; }
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase
+        .from('user_locations')
+        .select('profile_id, lat, lng')
+        .in('profile_id', liveDriverIds);
+      if (cancelled || !data) return;
+      const map: Record<string, { lat: number; lng: number }> = {};
+      data.forEach((row: any) => { map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng) }; });
+      setLiveLocations(map);
+    };
+    load();
+    const channel = supabase
+      .channel('passenger-dash-live-drivers')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_locations' }, (payload: any) => {
+        const row = payload.new || payload.old;
+        if (!row || !liveDriverIds.includes(row.profile_id)) return;
+        setLiveLocations(prev => ({ ...prev, [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) } }));
+      })
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
+  }, [liveDriverIds.join(',')]);
+
+  const mapMarkers = useMemo(() => filteredRides.flatMap(ride => {
+    const live = liveLocations[ride.driver_id];
+    if (!live) return [];
+    return [{
+      id: ride.id,
+      lat: live.lat,
+      lng: live.lng,
+      type: 'live-driver' as const,
+      avatarUrl: ride.driver?.avatar_url ?? null,
+      label: ride.driver?.full_name ?? 'Vodič',
+    }];
+  }), [filteredRides, liveLocations]);
+
+  const selectedMapRide = useMemo(
+    () => filteredRides.find(r => r.id === selectedMapRideId) || null,
+    [filteredRides, selectedMapRideId]
+  );
+
+  const handleMarkerClick = (id: string) => {
+    setSelectedMapRideId(prev => (prev === id ? null : id));
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32 md:pb-8">
@@ -227,10 +279,65 @@ const PassengerDashboard: React.FC = () => {
         >
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="text-lg font-bold tracking-tight">Mapa jázd</h2>
-            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{filteredRides.length} aktívnych</span>
+            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground tabular-nums">{mapMarkers.length} live</span>
           </div>
-          <div className="card-mono overflow-hidden">
-            <Map className="h-[200px] sm:h-[360px]" markers={mapMarkers} zoom={7} preferStatic />
+          <div className="card-mono overflow-hidden relative">
+            <Map className="h-[260px] sm:h-[420px]" markers={mapMarkers} onMarkerClick={handleMarkerClick} zoom={7} preferStatic={false} />
+            <AnimatePresence>
+              {selectedMapRide && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 12 }}
+                  className="absolute left-3 right-3 bottom-3 z-10 bg-background border border-border rounded-2xl p-4 shadow-2xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden border border-border flex items-center justify-center font-semibold shrink-0">
+                      {selectedMapRide.driver?.avatar_url ? (
+                        <img src={selectedMapRide.driver.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (selectedMapRide.driver?.full_name?.charAt(0) || '?')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-sm truncate">{selectedMapRide.driver?.full_name}</p>
+                        {selectedMapRide.status === 'in_progress' && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase bg-foreground text-background px-1.5 py-0.5 rounded-sm">
+                            <Radio className="w-2 h-2" /> Live
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground flex items-center gap-1 mb-2">
+                        <Star className="w-2.5 h-2.5 fill-foreground text-foreground" />
+                        <span className="tabular-nums">{selectedMapRide.driver?.rating?.toFixed(1) || '5.0'}</span>
+                        {selectedMapRide.driver?.car_model && <span className="truncate">· {selectedMapRide.driver.car_model}</span>}
+                      </p>
+                      <div className="text-xs space-y-1 mb-3">
+                        <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Odkiaľ:</span><span className="truncate font-medium">{selectedMapRide.origin_address}</span></div>
+                        <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Kam:</span><span className="truncate font-medium">{selectedMapRide.destination_address}</span></div>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                          <span className="tabular-nums">{formatDbDate(selectedMapRide.departure_time, 'd. MMM HH:mm', { locale: sk })}</span>
+                          <span>· <Users className="w-3 h-3 inline" /> {selectedMapRide.available_seats}</span>
+                          <span>· {selectedMapRide.price_per_seat}€</span>
+                        </div>
+                        <Button size="sm" className="rounded-full h-8 text-xs" onClick={() => navigate(`/ride/${selectedMapRide.id}`)}>
+                          Pripojiť sa
+                        </Button>
+                      </div>
+                    </div>
+                    <button onClick={() => setSelectedMapRideId(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {mapMarkers.length === 0 && (
+              <div className="absolute inset-x-3 top-3 z-10 bg-background/90 backdrop-blur border border-border rounded-xl px-3 py-2 text-[11px] text-muted-foreground">
+                Žiadni vodiči práve teraz nezdieľajú polohu. Klikni na vodiča na mape pre detail a možnosť pripojiť sa.
+              </div>
+            )}
           </div>
         </motion.div>
 
