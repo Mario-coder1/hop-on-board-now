@@ -37,7 +37,7 @@ export function useGasStations() {
               lng: Number(s.lng),
               type: 'gas_station' as const,
               label: s.name,
-              avatarUrl: s.logo_url,
+              avatarUrl: s.logo_url || '/gas-station-logo.png',
               popup: parts.join('\n'),
             };
           })

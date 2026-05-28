@@ -343,7 +343,7 @@ const Map: React.FC<MapProps> = ({
           img.alt = markerData.label || 'Stanica';
           img.referrerPolicy = 'no-referrer';
           img.crossOrigin = 'anonymous';
-          img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff;';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
           img.onerror = () => {
             if (img.parentNode) markerDiv.removeChild(img);
             markerDiv.style.color = MARKER_COLORS.gas_station;
