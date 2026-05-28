@@ -146,24 +146,24 @@ const Index = () => {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {onlineCount} online
+                  {onlineCount} {t("hero.badge_online")}
                 </span>
               </motion.div>
             </div>
 
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 text-gradient-hero leading-[1.05]">
-              Cestuj spolu,
+              {t("hero.title_1")}
               <br />
-              ušetri viac
+              {t("hero.title_2")}
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/70 mb-8 max-w-xl mx-auto">
-              Pripoj sa k tisícom ľudí, ktorí zdieľajú cesty po celom Slovensku. Bezpečne, pohodlne a ekonomicky.
+              {t("hero.subtitle")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button variant="hero" size="lg" onClick={() => navigate("/auth")} className="text-base px-8 rounded-2xl h-12">
-                Začať teraz
+                {t("hero.cta_start")}
               </Button>
               <Button
                 variant="glass"
@@ -171,7 +171,7 @@ const Index = () => {
                 onClick={() => navigate("/search")}
                 className="text-base px-8 rounded-2xl h-12"
               >
-                Hľadať jazdy
+                {t("hero.cta_search")}
               </Button>
             </div>
           </motion.div>
