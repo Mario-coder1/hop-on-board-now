@@ -282,33 +282,6 @@ const Map: React.FC<MapProps> = ({
         }
         avatarRing.appendChild(avatar);
 
-        // LIVE pulse dot
-        const pulse = document.createElement('span');
-        pulse.style.cssText = `
-          position: absolute;
-          top: -2px;
-          right: -2px;
-          width: 14px;
-          height: 14px;
-          background: #ef4444;
-          border-radius: 50%;
-          border: 2px solid #fff;
-          box-shadow: 0 0 0 0 rgba(239,68,68, 0.7);
-          animation: livePulse 1.6s infinite;
-        `;
-        avatarRing.appendChild(pulse);
-
-        if (!document.getElementById('live-marker-anim')) {
-          const style = document.createElement('style');
-          style.id = 'live-marker-anim';
-          style.textContent = `@keyframes livePulse {
-            0% { box-shadow: 0 0 0 0 rgba(239,68,68, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(239,68,68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239,68,68, 0); }
-          }`;
-          document.head.appendChild(style);
-        }
-
         wrap.appendChild(avatarRing);
 
         if (markerData.label) {
