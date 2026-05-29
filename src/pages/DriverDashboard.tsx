@@ -41,7 +41,6 @@ interface RideRequest {
     full_name: string;
     rating: number;
     avatar_url: string | null;
-    phone: string | null;
   };
   ride: {
     origin_address: string;
