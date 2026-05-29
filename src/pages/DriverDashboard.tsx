@@ -209,8 +209,7 @@ const DriverDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden mb-8"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden mb-6 sm:mb-8"
         >
           {[
             { label: 'Aktívne', value: activeRides.length, icon: Car },
@@ -218,16 +217,18 @@ const DriverDashboard: React.FC = () => {
             { label: 'Jázd', value: profile?.total_rides || 0, icon: TrendingUp },
             { label: 'Rating', value: (profile?.rating?.toFixed(1) || '5.0'), icon: Star, suffix: '★' }
           ].map((stat) => (
-            <div key={stat.label} className="bg-card p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">{stat.label}</p>
-                <stat.icon className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.6} />
+            <div key={stat.label} className="bg-card p-3 sm:p-5 min-w-0">
+              <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-muted-foreground font-semibold truncate">{stat.label}</p>
+                <stat.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground shrink-0" strokeWidth={1.6} />
               </div>
-              <p className="display-mono text-3xl sm:text-4xl text-foreground leading-none">
-                {stat.value}{(stat as any).suffix && <span className="text-base text-muted-foreground ml-1">{(stat as any).suffix}</span>}
+              <p className="display-mono text-2xl sm:text-4xl text-foreground leading-none truncate">
+                {stat.value}{(stat as any).suffix && <span className="text-sm sm:text-base text-muted-foreground ml-1">{(stat as any).suffix}</span>}
               </p>
             </div>
           ))}
+        </motion.div>
+
         </motion.div>
 
         {/* PENDING REQUESTS */}
