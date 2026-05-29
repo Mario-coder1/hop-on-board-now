@@ -229,7 +229,7 @@ const DriverDashboard: React.FC = () => {
           ))}
         </motion.div>
 
-        </motion.div>
+
 
         {/* PENDING REQUESTS */}
         {requests.length > 0 && (
