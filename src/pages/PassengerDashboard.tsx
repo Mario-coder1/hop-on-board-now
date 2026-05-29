@@ -163,10 +163,10 @@ const PassengerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 md:pb-8">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <Navigation />
 
-      <div className="container mx-auto px-4 pt-4 pb-6 sm:pt-8">
+      <div className="container mx-auto px-3 sm:px-4 pt-4 pb-6 sm:pt-8 max-w-full">
         {/* HERO */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -174,12 +174,13 @@ const PassengerDashboard: React.FC = () => {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="mb-4 sm:mb-10"
         >
-          <p className="section-label mb-2">Pasažier · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
-          <h1 className="text-[26px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
+          <p className="section-label mb-2 truncate">Pasažier · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
+          <h1 className="text-[24px] xs:text-[28px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em] break-words">
             Kam dnes,<br />
-            <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}?</span>
+            <span className="text-muted-foreground truncate block">{profile?.full_name?.split(' ')[0]}?</span>
           </h1>
         </motion.div>
+
 
 
         {/* ACTIVE RIDE PIN BANNER */}
