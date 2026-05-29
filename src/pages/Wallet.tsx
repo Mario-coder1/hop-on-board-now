@@ -87,7 +87,8 @@ const Wallet = () => {
       .from('payout_requests')
       .select('*')
       .eq('driver_id', profile.id)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(3);
     setPayouts((po as PayoutRequest[]) || []);
 
     setLoading(false);
@@ -154,9 +155,9 @@ const Wallet = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="mb-6 border-0 shadow-card bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-2 opacity-90">
+                <div className="flex items-center gap-3 mb-2 opacity-90">
                 <WalletIcon className="w-5 h-5" />
-                <span className="text-sm font-medium">Zostatok</span>
+                <span className="text-sm font-medium">Zostatkový kredit</span>
               </div>
               <div className="text-4xl font-bold tracking-tight">{balance.toFixed(2)} €</div>
               {pendingPayout > 0 && (
