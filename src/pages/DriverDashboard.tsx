@@ -132,32 +132,33 @@ const DriverDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-32 md:pb-8">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <Navigation />
 
-      <div className="container mx-auto px-4 pt-4 pb-6 sm:pt-8">
+      <div className="container mx-auto px-3 sm:px-4 pt-4 pb-6 sm:pt-8 max-w-full">
         {/* HERO HEADER — editorial */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 sm:mb-10"
+          className="mb-5 sm:mb-10"
         >
-          <p className="section-label mb-2">Driver · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
-          <div className="flex items-end justify-between gap-3">
-            <h1 className="text-[34px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
+          <p className="section-label mb-2 truncate">Driver · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
+          <div className="flex items-end justify-between gap-2 sm:gap-3">
+            <h1 className="text-[26px] xs:text-[32px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em] min-w-0 break-words">
               Ahoj,<br />
-              <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}.</span>
+              <span className="text-muted-foreground truncate block">{profile?.full_name?.split(' ')[0]}.</span>
             </h1>
             <Link to="/create-ride" className="shrink-0">
-              <Button size="lg" className="gap-2 rounded-full">
+              <Button size="sm" className="gap-1.5 rounded-full sm:size-lg sm:gap-2">
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Nová jazda</span>
-                <span className="sm:hidden">Nová</span>
+                <span className="sm:hidden text-xs">Nová</span>
               </Button>
             </Link>
           </div>
         </motion.div>
+
 
         {/* LIVE TRACKING BAR — ink-on-white when off, ink card when on */}
         <motion.div
@@ -208,8 +209,7 @@ const DriverDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden mb-8"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden mb-6 sm:mb-8"
         >
           {[
             { label: 'Aktívne', value: activeRides.length, icon: Car },
@@ -217,17 +217,19 @@ const DriverDashboard: React.FC = () => {
             { label: 'Jázd', value: profile?.total_rides || 0, icon: TrendingUp },
             { label: 'Rating', value: (profile?.rating?.toFixed(1) || '5.0'), icon: Star, suffix: '★' }
           ].map((stat) => (
-            <div key={stat.label} className="bg-card p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">{stat.label}</p>
-                <stat.icon className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.6} />
+            <div key={stat.label} className="bg-card p-3 sm:p-5 min-w-0">
+              <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-muted-foreground font-semibold truncate">{stat.label}</p>
+                <stat.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground shrink-0" strokeWidth={1.6} />
               </div>
-              <p className="display-mono text-3xl sm:text-4xl text-foreground leading-none">
-                {stat.value}{(stat as any).suffix && <span className="text-base text-muted-foreground ml-1">{(stat as any).suffix}</span>}
+              <p className="display-mono text-2xl sm:text-4xl text-foreground leading-none truncate">
+                {stat.value}{(stat as any).suffix && <span className="text-sm sm:text-base text-muted-foreground ml-1">{(stat as any).suffix}</span>}
               </p>
             </div>
           ))}
         </motion.div>
+
+
 
         {/* PENDING REQUESTS */}
         {requests.length > 0 && (
