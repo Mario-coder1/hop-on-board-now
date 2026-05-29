@@ -153,60 +153,62 @@ const Wallet = () => {
         </Button>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="mb-6 border-0 shadow-card bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
-            <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-2 opacity-90">
-                <WalletIcon className="w-5 h-5" />
-                <span className="text-sm font-medium">Zostatkový kredit</span>
-              </div>
-              <div className="text-4xl font-bold tracking-tight">{balance.toFixed(2)} €</div>
-              {pendingPayout > 0 && (
-                <div className="text-sm opacity-80 mt-2">Rezervované na výplatu: {pendingPayout.toFixed(2)} €</div>
-              )}
-              <div className="text-sm opacity-90 mt-1">Dostupné: <strong>{availableForPayout.toFixed(2)} €</strong></div>
+          <div
+            className="mb-6 rounded-2xl p-6 text-primary-foreground shadow-cta"
+            style={{ background: 'var(--gradient-primary)' }}
+          >
+            <div className="flex items-center gap-3 mb-2 opacity-90">
+              <WalletIcon className="w-5 h-5" />
+              <span className="text-sm font-medium">Zostatkový kredit</span>
+            </div>
+            <div className="text-4xl font-bold tracking-tight">{balance.toFixed(2)} €</div>
+            {pendingPayout > 0 && (
+              <div className="text-sm opacity-80 mt-2">Rezervované na výplatu: {pendingPayout.toFixed(2)} €</div>
+            )}
+            <div className="text-sm opacity-90 mt-1">Dostupné: <strong>{availableForPayout.toFixed(2)} €</strong></div>
 
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="secondary" className="mt-4 w-full sm:w-auto gap-2" disabled={availableForPayout <= 0}>
-                    <Send className="w-4 h-4" />Požiadať o výplatu
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Žiadosť o výplatu</DialogTitle>
-                    <DialogDescription>
-                      Admin spracuje žiadosť a pošle peniaze na tvoj bankový účet (zvyčajne do 3 pracovných dní).
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <div>
-                      <Label>Suma (€)</Label>
-                      <Input
-                        type="number" step="0.01" min="1" max={availableForPayout}
-                        value={amount} onChange={(e) => setAmount(e.target.value)}
-                        placeholder={`Max ${availableForPayout.toFixed(2)}`}
-                      />
-                    </div>
-                    <div>
-                      <Label>IBAN</Label>
-                      <Input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="SK00 0000 0000 0000 0000 0000" />
-                    </div>
-                    <div>
-                      <Label>Poznámka (voliteľné)</Label>
-                      <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
-                    </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="secondary" className="mt-4 w-full sm:w-auto gap-2" disabled={availableForPayout <= 0}>
+                  <Send className="w-4 h-4" />Požiadať o výplatu
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Žiadosť o výplatu</DialogTitle>
+                  <DialogDescription>
+                    Admin spracuje žiadosť a pošle peniaze na tvoj bankový účet (zvyčajne do 3 pracovných dní).
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <div>
+                    <Label>Suma (€)</Label>
+                    <Input
+                      type="number" step="0.01" min="1" max={availableForPayout}
+                      value={amount} onChange={(e) => setAmount(e.target.value)}
+                      placeholder={`Max ${availableForPayout.toFixed(2)}`}
+                    />
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Zrušiť</Button>
-                    <Button onClick={handleSubmit} disabled={submitting}>
-                      {submitting ? 'Odosielam...' : 'Odoslať'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label>IBAN</Label>
+                    <Input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="SK00 0000 0000 0000 0000 0000" />
+                  </div>
+                  <div>
+                    <Label>Poznámka (voliteľné)</Label>
+                    <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setOpen(false)}>Zrušiť</Button>
+                  <Button onClick={handleSubmit} disabled={submitting}>
+                    {submitting ? 'Odosielam...' : 'Odoslať'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </motion.div>
+
 
         <Card className="mb-6 border-0 shadow-card">
           <CardHeader>
