@@ -177,6 +177,36 @@ const RideDetail = () => {
     void fetchStops();
   }, [id, profile?.id]);
 
+  // Realtime: keep request status in sync so UI reflects driver actions immediately
+  useEffect(() => {
+    if (!id || !profile?.id) return;
+    const channel = supabase
+      .channel(`ride-detail-${id}-${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ride_requests',
+          filter: `passenger_id=eq.${profile.id}`,
+        },
+        (payload: any) => {
+          const row = (payload.new || payload.old) as { ride_id?: string } | null;
+          if (row?.ride_id && row.ride_id !== id) return;
+          void checkExistingRequest();
+          void fetchAcceptedPassengers();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` },
+        () => { void fetchRide(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, profile?.id]);
+
+
   // Removed: Default pickup = origin - now passengers must specify their own pickup location
 
   useEffect(() => {
