@@ -132,32 +132,33 @@ const DriverDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-32 md:pb-8">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <Navigation />
 
-      <div className="container mx-auto px-4 pt-4 pb-6 sm:pt-8">
+      <div className="container mx-auto px-3 sm:px-4 pt-4 pb-6 sm:pt-8 max-w-full">
         {/* HERO HEADER — editorial */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 sm:mb-10"
+          className="mb-5 sm:mb-10"
         >
-          <p className="section-label mb-2">Driver · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
-          <div className="flex items-end justify-between gap-3">
-            <h1 className="text-[34px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em]">
+          <p className="section-label mb-2 truncate">Driver · {formatDbDate(new Date().toISOString(), 'EEEE, d. MMM', { locale: sk })}</p>
+          <div className="flex items-end justify-between gap-2 sm:gap-3">
+            <h1 className="text-[26px] xs:text-[32px] sm:text-[56px] leading-[0.95] font-bold tracking-[-0.04em] min-w-0 break-words">
               Ahoj,<br />
-              <span className="text-muted-foreground">{profile?.full_name?.split(' ')[0]}.</span>
+              <span className="text-muted-foreground truncate block">{profile?.full_name?.split(' ')[0]}.</span>
             </h1>
             <Link to="/create-ride" className="shrink-0">
-              <Button size="lg" className="gap-2 rounded-full">
+              <Button size="sm" className="gap-1.5 rounded-full sm:size-lg sm:gap-2">
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Nová jazda</span>
-                <span className="sm:hidden">Nová</span>
+                <span className="sm:hidden text-xs">Nová</span>
               </Button>
             </Link>
           </div>
         </motion.div>
+
 
         {/* LIVE TRACKING BAR — ink-on-white when off, ink card when on */}
         <motion.div
