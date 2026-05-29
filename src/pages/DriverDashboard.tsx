@@ -41,7 +41,6 @@ interface RideRequest {
     full_name: string;
     rating: number;
     avatar_url: string | null;
-    phone: string | null;
   };
   ride: {
     origin_address: string;
@@ -86,7 +85,7 @@ const DriverDashboard: React.FC = () => {
           .from('ride_requests')
           .select(`
             *,
-            passenger:profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url, phone),
+            passenger:public_profiles!ride_requests_passenger_id_fkey(full_name, rating, avatar_url),
             ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address)
           `)
           .eq('status', 'pending')
