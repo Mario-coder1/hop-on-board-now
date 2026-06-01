@@ -172,7 +172,7 @@ const MyRides = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <SEO title="Moje jazdy" description="Prehľad tvojich vytvorených spolujázd ako vodič." path="/my-rides" noindex />
       <Navigation />
       
