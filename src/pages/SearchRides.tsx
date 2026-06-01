@@ -213,58 +213,60 @@ const SearchRides = () => {
     const minR = minRating ? Number(minRating) : null;
     const radiusM = Math.max(0.5, Number(nearMeRadiusKm) || 10) * 1000;
 
-    const list = rides.filter(ride => {
-      const origin = searchOrigin.trim().toLowerCase();
-      const dest = searchDestination.trim().toLowerCase();
-      const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
+    const list = rides
+      .filter(ride => {
+        const origin = searchOrigin.trim().toLowerCase();
+        const dest = searchDestination.trim().toLowerCase();
+        const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
 
-      const matchOrigin = !origin
-        || ride.origin_address.toLowerCase().includes(origin)
-        || stopsLower.some(a => a.includes(origin));
+        const matchOrigin = !origin
+          || ride.origin_address.toLowerCase().includes(origin)
+          || stopsLower.some(a => a.includes(origin));
 
-      const matchDestination = !dest
-        || ride.destination_address.toLowerCase().includes(dest)
-        || stopsLower.some(a => a.includes(dest));
+        const matchDestination = !dest
+          || ride.destination_address.toLowerCase().includes(dest)
+          || stopsLower.some(a => a.includes(dest));
 
-      const departure = parseDbTimestamp(ride.departure_time);
-      const matchFrom = !fromDate || (departure && departure >= fromDate);
-      const matchTo = !toDate || (departure && departure <= toDate);
+        const departure = parseDbTimestamp(ride.departure_time);
+        const matchFrom = !fromDate || (departure && departure >= fromDate);
+        const matchTo = !toDate || (departure && departure <= toDate);
 
-      const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
-      const matchSeats = minS === null || ride.available_seats >= minS;
-      const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
-      const matchLive = !liveOnly || ride.status === 'in_progress';
+        const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
+        const matchSeats = minS === null || ride.available_seats >= minS;
+        const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
+        const matchLive = !liveOnly || ride.status === 'in_progress';
 
-      // Proximity + already-passed filtering
-      let matchProximity = true;
-      let matchNotPassed = true;
-      if (nearMeEnabled && myLocation) {
-        const route = parseRoutePolyline(ride.route_polyline);
-        const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
-        const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
-        matchProximity = isPointNearRoute(
-          myLocation,
-          route,
-          fallbackOrigin,
-          fallbackDest,
-          radiusM
-        );
+        return matchOrigin && matchDestination && matchFrom && matchTo
+          && matchPrice && matchSeats && matchRating && matchLive;
+      })
+      .map(ride => {
+        // Compute proximity metadata — does NOT filter, only annotates the card.
+        let nearMe: boolean | null = null;
+        let driverPassed = false;
+        if (nearMeEnabled && myLocation) {
+          const route = parseRoutePolyline(ride.route_polyline);
+          const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+          const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, radiusM);
 
-        if (matchProximity && hidePassed && ride.status === 'in_progress') {
-          const driverLoc = liveLocations[ride.driver_id];
-          if (driverLoc) {
-            const driver: LngLat = [driverLoc.lng, driverLoc.lat];
-            matchNotPassed = !hasDriverPassedPoint(myLocation, driver, route);
+          if (ride.status === 'in_progress') {
+            const driverLoc = liveLocations[ride.driver_id];
+            if (driverLoc) {
+              const driver: LngLat = [driverLoc.lng, driverLoc.lat];
+              driverPassed = hasDriverPassedPoint(myLocation, driver, route);
+            }
           }
         }
-      }
-
-      return matchOrigin && matchDestination && matchFrom && matchTo
-        && matchPrice && matchSeats && matchRating && matchLive
-        && matchProximity && matchNotPassed;
-    });
+        return { ...ride, _nearMe: nearMe, _driverPassed: driverPassed };
+      });
 
     const sorted = [...list].sort((a, b) => {
+      // When proximity is enabled, surface on-route & not-passed rides first.
+      if (nearMeEnabled && myLocation) {
+        const aScore = (a._nearMe === false ? 1 : 0) + (a._driverPassed ? 2 : 0);
+        const bScore = (b._nearMe === false ? 1 : 0) + (b._driverPassed ? 2 : 0);
+        if (aScore !== bScore) return aScore - bScore;
+      }
       switch (sortBy) {
         case 'price-asc':
           return Number(a.price_per_seat) - Number(b.price_per_seat);
@@ -281,7 +283,7 @@ const SearchRides = () => {
       }
     });
     return sorted;
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, hidePassed, liveLocations]);
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, liveLocations]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
