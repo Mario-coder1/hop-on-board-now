@@ -266,7 +266,7 @@ const SearchRides = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <SEO
         title="Vyhľadať jazdu"
         description="Prehľadaj dostupné spolujazdy po celom Slovensku. Filtruj podľa trasy, ceny a času. Bratislava, Košice, Žilina, Trnava, Banská Bystrica."
