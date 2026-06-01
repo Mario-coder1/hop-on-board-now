@@ -174,10 +174,44 @@ const SearchRides = () => {
     return Number.isNaN(d.getTime()) ? null : d;
   }, [dateTo, timeTo]);
 
+  const requestMyLocation = () => {
+    if (!('geolocation' in navigator)) {
+      toast({
+        title: 'Poloha nedostupná',
+        description: 'Tvoj prehliadač nepodporuje geolokáciu.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setLocatingMe(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMyLocation([pos.coords.longitude, pos.coords.latitude]);
+        setNearMeEnabled(true);
+        setLocatingMe(false);
+        toast({
+          title: 'Poloha zistená',
+          description: 'Filter „na mojej trase" je aktívny.',
+        });
+      },
+      (err) => {
+        console.warn('Geolocation error:', err);
+        setLocatingMe(false);
+        toast({
+          title: 'Nepodarilo sa zistiť polohu',
+          description: 'Skontroluj povolenie polohy v prehliadači.',
+          variant: 'destructive',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
   const filteredRides = useMemo(() => {
     const maxP = maxPrice ? Number(maxPrice) : null;
     const minS = minSeats ? Number(minSeats) : null;
     const minR = minRating ? Number(minRating) : null;
+    const radiusM = Math.max(0.5, Number(nearMeRadiusKm) || 10) * 1000;
 
     const list = rides.filter(ride => {
       const origin = searchOrigin.trim().toLowerCase();
@@ -201,8 +235,33 @@ const SearchRides = () => {
       const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
       const matchLive = !liveOnly || ride.status === 'in_progress';
 
+      // Proximity + already-passed filtering
+      let matchProximity = true;
+      let matchNotPassed = true;
+      if (nearMeEnabled && myLocation) {
+        const route = parseRoutePolyline(ride.route_polyline);
+        const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+        const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+        matchProximity = isPointNearRoute(
+          myLocation,
+          route,
+          fallbackOrigin,
+          fallbackDest,
+          radiusM
+        );
+
+        if (matchProximity && hidePassed && ride.status === 'in_progress') {
+          const driverLoc = liveLocations[ride.driver_id];
+          if (driverLoc) {
+            const driver: LngLat = [driverLoc.lng, driverLoc.lat];
+            matchNotPassed = !hasDriverPassedPoint(myLocation, driver, route);
+          }
+        }
+      }
+
       return matchOrigin && matchDestination && matchFrom && matchTo
-        && matchPrice && matchSeats && matchRating && matchLive;
+        && matchPrice && matchSeats && matchRating && matchLive
+        && matchProximity && matchNotPassed;
     });
 
     const sorted = [...list].sort((a, b) => {
@@ -222,7 +281,7 @@ const SearchRides = () => {
       }
     });
     return sorted;
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy]);
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, hidePassed, liveLocations]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
@@ -232,7 +291,8 @@ const SearchRides = () => {
     (maxPrice ? 1 : 0) +
     (minSeats ? 1 : 0) +
     (minRating ? 1 : 0) +
-    (liveOnly ? 1 : 0);
+    (liveOnly ? 1 : 0) +
+    (nearMeEnabled && myLocation ? 1 : 0);
 
   const clearFilters = () => {
     setSearchOrigin('');
@@ -246,6 +306,7 @@ const SearchRides = () => {
     setMinRating('');
     setLiveOnly(false);
     setSortBy('time-asc');
+    setNearMeEnabled(false);
   };
 
   // Only show real live driver positions. Never fall back to origin/destination points.
