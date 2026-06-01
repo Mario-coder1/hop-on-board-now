@@ -45,6 +45,7 @@ interface Ride {
   price_per_seat: number;
   status: string;
   route_polyline: string | null;
+  max_detour_km: number | null;
   driver: {
     full_name: string | null;
     avatar_url: string | null;
@@ -241,11 +242,14 @@ const SearchRides = () => {
         // Compute proximity metadata — does NOT filter, only annotates the card.
         let nearMe: boolean | null = null;
         let driverPassed = false;
+        // Effective radius = max(passenger's chosen radius, driver's willing detour).
+        const detourM = Math.max(0, Number(ride.max_detour_km) || 0) * 1000;
+        const effectiveRadiusM = Math.max(radiusM, detourM);
         if (nearMeEnabled && myLocation) {
           const route = parseRoutePolyline(ride.route_polyline);
           const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
           const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
-          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, radiusM);
+          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, effectiveRadiusM);
 
           if (ride.status === 'in_progress') {
             const driverLoc = liveLocations[ride.driver_id];
@@ -685,6 +689,16 @@ const SearchRides = () => {
                               <span>Vodič ťa už pravdepodobne prešiel — vracať sa nebude.</span>
                             </div>
                           )}
+                        </div>
+                      )}
+
+                      {/* Driver detour willingness badge */}
+                      {Number(ride.max_detour_km) > 0 && (
+                        <div className="mb-3">
+                          <Badge variant="secondary" className="h-5 px-2 text-[10px] gap-1">
+                            <Locate className="w-2.5 h-2.5" />
+                            Vodič zájde až {ride.max_detour_km} km mimo trasu
+                          </Badge>
                         </div>
                       )}
 

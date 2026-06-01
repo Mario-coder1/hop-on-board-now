@@ -759,6 +759,7 @@ export type Database = {
           id: string
           last_generated_date: string | null
           luggage_allowed: boolean | null
+          max_detour_km: number
           music_allowed: boolean | null
           origin_address: string
           origin_lat: number
@@ -783,6 +784,7 @@ export type Database = {
           id?: string
           last_generated_date?: string | null
           luggage_allowed?: boolean | null
+          max_detour_km?: number
           music_allowed?: boolean | null
           origin_address: string
           origin_lat: number
@@ -807,6 +809,7 @@ export type Database = {
           id?: string
           last_generated_date?: string | null
           luggage_allowed?: boolean | null
+          max_detour_km?: number
           music_allowed?: boolean | null
           origin_address?: string
           origin_lat?: number
@@ -836,6 +839,7 @@ export type Database = {
           gas_station_id: string | null
           id: string
           luggage_allowed: boolean | null
+          max_detour_km: number
           music_allowed: boolean | null
           origin_address: string
           origin_lat: number
@@ -865,6 +869,7 @@ export type Database = {
           gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
+          max_detour_km?: number
           music_allowed?: boolean | null
           origin_address: string
           origin_lat: number
@@ -894,6 +899,7 @@ export type Database = {
           gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
+          max_detour_km?: number
           music_allowed?: boolean | null
           origin_address?: string
           origin_lat?: number
