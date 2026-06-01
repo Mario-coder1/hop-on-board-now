@@ -104,7 +104,8 @@ const Admin = () => {
   const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const onlineCount = useOnlineUsers();
+  const { onlineCount, onlineUsers } = useOnlineUsersDetailed();
+  const [onlineDialogOpen, setOnlineDialogOpen] = useState(false);
   
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
