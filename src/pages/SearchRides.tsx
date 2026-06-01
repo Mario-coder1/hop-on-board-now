@@ -515,16 +515,16 @@ const SearchRides = () => {
                       </button>
                     </div>
 
-                    {/* Proximity filter — only rides whose route passes near me */}
+                    {/* Proximity annotator — labels each ride based on my location */}
                     <div className="sm:col-span-2 p-3 rounded-xl border border-border bg-muted/30 space-y-3">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div>
                           <Label className="text-xs font-semibold flex items-center gap-1.5">
                             <Locate className="w-3.5 h-3.5" />
-                            Iba na mojej trase
+                            Označiť jazdy podľa mojej polohy
                           </Label>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
-                            Skryť jazdy, ktoré idú ďaleko od mojej polohy
+                            Všetky jazdy zostanú viditeľné. Tie, ktoré nevedú cez tvoju polohu alebo ťa už vodič prešiel, dostanú upozornenie.
                           </p>
                         </div>
                         <Button
@@ -555,33 +555,20 @@ const SearchRides = () => {
                       </div>
 
                       {nearMeEnabled && myLocation && (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label className="text-[11px] text-muted-foreground">Max. vzdialenosť od trasy:</Label>
-                            <Select value={nearMeRadiusKm} onValueChange={setNearMeRadiusKm}>
-                              <SelectTrigger className="h-8 w-24 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="2">2 km</SelectItem>
-                                <SelectItem value="5">5 km</SelectItem>
-                                <SelectItem value="10">10 km</SelectItem>
-                                <SelectItem value="20">20 km</SelectItem>
-                                <SelectItem value="50">50 km</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <label className="flex items-start gap-2 text-[11px] text-muted-foreground cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={hidePassed}
-                              onChange={(e) => setHidePassed(e.target.checked)}
-                              className="mt-0.5"
-                            />
-                            <span>
-                              Skryť prebiehajúce jazdy, kde ma už vodič prešiel (vracať sa nebude)
-                            </span>
-                          </label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-[11px] text-muted-foreground">Max. vzdialenosť od trasy:</Label>
+                          <Select value={nearMeRadiusKm} onValueChange={setNearMeRadiusKm}>
+                            <SelectTrigger className="h-8 w-24 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2">2 km</SelectItem>
+                              <SelectItem value="5">5 km</SelectItem>
+                              <SelectItem value="10">10 km</SelectItem>
+                              <SelectItem value="20">20 km</SelectItem>
+                              <SelectItem value="50">50 km</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       )}
                     </div>
