@@ -44,6 +44,7 @@ interface Ride {
   available_seats: number;
   price_per_seat: number;
   status: string;
+  route_polyline: string | null;
   driver: {
     full_name: string | null;
     avatar_url: string | null;
@@ -55,6 +56,7 @@ interface Ride {
 
 const SearchRides = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchOrigin, setSearchOrigin] = useState('');
