@@ -13,6 +13,7 @@ import NavigationBar from '@/components/Navigation';
 import Map from '@/components/Map';
 import AddressSearch from '@/components/AddressSearch';
 import StopsManager, { Stop } from '@/components/StopsManager';
+import RouteAlternativesSelector, { RouteOption } from '@/components/RouteAlternativesSelector';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
