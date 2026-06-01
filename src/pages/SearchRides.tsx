@@ -692,6 +692,16 @@ const SearchRides = () => {
                         </div>
                       )}
 
+                      {/* Driver detour willingness badge */}
+                      {Number(ride.max_detour_km) > 0 && (
+                        <div className="mb-3">
+                          <Badge variant="secondary" className="h-5 px-2 text-[10px] gap-1">
+                            <Locate className="w-2.5 h-2.5" />
+                            Vodič zájde až {ride.max_detour_km} km mimo trasu
+                          </Badge>
+                        </div>
+                      )}
+
 
                       {/* Route text only — no map-like points in the card */}
                       <div className="space-y-2">
