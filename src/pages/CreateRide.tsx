@@ -184,6 +184,7 @@ const CreateRide = () => {
             weekdays: recurringDays,
             available_seats: seats,
             price_per_seat: price,
+            max_detour_km: maxDetourKm,
             active: true,
             ...preferences,
           });
