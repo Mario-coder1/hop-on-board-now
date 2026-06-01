@@ -47,6 +47,7 @@ const CreateRide = () => {
   const [departureTime, setDepartureTime] = useState('');
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
+  const [maxDetourKm, setMaxDetourKm] = useState<number>(0);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number>(0);
   const [selectedRouteCoords, setSelectedRouteCoords] = useState<Array<[number, number]> | null>(null);
