@@ -78,8 +78,6 @@ const SearchRides = () => {
   const [nearMeRadiusKm, setNearMeRadiusKm] = useState('10');
   const [myLocation, setMyLocation] = useState<LngLat | null>(null);
   const [locatingMe, setLocatingMe] = useState(false);
-  // Hide rides whose driver has already passed my location (in-progress only)
-  const [hidePassed, setHidePassed] = useState(true);
 
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
