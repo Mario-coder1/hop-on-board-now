@@ -212,6 +212,7 @@ const CreateRide = () => {
           departure_time: new Date(departureTime).toISOString(),
           available_seats: seats,
           price_per_seat: price,
+          max_detour_km: maxDetourKm,
           status: 'active',
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
