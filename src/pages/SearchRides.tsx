@@ -73,6 +73,14 @@ const SearchRides = () => {
   const [liveOnly, setLiveOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'time-asc' | 'price-asc' | 'price-desc' | 'rating-desc'>('time-asc');
 
+  // Proximity filter: only show rides whose route passes near my location
+  const [nearMeEnabled, setNearMeEnabled] = useState(false);
+  const [nearMeRadiusKm, setNearMeRadiusKm] = useState('10');
+  const [myLocation, setMyLocation] = useState<LngLat | null>(null);
+  const [locatingMe, setLocatingMe] = useState(false);
+  // Hide rides whose driver has already passed my location (in-progress only)
+  const [hidePassed, setHidePassed] = useState(true);
+
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
   useEffect(() => {
