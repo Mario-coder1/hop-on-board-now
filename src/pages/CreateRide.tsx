@@ -48,6 +48,8 @@ const CreateRide = () => {
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState<number>(0);
+  const [selectedRouteCoords, setSelectedRouteCoords] = useState<Array<[number, number]> | null>(null);
 
   // Ride preferences (optional, like BlaBlaCar)
   const [preferencesOpen, setPreferencesOpen] = useState(false);
