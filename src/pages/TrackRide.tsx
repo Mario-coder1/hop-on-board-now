@@ -403,22 +403,10 @@ const TrackRide: React.FC = () => {
 
                   <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={rideRequest.pin_code} />
 
-                  {rideRequest.passenger_confirmed_at ? (
-                    <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      Potvrdili ste nástup — čaká sa na začiatok
-                    </div>
-                  ) : (
-                    <Button
-                      variant="hero"
-                      className="w-full gap-2"
-                      onClick={handleConfirmInVehicle}
-                      disabled={confirmingPresence || !rideRequest.driver_confirmed_at}
-                    >
-                      {confirmingPresence ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                      {rideRequest.driver_confirmed_at ? 'Som vo vozidle' : 'Čakám na vodiča...'}
-                    </Button>
-                  )}
+                  <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    Po overení PINu sa jazda automaticky spustí
+                  </div>
                 </div>
               </motion.div>
             )}
