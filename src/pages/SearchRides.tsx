@@ -45,6 +45,7 @@ interface Ride {
   price_per_seat: number;
   status: string;
   route_polyline: string | null;
+  max_detour_km: number | null;
   driver: {
     full_name: string | null;
     avatar_url: string | null;
