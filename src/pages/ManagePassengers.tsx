@@ -503,12 +503,6 @@ const ManagePassengers = () => {
                           </Button>
                         )}
 
-                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && passenger.driver_confirmed_at && !passenger.passenger_confirmed_at && (
-                          <Badge variant="secondary" className="text-[10px] sm:text-xs px-2 py-1">
-                            <CheckCircle className="w-3 h-3 mr-1 text-green-600" />
-                            Čakám na pasažiera
-                          </Badge>
-                        )}
 
                         {passenger.status === 'picked_up' && (
                           <Button

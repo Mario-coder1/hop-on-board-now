@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, Loader2, QrCode } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, QrCode } from 'lucide-react';
 import PinQrDialog from '@/components/PinQrDialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -375,7 +375,7 @@ const TrackRide: React.FC = () => {
                     <h3 className="font-semibold text-sm sm:text-base">Váš PIN pre vodiča</h3>
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
-                    Ukážte PIN vodičovi. Po potvrdení nástupu kliknite na „Som vo vozidle".
+                    Ukážte PIN vodičovi. Po jeho overení sa jazda automaticky spustí.
                   </p>
                   <div className="text-center py-2 sm:py-4">
                     {rideRequest.pin_verified_at ? (
