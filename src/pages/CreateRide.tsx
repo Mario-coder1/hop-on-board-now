@@ -262,6 +262,12 @@ const CreateRide = () => {
     setRoutePolyline(polyline);
   }, []);
 
+  const handleRouteSelect = useCallback((route: RouteOption) => {
+    setSelectedRouteIndex(route.index);
+    setSelectedRouteCoords(route.coordinates);
+    setRoutePolyline(JSON.stringify(route.coordinates));
+  }, []);
+
   const markers = [];
   if (origin.lat && origin.lng) {
     markers.push({ id: 'origin', lat: origin.lat, lng: origin.lng, type: 'origin' as const, popup: 'Štart' });
