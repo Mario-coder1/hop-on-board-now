@@ -242,11 +242,14 @@ const SearchRides = () => {
         // Compute proximity metadata — does NOT filter, only annotates the card.
         let nearMe: boolean | null = null;
         let driverPassed = false;
+        // Effective radius = max(passenger's chosen radius, driver's willing detour).
+        const detourM = Math.max(0, Number(ride.max_detour_km) || 0) * 1000;
+        const effectiveRadiusM = Math.max(radiusM, detourM);
         if (nearMeEnabled && myLocation) {
           const route = parseRoutePolyline(ride.route_polyline);
           const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
           const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
-          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, radiusM);
+          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, effectiveRadiusM);
 
           if (ride.status === 'in_progress') {
             const driverLoc = liveLocations[ride.driver_id];
