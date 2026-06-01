@@ -1461,6 +1461,47 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={onlineDialogOpen} onOpenChange={setOnlineDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wifi className="w-5 h-5 text-emerald-500" />
+              Online používatelia ({onlineCount})
+            </DialogTitle>
+            <DialogDescription>
+              Aktuálne pripojení používatelia (realtime presence).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-2">
+            {onlineUsers.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nikto nie je online.</p>
+            )}
+            {onlineUsers.map((entry, idx) => {
+              const profile = entry.profileId ? users.find(u => u.id === entry.profileId) : null;
+              return (
+                <div
+                  key={(entry.profileId || 'anon') + idx}
+                  className="flex items-center justify-between gap-3 p-2 rounded-lg border"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {profile?.full_name || (entry.profileId ? 'Neznámy používateľ' : 'Anonymný návštevník')}
+                    </p>
+                    {profile?.email && (
+                      <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                    )}
+                  </div>
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-600 shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    online
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
