@@ -606,6 +606,19 @@ const CreateRide = () => {
                 )}
               </div>
 
+              {/* Route alternatives selector */}
+              {origin.lat !== 0 && destination.lat !== 0 && (
+                <div className="p-6 rounded-2xl bg-card border border-border">
+                  <RouteAlternativesSelector
+                    origin={origin.lat ? { lat: origin.lat, lng: origin.lng } : null}
+                    destination={destination.lat ? { lat: destination.lat, lng: destination.lng } : null}
+                    waypoints={waypoints}
+                    selectedIndex={selectedRouteIndex}
+                    onSelect={handleRouteSelect}
+                  />
+                </div>
+              )}
+
               <Button
                 variant="hero"
                 size="lg"
@@ -624,7 +637,8 @@ const CreateRide = () => {
                 waypoints={waypoints}
                 center={mapCenter}
                 zoom={origin.lat ? 12 : 7}
-                showRoute={origin.lat !== 0 && destination.lat !== 0}
+                showRoute={!selectedRouteCoords && origin.lat !== 0 && destination.lat !== 0}
+                route={selectedRouteCoords || undefined}
                 onRouteCalculated={handleRouteCalculated}
                 className="h-[500px]"
               />
@@ -632,6 +646,7 @@ const CreateRide = () => {
           </div>
         </motion.div>
       </div>
+
     </div>
   );
 };
