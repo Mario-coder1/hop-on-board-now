@@ -78,8 +78,6 @@ const SearchRides = () => {
   const [nearMeRadiusKm, setNearMeRadiusKm] = useState('10');
   const [myLocation, setMyLocation] = useState<LngLat | null>(null);
   const [locatingMe, setLocatingMe] = useState(false);
-  // Hide rides whose driver has already passed my location (in-progress only)
-  const [hidePassed, setHidePassed] = useState(true);
 
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
@@ -213,58 +211,60 @@ const SearchRides = () => {
     const minR = minRating ? Number(minRating) : null;
     const radiusM = Math.max(0.5, Number(nearMeRadiusKm) || 10) * 1000;
 
-    const list = rides.filter(ride => {
-      const origin = searchOrigin.trim().toLowerCase();
-      const dest = searchDestination.trim().toLowerCase();
-      const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
+    const list = rides
+      .filter(ride => {
+        const origin = searchOrigin.trim().toLowerCase();
+        const dest = searchDestination.trim().toLowerCase();
+        const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
 
-      const matchOrigin = !origin
-        || ride.origin_address.toLowerCase().includes(origin)
-        || stopsLower.some(a => a.includes(origin));
+        const matchOrigin = !origin
+          || ride.origin_address.toLowerCase().includes(origin)
+          || stopsLower.some(a => a.includes(origin));
 
-      const matchDestination = !dest
-        || ride.destination_address.toLowerCase().includes(dest)
-        || stopsLower.some(a => a.includes(dest));
+        const matchDestination = !dest
+          || ride.destination_address.toLowerCase().includes(dest)
+          || stopsLower.some(a => a.includes(dest));
 
-      const departure = parseDbTimestamp(ride.departure_time);
-      const matchFrom = !fromDate || (departure && departure >= fromDate);
-      const matchTo = !toDate || (departure && departure <= toDate);
+        const departure = parseDbTimestamp(ride.departure_time);
+        const matchFrom = !fromDate || (departure && departure >= fromDate);
+        const matchTo = !toDate || (departure && departure <= toDate);
 
-      const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
-      const matchSeats = minS === null || ride.available_seats >= minS;
-      const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
-      const matchLive = !liveOnly || ride.status === 'in_progress';
+        const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
+        const matchSeats = minS === null || ride.available_seats >= minS;
+        const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
+        const matchLive = !liveOnly || ride.status === 'in_progress';
 
-      // Proximity + already-passed filtering
-      let matchProximity = true;
-      let matchNotPassed = true;
-      if (nearMeEnabled && myLocation) {
-        const route = parseRoutePolyline(ride.route_polyline);
-        const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
-        const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
-        matchProximity = isPointNearRoute(
-          myLocation,
-          route,
-          fallbackOrigin,
-          fallbackDest,
-          radiusM
-        );
+        return matchOrigin && matchDestination && matchFrom && matchTo
+          && matchPrice && matchSeats && matchRating && matchLive;
+      })
+      .map(ride => {
+        // Compute proximity metadata — does NOT filter, only annotates the card.
+        let nearMe: boolean | null = null;
+        let driverPassed = false;
+        if (nearMeEnabled && myLocation) {
+          const route = parseRoutePolyline(ride.route_polyline);
+          const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+          const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+          nearMe = isPointNearRoute(myLocation, route, fallbackOrigin, fallbackDest, radiusM);
 
-        if (matchProximity && hidePassed && ride.status === 'in_progress') {
-          const driverLoc = liveLocations[ride.driver_id];
-          if (driverLoc) {
-            const driver: LngLat = [driverLoc.lng, driverLoc.lat];
-            matchNotPassed = !hasDriverPassedPoint(myLocation, driver, route);
+          if (ride.status === 'in_progress') {
+            const driverLoc = liveLocations[ride.driver_id];
+            if (driverLoc) {
+              const driver: LngLat = [driverLoc.lng, driverLoc.lat];
+              driverPassed = hasDriverPassedPoint(myLocation, driver, route);
+            }
           }
         }
-      }
-
-      return matchOrigin && matchDestination && matchFrom && matchTo
-        && matchPrice && matchSeats && matchRating && matchLive
-        && matchProximity && matchNotPassed;
-    });
+        return { ...ride, _nearMe: nearMe, _driverPassed: driverPassed };
+      });
 
     const sorted = [...list].sort((a, b) => {
+      // When proximity is enabled, surface on-route & not-passed rides first.
+      if (nearMeEnabled && myLocation) {
+        const aScore = (a._nearMe === false ? 1 : 0) + (a._driverPassed ? 2 : 0);
+        const bScore = (b._nearMe === false ? 1 : 0) + (b._driverPassed ? 2 : 0);
+        if (aScore !== bScore) return aScore - bScore;
+      }
       switch (sortBy) {
         case 'price-asc':
           return Number(a.price_per_seat) - Number(b.price_per_seat);
@@ -281,7 +281,7 @@ const SearchRides = () => {
       }
     });
     return sorted;
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, hidePassed, liveLocations]);
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, liveLocations]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
@@ -515,16 +515,16 @@ const SearchRides = () => {
                       </button>
                     </div>
 
-                    {/* Proximity filter — only rides whose route passes near me */}
+                    {/* Proximity annotator — labels each ride based on my location */}
                     <div className="sm:col-span-2 p-3 rounded-xl border border-border bg-muted/30 space-y-3">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div>
                           <Label className="text-xs font-semibold flex items-center gap-1.5">
                             <Locate className="w-3.5 h-3.5" />
-                            Iba na mojej trase
+                            Označiť jazdy podľa mojej polohy
                           </Label>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
-                            Skryť jazdy, ktoré idú ďaleko od mojej polohy
+                            Všetky jazdy zostanú viditeľné. Tie, ktoré nevedú cez tvoju polohu alebo ťa už vodič prešiel, dostanú upozornenie.
                           </p>
                         </div>
                         <Button
@@ -555,33 +555,20 @@ const SearchRides = () => {
                       </div>
 
                       {nearMeEnabled && myLocation && (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label className="text-[11px] text-muted-foreground">Max. vzdialenosť od trasy:</Label>
-                            <Select value={nearMeRadiusKm} onValueChange={setNearMeRadiusKm}>
-                              <SelectTrigger className="h-8 w-24 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="2">2 km</SelectItem>
-                                <SelectItem value="5">5 km</SelectItem>
-                                <SelectItem value="10">10 km</SelectItem>
-                                <SelectItem value="20">20 km</SelectItem>
-                                <SelectItem value="50">50 km</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <label className="flex items-start gap-2 text-[11px] text-muted-foreground cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={hidePassed}
-                              onChange={(e) => setHidePassed(e.target.checked)}
-                              className="mt-0.5"
-                            />
-                            <span>
-                              Skryť prebiehajúce jazdy, kde ma už vodič prešiel (vracať sa nebude)
-                            </span>
-                          </label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-[11px] text-muted-foreground">Max. vzdialenosť od trasy:</Label>
+                          <Select value={nearMeRadiusKm} onValueChange={setNearMeRadiusKm}>
+                            <SelectTrigger className="h-8 w-24 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2">2 km</SelectItem>
+                              <SelectItem value="5">5 km</SelectItem>
+                              <SelectItem value="10">10 km</SelectItem>
+                              <SelectItem value="20">20 km</SelectItem>
+                              <SelectItem value="50">50 km</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       )}
                     </div>
@@ -682,6 +669,25 @@ const SearchRides = () => {
                         </div>
                         <span className="text-xl sm:text-2xl font-bold text-primary leading-none">{ride.price_per_seat}€</span>
                       </div>
+
+                      {/* Proximity warnings — shown only when "near me" annotator is enabled */}
+                      {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
+                        <div className="mb-3 space-y-1.5">
+                          {ride._nearMe === false && (
+                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px]">
+                              <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>Táto jazda nevedie cez tvoju polohu (mimo zvoleného okruhu).</span>
+                            </div>
+                          )}
+                          {ride._driverPassed && (
+                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-[11px]">
+                              <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>Vodič ťa už pravdepodobne prešiel — vracať sa nebude.</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
 
                       {/* Route text only — no map-like points in the card */}
                       <div className="space-y-2">
