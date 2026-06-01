@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOnlineUsers } from '@/hooks/useOnlineUsers';
+import { useOnlineUsersDetailed } from '@/hooks/useOnlineUsers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -104,7 +104,8 @@ const Admin = () => {
   const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const onlineCount = useOnlineUsers();
+  const { onlineCount, onlineUsers } = useOnlineUsersDetailed();
+  const [onlineDialogOpen, setOnlineDialogOpen] = useState(false);
   
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -658,13 +659,16 @@ const Admin = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setOnlineDialogOpen(true)}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <Wifi className="w-10 h-10 text-emerald-500" />
                 <div>
                   <p className="text-2xl font-bold">{onlineCount}</p>
-                  <p className="text-muted-foreground text-sm">Online teraz</p>
+                  <p className="text-muted-foreground text-sm">Online teraz · klikni</p>
                 </div>
               </div>
             </CardContent>
@@ -1457,6 +1461,47 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={onlineDialogOpen} onOpenChange={setOnlineDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wifi className="w-5 h-5 text-emerald-500" />
+              Online používatelia ({onlineCount})
+            </DialogTitle>
+            <DialogDescription>
+              Aktuálne pripojení používatelia (realtime presence).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-2">
+            {onlineUsers.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nikto nie je online.</p>
+            )}
+            {onlineUsers.map((entry, idx) => {
+              const profile = entry.profileId ? users.find(u => u.id === entry.profileId) : null;
+              return (
+                <div
+                  key={(entry.profileId || 'anon') + idx}
+                  className="flex items-center justify-between gap-3 p-2 rounded-lg border"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {profile?.full_name || (entry.profileId ? 'Neznámy používateľ' : 'Anonymný návštevník')}
+                    </p>
+                    {profile?.email && (
+                      <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                    )}
+                  </div>
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-600 shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    online
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
