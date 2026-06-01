@@ -7,9 +7,18 @@ export interface OnlineUserEntry {
   onlineAt: string;
 }
 
+const buildList = (state: Record<string, Array<{ online_at?: string; user_id?: string | null }>>): OnlineUserEntry[] => {
+  return Object.keys(state).map((k) => {
+    const meta = state[k]?.[0] || {};
+    return {
+      profileId: (meta.user_id as string | null) ?? (k.startsWith('anonymous-') ? null : k),
+      onlineAt: meta.online_at || new Date().toISOString(),
+    };
+  });
+};
+
 export const useOnlineUsers = () => {
   const [onlineCount, setOnlineCount] = useState(0);
-  const [onlineUsers, setOnlineUsers] = useState<OnlineUserEntry[]>([]);
   const { profile } = useAuth();
 
   useEffect(() => {
@@ -23,17 +32,8 @@ export const useOnlineUsers = () => {
 
     channel
       .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState() as Record<string, Array<{ online_at?: string; user_id?: string | null }>>;
-        const keys = Object.keys(state);
-        setOnlineCount(keys.length);
-        const list: OnlineUserEntry[] = keys.map((k) => {
-          const meta = state[k]?.[0] || {};
-          return {
-            profileId: (meta.user_id as string | null) ?? (k.startsWith('anonymous-') ? null : k),
-            onlineAt: meta.online_at || new Date().toISOString(),
-          };
-        });
-        setOnlineUsers(list);
+        const state = channel.presenceState();
+        setOnlineCount(Object.keys(state).length);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -49,7 +49,7 @@ export const useOnlineUsers = () => {
     };
   }, [profile?.id]);
 
-  return Object.assign(onlineCount, {}) as number & never extends never ? number : never;
+  return onlineCount;
 };
 
 export const useOnlineUsersDetailed = () => {
@@ -68,15 +68,7 @@ export const useOnlineUsersDetailed = () => {
     channel
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState() as Record<string, Array<{ online_at?: string; user_id?: string | null }>>;
-        const keys = Object.keys(state);
-        const list: OnlineUserEntry[] = keys.map((k) => {
-          const meta = state[k]?.[0] || {};
-          return {
-            profileId: (meta.user_id as string | null) ?? (k.startsWith('anonymous-') ? null : k),
-            onlineAt: meta.online_at || new Date().toISOString(),
-          };
-        });
-        setOnlineUsers(list);
+        setOnlineUsers(buildList(state));
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
