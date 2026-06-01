@@ -659,13 +659,16 @@ const Admin = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setOnlineDialogOpen(true)}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <Wifi className="w-10 h-10 text-emerald-500" />
                 <div>
                   <p className="text-2xl font-bold">{onlineCount}</p>
-                  <p className="text-muted-foreground text-sm">Online teraz</p>
+                  <p className="text-muted-foreground text-sm">Online teraz · klikni</p>
                 </div>
               </div>
             </CardContent>
