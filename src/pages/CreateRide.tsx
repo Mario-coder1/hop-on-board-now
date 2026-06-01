@@ -511,7 +511,27 @@ const CreateRide = () => {
                       value={price || ''}
                       onChange={(e) => setPrice(e.target.value ? parseFloat(e.target.value) : 0)}
                     />
-                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Label className="flex items-center gap-1.5">
+                    <Locate className="w-4 h-4 text-primary" />
+                    Ochota zájsť mimo trasu (km)
+                  </Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.5"
+                    placeholder="0 = iba na trase"
+                    value={maxDetourKm || ''}
+                    onChange={(e) => setMaxDetourKm(e.target.value ? parseFloat(e.target.value) : 0)}
+                    className="mt-1"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Pasažierom v tejto vzdialenosti od vašej trasy sa jazda zobrazí ako vyhovujúca. Nechajte 0 ak zachádzať nechcete.
+                  </p>
+                </div>
+
                 </div>
 
                 {memberships.length > 0 && (
