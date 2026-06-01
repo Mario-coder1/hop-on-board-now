@@ -670,6 +670,25 @@ const SearchRides = () => {
                         <span className="text-xl sm:text-2xl font-bold text-primary leading-none">{ride.price_per_seat}€</span>
                       </div>
 
+                      {/* Proximity warnings — shown only when "near me" annotator is enabled */}
+                      {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
+                        <div className="mb-3 space-y-1.5">
+                          {ride._nearMe === false && (
+                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px]">
+                              <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>Táto jazda nevedie cez tvoju polohu (mimo zvoleného okruhu).</span>
+                            </div>
+                          )}
+                          {ride._driverPassed && (
+                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-[11px]">
+                              <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>Vodič ťa už pravdepodobne prešiel — vracať sa nebude.</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+
                       {/* Route text only — no map-like points in the card */}
                       <div className="space-y-2">
                         <div className="flex items-start gap-3 min-w-0">
