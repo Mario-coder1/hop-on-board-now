@@ -13,6 +13,7 @@ import NavigationBar from '@/components/Navigation';
 import Map from '@/components/Map';
 import AddressSearch from '@/components/AddressSearch';
 import StopsManager, { Stop } from '@/components/StopsManager';
+import RouteAlternativesSelector, { RouteOption } from '@/components/RouteAlternativesSelector';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +48,8 @@ const CreateRide = () => {
   const [seats, setSeats] = useState(3);
   const [price, setPrice] = useState(5);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState<number>(0);
+  const [selectedRouteCoords, setSelectedRouteCoords] = useState<Array<[number, number]> | null>(null);
 
   // Ride preferences (optional, like BlaBlaCar)
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -257,6 +260,12 @@ const CreateRide = () => {
 
   const handleRouteCalculated = useCallback((polyline: string) => {
     setRoutePolyline(polyline);
+  }, []);
+
+  const handleRouteSelect = useCallback((route: RouteOption) => {
+    setSelectedRouteIndex(route.index);
+    setSelectedRouteCoords(route.coordinates);
+    setRoutePolyline(JSON.stringify(route.coordinates));
   }, []);
 
   const markers = [];
@@ -597,6 +606,19 @@ const CreateRide = () => {
                 )}
               </div>
 
+              {/* Route alternatives selector */}
+              {origin.lat !== 0 && destination.lat !== 0 && (
+                <div className="p-6 rounded-2xl bg-card border border-border">
+                  <RouteAlternativesSelector
+                    origin={origin.lat ? { lat: origin.lat, lng: origin.lng } : null}
+                    destination={destination.lat ? { lat: destination.lat, lng: destination.lng } : null}
+                    waypoints={waypoints}
+                    selectedIndex={selectedRouteIndex}
+                    onSelect={handleRouteSelect}
+                  />
+                </div>
+              )}
+
               <Button
                 variant="hero"
                 size="lg"
@@ -615,7 +637,8 @@ const CreateRide = () => {
                 waypoints={waypoints}
                 center={mapCenter}
                 zoom={origin.lat ? 12 : 7}
-                showRoute={origin.lat !== 0 && destination.lat !== 0}
+                showRoute={!selectedRouteCoords && origin.lat !== 0 && destination.lat !== 0}
+                route={selectedRouteCoords || undefined}
                 onRouteCalculated={handleRouteCalculated}
                 className="h-[500px]"
               />
@@ -623,6 +646,7 @@ const CreateRide = () => {
           </div>
         </motion.div>
       </div>
+
     </div>
   );
 };
