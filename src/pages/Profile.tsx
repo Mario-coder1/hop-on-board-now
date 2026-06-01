@@ -344,7 +344,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
