@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, Loader2, QrCode } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, QrCode } from 'lucide-react';
 import PinQrDialog from '@/components/PinQrDialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,7 +55,6 @@ const TrackRide: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
-  const [confirmingPresence, setConfirmingPresence] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const previousStatus = useRef<string | null>(null);
 
@@ -203,35 +202,6 @@ const TrackRide: React.FC = () => {
     setShowRatingDialog(false);
   };
 
-  const handleConfirmInVehicle = async () => {
-    if (!rideRequest) return;
-    if (!rideRequest.pin_verified_at || !rideRequest.driver_confirmed_at) {
-      toast({
-        title: 'Vodič ešte nepotvrdil nástup',
-        description: 'Ukážte vodičovi váš PIN, aby ho overil.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setConfirmingPresence(true);
-    const { error } = await supabase
-      .from('ride_requests')
-      .update({ passenger_confirmed_at: new Date().toISOString() })
-      .eq('id', rideRequest.id);
-
-    if (!error) {
-      // If everything confirmed, activate ride (picked_up)
-      await supabase
-        .from('ride_requests')
-        .update({ status: 'picked_up' })
-        .eq('id', rideRequest.id);
-      toast({ title: '✅ Potvrdené', description: 'Príjemnú cestu!' });
-      fetchRideRequest();
-    } else {
-      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
-    }
-    setConfirmingPresence(false);
-  };
 
   if (loading) {
     return (
@@ -405,7 +375,7 @@ const TrackRide: React.FC = () => {
                     <h3 className="font-semibold text-sm sm:text-base">Váš PIN pre vodiča</h3>
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
-                    Ukážte PIN vodičovi. Po potvrdení nástupu kliknite na „Som vo vozidle".
+                    Ukážte PIN vodičovi. Po jeho overení sa jazda automaticky spustí.
                   </p>
                   <div className="text-center py-2 sm:py-4">
                     {rideRequest.pin_verified_at ? (
@@ -433,22 +403,10 @@ const TrackRide: React.FC = () => {
 
                   <PinQrDialog open={qrOpen} onOpenChange={setQrOpen} pin={rideRequest.pin_code} />
 
-                  {rideRequest.passenger_confirmed_at ? (
-                    <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      Potvrdili ste nástup — čaká sa na začiatok
-                    </div>
-                  ) : (
-                    <Button
-                      variant="hero"
-                      className="w-full gap-2"
-                      onClick={handleConfirmInVehicle}
-                      disabled={confirmingPresence || !rideRequest.driver_confirmed_at}
-                    >
-                      {confirmingPresence ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                      {rideRequest.driver_confirmed_at ? 'Som vo vozidle' : 'Čakám na vodiča...'}
-                    </Button>
-                  )}
+                  <div className="text-center text-xs sm:text-sm text-green-600 flex items-center justify-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    Po overení PINu sa jazda automaticky spustí
+                  </div>
                 </div>
               </motion.div>
             )}
