@@ -55,7 +55,6 @@ const TrackRide: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
-  const [confirmingPresence, setConfirmingPresence] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const previousStatus = useRef<string | null>(null);
 
