@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock, Euro, Star, ArrowUpDown } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock, Euro, Star, ArrowUpDown, Locate, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
+import { useToast } from '@/hooks/use-toast';
+import {
+  parseRoutePolyline,
+  isPointNearRoute,
+  hasDriverPassedPoint,
+  type LngLat,
+} from '@/lib/routeProximity';
 
 interface RideStop {
   id: string;
@@ -37,6 +44,7 @@ interface Ride {
   available_seats: number;
   price_per_seat: number;
   status: string;
+  route_polyline: string | null;
   driver: {
     full_name: string | null;
     avatar_url: string | null;
@@ -48,6 +56,7 @@ interface Ride {
 
 const SearchRides = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchOrigin, setSearchOrigin] = useState('');
@@ -63,6 +72,14 @@ const SearchRides = () => {
   const [minRating, setMinRating] = useState('');
   const [liveOnly, setLiveOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'time-asc' | 'price-asc' | 'price-desc' | 'rating-desc'>('time-asc');
+
+  // Proximity filter: only show rides whose route passes near my location
+  const [nearMeEnabled, setNearMeEnabled] = useState(false);
+  const [nearMeRadiusKm, setNearMeRadiusKm] = useState('10');
+  const [myLocation, setMyLocation] = useState<LngLat | null>(null);
+  const [locatingMe, setLocatingMe] = useState(false);
+  // Hide rides whose driver has already passed my location (in-progress only)
+  const [hidePassed, setHidePassed] = useState(true);
 
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
@@ -157,10 +174,44 @@ const SearchRides = () => {
     return Number.isNaN(d.getTime()) ? null : d;
   }, [dateTo, timeTo]);
 
+  const requestMyLocation = () => {
+    if (!('geolocation' in navigator)) {
+      toast({
+        title: 'Poloha nedostupná',
+        description: 'Tvoj prehliadač nepodporuje geolokáciu.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setLocatingMe(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMyLocation([pos.coords.longitude, pos.coords.latitude]);
+        setNearMeEnabled(true);
+        setLocatingMe(false);
+        toast({
+          title: 'Poloha zistená',
+          description: 'Filter „na mojej trase" je aktívny.',
+        });
+      },
+      (err) => {
+        console.warn('Geolocation error:', err);
+        setLocatingMe(false);
+        toast({
+          title: 'Nepodarilo sa zistiť polohu',
+          description: 'Skontroluj povolenie polohy v prehliadači.',
+          variant: 'destructive',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
   const filteredRides = useMemo(() => {
     const maxP = maxPrice ? Number(maxPrice) : null;
     const minS = minSeats ? Number(minSeats) : null;
     const minR = minRating ? Number(minRating) : null;
+    const radiusM = Math.max(0.5, Number(nearMeRadiusKm) || 10) * 1000;
 
     const list = rides.filter(ride => {
       const origin = searchOrigin.trim().toLowerCase();
@@ -184,8 +235,33 @@ const SearchRides = () => {
       const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
       const matchLive = !liveOnly || ride.status === 'in_progress';
 
+      // Proximity + already-passed filtering
+      let matchProximity = true;
+      let matchNotPassed = true;
+      if (nearMeEnabled && myLocation) {
+        const route = parseRoutePolyline(ride.route_polyline);
+        const fallbackOrigin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+        const fallbackDest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+        matchProximity = isPointNearRoute(
+          myLocation,
+          route,
+          fallbackOrigin,
+          fallbackDest,
+          radiusM
+        );
+
+        if (matchProximity && hidePassed && ride.status === 'in_progress') {
+          const driverLoc = liveLocations[ride.driver_id];
+          if (driverLoc) {
+            const driver: LngLat = [driverLoc.lng, driverLoc.lat];
+            matchNotPassed = !hasDriverPassedPoint(myLocation, driver, route);
+          }
+        }
+      }
+
       return matchOrigin && matchDestination && matchFrom && matchTo
-        && matchPrice && matchSeats && matchRating && matchLive;
+        && matchPrice && matchSeats && matchRating && matchLive
+        && matchProximity && matchNotPassed;
     });
 
     const sorted = [...list].sort((a, b) => {
@@ -205,7 +281,7 @@ const SearchRides = () => {
       }
     });
     return sorted;
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy]);
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, hidePassed, liveLocations]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
@@ -215,7 +291,8 @@ const SearchRides = () => {
     (maxPrice ? 1 : 0) +
     (minSeats ? 1 : 0) +
     (minRating ? 1 : 0) +
-    (liveOnly ? 1 : 0);
+    (liveOnly ? 1 : 0) +
+    (nearMeEnabled && myLocation ? 1 : 0);
 
   const clearFilters = () => {
     setSearchOrigin('');
@@ -229,6 +306,7 @@ const SearchRides = () => {
     setMinRating('');
     setLiveOnly(false);
     setSortBy('time-asc');
+    setNearMeEnabled(false);
   };
 
   // Only show real live driver positions. Never fall back to origin/destination points.
@@ -422,7 +500,7 @@ const SearchRides = () => {
                       </Select>
                     </div>
 
-                    <div className="sm:col-span-2 flex items-center gap-2">
+                    <div className="sm:col-span-2 flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
                         onClick={() => setLiveOnly(!liveOnly)}
@@ -435,6 +513,77 @@ const SearchRides = () => {
                         <Radio className={`w-3.5 h-3.5 ${liveOnly ? 'animate-pulse' : ''}`} />
                         Iba prebiehajúce (LIVE)
                       </button>
+                    </div>
+
+                    {/* Proximity filter — only rides whose route passes near me */}
+                    <div className="sm:col-span-2 p-3 rounded-xl border border-border bg-muted/30 space-y-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div>
+                          <Label className="text-xs font-semibold flex items-center gap-1.5">
+                            <Locate className="w-3.5 h-3.5" />
+                            Iba na mojej trase
+                          </Label>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            Skryť jazdy, ktoré idú ďaleko od mojej polohy
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={nearMeEnabled && myLocation ? 'default' : 'outline'}
+                          onClick={() => {
+                            if (myLocation) {
+                              setNearMeEnabled(!nearMeEnabled);
+                            } else {
+                              requestMyLocation();
+                            }
+                          }}
+                          disabled={locatingMe}
+                          className="h-8 text-xs"
+                        >
+                          {locatingMe ? (
+                            <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Locate className="w-3.5 h-3.5 mr-1" />
+                          )}
+                          {myLocation
+                            ? nearMeEnabled
+                              ? 'Zapnuté'
+                              : 'Vypnuté'
+                            : 'Zistiť polohu'}
+                        </Button>
+                      </div>
+
+                      {nearMeEnabled && myLocation && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label className="text-[11px] text-muted-foreground">Max. vzdialenosť od trasy:</Label>
+                            <Select value={nearMeRadiusKm} onValueChange={setNearMeRadiusKm}>
+                              <SelectTrigger className="h-8 w-24 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="2">2 km</SelectItem>
+                                <SelectItem value="5">5 km</SelectItem>
+                                <SelectItem value="10">10 km</SelectItem>
+                                <SelectItem value="20">20 km</SelectItem>
+                                <SelectItem value="50">50 km</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <label className="flex items-start gap-2 text-[11px] text-muted-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={hidePassed}
+                              onChange={(e) => setHidePassed(e.target.checked)}
+                              className="mt-0.5"
+                            />
+                            <span>
+                              Skryť prebiehajúce jazdy, kde ma už vodič prešiel (vracať sa nebude)
+                            </span>
+                          </label>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
