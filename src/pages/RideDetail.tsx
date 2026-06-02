@@ -925,11 +925,32 @@ const RideDetail = () => {
                         </p>
                       )}
 
+                      {(!routeCheck.pickupOk || !routeCheck.dropoffOk) && (
+                        <div className="mb-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+                          {!routeCheck.pickupOk && (
+                            <p>
+                              <strong>Miesto nastúpenia je mimo trasy vodiča.</strong> Vodič ide po inej trase – vyberte miesto do {routeCheck.thresholdKm} km od jeho trasy.
+                            </p>
+                          )}
+                          {!routeCheck.dropoffOk && (
+                            <p className={!routeCheck.pickupOk ? 'mt-2' : ''}>
+                              <strong>Miesto vystúpenia je mimo trasy vodiča.</strong> Vyberte miesto do {routeCheck.thresholdKm} km od jeho trasy.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       <Button
                         variant="hero"
                         className="w-full"
                         onClick={handleRequest}
-                        disabled={requesting || ride.available_seats <= 0 || !pickup.lat}
+                        disabled={
+                          requesting ||
+                          ride.available_seats <= 0 ||
+                          !pickup.lat ||
+                          !routeCheck.pickupOk ||
+                          !routeCheck.dropoffOk
+                        }
                       >
                         {requesting
                           ? 'Odosielanie...'
