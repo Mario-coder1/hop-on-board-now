@@ -259,6 +259,7 @@ const RideDetail = () => {
           music_allowed,
           ac_allowed,
           food_allowed,
+          route_polyline,
           gas_station_id,
           gas_station:gas_stations!rides_gas_station_id_fkey(
             id, name, address, lat, lng, discount_note
