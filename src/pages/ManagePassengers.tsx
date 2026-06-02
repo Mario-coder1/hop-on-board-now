@@ -106,6 +106,11 @@ const ManagePassengers = () => {
           fetchRideAndPassengers();
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${rideId}` },
+        () => { fetchRideAndPassengers(); }
+      )
       .subscribe();
 
     return () => {
