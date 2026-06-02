@@ -182,6 +182,24 @@ const RideDetail = () => {
     });
   }, [ride, pickup, dropoff]);
 
+  // Verify pickup/dropoff lie within reasonable distance from the ride's route.
+  // Threshold = max(driver's declared detour, 15 km default).
+  const routeCheck = useMemo(() => {
+    if (!ride) return { pickupOk: true, dropoffOk: true, thresholdKm: 0 };
+    const detourKm = Math.max(Number(ride.max_detour_km) || 0, 15);
+    const thresholdM = detourKm * 1000;
+    const route = parseRoutePolyline(ride.route_polyline);
+    const origin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+    const dest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+    const pickupOk = !pickup.lat
+      ? true
+      : isPointNearRoute([pickup.lng, pickup.lat], route, origin, dest, thresholdM);
+    const dropoffOk = !dropoff.lat
+      ? true
+      : isPointNearRoute([dropoff.lng, dropoff.lat], route, origin, dest, thresholdM);
+    return { pickupOk, dropoffOk, thresholdKm: detourKm };
+  }, [ride, pickup, dropoff]);
+
   useEffect(() => {
     if (!id) return;
     void fetchRide();
