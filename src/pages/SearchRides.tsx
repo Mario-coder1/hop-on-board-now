@@ -87,6 +87,9 @@ const SearchRides = () => {
     fetchRides();
   }, []);
 
+  // Realtime: keep available_seats fresh whenever any ride row changes
+  useRidesRealtime(() => { fetchRides(); }, 'search-rides');
+
   const fetchRides = async () => {
     const { data, error } = await supabase
       .from('rides')
