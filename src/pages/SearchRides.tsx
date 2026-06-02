@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
+import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
 import {
   parseRoutePolyline,
@@ -85,6 +86,9 @@ const SearchRides = () => {
   useEffect(() => {
     fetchRides();
   }, []);
+
+  // Realtime: keep available_seats fresh whenever any ride row changes
+  useRidesRealtime(() => { fetchRides(); }, 'search-rides');
 
   const fetchRides = async () => {
     const { data, error } = await supabase

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
+import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 
 interface ActiveRequest {
   id: string;
@@ -60,6 +61,8 @@ const PassengerDashboard: React.FC = () => {
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
   useEffect(() => { fetchRides(); }, []);
+  useRidesRealtime(() => { fetchRides(); }, 'passenger-dash-rides');
+
 
   useEffect(() => {
     if (!profile) return;
