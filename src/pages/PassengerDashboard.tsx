@@ -61,6 +61,8 @@ const PassengerDashboard: React.FC = () => {
   const [activeRequest, setActiveRequest] = useState<ActiveRequest | null>(null);
 
   useEffect(() => { fetchRides(); }, []);
+  useRidesRealtime(() => { fetchRides(); }, 'passenger-dash-rides');
+
 
   useEffect(() => {
     if (!profile) return;
