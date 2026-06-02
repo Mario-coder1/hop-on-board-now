@@ -753,7 +753,13 @@ const RideDetail = () => {
               {/* Request */}
               {!isDriver && profile && (
                 <article className="p-6 rounded-2xl bg-card border border-border">
-                  <h2 className="font-display font-semibold mb-4">Požiadať o pripojenie</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display font-semibold">Požiadať o pripojenie</h2>
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      <span>{ride.available_seats} voľných</span>
+                    </div>
+                  </div>
 
                   {hasRequested ? (
                     <div className="text-center py-4">
