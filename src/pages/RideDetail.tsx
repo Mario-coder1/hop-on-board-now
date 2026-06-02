@@ -276,6 +276,7 @@ const RideDetail = () => {
           ac_allowed,
           food_allowed,
           route_polyline,
+          max_detour_km,
           gas_station_id,
           gas_station:gas_stations!rides_gas_station_id_fkey(
             id, name, address, lat, lng, discount_note
