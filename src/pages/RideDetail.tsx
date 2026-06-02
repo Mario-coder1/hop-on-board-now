@@ -824,25 +824,34 @@ const RideDetail = () => {
                         rows={3}
                       />
 
-                      {priceEstimate && priceEstimate.proportional && priceEstimate.ratio < 0.999 && (
+                      {priceEstimate && (
                         <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm">
-                          <div className="flex justify-between items-baseline">
-                            <span className="text-muted-foreground">Vaša časť trasy</span>
-                            <span className="font-medium tabular-nums">
-                              {priceEstimate.segmentKm.toFixed(1)} km z {priceEstimate.totalKm.toFixed(1)} km
-                            </span>
+                          {priceEstimate.proportional && priceEstimate.ratio < 0.999 && (
+                            <>
+                              <div className="flex justify-between items-baseline">
+                                <span className="text-muted-foreground">Vaša časť trasy</span>
+                                <span className="font-medium tabular-nums">
+                                  {priceEstimate.segmentKm.toFixed(1)} km z {priceEstimate.totalKm.toFixed(1)} km
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-baseline mt-1">
+                                <span className="text-muted-foreground">Plná cena vodiča</span>
+                                <span className="line-through text-muted-foreground tabular-nums">{Number(ride.price_per_seat).toFixed(2)} €</span>
+                              </div>
+                            </>
+                          )}
+                          <div className="flex justify-between items-baseline mt-1">
+                            <span className="text-muted-foreground">Cena vodiča</span>
+                            <span className="tabular-nums">{priceEstimate.basePrice.toFixed(2)} €</span>
                           </div>
                           <div className="flex justify-between items-baseline mt-1">
-                            <span className="text-muted-foreground">Plná cena vodiča</span>
-                            <span className="line-through text-muted-foreground tabular-nums">{Number(ride.price_per_seat).toFixed(2)} €</span>
+                            <span className="text-muted-foreground">Poplatok platformy ({priceEstimate.commissionPercent}%)</span>
+                            <span className="tabular-nums">+{priceEstimate.commission.toFixed(2)} €</span>
                           </div>
                           <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
-                            <span className="font-semibold">Zaplatíte</span>
+                            <span className="font-semibold">Zaplatíte spolu</span>
                             <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
                           </div>
-                          <p className="text-[11px] text-muted-foreground mt-2">
-                            Cena je vypočítaná podľa skutočnej časti trasy, ktorú prejdete.
-                          </p>
                         </div>
                       )}
 

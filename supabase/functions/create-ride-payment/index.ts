@@ -86,7 +86,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Proportional pricing: charge passenger only for the portion of the route they use.
+    // Proportional pricing: charge passenger for the portion of the route they use.
+    // Platform commission is ADDED ON TOP of the driver's price.
     const EARTH = 6371000;
     const toRad = (d: number) => (d * Math.PI) / 180;
     const haversine = (a: [number, number], b: [number, number]) => {
@@ -133,13 +134,19 @@ Deno.serve(async (req) => {
       segmentM = dropoffPt ? haversine(pickup, dropoffPt) : totalM;
     }
 
+    // Fetch platform commission %
+    const { data: commissionRow } = await supabase
+      .from("platform_settings").select("value").eq("key", "ride_commission_percent").maybeSingle();
+    const commissionPct = Number(commissionRow?.value ?? 10);
+
     const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
     const fullPrice = Number(ride.price_per_seat);
     const proportional = hasDropoff;
-    const rawPrice = proportional ? fullPrice * ratio : fullPrice;
-    let chargedAmount = Math.round(rawPrice * 100) / 100;
+    const rawBase = proportional ? fullPrice * ratio : fullPrice;
+    const basePrice = Math.round(rawBase * 100) / 100;        // driver portion
+    const commission = Math.round(basePrice * commissionPct) / 100; // platform fee on top
+    let chargedAmount = Math.round((basePrice + commission) * 100) / 100;
     if (chargedAmount < 0.5) chargedAmount = 0.5; // Stripe minimum
-    if (chargedAmount > fullPrice) chargedAmount = fullPrice;
     const amountCents = Math.round(chargedAmount * 100);
     if (!amountCents || amountCents < 50) {
       return new Response(JSON.stringify({ error: "Suma musí byť aspoň 0.50 €" }), {
@@ -184,6 +191,9 @@ Deno.serve(async (req) => {
         dropoff_lng: dropoff_lng != null ? String(dropoff_lng) : "",
         message: (message || "").slice(0, 400),
         price_per_seat: String(ride.price_per_seat),
+        base_price: String(basePrice),
+        commission_amount: String(commission),
+        commission_percent: String(commissionPct),
         charged_amount: String(chargedAmount),
         segment_km: (segmentM / 1000).toFixed(3),
         total_km: (totalM / 1000).toFixed(3),

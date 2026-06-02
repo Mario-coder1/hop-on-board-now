@@ -52,7 +52,11 @@ export function totalRouteM(route: LngLat[]): number {
 }
 
 export interface PriceBreakdown {
-  /** Final amount the passenger pays (EUR, rounded to cents). */
+  /** Base price kept by the driver (proportional to segment, EUR). */
+  basePrice: number;
+  /** Platform commission added on top (EUR). */
+  commission: number;
+  /** Final amount the passenger pays = basePrice + commission (EUR). */
   amount: number;
   /** Total ride distance in km. */
   totalKm: number;
@@ -60,16 +64,16 @@ export interface PriceBreakdown {
   segmentKm: number;
   /** Ratio segment/total (0..1). */
   ratio: number;
-  /** True if proportional pricing was applied (dropoff provided + route known). */
+  /** True if proportional pricing was applied (dropoff provided). */
   proportional: boolean;
+  /** Platform commission percent used (e.g. 10). */
+  commissionPercent: number;
 }
 
 /**
- * Compute the proportional price the passenger should pay.
- * - If no dropoff coords → full price (rides default to going to final destination).
- * - If route polyline is available → use along-route distance.
- * - Otherwise fall back to straight-line haversine.
- * Minimum charge: 0.50 € (Stripe minimum).
+ * Compute proportional price + platform commission added ON TOP.
+ * Driver receives basePrice; passenger pays basePrice + commission.
+ * Stripe min 0.50 €.
  */
 export function computeRidePrice(args: {
   pricePerSeat: number;
@@ -78,40 +82,40 @@ export function computeRidePrice(args: {
   pickup: LngLat;
   dropoff?: LngLat | null;
   routePolyline?: string | null;
+  /** Platform commission percent (default 10). */
+  commissionPercent?: number;
 }): PriceBreakdown {
   const { pricePerSeat, origin, destination, pickup, dropoff, routePolyline } = args;
+  const commissionPercent = args.commissionPercent ?? 10;
   const route = parseRoute(routePolyline);
 
-  // Total trip length
   const totalM = route ? totalRouteM(route) : haversineM(origin, destination);
   const totalKm = totalM / 1000;
 
-  if (!dropoff) {
-    return {
-      amount: Math.max(0.5, Math.round(pricePerSeat * 100) / 100),
-      totalKm,
-      segmentKm: totalKm,
-      ratio: 1,
-      proportional: false,
-    };
-  }
-
   let segmentM: number;
-  if (route) {
+  let proportional: boolean;
+  if (!dropoff) {
+    segmentM = totalM;
+    proportional = false;
+  } else if (route) {
     const i1 = closestIdx(pickup, route);
     const i2 = closestIdx(dropoff, route);
     const a = Math.min(i1, i2);
     const b = Math.max(i1, i2);
     segmentM = distAtIdx(route, b) - distAtIdx(route, a);
+    proportional = true;
   } else {
     segmentM = haversineM(pickup, dropoff);
+    proportional = true;
   }
 
   const segmentKm = segmentM / 1000;
   const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
-  const raw = pricePerSeat * ratio;
-  // Round to nearest cent, enforce Stripe minimum of 0.50 €
-  const amount = Math.max(0.5, Math.round(raw * 100) / 100);
+  const rawBase = proportional ? pricePerSeat * ratio : pricePerSeat;
+  const basePrice = Math.round(rawBase * 100) / 100;
+  const commission = Math.round(basePrice * commissionPercent) / 100;
+  let amount = Math.round((basePrice + commission) * 100) / 100;
+  if (amount < 0.5) amount = 0.5;
 
-  return { amount, totalKm, segmentKm, ratio, proportional: true };
+  return { basePrice, commission, amount, totalKm, segmentKm, ratio, proportional, commissionPercent };
 }
