@@ -17,6 +17,7 @@ import {
   Music,
   Wind,
   Coffee,
+  Info,
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
@@ -884,7 +885,7 @@ const RideDetail = () => {
                         rows={3}
                       />
 
-                      {priceEstimate && (
+                      {priceEstimate && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng))) && (
                         <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm">
                           {priceEstimate.proportional && priceEstimate.ratio < 0.999 && (
                             <>
@@ -915,6 +916,22 @@ const RideDetail = () => {
                           <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
                             <span className="font-semibold">Zaplatíte spolu</span>
                             <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {pickup.lat && !dropoff.lat && (Number(pickup.lat) !== Number(ride.origin_lat) || Number(pickup.lng) !== Number(ride.origin_lng)) && (
+                        <div className="mb-3 p-3 rounded-xl bg-muted border border-border text-sm">
+                          <div className="flex items-start gap-2">
+                            <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-muted-foreground">
+                                Cena sa odvíja od miesta výstupenia. Vyberte kde chcete vystúpiť, aby sa zobrazila presná suma.
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Ak pôjdete celú trasu až do cieľa, zaplatíte <span className="font-medium text-foreground">{Number(ride.price_per_seat).toFixed(2)} €</span>.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -954,7 +971,7 @@ const RideDetail = () => {
                       >
                         {requesting
                           ? 'Odosielanie...'
-                          : pickup.lat
+                          : pickup.lat && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng)))
                             ? `Rezervovať a zaplatiť ${priceEstimate?.amount?.toFixed(2)} €`
                             : 'Rezervovať a zaplatiť'}
                       </Button>
