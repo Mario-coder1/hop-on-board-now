@@ -882,15 +882,23 @@ const RideDetail = () => {
                         </div>
                       )}
 
+                      {!pickup.lat && (
+                        <p className="text-xs text-muted-foreground text-center mb-3">
+                          Cena sa zobrazí po výbere miesta nastúpenia.
+                        </p>
+                      )}
+
                       <Button
                         variant="hero"
                         className="w-full"
                         onClick={handleRequest}
-                        disabled={requesting || ride.available_seats <= 0}
+                        disabled={requesting || ride.available_seats <= 0 || !pickup.lat}
                       >
                         {requesting
                           ? 'Odosielanie...'
-                          : `Rezervovať a zaplatiť ${(priceEstimate?.amount ?? Number(ride.price_per_seat)).toFixed(2)} €`}
+                          : pickup.lat
+                            ? `Rezervovať a zaplatiť ${priceEstimate?.amount?.toFixed(2)} €`
+                            : 'Rezervovať a zaplatiť'}
                       </Button>
                     </>
                   )}
