@@ -78,6 +78,7 @@ interface RideDetailData {
   ac_allowed: boolean | null;
   food_allowed: boolean | null;
   gas_station_id: string | null;
+  route_polyline: string | null;
   gas_station: {
     id: string;
     name: string;
