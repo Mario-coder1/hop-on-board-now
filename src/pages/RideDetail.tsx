@@ -491,6 +491,22 @@ const RideDetail = () => {
       toast({ title: 'Plné', description: 'Táto jazda už nemá voľné miesta.', variant: 'destructive' });
       return;
     }
+    if (!routeCheck.pickupOk) {
+      toast({
+        title: 'Mimo trasy',
+        description: `Miesto nastúpenia je príliš ďaleko od trasy vodiča (max ${routeCheck.thresholdKm} km). Vyberte miesto bližšie k trase.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!routeCheck.dropoffOk) {
+      toast({
+        title: 'Mimo trasy',
+        description: `Miesto vystúpenia je príliš ďaleko od trasy vodiča (max ${routeCheck.thresholdKm} km). Vyberte miesto bližšie k trase.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     setPaymentOpen(true);
   };
 
