@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
+import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
 import {
   parseRoutePolyline,
