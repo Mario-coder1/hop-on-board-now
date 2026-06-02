@@ -84,8 +84,15 @@ const MyTrips = () => {
       )
       .subscribe();
 
+    // Also subscribe to rides changes so available_seats stays live
+    const ridesChannel = supabase
+      .channel('my-trips-rides')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rides' }, () => fetchTrips())
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(ridesChannel);
     };
   }, [profile]);
 
