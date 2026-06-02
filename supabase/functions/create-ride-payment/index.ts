@@ -153,7 +153,9 @@ Deno.serve(async (req) => {
         price_data: {
           currency: "eur",
           product_data: {
-            name: `Jazda: ${ride.origin_address} → ${ride.destination_address}`,
+            name: proportional && ratio < 1
+              ? `Jazda: ${ride.origin_address} → ${ride.destination_address} (${(segmentM / 1000).toFixed(1)} km z ${(totalM / 1000).toFixed(1)} km)`
+              : `Jazda: ${ride.origin_address} → ${ride.destination_address}`,
           },
           unit_amount: amountCents,
         },
@@ -182,6 +184,10 @@ Deno.serve(async (req) => {
         dropoff_lng: dropoff_lng != null ? String(dropoff_lng) : "",
         message: (message || "").slice(0, 400),
         price_per_seat: String(ride.price_per_seat),
+        charged_amount: String(chargedAmount),
+        segment_km: (segmentM / 1000).toFixed(3),
+        total_km: (totalM / 1000).toFixed(3),
+        proportional: proportional ? "1" : "0",
       },
     });
 
