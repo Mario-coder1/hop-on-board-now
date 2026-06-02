@@ -81,6 +81,7 @@ interface RideDetailData {
   food_allowed: boolean | null;
   gas_station_id: string | null;
   route_polyline: string | null;
+  max_detour_km: number | null;
   gas_station: {
     id: string;
     name: string;
