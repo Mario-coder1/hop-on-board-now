@@ -38,6 +38,7 @@ import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
 import { computeRidePrice } from '@/lib/ridePricing';
+import { isPointNearRoute, parseRoutePolyline, type LngLat } from '@/lib/routeProximity';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -80,6 +81,7 @@ interface RideDetailData {
   food_allowed: boolean | null;
   gas_station_id: string | null;
   route_polyline: string | null;
+  max_detour_km: number | null;
   gas_station: {
     id: string;
     name: string;
@@ -180,6 +182,24 @@ const RideDetail = () => {
     });
   }, [ride, pickup, dropoff]);
 
+  // Verify pickup/dropoff lie within reasonable distance from the ride's route.
+  // Threshold = max(driver's declared detour, 15 km default).
+  const routeCheck = useMemo(() => {
+    if (!ride) return { pickupOk: true, dropoffOk: true, thresholdKm: 0 };
+    const detourKm = Math.max(Number(ride.max_detour_km) || 0, 15);
+    const thresholdM = detourKm * 1000;
+    const route = parseRoutePolyline(ride.route_polyline);
+    const origin: LngLat = [Number(ride.origin_lng), Number(ride.origin_lat)];
+    const dest: LngLat = [Number(ride.destination_lng), Number(ride.destination_lat)];
+    const pickupOk = !pickup.lat
+      ? true
+      : isPointNearRoute([pickup.lng, pickup.lat], route, origin, dest, thresholdM);
+    const dropoffOk = !dropoff.lat
+      ? true
+      : isPointNearRoute([dropoff.lng, dropoff.lat], route, origin, dest, thresholdM);
+    return { pickupOk, dropoffOk, thresholdKm: detourKm };
+  }, [ride, pickup, dropoff]);
+
   useEffect(() => {
     if (!id) return;
     void fetchRide();
@@ -274,6 +294,7 @@ const RideDetail = () => {
           ac_allowed,
           food_allowed,
           route_polyline,
+          max_detour_km,
           gas_station_id,
           gas_station:gas_stations!rides_gas_station_id_fkey(
             id, name, address, lat, lng, discount_note
@@ -468,6 +489,22 @@ const RideDetail = () => {
     }
     if (ride.available_seats <= 0) {
       toast({ title: 'Plné', description: 'Táto jazda už nemá voľné miesta.', variant: 'destructive' });
+      return;
+    }
+    if (!routeCheck.pickupOk) {
+      toast({
+        title: 'Mimo trasy',
+        description: `Miesto nastúpenia je príliš ďaleko od trasy vodiča (max ${routeCheck.thresholdKm} km). Vyberte miesto bližšie k trase.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!routeCheck.dropoffOk) {
+      toast({
+        title: 'Mimo trasy',
+        description: `Miesto vystúpenia je príliš ďaleko od trasy vodiča (max ${routeCheck.thresholdKm} km). Vyberte miesto bližšie k trase.`,
+        variant: 'destructive',
+      });
       return;
     }
     setPaymentOpen(true);
@@ -888,11 +925,32 @@ const RideDetail = () => {
                         </p>
                       )}
 
+                      {(!routeCheck.pickupOk || !routeCheck.dropoffOk) && (
+                        <div className="mb-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+                          {!routeCheck.pickupOk && (
+                            <p>
+                              <strong>Miesto nastúpenia je mimo trasy vodiča.</strong> Vodič ide po inej trase – vyberte miesto do {routeCheck.thresholdKm} km od jeho trasy.
+                            </p>
+                          )}
+                          {!routeCheck.dropoffOk && (
+                            <p className={!routeCheck.pickupOk ? 'mt-2' : ''}>
+                              <strong>Miesto vystúpenia je mimo trasy vodiča.</strong> Vyberte miesto do {routeCheck.thresholdKm} km od jeho trasy.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       <Button
                         variant="hero"
                         className="w-full"
                         onClick={handleRequest}
-                        disabled={requesting || ride.available_seats <= 0 || !pickup.lat}
+                        disabled={
+                          requesting ||
+                          ride.available_seats <= 0 ||
+                          !pickup.lat ||
+                          !routeCheck.pickupOk ||
+                          !routeCheck.dropoffOk
+                        }
                       >
                         {requesting
                           ? 'Odosielanie...'
