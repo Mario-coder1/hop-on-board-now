@@ -761,7 +761,17 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {hasRequested ? (
+                  {ride.available_seats <= 0 ? (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-3">
+                        <Users className="w-6 h-6 text-destructive" />
+                      </div>
+                      <p className="font-medium text-destructive">Jazda je plná</p>
+                      <p className="text-sm text-muted-foreground">
+                        Všetky miesta sú obsadené. Skúste vyhľadať inú jazdu.
+                      </p>
+                    </div>
+                  ) : hasRequested ? (
                     <div className="text-center py-4">
                       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
                         <MessageCircle className="w-6 h-6 text-green-600" />
@@ -876,7 +886,7 @@ const RideDetail = () => {
                         variant="hero"
                         className="w-full"
                         onClick={handleRequest}
-                        disabled={requesting}
+                        disabled={requesting || ride.available_seats <= 0}
                       >
                         {requesting
                           ? 'Odosielanie...'
