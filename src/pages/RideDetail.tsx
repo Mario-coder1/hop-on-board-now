@@ -848,6 +848,10 @@ const RideDetail = () => {
                             <span className="text-muted-foreground">Poplatok platformy ({priceEstimate.commissionPercent}%)</span>
                             <span className="tabular-nums">+{priceEstimate.commission.toFixed(2)} €</span>
                           </div>
+                          <div className="flex justify-between items-baseline mt-1">
+                            <span className="text-muted-foreground">Poplatok za platbu kartou</span>
+                            <span className="tabular-nums">+{priceEstimate.stripeFee.toFixed(2)} €</span>
+                          </div>
                           <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
                             <span className="font-semibold">Zaplatíte spolu</span>
                             <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>

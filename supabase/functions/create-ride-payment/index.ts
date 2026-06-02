@@ -134,19 +134,27 @@ Deno.serve(async (req) => {
       segmentM = dropoffPt ? haversine(pickup, dropoffPt) : totalM;
     }
 
-    // Fetch platform commission %
-    const { data: commissionRow } = await supabase
-      .from("platform_settings").select("value").eq("key", "ride_commission_percent").maybeSingle();
-    const commissionPct = Number(commissionRow?.value ?? 10);
+    // Fetch platform commission % and Stripe fees
+    const { data: settingsRows } = await supabase
+      .from("platform_settings").select("key, value")
+      .in("key", ["ride_commission_percent", "stripe_fee_percent", "stripe_fee_fixed_cents"]);
+    const settings = Object.fromEntries((settingsRows ?? []).map((r: any) => [r.key, Number(r.value)]));
+    const commissionPct = settings.ride_commission_percent ?? 10;
+    const stripePct = settings.stripe_fee_percent ?? 1.5;
+    const stripeFixedCents = settings.stripe_fee_fixed_cents ?? 25;
 
     const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
     const fullPrice = Number(ride.price_per_seat);
     const proportional = hasDropoff;
     const rawBase = proportional ? fullPrice * ratio : fullPrice;
-    const basePrice = Math.round(rawBase * 100) / 100;        // driver portion
-    const commission = Math.round(basePrice * commissionPct) / 100; // platform fee on top
-    let chargedAmount = Math.round((basePrice + commission) * 100) / 100;
-    if (chargedAmount < 0.5) chargedAmount = 0.5; // Stripe minimum
+    const basePrice = Math.round(rawBase * 100) / 100;
+    const commission = Math.round(basePrice * commissionPct) / 100;
+    const subtotal = basePrice + commission;
+    const fixed = stripeFixedCents / 100;
+    const rawGross = (subtotal + fixed) / (1 - stripePct / 100);
+    let chargedAmount = Math.ceil(rawGross * 100) / 100;
+    if (chargedAmount < 0.5) chargedAmount = 0.5;
+    const stripeFee = Math.round((chargedAmount - subtotal) * 100) / 100;
     const amountCents = Math.round(chargedAmount * 100);
     if (!amountCents || amountCents < 50) {
       return new Response(JSON.stringify({ error: "Suma musí byť aspoň 0.50 €" }), {
@@ -194,6 +202,9 @@ Deno.serve(async (req) => {
         base_price: String(basePrice),
         commission_amount: String(commission),
         commission_percent: String(commissionPct),
+        stripe_fee: String(stripeFee),
+        stripe_fee_percent: String(stripePct),
+        stripe_fee_fixed_cents: String(stripeFixedCents),
         charged_amount: String(chargedAmount),
         segment_km: (segmentM / 1000).toFixed(3),
         total_km: (totalM / 1000).toFixed(3),
