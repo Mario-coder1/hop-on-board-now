@@ -877,7 +877,7 @@ const RideDetail = () => {
       <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Zaplatiť rezerváciu ({ride?.price_per_seat} €)</DialogTitle>
+            <DialogTitle>Zaplatiť rezerváciu ({(priceEstimate?.amount ?? Number(ride?.price_per_seat ?? 0)).toFixed(2)} €)</DialogTitle>
           </DialogHeader>
           {ride && pickup.lat !== 0 && (
             <RidePaymentCheckout
