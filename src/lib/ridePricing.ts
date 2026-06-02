@@ -56,7 +56,9 @@ export interface PriceBreakdown {
   basePrice: number;
   /** Platform commission added on top (EUR). */
   commission: number;
-  /** Final amount the passenger pays = basePrice + commission (EUR). */
+  /** Stripe processing fee added on top (EUR). */
+  stripeFee: number;
+  /** Final amount the passenger pays = basePrice + commission + stripeFee (EUR). */
   amount: number;
   /** Total ride distance in km. */
   totalKm: number;
@@ -68,12 +70,16 @@ export interface PriceBreakdown {
   proportional: boolean;
   /** Platform commission percent used (e.g. 10). */
   commissionPercent: number;
+  /** Stripe fee percent used (e.g. 1.5). */
+  stripeFeePercent: number;
+  /** Stripe fixed fee in cents (e.g. 25 = 0.25 €). */
+  stripeFeeFixedCents: number;
 }
 
 /**
- * Compute proportional price + platform commission added ON TOP.
- * Driver receives basePrice; passenger pays basePrice + commission.
- * Stripe min 0.50 €.
+ * Compute proportional price + platform commission + Stripe fee added ON TOP.
+ * Driver receives basePrice; platform keeps commission; Stripe takes its fee.
+ * Passenger pays everything. Stripe min 0.50 €.
  */
 export function computeRidePrice(args: {
   pricePerSeat: number;
@@ -84,9 +90,15 @@ export function computeRidePrice(args: {
   routePolyline?: string | null;
   /** Platform commission percent (default 10). */
   commissionPercent?: number;
+  /** Stripe variable fee percent (default 1.5). */
+  stripeFeePercent?: number;
+  /** Stripe fixed fee in cents (default 25 = 0.25 €). */
+  stripeFeeFixedCents?: number;
 }): PriceBreakdown {
   const { pricePerSeat, origin, destination, pickup, dropoff, routePolyline } = args;
   const commissionPercent = args.commissionPercent ?? 10;
+  const stripeFeePercent = args.stripeFeePercent ?? 1.5;
+  const stripeFeeFixedCents = args.stripeFeeFixedCents ?? 25;
   const route = parseRoute(routePolyline);
 
   const totalM = route ? totalRouteM(route) : haversineM(origin, destination);
@@ -114,8 +126,19 @@ export function computeRidePrice(args: {
   const rawBase = proportional ? pricePerSeat * ratio : pricePerSeat;
   const basePrice = Math.round(rawBase * 100) / 100;
   const commission = Math.round(basePrice * commissionPercent) / 100;
-  let amount = Math.round((basePrice + commission) * 100) / 100;
+  const subtotal = basePrice + commission;
+  const fixed = stripeFeeFixedCents / 100;
+  // Passenger pays gross = (subtotal + fixed) / (1 - pct/100)
+  // so after Stripe takes its cut, subtotal remains for driver + platform.
+  const rawGross = (subtotal + fixed) / (1 - stripeFeePercent / 100);
+  // Round UP to next cent so platform never loses money on rounding.
+  let amount = Math.ceil(rawGross * 100) / 100;
   if (amount < 0.5) amount = 0.5;
+  const stripeFee = Math.round((amount - subtotal) * 100) / 100;
 
-  return { basePrice, commission, amount, totalKm, segmentKm, ratio, proportional, commissionPercent };
+  return {
+    basePrice, commission, stripeFee, amount,
+    totalKm, segmentKm, ratio, proportional,
+    commissionPercent, stripeFeePercent, stripeFeeFixedCents,
+  };
 }
