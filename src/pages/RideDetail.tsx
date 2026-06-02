@@ -167,6 +167,19 @@ const RideDetail = () => {
     );
   }, [profile, ride, isDriver, requestStatus]);
 
+  // Proportional price preview based on selected pickup/dropoff
+  const priceEstimate = useMemo(() => {
+    if (!ride || !pickup.lat) return null;
+    return computeRidePrice({
+      pricePerSeat: Number(ride.price_per_seat),
+      origin: [ride.origin_lng, ride.origin_lat],
+      destination: [ride.destination_lng, ride.destination_lat],
+      pickup: [pickup.lng, pickup.lat],
+      dropoff: dropoff.lat ? [dropoff.lng, dropoff.lat] : null,
+      routePolyline: ride.route_polyline,
+    });
+  }, [ride, pickup, dropoff]);
+
   useEffect(() => {
     if (!id) return;
     void fetchRide();
