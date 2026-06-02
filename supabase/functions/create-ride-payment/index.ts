@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     }
 
     const { data: ride } = await supabase
-      .from("rides").select("id, price_per_seat, available_seats, status, origin_address, destination_address, driver_id")
+      .from("rides").select("id, price_per_seat, available_seats, status, origin_address, destination_address, driver_id, origin_lat, origin_lng, destination_lat, destination_lng, route_polyline")
       .eq("id", ride_id).single();
     if (!ride) {
       return new Response(JSON.stringify({ error: "Ride not found" }), {
@@ -86,7 +86,61 @@ Deno.serve(async (req) => {
       });
     }
 
-    const amountCents = Math.round(Number(ride.price_per_seat) * 100);
+    // Proportional pricing: charge passenger only for the portion of the route they use.
+    const EARTH = 6371000;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const haversine = (a: [number, number], b: [number, number]) => {
+      const dLat = toRad(b[1] - a[1]); const dLng = toRad(b[0] - a[0]);
+      const la1 = toRad(a[1]); const la2 = toRad(b[1]);
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+      return 2 * EARTH * Math.asin(Math.sqrt(h));
+    };
+    let route: [number, number][] | null = null;
+    try {
+      if (ride.route_polyline) {
+        const p = JSON.parse(ride.route_polyline);
+        if (Array.isArray(p) && p.length > 1 && Array.isArray(p[0]) && p[0].length === 2) route = p;
+      }
+    } catch { /* ignore */ }
+    const origin: [number, number] = [Number(ride.origin_lng), Number(ride.origin_lat)];
+    const dest: [number, number] = [Number(ride.destination_lng), Number(ride.destination_lat)];
+    const pickup: [number, number] = [Number(pickup_lng), Number(pickup_lat)];
+    const hasDropoff = dropoff_lat != null && dropoff_lng != null;
+    const dropoffPt: [number, number] | null = hasDropoff ? [Number(dropoff_lng), Number(dropoff_lat)] : null;
+
+    let totalM = 0;
+    let segmentM = 0;
+    if (route) {
+      const cum: number[] = [0];
+      for (let i = 1; i < route.length; i++) cum.push(cum[i - 1] + haversine(route[i - 1], route[i]));
+      totalM = cum[cum.length - 1];
+      const closestIdx = (pt: [number, number]) => {
+        let min = Infinity, idx = 0;
+        for (let i = 0; i < route!.length; i++) {
+          const d = haversine(pt, route![i]);
+          if (d < min) { min = d; idx = i; }
+        }
+        return idx;
+      };
+      if (dropoffPt) {
+        const a = closestIdx(pickup), b = closestIdx(dropoffPt);
+        segmentM = Math.abs(cum[Math.max(a, b)] - cum[Math.min(a, b)]);
+      } else {
+        segmentM = totalM;
+      }
+    } else {
+      totalM = haversine(origin, dest);
+      segmentM = dropoffPt ? haversine(pickup, dropoffPt) : totalM;
+    }
+
+    const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
+    const fullPrice = Number(ride.price_per_seat);
+    const proportional = hasDropoff;
+    const rawPrice = proportional ? fullPrice * ratio : fullPrice;
+    let chargedAmount = Math.round(rawPrice * 100) / 100;
+    if (chargedAmount < 0.5) chargedAmount = 0.5; // Stripe minimum
+    if (chargedAmount > fullPrice) chargedAmount = fullPrice;
+    const amountCents = Math.round(chargedAmount * 100);
     if (!amountCents || amountCents < 50) {
       return new Response(JSON.stringify({ error: "Suma musí byť aspoň 0.50 €" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -99,7 +153,9 @@ Deno.serve(async (req) => {
         price_data: {
           currency: "eur",
           product_data: {
-            name: `Jazda: ${ride.origin_address} → ${ride.destination_address}`,
+            name: proportional && ratio < 1
+              ? `Jazda: ${ride.origin_address} → ${ride.destination_address} (${(segmentM / 1000).toFixed(1)} km z ${(totalM / 1000).toFixed(1)} km)`
+              : `Jazda: ${ride.origin_address} → ${ride.destination_address}`,
           },
           unit_amount: amountCents,
         },
@@ -128,6 +184,10 @@ Deno.serve(async (req) => {
         dropoff_lng: dropoff_lng != null ? String(dropoff_lng) : "",
         message: (message || "").slice(0, 400),
         price_per_seat: String(ride.price_per_seat),
+        charged_amount: String(chargedAmount),
+        segment_km: (segmentM / 1000).toFixed(3),
+        total_km: (totalM / 1000).toFixed(3),
+        proportional: proportional ? "1" : "0",
       },
     });
 

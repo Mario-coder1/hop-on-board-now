@@ -37,6 +37,7 @@ import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
+import { computeRidePrice } from '@/lib/ridePricing';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
@@ -78,6 +79,7 @@ interface RideDetailData {
   ac_allowed: boolean | null;
   food_allowed: boolean | null;
   gas_station_id: string | null;
+  route_polyline: string | null;
   gas_station: {
     id: string;
     name: string;
@@ -164,6 +166,19 @@ const RideDetail = () => {
       requestStatus === 'completed'
     );
   }, [profile, ride, isDriver, requestStatus]);
+
+  // Proportional price preview based on selected pickup/dropoff
+  const priceEstimate = useMemo(() => {
+    if (!ride || !pickup.lat) return null;
+    return computeRidePrice({
+      pricePerSeat: Number(ride.price_per_seat),
+      origin: [ride.origin_lng, ride.origin_lat],
+      destination: [ride.destination_lng, ride.destination_lat],
+      pickup: [pickup.lng, pickup.lat],
+      dropoff: dropoff.lat ? [dropoff.lng, dropoff.lat] : null,
+      routePolyline: ride.route_polyline,
+    });
+  }, [ride, pickup, dropoff]);
 
   useEffect(() => {
     if (!id) return;
@@ -258,6 +273,7 @@ const RideDetail = () => {
           music_allowed,
           ac_allowed,
           food_allowed,
+          route_polyline,
           gas_station_id,
           gas_station:gas_stations!rides_gas_station_id_fkey(
             id, name, address, lat, lng, discount_note
@@ -808,13 +824,37 @@ const RideDetail = () => {
                         rows={3}
                       />
 
+                      {priceEstimate && priceEstimate.proportional && priceEstimate.ratio < 0.999 && (
+                        <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm">
+                          <div className="flex justify-between items-baseline">
+                            <span className="text-muted-foreground">Vaša časť trasy</span>
+                            <span className="font-medium tabular-nums">
+                              {priceEstimate.segmentKm.toFixed(1)} km z {priceEstimate.totalKm.toFixed(1)} km
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-baseline mt-1">
+                            <span className="text-muted-foreground">Plná cena vodiča</span>
+                            <span className="line-through text-muted-foreground tabular-nums">{Number(ride.price_per_seat).toFixed(2)} €</span>
+                          </div>
+                          <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
+                            <span className="font-semibold">Zaplatíte</span>
+                            <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-2">
+                            Cena je vypočítaná podľa skutočnej časti trasy, ktorú prejdete.
+                          </p>
+                        </div>
+                      )}
+
                       <Button
                         variant="hero"
                         className="w-full"
                         onClick={handleRequest}
                         disabled={requesting}
                       >
-                        {requesting ? 'Odosielanie...' : `Rezervovať a zaplatiť ${ride.price_per_seat} €`}
+                        {requesting
+                          ? 'Odosielanie...'
+                          : `Rezervovať a zaplatiť ${(priceEstimate?.amount ?? Number(ride.price_per_seat)).toFixed(2)} €`}
                       </Button>
                     </>
                   )}
@@ -837,7 +877,7 @@ const RideDetail = () => {
       <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Zaplatiť rezerváciu ({ride?.price_per_seat} €)</DialogTitle>
+            <DialogTitle>Zaplatiť rezerváciu ({(priceEstimate?.amount ?? Number(ride?.price_per_seat ?? 0)).toFixed(2)} €)</DialogTitle>
           </DialogHeader>
           {ride && pickup.lat !== 0 && (
             <RidePaymentCheckout
