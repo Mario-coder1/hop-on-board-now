@@ -606,6 +606,13 @@ const RideDetail = () => {
             <section className="lg:col-span-2 space-y-6">
               {/* Route */}
               <article className="p-6 rounded-2xl bg-card border border-border">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span>{ride.available_seats} voľných miest</span>
+                  </div>
+                </div>
+
                 <div className="flex items-start gap-4 mb-6">
                   <div className="flex flex-col items-center">
                     <div className="w-4 h-4 rounded-full bg-primary" />
@@ -746,7 +753,13 @@ const RideDetail = () => {
               {/* Request */}
               {!isDriver && profile && (
                 <article className="p-6 rounded-2xl bg-card border border-border">
-                  <h2 className="font-display font-semibold mb-4">Požiadať o pripojenie</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display font-semibold">Požiadať o pripojenie</h2>
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      <span>{ride.available_seats} voľných</span>
+                    </div>
+                  </div>
 
                   {hasRequested ? (
                     <div className="text-center py-4">
