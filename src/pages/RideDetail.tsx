@@ -37,6 +37,7 @@ import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
+import { computeRidePrice } from '@/lib/ridePricing';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
