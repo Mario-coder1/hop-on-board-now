@@ -719,6 +719,13 @@ const Profile = () => {
                 <span>Zásady ochrany súkromia</span>
               </Link>
               <Link
+                to="/terms"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+              >
+                <FileText className="w-5 h-5 text-muted-foreground" />
+                <span>Obchodné podmienky</span>
+              </Link>
+              <Link
                 to="/gdpr"
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
               >
