@@ -464,12 +464,13 @@ const PublicChat = () => {
             <div className="max-w-3xl mx-auto relative inline-block">
               <img 
                 src={imagePreview} 
-                alt="Preview" 
+                alt="Náhľad vybraného obrázka pred odoslaním" 
                 className="h-20 rounded-lg object-cover"
               />
               <Button
                 variant="destructive"
                 size="icon"
+                aria-label="Odstrániť vybraný obrázok"
                 className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                 onClick={clearSelectedImage}
               >
