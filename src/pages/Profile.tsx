@@ -704,6 +704,23 @@ const Profile = () => {
             <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
           </Link>
 
+          {/* Tutorial Link */}
+          <Link
+            to="/tutorial"
+            className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border mt-6 hover:border-primary/40 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-semibold">Tutoriál — Ako používať TakeMe</div>
+                <div className="text-xs text-muted-foreground">Kroky pre vodiča aj pasažiera so snímkami</div>
+              </div>
+            </div>
+            <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
+          </Link>
+
           {/* Legal Links */}
           <div className="p-6 rounded-2xl bg-card border border-border mt-6">
             <h3 className="font-display font-semibold mb-4 flex items-center gap-2">

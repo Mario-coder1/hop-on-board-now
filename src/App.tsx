@@ -37,6 +37,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const GDPR = lazy(() => import("./pages/GDPR"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Tutorial = lazy(() => import("./pages/Tutorial"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PublicChat = lazy(() => import("./pages/PublicChat"));
 const TopDrivers = lazy(() => import("./pages/TopDrivers"));
@@ -118,6 +119,7 @@ const AppRoutes = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/gdpr" element={<GDPR />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
