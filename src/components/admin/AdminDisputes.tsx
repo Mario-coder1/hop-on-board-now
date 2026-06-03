@@ -415,15 +415,26 @@ export const AdminDisputes = () => {
 
               {focusRequest && (
                 <div className="space-y-3 border-t pt-4">
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center gap-1"><Clock className="w-4 h-4" /> GPS vodiča (±30 min)</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Referenčný čas: {format(new Date(focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at), 'PPpp', { locale: sk })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Pickup: {focusRequest.pickup_lat.toFixed(5)}, {focusRequest.pickup_lng.toFixed(5)}
-                    </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-semibold flex items-center gap-1"><Clock className="w-4 h-4" /> GPS vodiča (±30 min)</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Referenčný čas: {format(new Date(focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at), 'PPpp', { locale: sk })}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Pickup: {focusRequest.pickup_lat.toFixed(5)}, {focusRequest.pickup_lng.toFixed(5)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <Button size="sm" variant="outline" onClick={exportPDF}>
+                        <FileText className="w-3.5 h-3.5 mr-1" /> PDF
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={exportCSV}>
+                        <Download className="w-3.5 h-3.5 mr-1" /> CSV
+                      </Button>
+                    </div>
                   </div>
+
 
                   {locations.length === 0 ? (
                     <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-sm">
