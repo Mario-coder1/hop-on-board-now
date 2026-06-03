@@ -287,6 +287,7 @@ const PublicChat = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Zavrieť zväčšený obrázok"
               className="absolute top-4 right-4 text-white hover:bg-white/20"
               onClick={() => setFullscreenImage(null)}
             >
@@ -297,7 +298,7 @@ const PublicChat = () => {
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               src={fullscreenImage}
-              alt="Fullscreen"
+              alt="Obrázok v plnej veľkosti z chatu"
               className="max-w-full max-h-full object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
