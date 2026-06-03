@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Fuel, Gauge, TreePine, Car, Plane } from 'lucide-react';
 import Navigation from '@/components/Navigation';
