@@ -252,12 +252,12 @@ const Admin = () => {
       const { error: commissionError } = await supabase
         .from('platform_settings')
         .update({ value: commissionPercentage })
-        .eq('key', 'commission_percentage');
+        .eq('key', 'ride_commission_percent');
 
       const { error: topupError } = await supabase
         .from('platform_settings')
         .update({ value: topupFeePercentage })
-        .eq('key', 'topup_fee_percentage');
+        .eq('key', 'stripe_fee_percent');
 
       if (commissionError || topupError) {
         throw commissionError || topupError;
