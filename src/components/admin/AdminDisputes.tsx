@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Navigation2, AlertCircle, Clock, User, CreditCard, ExternalLink, Search } from 'lucide-react';
+import { MapPin, Navigation2, AlertCircle, Clock, User, CreditCard, ExternalLink, Search, Download, FileText } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
@@ -164,6 +166,142 @@ export const AdminDisputes = () => {
     return { ping: best, distance, dtSec: bestDt / 1000 };
   }, [focusRequest, locations]);
 
+  const buildTimeline = () => {
+    if (!selectedRide || !focusRequest) return [] as { time: string; event: string; detail: string }[];
+    const ev: { time: string; event: string; detail: string }[] = [];
+    ev.push({ time: selectedRide.created_at, event: 'Jazda vytvorená', detail: `${selectedRide.origin_address} → ${selectedRide.destination_address}` });
+    ev.push({ time: selectedRide.departure_time, event: 'Plánovaný odjazd', detail: '' });
+    ev.push({ time: focusRequest.created_at, event: 'Žiadosť vytvorená', detail: focusRequest.passenger?.full_name ?? '' });
+    if (focusRequest.paid_at) ev.push({ time: focusRequest.paid_at, event: 'Platba prijatá', detail: `${focusRequest.amount_paid ?? ''} €` });
+    if (focusRequest.cancelled_at) ev.push({ time: focusRequest.cancelled_at, event: 'Žiadosť zrušená', detail: focusRequest.cancellation_reason ?? '' });
+    if (focusRequest.refunded_at) ev.push({ time: focusRequest.refunded_at, event: 'Refundované', detail: '' });
+    if (selectedRide.cancelled_at) ev.push({ time: selectedRide.cancelled_at, event: 'Jazda zrušená vodičom', detail: selectedRide.cancellation_reason ?? '' });
+    return ev.filter(e => e.time).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+  };
+
+  const exportCSV = () => {
+    if (!selectedRide || !focusRequest) return;
+    const rows: string[] = [];
+    rows.push('TakeMe – Reklamačný export');
+    rows.push(`Jazda;${selectedRide.id}`);
+    rows.push(`Vodič;${selectedRide.driver?.full_name ?? ''};${selectedRide.driver?.phone ?? ''}`);
+    rows.push(`Trasa;${selectedRide.origin_address} -> ${selectedRide.destination_address}`);
+    rows.push(`Odjazd;${selectedRide.departure_time}`);
+    rows.push(`Pasažier;${focusRequest.passenger?.full_name ?? ''};${focusRequest.passenger?.phone ?? ''}`);
+    rows.push(`Pickup;${focusRequest.pickup_address};${focusRequest.pickup_lat};${focusRequest.pickup_lng}`);
+    rows.push('');
+    rows.push('TIMELINE');
+    rows.push('Čas;Udalosť;Detail');
+    buildTimeline().forEach(e => rows.push(`${e.time};${e.event};${(e.detail || '').replace(/;/g, ',')}`));
+    rows.push('');
+    rows.push('GPS PINGY VODIČA (±30 min)');
+    rows.push('Čas;Lat;Lng;Rýchlosť(km/h);Vzdialenosť od pickup(m)');
+    locations.forEach(p => {
+      const d = haversine({ lat: focusRequest.pickup_lat, lng: focusRequest.pickup_lng }, { lat: p.lat, lng: p.lng });
+      rows.push(`${p.recorded_at};${p.lat};${p.lng};${p.speed != null ? Math.round(p.speed * 3.6) : ''};${Math.round(d)}`);
+    });
+    if (closest) {
+      rows.push('');
+      rows.push(`Najbližšia poloha vodiča;${Math.round(closest.distance)} m;v čase ${closest.ping.recorded_at};±${Math.round(closest.dtSec)}s od referencie`);
+    }
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reklamacia-${selectedRide.id.slice(0, 8)}-${focusRequest.id.slice(0, 8)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exportované');
+  };
+
+  const exportPDF = () => {
+    if (!selectedRide || !focusRequest) return;
+    const doc = new jsPDF();
+    const refTime = focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at;
+
+    doc.setFontSize(16);
+    doc.text('TakeMe - Reklamacny dokaz', 14, 18);
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(`Vygenerovane: ${format(new Date(), 'PPpp', { locale: sk })}`, 14, 24);
+    doc.setTextColor(0);
+
+    doc.setFontSize(10);
+    let y = 34;
+    const line = (label: string, val: string) => {
+      doc.setFont('helvetica', 'bold'); doc.text(label, 14, y);
+      doc.setFont('helvetica', 'normal'); doc.text(val, 55, y);
+      y += 6;
+    };
+    line('Jazda ID:', selectedRide.id);
+    line('Vodic:', `${selectedRide.driver?.full_name ?? '-'}  ${selectedRide.driver?.phone ?? ''}`);
+    line('Trasa:', `${selectedRide.origin_address} -> ${selectedRide.destination_address}`);
+    line('Odjazd:', format(new Date(selectedRide.departure_time), 'PPpp', { locale: sk }));
+    line('Stav:', selectedRide.status);
+    line('Pasazier:', `${focusRequest.passenger?.full_name ?? '-'}  ${focusRequest.passenger?.phone ?? ''}`);
+    line('Pickup:', focusRequest.pickup_address);
+    line('Pickup GPS:', `${focusRequest.pickup_lat.toFixed(5)}, ${focusRequest.pickup_lng.toFixed(5)}`);
+    line('Platba:', `${focusRequest.payment_status}${focusRequest.amount_paid ? ' / ' + focusRequest.amount_paid + ' EUR' : ''}`);
+    line('Ref. cas:', format(new Date(refTime), 'PPpp', { locale: sk }));
+
+    if (closest) {
+      y += 2;
+      doc.setFont('helvetica', 'bold');
+      doc.text('VYSLEDOK ANALYZY:', 14, y); y += 6;
+      doc.setFont('helvetica', 'normal');
+      const verdict = closest.distance < 200
+        ? `Vodic bol PRITOMNY (${Math.round(closest.distance)} m od pickup)`
+        : closest.distance < 1000
+          ? `Vodic bol v blizkosti (${Math.round(closest.distance)} m)`
+          : `Vodic NEBOL na mieste (${(closest.distance / 1000).toFixed(2)} km od pickup)`;
+      doc.text(verdict, 14, y); y += 6;
+      doc.text(`Najblizsi ping: ${format(new Date(closest.ping.recorded_at), 'PPpp', { locale: sk })} (±${Math.round(closest.dtSec)}s)`, 14, y); y += 4;
+    } else if (locations.length === 0) {
+      y += 2;
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(180, 0, 0);
+      doc.text('UPOZORNENIE: Vodic nemal aktivne GPS - ziadne zaznamy v okne +/-30 min.', 14, y);
+      doc.setTextColor(0); y += 6;
+    }
+
+    autoTable(doc, {
+      startY: y + 6,
+      head: [['Cas', 'Udalost', 'Detail']],
+      body: buildTimeline().map(e => [format(new Date(e.time), 'd.M.yyyy HH:mm:ss', { locale: sk }), e.event, e.detail]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 8,
+      head: [['Cas', 'Lat', 'Lng', 'Rychlost', 'Vzdial. od pickup']],
+      body: locations.map(p => {
+        const d = haversine({ lat: focusRequest.pickup_lat, lng: focusRequest.pickup_lng }, { lat: p.lat, lng: p.lng });
+        return [
+          format(new Date(p.recorded_at), 'HH:mm:ss', { locale: sk }),
+          p.lat.toFixed(5),
+          p.lng.toFixed(5),
+          p.speed != null ? `${Math.round(p.speed * 3.6)} km/h` : '-',
+          d < 1000 ? `${Math.round(d)} m` : `${(d / 1000).toFixed(2)} km`,
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8); doc.setTextColor(150);
+      doc.text(`TakeMe reklamacny dokaz · strana ${i}/${pageCount}`, 14, doc.internal.pageSize.getHeight() - 8);
+    }
+
+    doc.save(`reklamacia-${selectedRide.id.slice(0, 8)}-${focusRequest.id.slice(0, 8)}.pdf`);
+    toast.success('PDF exportované');
+  };
+
+
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
       {/* List */}
@@ -277,15 +415,26 @@ export const AdminDisputes = () => {
 
               {focusRequest && (
                 <div className="space-y-3 border-t pt-4">
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center gap-1"><Clock className="w-4 h-4" /> GPS vodiča (±30 min)</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Referenčný čas: {format(new Date(focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at), 'PPpp', { locale: sk })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Pickup: {focusRequest.pickup_lat.toFixed(5)}, {focusRequest.pickup_lng.toFixed(5)}
-                    </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-semibold flex items-center gap-1"><Clock className="w-4 h-4" /> GPS vodiča (±30 min)</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Referenčný čas: {format(new Date(focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at), 'PPpp', { locale: sk })}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Pickup: {focusRequest.pickup_lat.toFixed(5)}, {focusRequest.pickup_lng.toFixed(5)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <Button size="sm" variant="outline" onClick={exportPDF}>
+                        <FileText className="w-3.5 h-3.5 mr-1" /> PDF
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={exportCSV}>
+                        <Download className="w-3.5 h-3.5 mr-1" /> CSV
+                      </Button>
+                    </div>
                   </div>
+
 
                   {locations.length === 0 ? (
                     <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-sm">
