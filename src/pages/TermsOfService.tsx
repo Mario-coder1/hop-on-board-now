@@ -39,7 +39,7 @@ const TermsOfService = () => {
               <h2 className="font-display text-2xl font-semibold">1. Základné ustanovenia</h2>
             </div>
             <div className="space-y-3 text-muted-foreground">
-              <p><strong className="text-foreground">1.1.</strong> Tieto všeobecné obchodné podmienky (ďalej len „VOP") upravujú vzťahy medzi prevádzkovateľom platformy TakeMe — spoločnosťou <strong className="text-foreground">TakeMe s.r.o.</strong> (ďalej len „prevádzkovateľ", „my", „platforma") a používateľmi (ďalej len „používateľ", „vy", „vodič", „spolujazdec").</p>
+              <p><strong className="text-foreground">1.1.</strong> Tieto všeobecné obchodné podmienky (ďalej len „VOP") upravujú vzťahy medzi prevádzkovateľom platformy TakeMe — spoločnosťou <strong className="text-foreground">Dominko s.r.o.</strong>, so sídlom Brehy 82, 023 13 Čierne, IČO: 45634521, DIČ: 2023074053, IČ DPH: SK2023074053, zastúpenou konateľom <strong className="text-foreground">Pavolom Dominkom</strong> (ďalej len „prevádzkovateľ
               <p><strong className="text-foreground">1.2.</strong> Platforma TakeMe je sprostredkovateľská služba, ktorá umožňuje vodičom ponúkať voľné miesta vo svojich vozidlách a spolujazdcom vyhľadávať a rezervovať tieto miesta. <strong className="text-foreground">TakeMe nie je dopravcom ani taxislužbou.</strong> Samotnú prepravu uskutočňujú výlučne používatelia medzi sebou na vlastnú zodpovednosť.</p>
               <p><strong className="text-foreground">1.3.</strong> Registráciou a používaním platformy potvrdzujete, že ste sa oboznámili s týmito VOP a so <a href="/privacy" className="text-primary underline">Zásadami ochrany súkromia</a>, a že s nimi súhlasíte.</p>
               <p><strong className="text-foreground">1.4.</strong> Služba je určená osobám starším ako 16 rokov. Osoby mladšie ako 18 rokov môžu službu používať len so súhlasom zákonného zástupcu.</p>
@@ -237,7 +237,7 @@ const TermsOfService = () => {
               <p><strong className="text-foreground">14.2.</strong> Vzťahy neupravené týmito VOP sa riadia právnym poriadkom Slovenskej republiky, najmä zákonom č. 40/1964 Zb. (Občiansky zákonník) a zákonom č. 22/2004 Z.z. (o elektronickom obchode).</p>
               <p><strong className="text-foreground">14.3.</strong> Prípadné spory sa budú snažiť strany riešiť dohodou. V prípade neúspechu je príslušný súd v Slovenskej republike.</p>
               <p><strong className="text-foreground">14.4.</strong> Ak by niektoré ustanovenie týchto VOP bolo neplatné alebo neúčinné, ostatné ustanovenia zostávajú v platnosti.</p>
-              <p><strong className="text-foreground">14.5.</strong> Kontakt: <strong className="text-foreground">support@takeme.sk</strong></p>
+              <p><strong className="text-foreground">14.5.</strong> Kontakt: <strong className="text-foreground">support@takeme.sk</strong> · Prevádzkovateľ: Dominko s.r.o., Brehy 82, 023 13 Čierne, IČO: 45634521 · Konateľ: Pavol Dominko · Vývojár platformy: Mário Kubalík</p>
             </div>
           </section>
         </div>

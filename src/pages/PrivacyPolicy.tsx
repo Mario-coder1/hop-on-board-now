@@ -38,7 +38,10 @@ const PrivacyPolicy = () => {
             <div className="space-y-2 text-muted-foreground">
               <p>Prevádzkovateľom osobných údajov v zmysle nariadenia (EÚ) 2016/679 (GDPR) a zákona č. 18/2018 Z. z. je:</p>
               <div className="p-4 rounded-lg bg-muted/50">
-                <p className="font-semibold text-foreground">TakeMe s.r.o.</p>
+                <p className="font-semibold text-foreground">Dominko s.r.o.</p>
+                <p>So sídlom: Brehy 82, 023 13 Čierne</p>
+                <p>IČO: 45634521 · DIČ: 2023074053 · IČ DPH: SK2023074053</p>
+                <p>Konateľ: Pavol Dominko</p>
                 <p>Kontaktný e-mail: <strong className="text-foreground">support@takeme.sk</strong></p>
                 <p>Aplikácia (PWA) a web: takeme.sk</p>
               </div>
