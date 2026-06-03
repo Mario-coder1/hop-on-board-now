@@ -42,6 +42,8 @@ import {
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
+import AdminDisputes from '@/components/admin/AdminDisputes';
+
 import {
   Dialog,
   DialogContent,
@@ -768,7 +770,16 @@ const Admin = () => {
               <Fuel className="w-4 h-4" />
               Stanice
             </TabsTrigger>
+            <TabsTrigger value="disputes" className="gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              Reklamácie
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="disputes" className="space-y-4">
+            <AdminDisputes />
+          </TabsContent>
+
 
           <TabsContent value="payouts" className="space-y-4">
             <AdminPayoutsTab />

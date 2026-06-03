@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      driver_location_history: {
+        Row: {
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          profile_id: string
+          recorded_at: string
+          ride_id: string | null
+          speed: number | null
+        }
+        Insert: {
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          profile_id: string
+          recorded_at?: string
+          ride_id?: string | null
+          speed?: number | null
+        }
+        Update: {
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          profile_id?: string
+          recorded_at?: string
+          ride_id?: string | null
+          speed?: number | null
+        }
+        Relationships: []
+      }
       gas_stations: {
         Row: {
           active: boolean
@@ -1359,6 +1392,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_old_location_history: { Args: never; Returns: undefined }
       current_profile_id: { Args: never; Returns: string }
       get_internal_push_secret: { Args: never; Returns: string }
       has_ride_request: { Args: { _ride_id: string }; Returns: boolean }
