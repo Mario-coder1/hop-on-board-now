@@ -552,6 +552,7 @@ const PublicChat = () => {
           <Button 
             type="submit" 
             size="icon"
+            aria-label="Odoslať správu"
             disabled={(!newMessage.trim() && !selectedImage) || sending}
             className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
           >
