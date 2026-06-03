@@ -86,7 +86,7 @@ let activeWatchId: number | null = null;
 let activeProfileId: string | null = null;
 
 let lastHistoryWriteAt = 0;
-const HISTORY_INTERVAL_MS = 20000; // write to history at most every 20s
+const HISTORY_INTERVAL_MS = 10000; // write to history at most every 10s
 
 const startWatch = (profileId: string): number => {
   return navigator.geolocation.watchPosition(
