@@ -42,6 +42,8 @@ import {
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
+import AdminDisputes from '@/components/admin/AdminDisputes';
+
 import {
   Dialog,
   DialogContent,
