@@ -40,7 +40,10 @@ const GDPR = () => {
             </div>
             <div className="space-y-2 text-muted-foreground">
               <div className="p-4 rounded-lg bg-muted/50">
-                <p className="font-semibold text-foreground">TakeMe s.r.o.</p>
+                <p className="font-semibold text-foreground">Dominko s.r.o.</p>
+                <p>So sídlom: Brehy 82, 023 13 Čierne</p>
+                <p>IČO: 45634521 · DIČ: 2023074053 · IČ DPH: SK2023074053</p>
+                <p>Konateľ: Pavol Dominko</p>
                 <p>Kontakt zodpovednej osoby: <strong className="text-foreground">support@takeme.sk</strong></p>
               </div>
               <p>Podrobný prehľad spracovania nájdete v <a href="/privacy" className="text-primary underline">Zásadách ochrany súkromia</a>.</p>
