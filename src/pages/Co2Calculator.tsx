@@ -20,6 +20,8 @@ export default function Co2Calculator() {
   const [fuel, setFuel] = useState<'petrol' | 'diesel' | 'lpg'>('petrol');
   const [consumption, setConsumption] = useState(6.5);
   const [kmYear, setKmYear] = useState(15000);
+  const consumptionId = useId();
+  const kmYearId = useId();
 
   const { liters, kg, tons, trees, flights } = useMemo(() => {
     const liters = (consumption * kmYear) / 100;
