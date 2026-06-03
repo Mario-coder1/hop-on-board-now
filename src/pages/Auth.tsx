@@ -388,6 +388,16 @@ const Auth: React.FC = () => {
                 )}
               </button>
             </div>
+
+            <div className="mt-4 text-center">
+              <a
+                href="/tutorial"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                Tutoriál — ako TakeMe funguje
+              </a>
+            </div>
           </motion.div>
         </div>
       </motion.div>
