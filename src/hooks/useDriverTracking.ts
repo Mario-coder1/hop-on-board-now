@@ -85,6 +85,9 @@ const TRACKING_STORAGE_KEY = 'takeme_location_tracking_active';
 let activeWatchId: number | null = null;
 let activeProfileId: string | null = null;
 
+let lastHistoryWriteAt = 0;
+const HISTORY_INTERVAL_MS = 20000; // write to history at most every 20s
+
 const startWatch = (profileId: string): number => {
   return navigator.geolocation.watchPosition(
     async (position) => {
@@ -107,6 +110,22 @@ const startWatch = (profileId: string): number => {
       if (error) {
         console.error('Error updating location:', error);
       }
+
+      // Persist to history (throttled) for dispute resolution
+      const now = Date.now();
+      if (now - lastHistoryWriteAt >= HISTORY_INTERVAL_MS) {
+        lastHistoryWriteAt = now;
+        const { error: histErr } = await supabase
+          .from('driver_location_history')
+          .insert({
+            profile_id: profileId,
+            lat: latitude,
+            lng: longitude,
+            heading,
+            speed,
+          });
+        if (histErr) console.error('Error writing location history:', histErr);
+      }
     },
     (error) => {
       console.error('Geolocation error:', error);
@@ -118,6 +137,7 @@ const startWatch = (profileId: string): number => {
     }
   );
 };
+
 
 export const useLocationBroadcast = (profileId: string | null) => {
   const [isTracking, setIsTracking] = useState<boolean>(() => {
