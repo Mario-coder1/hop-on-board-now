@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Car, MapPin, Users, ArrowRight, Mail, Lock, User } from 'lucide-react';
+import { Car, MapPin, Users, ArrowRight, Mail, Lock, User, FileText } from 'lucide-react';
 import SEO from '@/components/SEO';
 import AnimatedAuthBackground from '@/components/AnimatedAuthBackground';
 import AuthOnboardingSteps from '@/components/AuthOnboardingSteps';
@@ -19,6 +19,7 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -61,6 +62,15 @@ const Auth: React.FC = () => {
           toast({
             title: "Chyba",
             description: "Prosím vyplňte meno",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        if (!agreedToTerms) {
+          toast({
+            title: "Chyba",
+            description: "Pre registráciu musíte súhlasiť s obchodnými podmienkami",
             variant: "destructive"
           });
           setLoading(false);
@@ -265,7 +275,41 @@ const Auth: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
+              {!isLogin && (
+                <div className="flex items-start gap-3">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
+                    Súhlasím s{' '}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary/80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      obchodnými podmienkami
+                    </a>{' '}
+                    a{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary/80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      zásadami ochrany súkromia
+                    </a>
+                  </label>
+                </div>
+              )}
+
+              <Button
                 type="submit" 
                 variant="hero" 
                 size="lg" 
