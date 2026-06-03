@@ -86,7 +86,7 @@ let activeWatchId: number | null = null;
 let activeProfileId: string | null = null;
 
 let lastHistoryWriteAt = 0;
-const HISTORY_INTERVAL_MS = 20000; // write to history at most every 20s
+const HISTORY_INTERVAL_MS = 10000; // write to history at most every 10s
 
 const startWatch = (profileId: string): number => {
   return navigator.geolocation.watchPosition(
@@ -167,6 +167,47 @@ export const useLocationBroadcast = (profileId: string | null) => {
     activeWatchId = startWatch(profileId);
     activeProfileId = profileId;
     setIsTracking(true);
+  }, [profileId]);
+
+  // Auto-start tracking when driver has any active/in-progress ride (for dispute evidence)
+  useEffect(() => {
+    if (!profileId || !navigator.geolocation) return;
+    let cancelled = false;
+
+    const ensureTrackingForActiveRide = async () => {
+      const { data, error } = await supabase
+        .from('rides')
+        .select('id')
+        .eq('driver_id', profileId)
+        .in('status', ['active', 'in_progress'])
+        .limit(1);
+      if (cancelled || error) return;
+      const hasActive = (data?.length ?? 0) > 0;
+      if (hasActive && (activeWatchId === null || activeProfileId !== profileId)) {
+        if (activeWatchId !== null) navigator.geolocation.clearWatch(activeWatchId);
+        activeWatchId = startWatch(profileId);
+        activeProfileId = profileId;
+        localStorage.setItem(TRACKING_STORAGE_KEY, 'true');
+        setIsTracking(true);
+      }
+    };
+
+    ensureTrackingForActiveRide();
+
+    // Re-check when driver's rides change (new ride created, ride started, etc.)
+    const channel = supabase
+      .channel(`auto-track-${profileId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'rides', filter: `driver_id=eq.${profileId}` },
+        () => ensureTrackingForActiveRide()
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   const startTracking = useCallback(async () => {
