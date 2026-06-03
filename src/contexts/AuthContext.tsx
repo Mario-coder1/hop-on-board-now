@@ -170,6 +170,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
+    const { TERMS_VERSION, PRIVACY_VERSION } = await import("@/lib/legalVersions");
+    const acceptedAt = new Date().toISOString();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -178,6 +180,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          terms_version: TERMS_VERSION,
+          terms_accepted_at: acceptedAt,
+          privacy_version: PRIVACY_VERSION,
+          privacy_accepted_at: acceptedAt,
         },
       },
     });
