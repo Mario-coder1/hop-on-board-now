@@ -198,7 +198,7 @@ const Index = () => {
             </motion.div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* CTA */}
       <div className="relative container mx-auto px-4 pb-24 md:pb-20">
