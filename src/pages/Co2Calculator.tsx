@@ -78,7 +78,7 @@ export default function Co2Calculator() {
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Label htmlFor={consumptionId} className="text-sm font-semibold flex items-center gap-2">
                     <Fuel className="w-4 h-4 text-primary" />
                     Spotreba
                   </Label>
@@ -87,6 +87,7 @@ export default function Co2Calculator() {
                   </div>
                 </div>
                 <Slider
+                  aria-label="Spotreba paliva v litroch na 100 kilometrov"
                   value={[consumption]}
                   onValueChange={(v) => setConsumption(v[0])}
                   min={2}
@@ -94,6 +95,7 @@ export default function Co2Calculator() {
                   step={0.1}
                 />
                 <Input
+                  id={consumptionId}
                   type="number"
                   value={consumption}
                   onChange={(e) => setConsumption(parseFloat(e.target.value) || 0)}
