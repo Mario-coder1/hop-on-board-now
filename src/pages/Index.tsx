@@ -179,7 +179,8 @@ const Index = () => {
       </div>
 
       {/* Features - Glass cards */}
-      <div className="relative container mx-auto px-4 py-12 md:py-16">
+      <section aria-labelledby="features-heading" className="relative container mx-auto px-4 py-12 md:py-16">
+        <h2 id="features-heading" className="sr-only">Prečo TakeMe</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
           {features.map((feature, index) => (
             <motion.div
