@@ -254,7 +254,7 @@ const MyRides = () => {
                       <div onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2">
+                            <Button variant="ghost" size="icon" aria-label="Otvoriť ponuku akcií pre jazdu" className="h-8 w-8 -mr-2">
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
