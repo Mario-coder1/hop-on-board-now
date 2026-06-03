@@ -106,7 +106,7 @@ export default function Co2Calculator() {
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Label htmlFor={kmYearId} className="text-sm font-semibold flex items-center gap-2">
                     <Gauge className="w-4 h-4 text-primary" />
                     Ročný nájazd
                   </Label>
@@ -115,6 +115,7 @@ export default function Co2Calculator() {
                   </div>
                 </div>
                 <Slider
+                  aria-label="Ročný nájazd v kilometroch"
                   value={[kmYear]}
                   onValueChange={(v) => setKmYear(v[0])}
                   min={1000}
@@ -122,6 +123,7 @@ export default function Co2Calculator() {
                   step={500}
                 />
                 <Input
+                  id={kmYearId}
                   type="number"
                   value={kmYear}
                   onChange={(e) => setKmYear(parseInt(e.target.value) || 0)}
