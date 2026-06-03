@@ -502,6 +502,7 @@ const PublicChat = () => {
             type="button"
             variant="ghost"
             size="icon"
+            aria-label="Pridať obrázok do správy"
             onClick={() => fileInputRef.current?.click()}
             disabled={sending}
             className="shrink-0 text-muted-foreground hover:text-primary"
@@ -516,6 +517,7 @@ const PublicChat = () => {
                 type="button"
                 variant="ghost"
                 size="icon"
+                aria-label="Otvoriť výber emoji"
                 disabled={sending}
                 className="shrink-0 text-muted-foreground hover:text-primary"
               >
