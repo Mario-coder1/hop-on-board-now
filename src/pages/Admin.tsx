@@ -217,8 +217,8 @@ const Admin = () => {
     if (error) {
       console.error('Error fetching settings:', error);
     } else if (data) {
-      const commission = data.find(s => s.key === 'commission_percentage');
-      const topup = data.find(s => s.key === 'topup_fee_percentage');
+      const commission = data.find(s => s.key === 'ride_commission_percent');
+      const topup = data.find(s => s.key === 'stripe_fee_percent');
       if (commission) setCommissionPercentage(Number(commission.value));
       if (topup) setTopupFeePercentage(Number(topup.value));
     }
@@ -252,12 +252,12 @@ const Admin = () => {
       const { error: commissionError } = await supabase
         .from('platform_settings')
         .update({ value: commissionPercentage })
-        .eq('key', 'commission_percentage');
+        .eq('key', 'ride_commission_percent');
 
       const { error: topupError } = await supabase
         .from('platform_settings')
         .update({ value: topupFeePercentage })
-        .eq('key', 'topup_fee_percentage');
+        .eq('key', 'stripe_fee_percent');
 
       if (commissionError || topupError) {
         throw commissionError || topupError;
