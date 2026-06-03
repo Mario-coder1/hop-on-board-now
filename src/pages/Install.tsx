@@ -96,7 +96,7 @@ const Install = () => {
               >
                 <Check className="w-10 h-10 text-success-foreground" />
               </motion.div>
-              <h1 className="text-2xl font-bold mb-2">Hotovo!</h1>
+              <h1 className="text-2xl font-bold mb-2">Inštalácia TakeMe dokončená</h1>
               <p className="text-muted-foreground mb-6">
                 TakeMe je teraz na tvojej domovskej obrazovke. Môžeš ju spustiť kedykoľvek.
               </p>

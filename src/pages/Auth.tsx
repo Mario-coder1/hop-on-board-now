@@ -140,6 +140,7 @@ const Auth: React.FC = () => {
           >
             <h1 className="font-display text-5xl font-bold text-primary-foreground mb-4">
               Take<span className="text-primary">Me</span>
+              <span className="sr-only"> — Prihlásenie a registrácia</span>
             </h1>
             <p className="text-xl text-primary-foreground/80 mb-12">
               Zdieľaj jazdu, šetri peniaze, chráň planétu.
@@ -198,9 +199,9 @@ const Auth: React.FC = () => {
             <div className="relative h-36 mb-6 overflow-hidden rounded-2xl border border-primary/20 bg-secondary/70 shadow-glass">
               <AnimatedAuthBackground />
             </div>
-            <h1 className="font-display text-4xl font-bold">
+            <p className="font-display text-4xl font-bold" aria-hidden="true">
               Take<span className="text-primary">Me</span>
-            </h1>
+            </p>
             <p className="text-muted-foreground mt-2">Zdieľaj jazdu, cestuj spolu</p>
           </div>
 

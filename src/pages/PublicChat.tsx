@@ -287,6 +287,7 @@ const PublicChat = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Zavrieť zväčšený obrázok"
               className="absolute top-4 right-4 text-white hover:bg-white/20"
               onClick={() => setFullscreenImage(null)}
             >
@@ -297,7 +298,7 @@ const PublicChat = () => {
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               src={fullscreenImage}
-              alt="Fullscreen"
+              alt="Obrázok v plnej veľkosti z chatu"
               className="max-w-full max-h-full object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
@@ -315,6 +316,7 @@ const PublicChat = () => {
           <Button 
             variant="ghost" 
             size="icon" 
+            aria-label="Späť na predchádzajúcu stránku"
             onClick={() => navigate(-1)}
             className="shrink-0"
           >
@@ -415,7 +417,7 @@ const PublicChat = () => {
                         {msg.image_url && (
                           <motion.img
                             src={msg.image_url}
-                            alt="Chat image"
+                            alt="Obrázok zdieľaný v chate"
                             className="max-w-full max-h-60 rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() => setFullscreenImage(msg.image_url)}
                             whileHover={{ scale: 1.02 }}
@@ -430,6 +432,7 @@ const PublicChat = () => {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="Vymazať správu"
                           onClick={() => deleteMessage(msg.id)}
                           className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
@@ -461,12 +464,13 @@ const PublicChat = () => {
             <div className="max-w-3xl mx-auto relative inline-block">
               <img 
                 src={imagePreview} 
-                alt="Preview" 
+                alt="Náhľad vybraného obrázka pred odoslaním" 
                 className="h-20 rounded-lg object-cover"
               />
               <Button
                 variant="destructive"
                 size="icon"
+                aria-label="Odstrániť vybraný obrázok"
                 className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                 onClick={clearSelectedImage}
               >
@@ -498,6 +502,7 @@ const PublicChat = () => {
             type="button"
             variant="ghost"
             size="icon"
+            aria-label="Pridať obrázok do správy"
             onClick={() => fileInputRef.current?.click()}
             disabled={sending}
             className="shrink-0 text-muted-foreground hover:text-primary"
@@ -512,6 +517,7 @@ const PublicChat = () => {
                 type="button"
                 variant="ghost"
                 size="icon"
+                aria-label="Otvoriť výber emoji"
                 disabled={sending}
                 className="shrink-0 text-muted-foreground hover:text-primary"
               >
@@ -546,6 +552,7 @@ const PublicChat = () => {
           <Button 
             type="submit" 
             size="icon"
+            aria-label="Odoslať správu"
             disabled={(!newMessage.trim() && !selectedImage) || sending}
             className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
           >

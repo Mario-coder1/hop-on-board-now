@@ -91,7 +91,7 @@ const AppRoutes = () => {
       <IOSInstallPrompt />
       <WelcomeOnboardingDialog />
       <RequireFullNameDialog />
-      <div id="main-content">
+      <main id="main-content">
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -125,7 +125,7 @@ const AppRoutes = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </div>
+      </main>
     </>
   );
 };

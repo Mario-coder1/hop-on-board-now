@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Fuel, Gauge, TreePine, Car, Plane } from 'lucide-react';
 import Navigation from '@/components/Navigation';
@@ -20,6 +20,8 @@ export default function Co2Calculator() {
   const [fuel, setFuel] = useState<'petrol' | 'diesel' | 'lpg'>('petrol');
   const [consumption, setConsumption] = useState(6.5);
   const [kmYear, setKmYear] = useState(15000);
+  const consumptionId = useId();
+  const kmYearId = useId();
 
   const { liters, kg, tons, trees, flights } = useMemo(() => {
     const liters = (consumption * kmYear) / 100;
@@ -76,7 +78,7 @@ export default function Co2Calculator() {
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Label htmlFor={consumptionId} className="text-sm font-semibold flex items-center gap-2">
                     <Fuel className="w-4 h-4 text-primary" />
                     Spotreba
                   </Label>
@@ -85,6 +87,7 @@ export default function Co2Calculator() {
                   </div>
                 </div>
                 <Slider
+                  aria-label="Spotreba paliva v litroch na 100 kilometrov"
                   value={[consumption]}
                   onValueChange={(v) => setConsumption(v[0])}
                   min={2}
@@ -92,6 +95,7 @@ export default function Co2Calculator() {
                   step={0.1}
                 />
                 <Input
+                  id={consumptionId}
                   type="number"
                   value={consumption}
                   onChange={(e) => setConsumption(parseFloat(e.target.value) || 0)}
@@ -102,7 +106,7 @@ export default function Co2Calculator() {
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Label htmlFor={kmYearId} className="text-sm font-semibold flex items-center gap-2">
                     <Gauge className="w-4 h-4 text-primary" />
                     Ročný nájazd
                   </Label>
@@ -111,6 +115,7 @@ export default function Co2Calculator() {
                   </div>
                 </div>
                 <Slider
+                  aria-label="Ročný nájazd v kilometroch"
                   value={[kmYear]}
                   onValueChange={(v) => setKmYear(v[0])}
                   min={1000}
@@ -118,6 +123,7 @@ export default function Co2Calculator() {
                   step={500}
                 />
                 <Input
+                  id={kmYearId}
                   type="number"
                   value={kmYear}
                   onChange={(e) => setKmYear(parseInt(e.target.value) || 0)}
