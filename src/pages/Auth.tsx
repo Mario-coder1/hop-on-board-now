@@ -275,7 +275,41 @@ const Auth: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
+              {!isLogin && (
+                <div className="flex items-start gap-3">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary cursor-pointer"
+                  />
+                  <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
+                    Súhlasím s{' '}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary/80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      obchodnými podmienkami
+                    </a>{' '}
+                    a{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary/80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      zásadami ochrany súkromia
+                    </a>
+                  </label>
+                </div>
+              )}
+
+              <Button
                 type="submit" 
                 variant="hero" 
                 size="lg" 
