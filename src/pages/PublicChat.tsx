@@ -316,6 +316,7 @@ const PublicChat = () => {
           <Button 
             variant="ghost" 
             size="icon" 
+            aria-label="Späť na predchádzajúcu stránku"
             onClick={() => navigate(-1)}
             className="shrink-0"
           >
