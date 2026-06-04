@@ -82,8 +82,13 @@ export function WelcomeOnboardingDialog() {
   if (!profile) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) finish(); }}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={() => { /* mandatory – cannot dismiss */ }}>
+      <DialogContent
+        className="max-w-md"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         {step === 1 ? (
           <>
             <DialogHeader>
@@ -96,7 +101,7 @@ export function WelcomeOnboardingDialog() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">
-              <Label htmlFor="onboard-phone">Telefón</Label>
+              <Label htmlFor="onboard-phone">Telefón <span className="text-destructive">*</span></Label>
               <Input
                 id="onboard-phone"
                 type="tel"
@@ -105,10 +110,10 @@ export function WelcomeOnboardingDialog() {
                 onChange={(e) => setPhone(e.target.value)}
                 autoFocus
               />
+              <p className="text-xs text-muted-foreground">Tento krok je povinný pre pokračovanie.</p>
             </div>
-            <DialogFooter className="gap-2 sm:gap-2">
-              <Button variant="ghost" onClick={finish} disabled={saving}>Neskôr</Button>
-              <Button onClick={handleSavePhone} disabled={saving}>
+            <DialogFooter>
+              <Button onClick={handleSavePhone} disabled={saving || !phone.trim()} className="w-full">
                 {saving ? 'Ukladám...' : 'Pokračovať'}
               </Button>
             </DialogFooter>
