@@ -154,10 +154,18 @@ const Navigation: React.FC = () => {
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
+              const tourKey =
+                item.path === '/driver' || item.path === '/passenger' ? 'nav-home'
+                : item.path === '/create-ride' ? 'nav-create'
+                : item.path === '/search' ? 'nav-search'
+                : item.path === '/my-rides' ? 'nav-my-rides'
+                : item.path === '/my-trips' ? 'nav-my-trips'
+                : undefined;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
+                  data-tour={tourKey}
                   className={`relative flex flex-col items-center justify-center min-w-[52px] h-12 px-2 rounded-full transition-all ${
                     isActive
                       ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
@@ -188,6 +196,7 @@ const Navigation: React.FC = () => {
             )}
             <Link
               to="/profile"
+              data-tour="nav-profile"
               className={`relative flex flex-col items-center justify-center min-w-[52px] h-12 px-2 rounded-full transition-all ${
                 location.pathname === '/profile'
                   ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
