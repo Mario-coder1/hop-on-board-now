@@ -326,9 +326,12 @@ const Auth: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-11 h-12"
                     required
-                    minLength={6}
+                    minLength={isLogin ? 6 : 8}
                   />
                 </div>
+                {!isLogin && (
+                  <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
+                )}
               </div>
 
               {!isLogin && (
