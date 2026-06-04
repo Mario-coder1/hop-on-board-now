@@ -70,6 +70,27 @@ const Auth: React.FC = () => {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResendConfirmation = async () => {
+    const emailErr = validateEmailStrict(email);
+    if (emailErr) {
+      toast({ title: 'Zadaj email', description: 'Najprv zadaj svoju emailovú adresu vyššie.', variant: 'destructive' });
+      return;
+    }
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    setResendLoading(false);
+    if (error) {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '📧 Email odoslaný', description: 'Skontroluj si schránku aj priečinok Spam.' });
+    }
+  };
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
