@@ -225,18 +225,26 @@ export function OnboardingTour() {
     const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
     const isMobile = vw < 768;
     const tooltipMaxW = isMobile ? Math.min(vw - 24, 320) : 320;
-    const estimatedH = isMobile ? 150 : 130;
-    const gap = isMobile ? 24 : 16;
+    const estimatedH = isMobile ? 210 : 150;
+    const gap = isMobile ? 32 : 16;
     let tooltipTop = 0;
     let tooltipLeft = 0;
     let placeAbove = false;
 
     if (rect) {
-      const nearBottom = rect.bottom > vh - 140; // mobile bottom nav
-      placeAbove = nearBottom || rect.top > vh / 2;
-      tooltipTop = placeAbove
-        ? rect.top - gap - estimatedH
-        : rect.bottom + gap;
+      const isBottomNavTarget = isMobile && rect.bottom > vh - 180;
+      const spaceAbove = rect.top - gap;
+      const spaceBelow = vh - rect.bottom - gap;
+
+      if (isBottomNavTarget) {
+        placeAbove = true;
+        tooltipTop = Math.max(16, Math.min(96, Math.max(16, rect.top - gap - estimatedH)));
+      } else {
+        placeAbove = spaceAbove >= estimatedH || spaceAbove > spaceBelow;
+        tooltipTop = placeAbove
+          ? rect.top - gap - estimatedH
+          : rect.bottom + gap;
+      }
       tooltipTop = Math.max(16, Math.min(tooltipTop, vh - estimatedH - 16));
       tooltipLeft = rect.left + rect.width / 2 - tooltipMaxW / 2;
       tooltipLeft = Math.max(12, Math.min(tooltipLeft, vw - tooltipMaxW - 12));
