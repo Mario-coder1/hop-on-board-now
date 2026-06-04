@@ -455,6 +455,19 @@ const Auth: React.FC = () => {
               </div>
             )}
 
+            {!isLogin && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  disabled={resendLoading}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+                >
+                  {resendLoading ? 'Odosielam...' : 'Nedostal si email? Poslať znova potvrdzovací email'}
+                </button>
+              </div>
+            )}
+
             <div className="mt-6 text-center">
               <button
                 type="button"
