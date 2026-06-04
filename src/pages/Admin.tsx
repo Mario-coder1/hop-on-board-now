@@ -37,12 +37,14 @@ import {
   Megaphone,
   BarChart3,
   Wifi,
-  Fuel
+  Fuel,
+  ShieldCheck
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
 import AdminDisputes from '@/components/admin/AdminDisputes';
+import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
 
 import {
   Dialog,
