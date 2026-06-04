@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Navigation2, AlertCircle, Clock, User, CreditCard, ExternalLink, Search, Download, FileText } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import type { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+const _vfs =
+  (pdfFonts as unknown as { pdfMake?: { vfs: Record<string, string> }; vfs?: Record<string, string> })
+    .pdfMake?.vfs ??
+  (pdfFonts as unknown as { vfs: Record<string, string> }).vfs;
+(pdfMake as unknown as { vfs: Record<string, string> }).vfs = _vfs;
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
@@ -216,89 +223,152 @@ export const AdminDisputes = () => {
 
   const exportPDF = () => {
     if (!selectedRide || !focusRequest) return;
-    const doc = new jsPDF();
     const refTime = focusRequest.cancelled_at || focusRequest.paid_at || focusRequest.created_at;
+    const fmtDT = (d: string | Date) => format(new Date(d), 'd.M.yyyy HH:mm:ss', { locale: sk });
 
-    doc.setFontSize(16);
-    doc.text('TakeMe - Reklamacny dokaz', 14, 18);
-    doc.setFontSize(9);
-    doc.setTextColor(120);
-    doc.text(`Vygenerovane: ${format(new Date(), 'PPpp', { locale: sk })}`, 14, 24);
-    doc.setTextColor(0);
-
-    doc.setFontSize(10);
-    let y = 34;
-    const line = (label: string, val: string) => {
-      doc.setFont('helvetica', 'bold'); doc.text(label, 14, y);
-      doc.setFont('helvetica', 'normal'); doc.text(val, 55, y);
-      y += 6;
-    };
-    line('Jazda ID:', selectedRide.id);
-    line('Vodic:', `${selectedRide.driver?.full_name ?? '-'}  ${selectedRide.driver?.phone ?? ''}`);
-    line('Trasa:', `${selectedRide.origin_address} -> ${selectedRide.destination_address}`);
-    line('Odjazd:', format(new Date(selectedRide.departure_time), 'PPpp', { locale: sk }));
-    line('Stav:', selectedRide.status);
-    line('Pasazier:', `${focusRequest.passenger?.full_name ?? '-'}  ${focusRequest.passenger?.phone ?? ''}`);
-    line('Pickup:', focusRequest.pickup_address);
-    line('Pickup GPS:', `${focusRequest.pickup_lat.toFixed(5)}, ${focusRequest.pickup_lng.toFixed(5)}`);
-    line('Platba:', `${focusRequest.payment_status}${focusRequest.amount_paid ? ' / ' + focusRequest.amount_paid + ' EUR' : ''}`);
-    line('Ref. cas:', format(new Date(refTime), 'PPpp', { locale: sk }));
-
-    if (closest) {
-      y += 2;
-      doc.setFont('helvetica', 'bold');
-      doc.text('VYSLEDOK ANALYZY:', 14, y); y += 6;
-      doc.setFont('helvetica', 'normal');
-      const verdict = closest.distance < 200
-        ? `Vodic bol PRITOMNY (${Math.round(closest.distance)} m od pickup)`
+    const verdict = closest
+      ? closest.distance < 200
+        ? `Vodič bol PRÍTOMNÝ (${Math.round(closest.distance)} m od miesta vyzdvihnutia)`
         : closest.distance < 1000
-          ? `Vodic bol v blizkosti (${Math.round(closest.distance)} m)`
-          : `Vodic NEBOL na mieste (${(closest.distance / 1000).toFixed(2)} km od pickup)`;
-      doc.text(verdict, 14, y); y += 6;
-      doc.text(`Najblizsi ping: ${format(new Date(closest.ping.recorded_at), 'PPpp', { locale: sk })} (±${Math.round(closest.dtSec)}s)`, 14, y); y += 4;
+          ? `Vodič bol v blízkosti (${Math.round(closest.distance)} m od miesta vyzdvihnutia)`
+          : `Vodič NEBOL na mieste (${(closest.distance / 1000).toFixed(2)} km od miesta vyzdvihnutia)`
+      : null;
+
+    const infoRows: [string, string][] = [
+      ['ID jazdy:', selectedRide.id],
+      ['Vodič:', `${selectedRide.driver?.full_name ?? '—'}  ${selectedRide.driver?.phone ?? ''}`.trim()],
+      ['Trasa:', `${selectedRide.origin_address} → ${selectedRide.destination_address}`],
+      ['Plánovaný odjazd:', fmtDT(selectedRide.departure_time)],
+      ['Stav jazdy:', selectedRide.status],
+      ['Pasažier:', `${focusRequest.passenger?.full_name ?? '—'}  ${focusRequest.passenger?.phone ?? ''}`.trim()],
+      ['Miesto vyzdvihnutia:', focusRequest.pickup_address],
+      ['GPS vyzdvihnutia:', `${focusRequest.pickup_lat.toFixed(5)}, ${focusRequest.pickup_lng.toFixed(5)}`],
+      ['Platba:', `${focusRequest.payment_status}${focusRequest.amount_paid ? ' / ' + focusRequest.amount_paid + ' €' : ''}`],
+      ['Referenčný čas:', fmtDT(refTime)],
+    ];
+
+    const cell = (text: string, extra: any = {}) => ({ text, margin: [4, 3, 4, 3], ...extra });
+
+    const content: any[] = [
+      { text: 'TakeMe — Reklamačný dôkaz', style: 'h1' },
+      { text: `Vygenerované: ${fmtDT(new Date())}`, style: 'sub', margin: [0, 2, 0, 12] },
+      { text: 'Detaily jazdy a žiadosti', style: 'sectionTitle' },
+      {
+        table: {
+          widths: [130, '*'],
+          body: infoRows.map(([k, v]) => [
+            { text: k, style: 'label', margin: [0, 4, 0, 4], border: [false, false, false, true] },
+            { text: v, margin: [0, 4, 0, 4], border: [false, false, false, true] },
+          ]),
+        },
+        layout: { defaultBorder: false, hLineColor: () => '#E2E8F0', hLineWidth: () => 0.5 },
+      },
+    ];
+
+    if (verdict) {
+      content.push({ text: 'Výsledok analýzy', style: 'sectionTitle' });
+      content.push({ text: verdict, style: closest!.distance < 200 ? 'ok' : 'warning' });
+      content.push({
+        text: `Najbližší GPS záznam: ${fmtDT(closest!.ping.recorded_at)} (±${Math.round(closest!.dtSec)} s od referencie)`,
+        style: 'sub',
+        margin: [0, 4, 0, 0],
+      });
     } else if (locations.length === 0) {
-      y += 2;
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(180, 0, 0);
-      doc.text('UPOZORNENIE: Vodic nemal aktivne GPS - ziadne zaznamy v okne +/-30 min.', 14, y);
-      doc.setTextColor(0); y += 6;
+      content.push({ text: 'Výsledok analýzy', style: 'sectionTitle' });
+      content.push({
+        text: 'UPOZORNENIE: Vodič nemal aktívne GPS — žiadne záznamy v okne ±30 minút od referenčného času.',
+        style: 'warning',
+      });
     }
 
-    autoTable(doc, {
-      startY: y + 6,
-      head: [['Cas', 'Udalost', 'Detail']],
-      body: buildTimeline().map(e => [format(new Date(e.time), 'd.M.yyyy HH:mm:ss', { locale: sk }), e.event, e.detail]),
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [30, 30, 30] },
+    content.push({ text: 'Časová os udalostí', style: 'sectionTitle' });
+    content.push({
+      table: {
+        headerRows: 1,
+        widths: [110, 130, '*'],
+        body: [
+          [cell('Čas', { style: 'tableHead' }), cell('Udalosť', { style: 'tableHead' }), cell('Detail', { style: 'tableHead' })],
+          ...buildTimeline().map((e) => [cell(fmtDT(e.time)), cell(e.event), cell(e.detail || '—')]),
+        ],
+      },
+      layout: {
+        hLineColor: () => '#E2E8F0',
+        vLineColor: () => '#E2E8F0',
+        hLineWidth: () => 0.5,
+        vLineWidth: () => 0.5,
+      },
     });
 
-    autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 8,
-      head: [['Cas', 'Lat', 'Lng', 'Rychlost', 'Vzdial. od pickup']],
-      body: locations.map(p => {
-        const d = haversine({ lat: focusRequest.pickup_lat, lng: focusRequest.pickup_lng }, { lat: p.lat, lng: p.lng });
-        return [
-          format(new Date(p.recorded_at), 'HH:mm:ss', { locale: sk }),
-          p.lat.toFixed(5),
-          p.lng.toFixed(5),
-          p.speed != null ? `${Math.round(p.speed * 3.6)} km/h` : '-',
-          d < 1000 ? `${Math.round(d)} m` : `${(d / 1000).toFixed(2)} km`,
-        ];
+    content.push({ text: 'GPS záznamy vodiča (±30 min od referencie)', style: 'sectionTitle' });
+    if (locations.length === 0) {
+      content.push({ text: 'Žiadne GPS záznamy v tomto okne.', style: 'sub' });
+    } else {
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: [70, 70, 70, 60, '*'],
+          body: [
+            [
+              cell('Čas', { style: 'tableHead' }),
+              cell('Šírka', { style: 'tableHead' }),
+              cell('Dĺžka', { style: 'tableHead' }),
+              cell('Rýchlosť', { style: 'tableHead' }),
+              cell('Vzdialenosť od miesta vyzdvihnutia', { style: 'tableHead' }),
+            ],
+            ...locations.map((p) => {
+              const d = haversine(
+                { lat: focusRequest.pickup_lat, lng: focusRequest.pickup_lng },
+                { lat: p.lat, lng: p.lng },
+              );
+              return [
+                cell(format(new Date(p.recorded_at), 'HH:mm:ss'), { fontSize: 9 }),
+                cell(p.lat.toFixed(5), { fontSize: 9 }),
+                cell(p.lng.toFixed(5), { fontSize: 9 }),
+                cell(p.speed != null ? `${Math.round(p.speed * 3.6)} km/h` : '—', { fontSize: 9 }),
+                cell(d < 1000 ? `${Math.round(d)} m` : `${(d / 1000).toFixed(2)} km`, { fontSize: 9 }),
+              ];
+            }),
+          ],
+        },
+        layout: {
+          hLineColor: () => '#E2E8F0',
+          vLineColor: () => '#E2E8F0',
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+        },
+      });
+    }
+
+    const docDef: TDocumentDefinitions = {
+      pageSize: 'A4',
+      pageMargins: [40, 50, 40, 50],
+      defaultStyle: { font: 'Roboto', fontSize: 10, color: '#0F172A', lineHeight: 1.35 },
+      styles: {
+        h1: { fontSize: 18, bold: true, color: '#0F172A' },
+        sub: { fontSize: 9, color: '#64748B' },
+        sectionTitle: { fontSize: 11, bold: true, color: '#0F172A', margin: [0, 14, 0, 6] },
+        label: { bold: true, color: '#334155' },
+        warning: { bold: true, color: '#B91C1C' },
+        ok: { bold: true, color: '#047857' },
+        tableHead: { bold: true, fillColor: '#0F172A', color: '#FFFFFF', fontSize: 9 },
+      },
+      content,
+      footer: (currentPage, pageCount) => ({
+        text: `TakeMe · reklamačný dôkaz · strana ${currentPage} / ${pageCount}`,
+        alignment: 'center',
+        fontSize: 8,
+        color: '#94A3B8',
+        margin: [0, 20, 0, 0],
       }),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [30, 30, 30] },
-    });
+    };
 
-    const pageCount = (doc as any).internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8); doc.setTextColor(150);
-      doc.text(`TakeMe reklamacny dokaz · strana ${i}/${pageCount}`, 14, doc.internal.pageSize.getHeight() - 8);
-    }
-
-    doc.save(`reklamacia-${selectedRide.id.slice(0, 8)}-${focusRequest.id.slice(0, 8)}.pdf`);
+    pdfMake
+      .createPdf(docDef)
+      .download(`reklamacia-${selectedRide.id.slice(0, 8)}-${focusRequest.id.slice(0, 8)}.pdf`);
     toast.success('PDF exportované');
   };
+
+
 
 
 
