@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Navigation2, AlertCircle, Clock, User, CreditCard, ExternalLink, Search, Download, FileText } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import type { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+const _vfs =
+  (pdfFonts as unknown as { pdfMake?: { vfs: Record<string, string> }; vfs?: Record<string, string> })
+    .pdfMake?.vfs ??
+  (pdfFonts as unknown as { vfs: Record<string, string> }).vfs;
+(pdfMake as unknown as { vfs: Record<string, string> }).vfs = _vfs;
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
