@@ -221,21 +221,27 @@ export function OnboardingTour() {
     const pad = 10;
 
     // Position tooltip
-    const tooltipMaxW = 320;
     const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
+    const isMobile = vw < 768;
+    const tooltipMaxW = isMobile ? Math.min(vw - 24, 320) : 320;
+    const estimatedH = isMobile ? 150 : 130;
+    const gap = isMobile ? 24 : 16;
     let tooltipTop = 0;
     let tooltipLeft = 0;
     let placeAbove = false;
 
     if (rect) {
-      placeAbove = rect.top > vh / 2;
-      tooltipTop = placeAbove ? rect.top - 16 - 180 : rect.bottom + 16;
-      tooltipTop = Math.max(16, Math.min(tooltipTop, vh - 220));
+      const nearBottom = rect.bottom > vh - 140; // mobile bottom nav
+      placeAbove = nearBottom || rect.top > vh / 2;
+      tooltipTop = placeAbove
+        ? rect.top - gap - estimatedH
+        : rect.bottom + gap;
+      tooltipTop = Math.max(16, Math.min(tooltipTop, vh - estimatedH - 16));
       tooltipLeft = rect.left + rect.width / 2 - tooltipMaxW / 2;
       tooltipLeft = Math.max(12, Math.min(tooltipLeft, vw - tooltipMaxW - 12));
     } else {
-      tooltipTop = vh / 2 - 90;
+      tooltipTop = vh / 2 - estimatedH / 2;
       tooltipLeft = vw / 2 - tooltipMaxW / 2;
     }
 
