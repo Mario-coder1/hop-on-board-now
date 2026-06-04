@@ -58,8 +58,15 @@ const Navigation: React.FC = () => {
             <div className="hidden md:flex items-center gap-0.5 bg-muted/70 backdrop-blur rounded-full p-1 border border-border/60">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                const tourKey =
+                  item.path === '/driver' || item.path === '/passenger' ? 'nav-home'
+                  : item.path === '/create-ride' ? 'nav-create'
+                  : item.path === '/search' ? 'nav-search'
+                  : item.path === '/my-rides' ? 'nav-my-rides'
+                  : item.path === '/my-trips' ? 'nav-my-trips'
+                  : undefined;
                 return (
-                  <Link key={item.path} to={item.path}>
+                  <Link key={item.path} to={item.path} data-tour={tourKey}>
                     <div
                       className={`flex items-center gap-1.5 px-3.5 h-8 rounded-full text-xs font-medium transition-all ${
                         isActive
@@ -93,7 +100,7 @@ const Navigation: React.FC = () => {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
+                  <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
                     <Avatar className="w-8 h-8 ring-2 ring-primary/20 ring-offset-1 ring-offset-background">
                       <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name ? `Profilový obrázok ${profile.full_name}` : 'Profilový obrázok používateľa'} />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground text-[11px] font-semibold">
@@ -154,10 +161,18 @@ const Navigation: React.FC = () => {
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
+              const tourKey =
+                item.path === '/driver' || item.path === '/passenger' ? 'nav-home'
+                : item.path === '/create-ride' ? 'nav-create'
+                : item.path === '/search' ? 'nav-search'
+                : item.path === '/my-rides' ? 'nav-my-rides'
+                : item.path === '/my-trips' ? 'nav-my-trips'
+                : undefined;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
+                  data-tour={tourKey}
                   className={`relative flex flex-col items-center justify-center min-w-[52px] h-12 px-2 rounded-full transition-all ${
                     isActive
                       ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
@@ -188,6 +203,7 @@ const Navigation: React.FC = () => {
             )}
             <Link
               to="/profile"
+              data-tour="nav-profile"
               className={`relative flex flex-col items-center justify-center min-w-[52px] h-12 px-2 rounded-full transition-all ${
                 location.pathname === '/profile'
                   ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
