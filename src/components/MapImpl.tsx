@@ -29,15 +29,18 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2Qzbnp
 
 const DEFAULT_CENTER: [number, number] = [19.699, 48.669];
 const MARKER_COLORS: Record<string, string> = {
-  driver: '#20b4a8',
+  driver: '#2563eb',
   passenger: '#ef6c4c',
-  origin: '#20b4a8',
-  destination: '#ef6c4c',
+  origin: '#2563eb',
+  destination: '#ef4444',
   pickup: '#22c55e',
   stop: '#8b5cf6',
   dropoff: '#ef4444',
   gas_station: '#f59e0b'
 };
+const ROUTE_COLOR = '#2563eb';
+const ROUTE_CASING_COLOR = '#ffffff';
+const ROUTE_GLOW_COLOR = '#60a5fa';
 
 const Map: React.FC<MapProps> = ({
   center = DEFAULT_CENTER,
