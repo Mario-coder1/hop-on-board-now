@@ -165,7 +165,7 @@ const Auth: React.FC = () => {
         } else {
           toast({
             title: "Skontroluj svoj email 📧",
-            description: "Poslali sme ti potvrdzovací odkaz. Klikni naň pre dokončenie registrácie."
+            description: "Poslali sme ti potvrdzovací odkaz. Ak nepríde do 2 minút, pozri si priečinok Spam alebo klikni nižšie na 'Poslať znova potvrdzovací email'."
           });
         }
       }
