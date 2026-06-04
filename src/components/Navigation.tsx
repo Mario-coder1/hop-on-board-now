@@ -100,7 +100,7 @@ const Navigation: React.FC = () => {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
+                  <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
                     <Avatar className="w-8 h-8 ring-2 ring-primary/20 ring-offset-1 ring-offset-background">
                       <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name ? `Profilový obrázok ${profile.full_name}` : 'Profilový obrázok používateľa'} />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground text-[11px] font-semibold">
