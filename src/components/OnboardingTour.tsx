@@ -79,9 +79,14 @@ export function OnboardingTour() {
     if (phase !== 'idle') return;
     if (localStorage.getItem(DONE_KEY) === profile.id) return;
 
-    // Wait until WelcomeOnboardingDialog finishes (phone step) – it sets its own key
+    // Mandatory prerequisites: phone filled AND notification permission decided
+    if (!profile.phone) return;
+    const notifSupported = typeof window !== 'undefined' && 'Notification' in window;
+    if (notifSupported && Notification.permission === 'default') return;
+
+    // Welcome dialog must have finished too
     const welcomeDone = localStorage.getItem('takeme_welcome_onboarded') === profile.id;
-    if (!welcomeDone && !profile.phone) return;
+    if (!welcomeDone) return;
 
     // Small delay to let UI settle
     const t = setTimeout(() => setPhase('role'), 600);
