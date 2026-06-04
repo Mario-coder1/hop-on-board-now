@@ -14,6 +14,52 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
+// Striktný RFC-lite email regex
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+// Zoznam najznámejších dočasných / disposable email domén
+const DISPOSABLE_DOMAINS = new Set([
+  'mailinator.com','guerrillamail.com','guerrillamail.info','guerrillamail.biz','guerrillamail.net','guerrillamail.org','guerrillamailblock.com',
+  'sharklasers.com','grr.la','10minutemail.com','10minutemail.net','tempmail.com','temp-mail.org','temp-mail.io','tempail.com','tempmailaddress.com',
+  'throwawaymail.com','yopmail.com','yopmail.fr','yopmail.net','trashmail.com','trashmail.net','trashmail.de','dispostable.com','getnada.com','nada.email',
+  'maildrop.cc','mintemail.com','mohmal.com','fakeinbox.com','spamgourmet.com','mailnesia.com','mytemp.email','tempr.email','spam4.me','emailondeck.com',
+  'mailcatch.com','tempinbox.com','easytrashmail.com','moakt.com','inboxbear.com','tempmailo.com','minuteinbox.com','tmpmail.org','disbox.net',
+  'jetable.org','mvrht.com','anonbox.net','spambog.com','spambox.us','byom.de','meltmail.com','tempm.com','snapmail.cc'
+]);
+
+function validateEmailStrict(raw: string): string | null {
+  const email = raw.trim().toLowerCase();
+  if (email.length < 5 || email.length > 254) return 'Email má neplatnú dĺžku.';
+  if (!EMAIL_REGEX.test(email)) return 'Zadaj platnú emailovú adresu.';
+  const domain = email.split('@')[1];
+  if (!domain || !domain.includes('.')) return 'Neplatná doména emailu.';
+  if (DISPOSABLE_DOMAINS.has(domain)) return 'Dočasné / jednorazové emailové adresy nie sú povolené.';
+  // Zakáž subdoménu disposable poskytovateľov
+  for (const d of DISPOSABLE_DOMAINS) {
+    if (domain.endsWith('.' + d)) return 'Dočasné / jednorazové emailové adresy nie sú povolené.';
+  }
+  return null;
+}
+
+function validatePasswordStrict(pwd: string): string | null {
+  if (pwd.length < 8) return 'Heslo musí mať aspoň 8 znakov.';
+  if (!/[a-z]/.test(pwd)) return 'Heslo musí obsahovať aspoň jedno malé písmeno.';
+  if (!/[A-Z]/.test(pwd)) return 'Heslo musí obsahovať aspoň jedno veľké písmeno.';
+  if (!/[0-9]/.test(pwd)) return 'Heslo musí obsahovať aspoň jednu číslicu.';
+  // jednoduché slovníkové heslá
+  if (/^(password|heslo|12345678|qwerty|11111111|abcdefgh)/i.test(pwd)) return 'Heslo je príliš slabé.';
+  return null;
+}
+
+function validateFullNameStrict(name: string): string | null {
+  const n = name.trim();
+  if (n.length < 2) return 'Meno musí mať aspoň 2 znaky.';
+  if (n.length > 100) return 'Meno je príliš dlhé.';
+  if (!/\s/.test(n)) return 'Zadaj celé meno (krstné meno aj priezvisko).';
+  if (!/^[\p{L}\p{M}'’\-\s.]+$/u.test(n)) return 'Meno môže obsahovať len písmená, medzery a pomlčky.';
+  return null;
+}
+
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
