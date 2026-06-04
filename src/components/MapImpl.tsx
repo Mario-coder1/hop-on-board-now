@@ -148,7 +148,7 @@ const Map: React.FC<MapProps> = ({
 
     const instance = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/navigation-day-v1',
       center: initialCenterRef.current,
       zoom: zoom,
       interactive: interactive,
