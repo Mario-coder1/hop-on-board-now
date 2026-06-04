@@ -29,15 +29,18 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2Qzbnp
 
 const DEFAULT_CENTER: [number, number] = [19.699, 48.669];
 const MARKER_COLORS: Record<string, string> = {
-  driver: '#20b4a8',
+  driver: '#2563eb',
   passenger: '#ef6c4c',
-  origin: '#20b4a8',
-  destination: '#ef6c4c',
+  origin: '#2563eb',
+  destination: '#ef4444',
   pickup: '#22c55e',
   stop: '#8b5cf6',
   dropoff: '#ef4444',
   gas_station: '#f59e0b'
 };
+const ROUTE_COLOR = '#2563eb';
+const ROUTE_CASING_COLOR = '#ffffff';
+const ROUTE_GLOW_COLOR = '#60a5fa';
 
 const Map: React.FC<MapProps> = ({
   center = DEFAULT_CENTER,
@@ -145,7 +148,7 @@ const Map: React.FC<MapProps> = ({
 
     const instance = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/navigation-day-v1',
       center: initialCenterRef.current,
       zoom: zoom,
       interactive: interactive,
@@ -440,15 +443,17 @@ const Map: React.FC<MapProps> = ({
     if (!map.current || !route || route.length < 2) return;
 
     const sourceId = 'route';
+    const glowId = 'route-glow';
+    const casingId = 'route-casing';
     const layerId = 'route-line';
 
     const addRoute = () => {
       if (!map.current) return;
 
-      // Remove existing route if any
-      if (map.current.getLayer(layerId)) {
-        map.current.removeLayer(layerId);
-      }
+      // Remove existing route layers if any (in correct order)
+      [layerId, casingId, glowId].forEach(id => {
+        if (map.current!.getLayer(id)) map.current!.removeLayer(id);
+      });
       if (map.current.getSource(sourceId)) {
         map.current.removeSource(sourceId);
       }
@@ -465,18 +470,43 @@ const Map: React.FC<MapProps> = ({
         }
       });
 
+      // Soft outer glow
+      map.current.addLayer({
+        id: glowId,
+        type: 'line',
+        source: sourceId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': ROUTE_GLOW_COLOR,
+          'line-width': 14,
+          'line-opacity': 0.25,
+          'line-blur': 6
+        }
+      });
+
+      // White casing for crisp contrast
+      map.current.addLayer({
+        id: casingId,
+        type: 'line',
+        source: sourceId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': ROUTE_CASING_COLOR,
+          'line-width': 9,
+          'line-opacity': 0.95
+        }
+      });
+
+      // Main brand-blue route line
       map.current.addLayer({
         id: layerId,
         type: 'line',
         source: sourceId,
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: {
-          'line-color': '#20b4a8',
-          'line-width': 5,
-          'line-opacity': 0.8
+          'line-color': ROUTE_COLOR,
+          'line-width': 5.5,
+          'line-opacity': 1
         }
       });
 
