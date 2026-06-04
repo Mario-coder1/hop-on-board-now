@@ -58,8 +58,15 @@ const Navigation: React.FC = () => {
             <div className="hidden md:flex items-center gap-0.5 bg-muted/70 backdrop-blur rounded-full p-1 border border-border/60">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                const tourKey =
+                  item.path === '/driver' || item.path === '/passenger' ? 'nav-home'
+                  : item.path === '/create-ride' ? 'nav-create'
+                  : item.path === '/search' ? 'nav-search'
+                  : item.path === '/my-rides' ? 'nav-my-rides'
+                  : item.path === '/my-trips' ? 'nav-my-trips'
+                  : undefined;
                 return (
-                  <Link key={item.path} to={item.path}>
+                  <Link key={item.path} to={item.path} data-tour={tourKey}>
                     <div
                       className={`flex items-center gap-1.5 px-3.5 h-8 rounded-full text-xs font-medium transition-all ${
                         isActive
