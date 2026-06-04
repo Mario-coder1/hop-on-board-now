@@ -104,12 +104,21 @@ const Auth: React.FC = () => {
           navigate('/');
         }
       } else {
-        if (!fullName.trim()) {
-          toast({
-            title: "Chyba",
-            description: "Prosím vyplňte meno",
-            variant: "destructive"
-          });
+        const nameErr = validateFullNameStrict(fullName);
+        if (nameErr) {
+          toast({ title: 'Neplatné meno', description: nameErr, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
+        const emailErr = validateEmailStrict(email);
+        if (emailErr) {
+          toast({ title: 'Neplatný email', description: emailErr, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
+        const pwdErr = validatePasswordStrict(password);
+        if (pwdErr) {
+          toast({ title: 'Slabé heslo', description: pwdErr, variant: 'destructive' });
           setLoading(false);
           return;
         }
@@ -123,7 +132,7 @@ const Auth: React.FC = () => {
           return;
         }
         
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email.trim().toLowerCase(), password, fullName.trim());
         if (error) {
           toast({
             title: "Chyba registrácie",
@@ -134,12 +143,12 @@ const Auth: React.FC = () => {
           });
         } else {
           toast({
-            title: "Účet vytvorený!",
-            description: "Môžete sa prihlásiť."
+            title: "Skontroluj svoj email 📧",
+            description: "Poslali sme ti potvrdzovací odkaz. Klikni naň pre dokončenie registrácie."
           });
-          navigate('/');
         }
       }
+
     } catch (err) {
       toast({
         title: "Chyba",
