@@ -776,7 +776,15 @@ const Admin = () => {
               <AlertTriangle className="w-4 h-4" />
               Reklamácie
             </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              Audit
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="audit" className="space-y-4">
+            <SecurityAuditTab />
+          </TabsContent>
 
           <TabsContent value="disputes" className="space-y-4">
             <AdminDisputes />
