@@ -70,6 +70,27 @@ const Auth: React.FC = () => {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResendConfirmation = async () => {
+    const emailErr = validateEmailStrict(email);
+    if (emailErr) {
+      toast({ title: 'Zadaj email', description: 'Najprv zadaj svoju emailovú adresu vyššie.', variant: 'destructive' });
+      return;
+    }
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    setResendLoading(false);
+    if (error) {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '📧 Email odoslaný', description: 'Skontroluj si schránku aj priečinok Spam.' });
+    }
+  };
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -144,7 +165,7 @@ const Auth: React.FC = () => {
         } else {
           toast({
             title: "Skontroluj svoj email 📧",
-            description: "Poslali sme ti potvrdzovací odkaz. Klikni naň pre dokončenie registrácie."
+            description: "Poslali sme ti potvrdzovací odkaz. Ak nepríde do 2 minút, pozri si priečinok Spam alebo klikni nižšie na 'Poslať znova potvrdzovací email'."
           });
         }
       }
@@ -430,6 +451,19 @@ const Auth: React.FC = () => {
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Zabudli ste heslo?
+                </button>
+              </div>
+            )}
+
+            {!isLogin && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  disabled={resendLoading}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+                >
+                  {resendLoading ? 'Odosielam...' : 'Nedostal si email? Poslať znova potvrdzovací email'}
                 </button>
               </div>
             )}
