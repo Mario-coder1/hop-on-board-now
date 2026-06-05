@@ -508,7 +508,30 @@ const RideDetail = () => {
       });
       return;
     }
-    setPaymentOpen(true);
+    // Stripe zatiaľ nie je nakonfigurovaný — žiadosť odošleme priamo bez platby
+    setRequesting(true);
+    try {
+      const { error } = await supabase.from('ride_requests').insert({
+        ride_id: ride.id,
+        passenger_id: profile.id,
+        pickup_address: pickup.address,
+        pickup_lat: pickup.lat,
+        pickup_lng: pickup.lng,
+        dropoff_address: dropoff.address || null,
+        dropoff_lat: dropoff.lat || null,
+        dropoff_lng: dropoff.lng || null,
+        message: message || null,
+        status: 'pending',
+        payment_status: 'unpaid',
+        price_per_seat_snapshot: Number(ride.price_per_seat),
+      });
+      if (error) throw error;
+      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie. Platba bude doplnená neskôr.' });
+    } catch (e: any) {
+      toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
+    } finally {
+      setRequesting(false);
+    }
   };
 
 
