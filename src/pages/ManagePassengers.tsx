@@ -452,7 +452,7 @@ const ManagePassengers = () => {
                           </Button>
                         )}
 
-                        {(passenger.status === 'driver_arrived' || (passenger.status === 'accepted' && passenger.driver_confirmed_at === null)) && passenger.status !== 'picked_up' && !passenger.driver_confirmed_at && passenger.status === 'driver_arrived' && (
+                        {passenger.status === 'driver_arrived' && !passenger.driver_confirmed_at && (
                           <Button
                             size="lg"
                             className="w-full gap-2 h-12 text-sm sm:text-base font-semibold"
