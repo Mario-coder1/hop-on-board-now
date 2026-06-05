@@ -697,10 +697,7 @@ const ManagePassengers = () => {
 
       {/* Plávajúca akčná bublina – ďalší krok pre najbližšieho pasažiera */}
       {(() => {
-        const priority = (s: string) => (s === 'pending' ? 0 : s === 'picked_up' ? 1 : s === 'driver_arrived' ? 2 : s === 'accepted' ? 3 : 4);
-        const next = [...passengers]
-          .filter(p => p.passenger)
-          .sort((a, b) => priority(a.status) - priority(b.status))[0];
+        const next = nextPassenger;
         if (!next) return null;
 
         const name = next.passenger.full_name.split(' ')[0];
@@ -718,12 +715,12 @@ const ManagePassengers = () => {
               : `Som na mieste — ${name}`;
         const Icon = isPending ? Check : isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
         const bg = isPending
-          ? 'bg-green-600 hover:bg-green-700'
+          ? 'bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-[hsl(var(--success-foreground))]'
           : isPickedUp
-            ? 'bg-blue-600 hover:bg-blue-700'
+            ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
             : isArrived
-              ? 'bg-primary hover:bg-primary/90'
-              : 'bg-amber-500 hover:bg-amber-600';
+              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+              : 'bg-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/90 text-[hsl(var(--warning-foreground))]';
 
         const onPrimary = () => {
           if (isPending) handleAcceptRequest(next.id, next.passenger.full_name);
@@ -740,47 +737,47 @@ const ManagePassengers = () => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-0.75rem)] max-w-md px-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6"
+            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1rem)] max-w-md bottom-[calc(4.75rem+env(safe-area-inset-bottom))] md:bottom-6"
           >
-            <div className="rounded-2xl shadow-2xl border border-border bg-card/95 backdrop-blur p-2.5 flex items-center gap-2">
+            <div className="rounded-full shadow-2xl border border-border bg-card/95 backdrop-blur p-1.5 grid grid-cols-[1fr_44px_44px] gap-1.5">
               <Button
-                size="lg"
+                size="sm"
                 onClick={onPrimary}
-                className={`flex-1 h-14 text-base font-semibold gap-2 text-white ${bg}`}
+                className={`h-11 px-3 text-sm font-semibold gap-1.5 min-w-0 ${bg}`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4" />
                 <span className="truncate">{label}</span>
               </Button>
               {isPending ? (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  className="h-11 w-11 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10"
                   onClick={() => handleRejectRequest(next.id, next.passenger.full_name)}
                   aria-label="Odmietnuť"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0"
+                  className="h-11 w-11 shrink-0"
                   onClick={() => openNavigation(navTarget.lat, navTarget.lng, navTarget.addr)}
                   aria-label="Navigovať"
                 >
-                  <NavIcon className="w-5 h-5" />
+                  <NavIcon className="w-4 h-4" />
                 </Button>
               )}
               {next.passenger.phone && (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0"
+                  className="h-11 w-11 shrink-0"
                   onClick={() => window.open(`tel:${next.passenger.phone}`, '_self')}
                   aria-label="Zavolať"
                 >
-                  <Phone className="w-5 h-5" />
+                  <Phone className="w-4 h-4" />
                 </Button>
               )}
             </div>
