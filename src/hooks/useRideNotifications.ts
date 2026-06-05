@@ -124,7 +124,7 @@ export const useRideNotifications = () => {
               ToastAction,
               { altText: 'Otvoriť žiadosť', onClick: () => navigate(`/manage-passengers/${ride.id}`) },
               'Otvoriť',
-            ),
+            ) as any,
           });
           playNotificationSound();
           // NOTE: push notifications sent server-side via DB trigger
