@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { createElement, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -120,10 +120,10 @@ export const useRideNotifications = () => {
             title: notificationTitle,
             description: notificationBody,
             duration: 10000,
-            action: (
-              <ToastAction altText="Otvoriť žiadosť" onClick={() => navigate(`/manage-passengers/${ride.id}`)}>
-                Otvoriť
-              </ToastAction>
+            action: createElement(
+              ToastAction,
+              { altText: 'Otvoriť žiadosť', onClick: () => navigate(`/manage-passengers/${ride.id}`) },
+              'Otvoriť',
             ),
           });
           playNotificationSound();
@@ -139,7 +139,7 @@ export const useRideNotifications = () => {
       supabase.removeChannel(driverChannel);
       subscribedRef.current = false;
     };
-  }, [profile?.id, toast]);
+  }, [profile?.id, toast, navigate]);
 };
 
 // Simple notification sound using Web Audio API
