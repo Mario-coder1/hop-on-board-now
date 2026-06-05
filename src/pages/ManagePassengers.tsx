@@ -302,7 +302,7 @@ const ManagePassengers = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <NavigationBar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-44 md:pb-8 max-w-full">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-[13rem] md:pb-8 max-w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
