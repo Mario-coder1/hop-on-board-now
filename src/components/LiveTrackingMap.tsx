@@ -4,6 +4,7 @@ import { Navigation, MapPin, Clock } from 'lucide-react';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
 import { formatDbDate } from '@/lib/datetime';
+import { supabase } from '@/integrations/supabase/client';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
@@ -27,6 +28,21 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const [etaSec, setEtaSec] = useState<number | null>(null);
   const [etaTargetKm, setEtaTargetKm] = useState<number | null>(null);
   const [etaTarget, setEtaTarget] = useState<'pickup' | 'destination' | null>(null);
+  const [driver, setDriver] = useState<{ full_name: string | null; avatar_url: string | null; car_model: string | null; car_color: string | null; license_plate: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!driverProfileId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url, car_model, car_color, license_plate')
+        .eq('id', driverProfileId)
+        .maybeSingle();
+      if (!cancelled && data) setDriver(data as any);
+    })();
+    return () => { cancelled = true; };
+  }, [driverProfileId]);
 
   // Fetch full route only once when static points are known (not on driver location changes)
   useEffect(() => {
@@ -115,17 +131,23 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
       id: string;
       lat: number;
       lng: number;
-      type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup';
+      type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'live-driver';
       popup?: string;
+      avatarUrl?: string | null;
+      label?: string;
     }> = [];
 
     if (location) {
+      const carInfo = [driver?.car_color, driver?.car_model, driver?.license_plate].filter(Boolean).join(' · ');
+      const speedKmh = location.speed ? `${Math.round(location.speed * 3.6)} km/h` : '0 km/h';
       m.push({
         id: 'driver',
         lat: location.lat,
         lng: location.lng,
-        type: 'driver',
-        popup: `<strong>Vodič</strong><br/>Rýchlosť: ${location.speed ? `${Math.round(location.speed * 3.6)} km/h` : 'N/A'}`
+        type: 'live-driver',
+        avatarUrl: driver?.avatar_url ?? null,
+        label: driver?.full_name || 'Vodič',
+        popup: `<div style="min-width:160px"><strong>${driver?.full_name || 'Vodič'}</strong>${carInfo ? `<br/><span style="color:#64748b">${carInfo}</span>` : ''}<br/>Rýchlosť: ${speedKmh}</div>`
       });
     }
 
@@ -150,7 +172,8 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     }
 
     return m;
-  }, [location, passengerLocation, destinationLocation]);
+  }, [location, passengerLocation, destinationLocation, driver]);
+
 
   const mapCenter: [number, number] = location 
     ? [location.lng, location.lat] 
