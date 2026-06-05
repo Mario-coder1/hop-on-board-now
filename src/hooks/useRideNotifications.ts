@@ -1,11 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { createElement, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { ToastAction } from '@/components/ui/toast';
 
 export const useRideNotifications = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const subscribedRef = useRef(false);
 
   useEffect(() => {
@@ -117,6 +120,11 @@ export const useRideNotifications = () => {
             title: notificationTitle,
             description: notificationBody,
             duration: 10000,
+            action: createElement(
+              ToastAction,
+              { altText: 'Otvoriť žiadosť', onClick: () => navigate(`/manage-passengers/${ride.id}`) },
+              'Otvoriť',
+            ) as any,
           });
           playNotificationSound();
           // NOTE: push notifications sent server-side via DB trigger
@@ -131,7 +139,7 @@ export const useRideNotifications = () => {
       supabase.removeChannel(driverChannel);
       subscribedRef.current = false;
     };
-  }, [profile?.id, toast]);
+  }, [profile?.id, toast, navigate]);
 };
 
 // Simple notification sound using Web Audio API

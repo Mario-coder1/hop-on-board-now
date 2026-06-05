@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flag, Loader2 } from 'lucide-react';
+import { Bell, Flag, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 interface ActiveRide {
   id: string;
   destination_address: string;
+  pendingCount?: number;
 }
 
 const ActiveRideFAB: React.FC = () => {
@@ -52,10 +53,30 @@ const ActiveRideFAB: React.FC = () => {
       .eq('driver_id', profile.id)
       .in('status', ['active', 'in_progress'])
       .order('departure_time', { ascending: true })
-      .limit(1)
-      .maybeSingle();
+      .limit(5);
 
-    setActiveRide(data as ActiveRide | null);
+    const activeRides = (data || []) as ActiveRide[];
+    if (activeRides.length === 0) {
+      setActiveRide(null);
+      return;
+    }
+
+    const { data: pendingRequests } = await supabase
+      .from('ride_requests')
+      .select('id, ride_id')
+      .in('ride_id', activeRides.map((ride) => ride.id))
+      .eq('status', 'pending');
+
+    const pendingByRide = new Map<string, number>();
+    (pendingRequests || []).forEach((request) => {
+      pendingByRide.set(request.ride_id, (pendingByRide.get(request.ride_id) || 0) + 1);
+    });
+
+    const rideWithPending = activeRides.find((ride) => pendingByRide.has(ride.id));
+    setActiveRide({
+      ...(rideWithPending || activeRides[0]),
+      pendingCount: pendingByRide.get((rideWithPending || activeRides[0]).id) || 0,
+    });
   };
 
   useEffect(() => {
@@ -78,6 +99,7 @@ const ActiveRideFAB: React.FC = () => {
         },
         () => fetchActiveRide()
       )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ride_requests' }, () => fetchActiveRide())
       .subscribe();
 
     return () => {
@@ -136,16 +158,18 @@ const ActiveRideFAB: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="fixed z-[60] bottom-24 right-4 md:bottom-6 md:right-6"
+            className="fixed z-[60] inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] md:inset-x-auto md:right-6 md:bottom-6"
           >
             <Button
-              variant="destructive"
+              variant={activeRide.pendingCount ? 'success' : 'destructive'}
               size="lg"
-              onClick={() => setConfirmOpen(true)}
-              className="rounded-full shadow-2xl gap-2 h-14 px-5 font-semibold"
+              onClick={() => activeRide.pendingCount ? navigate(`/manage-passengers/${activeRide.id}`) : setConfirmOpen(true)}
+              className="w-full md:w-auto rounded-full shadow-2xl gap-2 h-12 md:h-14 px-5 font-semibold text-sm md:text-base"
             >
-              <Flag className="w-5 h-5" />
-              Ukončiť jazdu
+              {activeRide.pendingCount ? <Bell className="w-5 h-5" /> : <Flag className="w-5 h-5" />}
+              <span className="truncate">
+                {activeRide.pendingCount ? `Nová žiadosť${activeRide.pendingCount > 1 ? ` (${activeRide.pendingCount})` : ''}` : 'Ukončiť jazdu'}
+              </span>
             </Button>
           </motion.div>
         )}

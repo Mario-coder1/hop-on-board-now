@@ -433,14 +433,16 @@ const ManagePassengers = () => {
             };
 
             return (
-              <div className="md:hidden mb-2 rounded-2xl bg-card border border-primary/20 shadow-lg p-2.5">
+              <div className="md:hidden sticky top-[4.25rem] z-40 mb-2 rounded-2xl bg-card border border-primary/20 shadow-lg p-2.5">
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase text-muted-foreground font-semibold">Ďalší krok</p>
+                    <p className="text-[10px] uppercase text-muted-foreground font-semibold">
+                      {isPending ? 'Nová žiadosť' : 'Ďalší krok'}
+                    </p>
                     <h2 className="text-base font-bold truncate">{nextPassenger.passenger.full_name}</h2>
                   </div>
                   <Badge variant="outline" className="shrink-0 text-[10px] px-2 py-0.5">
-                    {getPassengerStep(nextPassenger.status)}/4
+                    {isPending ? 'Prijať' : `${getPassengerStep(nextPassenger.status)}/4`}
                   </Badge>
                 </div>
                 <div className="flex items-start gap-2 rounded-xl bg-muted/60 px-2.5 py-2 mb-2">
@@ -702,7 +704,8 @@ const ManagePassengers = () => {
         </motion.div>
       </div>
 
-      {/* Plávajúca akčná bublina – ďalší krok pre najbližšieho pasažiera */}
+      {/* Mobil používa horný sticky panel, aby spodná navigácia nikdy neprekrývala akciu. */}
+      <div className="hidden sm:block">
       {(() => {
         const next = nextPassenger;
         if (!next) return null;
@@ -744,7 +747,7 @@ const ManagePassengers = () => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1rem)] max-w-md bottom-[calc(4.75rem+env(safe-area-inset-bottom))] md:bottom-6"
+            className="fixed inset-x-3 z-[60] bottom-[calc(5.25rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:w-[min(28rem,calc(100%-2rem))] md:bottom-6"
           >
             <div className="rounded-full shadow-2xl border border-border bg-card/95 backdrop-blur p-1.5 grid grid-cols-[1fr_44px_44px] gap-1.5">
               <Button
@@ -795,6 +798,7 @@ const ManagePassengers = () => {
           </motion.div>
         );
       })()}
+      </div>
 
       {pinDialogFor && (
         <PinEntryDialog
