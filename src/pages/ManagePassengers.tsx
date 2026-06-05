@@ -383,8 +383,8 @@ const ManagePassengers = () => {
         </div>
       </div>
 
-      {/* Passenger list — ALWAYS visible, no sheet */}
-      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2.5 min-h-0">
+      {/* Passenger list — ALWAYS visible, no sheet. Bottom padding leaves room for fixed action bar + mobile nav */}
+      <div className="flex-1 overflow-y-auto px-3 pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-28 space-y-2.5 min-h-0">
         {passengers.length === 0 ? (
           <div className="text-center py-10">
             <User className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
@@ -413,8 +413,8 @@ const ManagePassengers = () => {
         )}
       </div>
 
-      {/* Sticky bottom: end / cancel whole route */}
-      <div className="sticky bottom-0 border-t bg-card p-3 grid grid-cols-2 gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] z-30">
+      {/* Fixed bottom action bar — sits above the mobile bottom navigation */}
+      <div className="fixed left-0 right-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-0 border-t bg-card/95 backdrop-blur p-3 grid grid-cols-2 gap-2 z-40 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]">
         <Button
           variant="outline"
           onClick={() => setCancelRideOpen(true)}
@@ -429,6 +429,7 @@ const ManagePassengers = () => {
           <Flag className="w-4 h-4" /> Ukončiť jazdu
         </Button>
       </div>
+
 
       {/* PIN dialog */}
       {pinDialogFor && (
