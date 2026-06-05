@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag, KeyRound, Check, X } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, LogOut, Flag, KeyRound, Check, X } from 'lucide-react';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 
 interface AcceptedPassenger {
   id: string;
+  passenger_id?: string;
   status: string;
   pickup_address: string;
   pickup_lat: number;
@@ -31,7 +32,7 @@ interface AcceptedPassenger {
   pin_verified_at: string | null;
   driver_confirmed_at: string | null;
   passenger_confirmed_at: string | null;
-  passenger: {
+    passenger: {
     id: string;
     full_name: string;
     phone: string | null;
@@ -52,12 +53,18 @@ interface RideInfo {
   available_seats?: number;
 }
 
+const getPassengerPriority = (status: string) =>
+  status === 'pending' ? 0 : status === 'picked_up' ? 1 : status === 'driver_arrived' ? 2 : status === 'accepted' ? 3 : 4;
+
+const getPassengerStep = (status: string) =>
+  status === 'pending' ? 1 : status === 'accepted' ? 2 : status === 'driver_arrived' ? 3 : status === 'picked_up' ? 4 : 1;
+
 const ManagePassengers = () => {
   const { rideId } = useParams();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
-  const { isTracking, startTracking, stopTracking } = useLocationBroadcast(profile?.id || null);
+  const { isTracking, startTracking } = useLocationBroadcast(profile?.id || null);
   
   const [passengers, setPassengers] = useState<AcceptedPassenger[]>([]);
   const [ride, setRide] = useState<RideInfo | null>(null);
@@ -135,7 +142,7 @@ const ManagePassengers = () => {
     const { data: passengersData } = await supabase
       .from('ride_requests')
       .select(`
-        id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
+        id, passenger_id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
         pin_verified_at, driver_confirmed_at, passenger_confirmed_at,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
@@ -143,10 +150,24 @@ const ManagePassengers = () => {
       .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (passengersData) {
-      setPassengers(passengersData as unknown as AcceptedPassenger[]);
-      if (passengersData.length > 0) {
-        setSelectedPassenger(passengersData[0] as unknown as AcceptedPassenger);
-      }
+      const visiblePassengers = (passengersData as any[]).map((request) => ({
+        ...request,
+        passenger: request.passenger || {
+          id: request.passenger_id,
+          full_name: 'Pasažier',
+          phone: null,
+          avatar_url: null,
+          rating: 5,
+          total_rides: null,
+        },
+      })) as AcceptedPassenger[];
+      const nextVisible = [...visiblePassengers]
+        .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0] || null;
+      setPassengers(visiblePassengers);
+      setSelectedPassenger((current) => {
+        if (current && visiblePassengers.some(p => p.id === current.id)) return current;
+        return nextVisible;
+      });
     }
 
     setLoading(false);
@@ -274,6 +295,9 @@ const ManagePassengers = () => {
 
   // Build map markers
   const gasStations = useGasStations();
+  const nextPassenger = [...passengers]
+    .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0];
+  const activePassenger = selectedPassenger || nextPassenger || null;
   const markers = [];
   
   if (ride) {
@@ -294,8 +318,6 @@ const ManagePassengers = () => {
   }
 
   passengers.forEach(p => {
-    if (!p.passenger) return; // Skip if passenger data is null
-    
     // Pickup marker
     markers.push({
       id: `pickup-${p.id}`,
@@ -333,13 +355,13 @@ const ManagePassengers = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <NavigationBar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-[13rem] md:pb-8 max-w-full">
+      <div className="container mx-auto px-2.5 sm:px-4 py-2 sm:py-8 pb-[7.75rem] md:pb-8 max-w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start">
+          <div className="flex items-center justify-between gap-2 mb-2 sm:mb-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start h-8 px-2.5">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Späť
             </Button>
@@ -347,7 +369,7 @@ const ManagePassengers = () => {
             {/* Auto GPS status (no manual toggle) */}
             <div className="flex items-center gap-2">
               {isTracking ? (
-                <Badge variant="default" className="bg-green-500 gap-1.5">
+                <Badge variant="default" className="gap-1.5 text-[10px] sm:text-xs bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                   Zdieľam polohu
                 </Badge>
@@ -360,21 +382,21 @@ const ManagePassengers = () => {
             </div>
           </div>
 
-          <h1 className="font-display text-xl sm:text-3xl font-bold mb-1">Vaši pasažieri</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mb-4 break-words">
+          <h1 className="font-display text-lg sm:text-3xl font-bold mb-0.5 sm:mb-1">Vaši pasažieri</h1>
+          <p className="text-xs sm:text-base text-muted-foreground mb-2 sm:mb-4 break-words line-clamp-1 sm:line-clamp-none">
             {ride?.origin_address} → {ride?.destination_address}
           </p>
 
           {/* Manual complete - subtle */}
-          <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+          <div className="mb-2 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
+            <p className="hidden sm:flex text-xs text-muted-foreground items-center gap-1.5">
+              <CheckCircle className="w-3.5 h-3.5 text-[hsl(var(--success))]" />
               Jazda sa dokončí automaticky pri dosiahnutí cieľa
             </p>
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 text-destructive hover:bg-destructive/10 h-8"
+              className="gap-1.5 text-destructive hover:bg-destructive/10 h-8 px-2.5 text-xs ml-auto"
               onClick={handleManualComplete}
               disabled={completing}
             >
@@ -383,7 +405,78 @@ const ManagePassengers = () => {
             </Button>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
+          {nextPassenger && (() => {
+            const isPending = nextPassenger.status === 'pending';
+            const isPickedUp = nextPassenger.status === 'picked_up';
+            const isArrived = nextPassenger.status === 'driver_arrived';
+            const name = nextPassenger.passenger.full_name.split(' ')[0];
+            const target = isPickedUp
+              ? {
+                  label: 'Cieľ vysadenia',
+                  address: nextPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy',
+                  lat: Number(nextPassenger.dropoff_lat ?? ride?.destination_lat),
+                  lng: Number(nextPassenger.dropoff_lng ?? ride?.destination_lng),
+                }
+              : {
+                  label: isPending ? 'Žiadosť o nástup' : 'Miesto nástupu',
+                  address: nextPassenger.pickup_address,
+                  lat: Number(nextPassenger.pickup_lat),
+                  lng: Number(nextPassenger.pickup_lng),
+                };
+            const primaryLabel = isPending ? `Prijať ${name}` : isPickedUp ? `Vysadiť ${name}` : isArrived ? 'Overiť PIN' : 'Som na mieste';
+            const PrimaryIcon = isPending ? Check : isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
+            const onPrimary = () => {
+              if (isPending) handleAcceptRequest(nextPassenger.id, nextPassenger.passenger.full_name);
+              else if (isPickedUp) handleDropoff(nextPassenger.id, nextPassenger.passenger.full_name);
+              else if (isArrived) setPinDialogFor(nextPassenger);
+              else handleArrived(nextPassenger.id, nextPassenger.passenger.full_name);
+            };
+
+            return (
+              <div className="md:hidden mb-2 rounded-2xl bg-card border border-primary/20 shadow-lg p-2.5">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase text-muted-foreground font-semibold">Ďalší krok</p>
+                    <h2 className="text-base font-bold truncate">{nextPassenger.passenger.full_name}</h2>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 text-[10px] px-2 py-0.5">
+                    {getPassengerStep(nextPassenger.status)}/4
+                  </Badge>
+                </div>
+                <div className="flex items-start gap-2 rounded-xl bg-muted/60 px-2.5 py-2 mb-2">
+                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground leading-none mb-1">{target.label}</p>
+                    <p className="text-xs font-medium leading-snug line-clamp-2">{target.address}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-[1fr_42px_42px] gap-1.5">
+                  <Button size="sm" className="h-10 gap-1.5 text-sm font-semibold" onClick={onPrimary}>
+                    <PrimaryIcon className="w-4 h-4" />
+                    <span className="truncate">{primaryLabel}</span>
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => openNavigation(target.lat, target.lng, target.address)} aria-label="Navigovať">
+                    <NavIcon className="w-4 h-4" />
+                  </Button>
+                  {isPending ? (
+                    <Button variant="outline" size="icon" className="h-10 w-10 border-destructive/40 text-destructive" onClick={() => handleRejectRequest(nextPassenger.id, nextPassenger.passenger.full_name)} aria-label="Odmietnuť">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  ) : nextPassenger.passenger.phone ? (
+                    <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => window.open(`tel:${nextPassenger.passenger.phone}`, '_self')} aria-label="Zavolať">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="icon" className="h-10 w-10" disabled aria-label="Zavolať">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="grid lg:grid-cols-2 gap-2 sm:gap-8">
             {/* Passengers List */}
             <div className="order-2 lg:order-1 space-y-2.5 sm:space-y-4 min-w-0">
               {passengers.length === 0 ? (
@@ -397,7 +490,7 @@ const ManagePassengers = () => {
                   </CardContent>
                 </Card>
               ) : (
-                passengers.filter(p => p.passenger !== null).map((passenger) => (
+                passengers.map((passenger) => (
                   <Card 
                     key={passenger.id} 
                     className={`border-0 shadow-card cursor-pointer transition-all overflow-hidden ${
@@ -405,9 +498,9 @@ const ManagePassengers = () => {
                     }`}
                     onClick={() => setSelectedPassenger(passenger)}
                   >
-                    <CardContent className="p-3 sm:p-5 min-w-0">
+                    <CardContent className="p-2.5 sm:p-5 min-w-0">
                       <div className="flex items-start gap-2.5 sm:gap-4 min-w-0">
-                        <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           {passenger.passenger.avatar_url ? (
                             <img 
                               src={passenger.passenger.avatar_url} 
@@ -423,15 +516,15 @@ const ManagePassengers = () => {
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                            <h3 className="font-display font-semibold text-[13px] sm:text-base break-words leading-tight">
+                            <h3 className="font-display font-semibold text-[13px] sm:text-base break-words leading-tight line-clamp-1">
                               {passenger.passenger.full_name}
                             </h3>
                             <RideBadge totalRides={passenger.passenger.total_rides} size="xs" />
                             <Badge 
                               variant={passenger.status === 'picked_up' ? 'default' : 'secondary'} 
                               className={
-                                passenger.status === 'picked_up' ? 'bg-green-500 text-[10px] sm:text-xs px-1.5 py-0' : 
-                                passenger.status === 'driver_arrived' ? 'bg-amber-500 text-white text-[10px] sm:text-xs px-1.5 py-0' : 'text-[10px] sm:text-xs px-1.5 py-0'
+                                passenger.status === 'picked_up' ? 'bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] text-[10px] sm:text-xs px-1.5 py-0' : 
+                                passenger.status === 'driver_arrived' ? 'bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] text-[10px] sm:text-xs px-1.5 py-0' : 'text-[10px] sm:text-xs px-1.5 py-0'
                               }
                             >
                               {passenger.status === 'picked_up' ? 'Vyzdvihnutý' : 
@@ -439,20 +532,20 @@ const ManagePassengers = () => {
                             </Badge>
                           </div>
                           
-                          <p className="text-[11px] sm:text-sm text-muted-foreground mb-1">
+                          <p className="hidden sm:block text-[11px] sm:text-sm text-muted-foreground mb-1">
                             ⭐ {passenger.passenger.rating?.toFixed(1) || '5.0'}
                           </p>
                           
                           <div className="flex items-start gap-1 text-[11px] sm:text-sm">
-                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground break-words min-w-0">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground break-words min-w-0 line-clamp-1 sm:line-clamp-none">
                               <span className="font-medium text-foreground">Nastúpenie:</span> {passenger.pickup_address}
                             </span>
                           </div>
                           
                           <div className="flex items-start gap-1 text-[11px] sm:text-sm mt-1">
-                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground break-words min-w-0">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground break-words min-w-0 line-clamp-1 sm:line-clamp-none">
                               <span className="font-medium text-foreground">Vystúpenie:</span>{' '}
                               {passenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}
                             </span>
@@ -472,7 +565,7 @@ const ManagePassengers = () => {
                         {passenger.status === 'accepted' && (
                           <Button
                             size="lg"
-                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-amber-500 hover:bg-amber-600 text-white"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/90 text-[hsl(var(--warning-foreground))]"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleArrived(passenger.id, passenger.passenger.full_name);
@@ -500,7 +593,7 @@ const ManagePassengers = () => {
                         {passenger.status === 'picked_up' && (
                           <Button
                             size="lg"
-                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-blue-600 hover:bg-blue-700"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDropoff(passenger.id, passenger.passenger.full_name);
@@ -558,22 +651,22 @@ const ManagePassengers = () => {
                   <Map 
                     markers={[...markers, ...gasStations]}
                     showRoute
-                    className="h-[180px] sm:h-[300px] lg:h-[500px]"
-                    center={selectedPassenger ? [
-                      Number(selectedPassenger.pickup_lng),
-                      Number(selectedPassenger.pickup_lat)
+                    className="h-[136px] min-[390px]:h-[150px] sm:h-[300px] lg:h-[500px]"
+                    center={activePassenger ? [
+                      Number(activePassenger.pickup_lng),
+                      Number(activePassenger.pickup_lat)
                     ] : undefined}
-                    zoom={selectedPassenger ? 13 : 10}
+                    zoom={activePassenger ? 13 : 10}
                   />
                 </CardContent>
               </Card>
               
                 {selectedPassenger && selectedPassenger.passenger && (
-                <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-card border border-border">
+                <div className="hidden sm:block mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-card border border-border">
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
                   <p className="font-semibold text-sm sm:text-base break-words">{selectedPassenger.passenger.full_name}</p>
-                  <p className="text-xs sm:text-sm text-green-600 break-words">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
-                  <p className="text-xs sm:text-sm text-red-500 break-words">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
+                  <p className="text-xs sm:text-sm text-primary break-words">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
+                  <p className="text-xs sm:text-sm text-accent break-words">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
                   <Button
                     variant="hero"
                     size="sm"
@@ -611,10 +704,7 @@ const ManagePassengers = () => {
 
       {/* Plávajúca akčná bublina – ďalší krok pre najbližšieho pasažiera */}
       {(() => {
-        const priority = (s: string) => (s === 'pending' ? 0 : s === 'picked_up' ? 1 : s === 'driver_arrived' ? 2 : s === 'accepted' ? 3 : 4);
-        const next = [...passengers]
-          .filter(p => p.passenger)
-          .sort((a, b) => priority(a.status) - priority(b.status))[0];
+        const next = nextPassenger;
         if (!next) return null;
 
         const name = next.passenger.full_name.split(' ')[0];
@@ -632,12 +722,12 @@ const ManagePassengers = () => {
               : `Som na mieste — ${name}`;
         const Icon = isPending ? Check : isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
         const bg = isPending
-          ? 'bg-green-600 hover:bg-green-700'
+          ? 'bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-[hsl(var(--success-foreground))]'
           : isPickedUp
-            ? 'bg-blue-600 hover:bg-blue-700'
+            ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
             : isArrived
-              ? 'bg-primary hover:bg-primary/90'
-              : 'bg-amber-500 hover:bg-amber-600';
+              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+              : 'bg-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/90 text-[hsl(var(--warning-foreground))]';
 
         const onPrimary = () => {
           if (isPending) handleAcceptRequest(next.id, next.passenger.full_name);
@@ -654,47 +744,51 @@ const ManagePassengers = () => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-0.75rem)] max-w-md px-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6"
+            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1rem)] max-w-md bottom-[calc(4.75rem+env(safe-area-inset-bottom))] md:bottom-6"
           >
-            <div className="rounded-2xl shadow-2xl border border-border bg-card/95 backdrop-blur p-2.5 flex items-center gap-2">
+            <div className="rounded-full shadow-2xl border border-border bg-card/95 backdrop-blur p-1.5 grid grid-cols-[1fr_44px_44px] gap-1.5">
               <Button
-                size="lg"
+                size="sm"
                 onClick={onPrimary}
-                className={`flex-1 h-14 text-base font-semibold gap-2 text-white ${bg}`}
+                className={`h-11 px-3 text-sm font-semibold gap-1.5 min-w-0 ${bg}`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4" />
                 <span className="truncate">{label}</span>
               </Button>
               {isPending ? (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  className="h-11 w-11 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10"
                   onClick={() => handleRejectRequest(next.id, next.passenger.full_name)}
                   aria-label="Odmietnuť"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0"
+                  className="h-11 w-11 shrink-0"
                   onClick={() => openNavigation(navTarget.lat, navTarget.lng, navTarget.addr)}
                   aria-label="Navigovať"
                 >
-                  <NavIcon className="w-5 h-5" />
+                  <NavIcon className="w-4 h-4" />
                 </Button>
               )}
-              {next.passenger.phone && (
+              {next.passenger.phone ? (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 shrink-0"
+                  className="h-11 w-11 shrink-0"
                   onClick={() => window.open(`tel:${next.passenger.phone}`, '_self')}
                   aria-label="Zavolať"
                 >
-                  <Phone className="w-5 h-5" />
+                  <Phone className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" disabled aria-label="Zavolať">
+                  <Phone className="w-4 h-4" />
                 </Button>
               )}
             </div>
