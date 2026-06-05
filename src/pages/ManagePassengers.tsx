@@ -402,7 +402,7 @@ const ManagePassengers = () => {
               rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
               onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
               onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
-              onCancelPassenger={() => handleCancelPassenger(p.id, p.passenger.full_name)}
+              
               onArrived={() => handleArrived(p.id, p.passenger.full_name)}
               onPin={() => setPinDialogFor(p)}
               onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
