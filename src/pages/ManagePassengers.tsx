@@ -302,7 +302,7 @@ const ManagePassengers = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <NavigationBar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-44 md:pb-8 max-w-full">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-[13rem] md:pb-8 max-w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -436,8 +436,8 @@ const ManagePassengers = () => {
                         </div>
                       </div>
 
-                      {/* Primary next-step action (single big button) */}
-                      <div className="mt-3 sm:mt-4 space-y-2">
+                      {/* Primárna a sekundárne akcie — iba desktop/tablet; na mobile to rieši plávajúca bublina dole */}
+                      <div className="mt-3 sm:mt-4 space-y-2 hidden sm:block">
                         {passenger.status === 'accepted' && (
                           <Button
                             size="lg"
@@ -480,7 +480,6 @@ const ManagePassengers = () => {
                           </Button>
                         )}
 
-                        {/* Secondary actions — compact */}
                         <div className="flex flex-wrap gap-1.5">
                           <Button
                             variant="outline"
@@ -528,7 +527,7 @@ const ManagePassengers = () => {
                   <Map 
                     markers={[...markers, ...gasStations]}
                     showRoute
-                    className="h-[260px] sm:h-[360px] lg:h-[500px]"
+                    className="h-[180px] sm:h-[300px] lg:h-[500px]"
                     center={selectedPassenger ? [
                       Number(selectedPassenger.pickup_lng),
                       Number(selectedPassenger.pickup_lat)
@@ -618,7 +617,7 @@ const ManagePassengers = () => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem)] max-w-md px-2"
+            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-0.75rem)] max-w-md px-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6"
           >
             <div className="rounded-2xl shadow-2xl border border-border bg-card/95 backdrop-blur p-2.5 flex items-center gap-2">
               <Button
