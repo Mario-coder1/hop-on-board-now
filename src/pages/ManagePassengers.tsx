@@ -312,121 +312,99 @@ const ManagePassengers = () => {
       <SEO title="Drive Mode" description="Riadiaci panel vodiča" path="/manage-passengers" noindex />
       <NavigationBar />
 
-      {/* Compact top bar */}
+      {/* Compact top bar with inline location toggle */}
       <div className="px-3 pt-2 pb-2 flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/driver')} className="h-9 px-2">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/driver')} className="h-9 px-2 shrink-0">
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] uppercase text-muted-foreground font-semibold leading-none">Drive Mode</p>
           <p className="text-xs font-medium truncate">{ride?.origin_address} → {ride?.destination_address}</p>
         </div>
-      </div>
-
-      {/* TWO main action buttons above the map */}
-      <div className="px-3 pb-2 grid grid-cols-2 gap-2">
-        {/* 1. Location toggle */}
         <Button
           onClick={isTracking ? stopTracking : startTracking}
-          className={`h-12 gap-2 font-semibold rounded-2xl shadow-md ${
+          size="sm"
+          className={`h-9 gap-1.5 rounded-full shrink-0 ${
             isTracking
               ? 'bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-[hsl(var(--success-foreground))]'
               : 'bg-muted hover:bg-muted/80 text-foreground'
           }`}
         >
-          <span className="relative flex items-center justify-center w-5 h-5">
-            <Radio className="w-5 h-5" />
+          <span className="relative flex items-center justify-center w-4 h-4">
+            <Radio className="w-4 h-4" />
             {isTracking && <span className="absolute inset-0 rounded-full bg-white/40 animate-ping" />}
           </span>
-          <span className="truncate text-sm">{isTracking ? 'Zdieľam polohu' : 'Zapnúť polohu'}</span>
+          <span className="text-xs">{isTracking ? 'Live' : 'Off'}</span>
         </Button>
-
-        {/* 2. Passengers / Requests */}
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              className={`relative h-12 gap-2 font-semibold rounded-2xl shadow-md ${
-                pendingCount > 0
-                  ? 'bg-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/90 text-[hsl(var(--warning-foreground))] animate-pulse'
-                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-              }`}
-            >
-              {pendingCount > 0 ? <Bell className="w-5 h-5" /> : <Users className="w-5 h-5" />}
-              <span className="truncate text-sm">
-                {pendingCount > 0 ? `Nová žiadosť (${pendingCount})` : `Pasažieri (${totalCount})`}
-              </span>
-            </Button>
-          </SheetTrigger>
-
-          <SheetContent side="bottom" className="h-[88vh] p-0 flex flex-col rounded-t-3xl">
-            <SheetHeader className="px-4 pt-4 pb-2 border-b">
-              <SheetTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Pasažieri ({totalCount})
-                {pendingCount > 0 && (
-                  <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]">
-                    {pendingCount} nových
-                  </Badge>
-                )}
-              </SheetTitle>
-            </SheetHeader>
-
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
-              {passengers.length === 0 ? (
-                <div className="text-center py-10">
-                  <User className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="font-semibold mb-1">Žiadni pasažieri</p>
-                  <p className="text-sm text-muted-foreground">Čakaj na žiadosti...</p>
-                </div>
-              ) : (
-                [...passengers].sort((a, b) => {
-                  const order = { pending: 0, picked_up: 1, driver_arrived: 2, accepted: 3 } as any;
-                  return (order[a.status] ?? 9) - (order[b.status] ?? 9);
-                }).map(p => (
-                  <PassengerCard
-                    key={p.id}
-                    p={p}
-                    rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
-                    onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
-                    onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
-                    onArrived={() => handleArrived(p.id, p.passenger.full_name)}
-                    onPin={() => setPinDialogFor(p)}
-                    onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
-                    onNavigate={openNavigation}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Sticky bottom: end / cancel whole route */}
-            <div className="border-t bg-card p-3 grid grid-cols-2 gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-              <Button
-                variant="outline"
-                onClick={() => setCancelRideOpen(true)}
-                className="gap-1.5 h-11 text-destructive border-destructive/40 hover:bg-destructive/10 text-xs sm:text-sm"
-              >
-                <X className="w-4 h-4" /> Zrušiť trasu
-              </Button>
-              <Button
-                onClick={() => setEndConfirmOpen(true)}
-                className="gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm"
-              >
-                <Flag className="w-4 h-4" /> Ukončiť jazdu
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
 
-      {/* Big map — takes the rest */}
-      <div className="flex-1 px-3 pb-3 min-h-0">
-        <div className="h-full min-h-[55vh] rounded-2xl overflow-hidden border border-border shadow-card">
+      {/* Compact map */}
+      <div className="px-3 pb-2">
+        <div className="h-[28vh] min-h-[180px] max-h-[260px] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
             showRoute
             className="h-full w-full"
           />
         </div>
+      </div>
+
+      {/* Passenger list header — always visible */}
+      <div className="px-3 pb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" />
+          <h2 className="font-bold text-sm">Pasažieri ({totalCount})</h2>
+          {pendingCount > 0 && (
+            <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] animate-pulse">
+              {pendingCount} nových
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Passenger list — ALWAYS visible, no sheet */}
+      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2.5 min-h-0">
+        {passengers.length === 0 ? (
+          <div className="text-center py-10">
+            <User className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <p className="font-semibold mb-1">Žiadni pasažieri</p>
+            <p className="text-sm text-muted-foreground">Čakaj na žiadosti...</p>
+          </div>
+        ) : (
+          [...passengers].sort((a, b) => {
+            const order = { pending: 0, picked_up: 1, driver_arrived: 2, accepted: 3 } as any;
+            return (order[a.status] ?? 9) - (order[b.status] ?? 9);
+          }).map(p => (
+            <PassengerCard
+              key={p.id}
+              p={p}
+              rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
+              onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
+              onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
+              onArrived={() => handleArrived(p.id, p.passenger.full_name)}
+              onPin={() => setPinDialogFor(p)}
+              onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
+              onNavigate={openNavigation}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Sticky bottom: end / cancel whole route */}
+      <div className="sticky bottom-0 border-t bg-card p-3 grid grid-cols-2 gap-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] z-30">
+        <Button
+          variant="outline"
+          onClick={() => setCancelRideOpen(true)}
+          className="gap-1.5 h-11 text-destructive border-destructive/40 hover:bg-destructive/10 text-xs sm:text-sm"
+        >
+          <X className="w-4 h-4" /> Zrušiť trasu
+        </Button>
+        <Button
+          onClick={() => setEndConfirmOpen(true)}
+          className="gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm"
+        >
+          <Flag className="w-4 h-4" /> Ukončiť jazdu
+        </Button>
       </div>
 
       {/* PIN dialog */}
