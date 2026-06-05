@@ -295,19 +295,22 @@ const TrackRide: React.FC = () => {
             </motion.div>
           )}
 
-          {/* Map */}
-          <LiveTrackingMap
-            driverProfileId={displayDriver.id}
-            passengerLocation={{
-              lat: Number(rideRequest.pickup_lat),
-              lng: Number(rideRequest.pickup_lng)
-            }}
-            destinationLocation={{
-              lat: Number(ride.destination_lat),
-              lng: Number(ride.destination_lng)
-            }}
-            className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
-          />
+          {/* Map – iba pokým jazda nie je dokončená */}
+          {rideRequest.status !== 'completed' && (
+            <LiveTrackingMap
+              driverProfileId={displayDriver.id}
+              passengerLocation={
+                rideRequest.status === 'picked_up'
+                  ? undefined
+                  : { lat: Number(rideRequest.pickup_lat), lng: Number(rideRequest.pickup_lng) }
+              }
+              destinationLocation={{
+                lat: Number(ride.destination_lat),
+                lng: Number(ride.destination_lng)
+              }}
+              className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
+            />
+          )}
 
           {/* Driver Info Card */}
           <motion.div

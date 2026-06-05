@@ -579,6 +579,81 @@ const ManagePassengers = () => {
         </motion.div>
       </div>
 
+      {/* Plávajúca akčná bublina – ďalší krok pre najbližšieho pasažiera */}
+      {(() => {
+        const priority = (s: string) => (s === 'picked_up' ? 0 : s === 'driver_arrived' ? 1 : s === 'accepted' ? 2 : 3);
+        const next = [...passengers]
+          .filter(p => p.passenger)
+          .sort((a, b) => priority(a.status) - priority(b.status))[0];
+        if (!next) return null;
+
+        const name = next.passenger.full_name.split(' ')[0];
+        const isPickedUp = next.status === 'picked_up';
+        const isArrived = next.status === 'driver_arrived';
+        const isAccepted = next.status === 'accepted';
+
+        const label = isPickedUp
+          ? `Vysadiť ${name}`
+          : isArrived
+            ? `Overiť PIN — ${name}`
+            : `Som na mieste — ${name}`;
+        const Icon = isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
+        const bg = isPickedUp
+          ? 'bg-blue-600 hover:bg-blue-700'
+          : isArrived
+            ? 'bg-primary hover:bg-primary/90'
+            : 'bg-amber-500 hover:bg-amber-600';
+
+        const onPrimary = () => {
+          if (isPickedUp) handleDropoff(next.id, next.passenger.full_name);
+          else if (isArrived) setPinDialogFor(next);
+          else if (isAccepted) handleArrived(next.id, next.passenger.full_name);
+        };
+
+        const navTarget = isPickedUp
+          ? { lat: Number(next.dropoff_lat ?? ride?.destination_lat), lng: Number(next.dropoff_lng ?? ride?.destination_lng), addr: next.dropoff_address || ride?.destination_address || '' }
+          : { lat: Number(next.pickup_lat), lng: Number(next.pickup_lng), addr: next.pickup_address };
+
+        return (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem)] max-w-md px-2"
+          >
+            <div className="rounded-2xl shadow-2xl border border-border bg-card/95 backdrop-blur p-2.5 flex items-center gap-2">
+              <Button
+                size="lg"
+                onClick={onPrimary}
+                className={`flex-1 h-14 text-base font-semibold gap-2 text-white ${bg}`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="truncate">{label}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-14 w-14 shrink-0"
+                onClick={() => openNavigation(navTarget.lat, navTarget.lng, navTarget.addr)}
+                aria-label="Navigovať"
+              >
+                <NavIcon className="w-5 h-5" />
+              </Button>
+              {next.passenger.phone && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-14 w-14 shrink-0"
+                  onClick={() => window.open(`tel:${next.passenger.phone}`, '_self')}
+                  aria-label="Zavolať"
+                >
+                  <Phone className="w-5 h-5" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       {pinDialogFor && (
         <PinEntryDialog
           open={!!pinDialogFor}
