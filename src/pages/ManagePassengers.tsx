@@ -436,8 +436,8 @@ const ManagePassengers = () => {
                         </div>
                       </div>
 
-                      {/* Primary next-step action (single big button) */}
-                      <div className="mt-3 sm:mt-4 space-y-2">
+                      {/* Primárna a sekundárne akcie — iba desktop/tablet; na mobile to rieši plávajúca bublina dole */}
+                      <div className="mt-3 sm:mt-4 space-y-2 hidden sm:block">
                         {passenger.status === 'accepted' && (
                           <Button
                             size="lg"
@@ -480,7 +480,6 @@ const ManagePassengers = () => {
                           </Button>
                         )}
 
-                        {/* Secondary actions — compact */}
                         <div className="flex flex-wrap gap-1.5">
                           <Button
                             variant="outline"
