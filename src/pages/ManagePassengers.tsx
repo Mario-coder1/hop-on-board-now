@@ -149,10 +149,15 @@ const ManagePassengers = () => {
       .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (passengersData) {
-      setPassengers(passengersData as unknown as AcceptedPassenger[]);
-      if (passengersData.length > 0) {
-        setSelectedPassenger(passengersData[0] as unknown as AcceptedPassenger);
-      }
+      const visiblePassengers = passengersData as unknown as AcceptedPassenger[];
+      const nextVisible = [...visiblePassengers]
+        .filter(p => p.passenger)
+        .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0] || null;
+      setPassengers(visiblePassengers);
+      setSelectedPassenger((current) => {
+        if (current && visiblePassengers.some(p => p.id === current.id)) return current;
+        return nextVisible;
+      });
     }
 
     setLoading(false);
