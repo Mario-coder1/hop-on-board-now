@@ -383,7 +383,7 @@ const ManagePassengers = () => {
           {/* Manual complete - subtle */}
           <div className="mb-2 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
             <p className="hidden sm:flex text-xs text-muted-foreground items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              <CheckCircle className="w-3.5 h-3.5 text-[hsl(var(--success))]" />
               Jazda sa dokončí automaticky pri dosiahnutí cieľa
             </p>
             <Button
@@ -769,7 +769,7 @@ const ManagePassengers = () => {
                   <NavIcon className="w-4 h-4" />
                 </Button>
               )}
-              {next.passenger.phone && (
+              {next.passenger.phone ? (
                 <Button
                   variant="outline"
                   size="icon"
@@ -777,6 +777,10 @@ const ManagePassengers = () => {
                   onClick={() => window.open(`tel:${next.passenger.phone}`, '_self')}
                   aria-label="Zavolať"
                 >
+                  <Phone className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" disabled aria-label="Zavolať">
                   <Phone className="w-4 h-4" />
                 </Button>
               )}
