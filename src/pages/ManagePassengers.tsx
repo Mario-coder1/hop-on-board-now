@@ -16,7 +16,7 @@ import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
-import { CancellationDialog } from '@/components/CancellationDialog';
+
 import { useGasStations } from '@/hooks/useGasStations';
 import {
   AlertDialog,
@@ -84,7 +84,6 @@ const ManagePassengers = () => {
   const [pinDialogFor, setPinDialogFor] = useState<AcceptedPassenger | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
-  const [cancelRideOpen, setCancelRideOpen] = useState(false);
   const [endingRide, setEndingRide] = useState(false);
   const lastPendingIdsRef = useRef<Set<string>>(new Set());
 
@@ -265,40 +264,6 @@ const ManagePassengers = () => {
     }
   };
 
-  // Cancel entire ride with reason (refunds passengers)
-  const handleCancelRide = async (reason: string) => {
-    if (!ride) return;
-    try {
-      await supabase.from('rides').update({
-        status: 'cancelled', cancellation_reason: reason, cancelled_at: new Date().toISOString(), cancelled_by: profile?.id,
-      }).eq('id', ride.id);
-
-      const { data: reqs } = await supabase.from('ride_requests')
-        .select('id').eq('ride_id', ride.id).in('status', ['pending', 'accepted', 'driver_arrived']);
-
-      if (reqs?.length) {
-        await supabase.from('ride_requests').update({
-          status: 'cancelled', cancellation_reason: 'Vodič zrušil jazdu: ' + reason, cancelled_at: new Date().toISOString(),
-        }).in('id', reqs.map(r => r.id));
-
-        for (const r of reqs) {
-          try {
-            await supabase.functions.invoke('refund-ride-payment', {
-              body: { request_id: r.id, environment: getStripeEnvironment() },
-            });
-          } catch (e) { console.error('refund', e); }
-        }
-      }
-      stopTracking();
-      toast({ title: 'Trasa zrušená', description: 'Pasažierom boli vrátené peniaze.' });
-      navigate('/driver');
-    } catch (e: any) {
-      toast({ title: 'Chyba', description: e?.message, variant: 'destructive' });
-    } finally {
-      setCancelRideOpen(false);
-    }
-  };
-
   // Map markers
   const gasStations = useGasStations();
   const markers: any[] = [];
@@ -414,14 +379,7 @@ const ManagePassengers = () => {
       </div>
 
       {/* Fixed bottom action bar — sits above the mobile bottom navigation */}
-      <div className="fixed left-0 right-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-0 border-t bg-card/95 backdrop-blur p-3 grid grid-cols-2 gap-2 z-40 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]">
-        <Button
-          variant="outline"
-          onClick={() => setCancelRideOpen(true)}
-          className="gap-1.5 h-11 text-destructive border-destructive/40 hover:bg-destructive/10 text-xs sm:text-sm"
-        >
-          <X className="w-4 h-4" /> Zrušiť trasu
-        </Button>
+      <div className="fixed left-0 right-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-0 border-t bg-card/95 backdrop-blur p-3 grid grid-cols-1 gap-2 z-40 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]">
         <Button
           onClick={() => setEndConfirmOpen(true)}
           className="gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm"
@@ -463,14 +421,6 @@ const ManagePassengers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Cancel route with reason */}
-      <CancellationDialog
-        open={cancelRideOpen}
-        onOpenChange={setCancelRideOpen}
-        onConfirm={handleCancelRide}
-        type="ride"
-      />
     </div>
   );
 };
