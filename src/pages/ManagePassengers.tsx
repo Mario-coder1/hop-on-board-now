@@ -357,7 +357,7 @@ const ManagePassengers = () => {
             {/* Auto GPS status (no manual toggle) */}
             <div className="flex items-center gap-2">
               {isTracking ? (
-                <Badge variant="success" className="gap-1.5 text-[10px] sm:text-xs">
+                <Badge variant="default" className="gap-1.5 text-[10px] sm:text-xs bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                   Zdieľam polohu
                 </Badge>
