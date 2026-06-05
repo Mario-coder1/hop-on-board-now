@@ -398,6 +398,77 @@ const ManagePassengers = () => {
             </Button>
           </div>
 
+          {nextPassenger && (() => {
+            const isPending = nextPassenger.status === 'pending';
+            const isPickedUp = nextPassenger.status === 'picked_up';
+            const isArrived = nextPassenger.status === 'driver_arrived';
+            const name = nextPassenger.passenger.full_name.split(' ')[0];
+            const target = isPickedUp
+              ? {
+                  label: 'Cieľ vysadenia',
+                  address: nextPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy',
+                  lat: Number(nextPassenger.dropoff_lat ?? ride?.destination_lat),
+                  lng: Number(nextPassenger.dropoff_lng ?? ride?.destination_lng),
+                }
+              : {
+                  label: isPending ? 'Žiadosť o nástup' : 'Miesto nástupu',
+                  address: nextPassenger.pickup_address,
+                  lat: Number(nextPassenger.pickup_lat),
+                  lng: Number(nextPassenger.pickup_lng),
+                };
+            const primaryLabel = isPending ? `Prijať ${name}` : isPickedUp ? `Vysadiť ${name}` : isArrived ? 'Overiť PIN' : 'Som na mieste';
+            const PrimaryIcon = isPending ? Check : isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
+            const onPrimary = () => {
+              if (isPending) handleAcceptRequest(nextPassenger.id, nextPassenger.passenger.full_name);
+              else if (isPickedUp) handleDropoff(nextPassenger.id, nextPassenger.passenger.full_name);
+              else if (isArrived) setPinDialogFor(nextPassenger);
+              else handleArrived(nextPassenger.id, nextPassenger.passenger.full_name);
+            };
+
+            return (
+              <div className="md:hidden mb-2 rounded-2xl bg-card border border-primary/20 shadow-lg p-2.5">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase text-muted-foreground font-semibold">Ďalší krok</p>
+                    <h2 className="text-base font-bold truncate">{nextPassenger.passenger.full_name}</h2>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 text-[10px] px-2 py-0.5">
+                    {getPassengerStep(nextPassenger.status)}/4
+                  </Badge>
+                </div>
+                <div className="flex items-start gap-2 rounded-xl bg-muted/60 px-2.5 py-2 mb-2">
+                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground leading-none mb-1">{target.label}</p>
+                    <p className="text-xs font-medium leading-snug line-clamp-2">{target.address}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-[1fr_42px_42px] gap-1.5">
+                  <Button size="sm" className="h-10 gap-1.5 text-sm font-semibold" onClick={onPrimary}>
+                    <PrimaryIcon className="w-4 h-4" />
+                    <span className="truncate">{primaryLabel}</span>
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => openNavigation(target.lat, target.lng, target.address)} aria-label="Navigovať">
+                    <NavIcon className="w-4 h-4" />
+                  </Button>
+                  {isPending ? (
+                    <Button variant="outline" size="icon" className="h-10 w-10 border-destructive/40 text-destructive" onClick={() => handleRejectRequest(nextPassenger.id, nextPassenger.passenger.full_name)} aria-label="Odmietnuť">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  ) : nextPassenger.passenger.phone ? (
+                    <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => window.open(`tel:${nextPassenger.passenger.phone}`, '_self')} aria-label="Zavolať">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="icon" className="h-10 w-10" disabled aria-label="Zavolať">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Passengers List */}
             <div className="order-2 lg:order-1 space-y-2.5 sm:space-y-4 min-w-0">
