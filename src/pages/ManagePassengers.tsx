@@ -20,6 +20,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 
 interface AcceptedPassenger {
   id: string;
+  passenger_id?: string;
   status: string;
   pickup_address: string;
   pickup_lat: number;
@@ -31,7 +32,7 @@ interface AcceptedPassenger {
   pin_verified_at: string | null;
   driver_confirmed_at: string | null;
   passenger_confirmed_at: string | null;
-  passenger: {
+    passenger: {
     id: string;
     full_name: string;
     phone: string | null;
@@ -141,7 +142,7 @@ const ManagePassengers = () => {
     const { data: passengersData } = await supabase
       .from('ride_requests')
       .select(`
-        id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
+        id, passenger_id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
         pin_verified_at, driver_confirmed_at, passenger_confirmed_at,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
@@ -149,9 +150,18 @@ const ManagePassengers = () => {
       .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (passengersData) {
-      const visiblePassengers = passengersData as unknown as AcceptedPassenger[];
+      const visiblePassengers = (passengersData as any[]).map((request) => ({
+        ...request,
+        passenger: request.passenger || {
+          id: request.passenger_id,
+          full_name: 'Pasažier',
+          phone: null,
+          avatar_url: null,
+          rating: 5,
+          total_rides: null,
+        },
+      })) as AcceptedPassenger[];
       const nextVisible = [...visiblePassengers]
-        .filter(p => p.passenger)
         .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0] || null;
       setPassengers(visiblePassengers);
       setSelectedPassenger((current) => {
