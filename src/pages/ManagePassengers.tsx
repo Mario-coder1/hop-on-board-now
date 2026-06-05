@@ -617,7 +617,7 @@ const ManagePassengers = () => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem)] max-w-md px-2"
+            className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-0.75rem)] max-w-md px-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6"
           >
             <div className="rounded-2xl shadow-2xl border border-border bg-card/95 backdrop-blur p-2.5 flex items-center gap-2">
               <Button
