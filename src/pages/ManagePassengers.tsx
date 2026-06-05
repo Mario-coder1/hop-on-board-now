@@ -307,59 +307,48 @@ const ManagePassengers = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Späť
             </Button>
-            
-            {/* Tracking controls */}
-            <div className="flex flex-wrap items-center gap-2">
+
+            {/* Auto GPS status (no manual toggle) */}
+            <div className="flex items-center gap-2">
               {isTracking ? (
-                <Button variant="outline" size="sm" onClick={stopTracking} className="gap-2">
-                  <CircleOff className="w-4 h-4" />
-                  <span className="hidden sm:inline">Zastaviť zdieľanie</span>
-                  <span className="sm:hidden">Stop GPS</span>
-                </Button>
+                <Badge variant="default" className="bg-green-500 gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                  Zdieľam polohu
+                </Badge>
               ) : (
                 <Button variant="secondary" size="sm" onClick={startTracking} className="gap-2">
                   <Radio className="w-4 h-4" />
-                  <span className="hidden sm:inline">Zdieľať polohu</span>
-                  <span className="sm:hidden">Štart GPS</span>
+                  Zapnúť GPS
                 </Button>
-              )}
-              {isTracking && (
-                <Badge variant="default" className="bg-green-500 animate-pulse">
-                  <Radio className="w-3 h-3 mr-1" />
-                  GPS
-                </Badge>
               )}
             </div>
           </div>
 
-          <h1 className="font-display text-xl sm:text-3xl font-bold mb-2">Pasažieri na vyzdvihnutie</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4 break-words">
+          <h1 className="font-display text-xl sm:text-3xl font-bold mb-1">Vaši pasažieri</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 break-words">
             {ride?.origin_address} → {ride?.destination_address}
           </p>
-          
-          {isTracking && (
-            <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 flex items-start gap-2">
-              <span className="w-2 h-2 mt-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-              <span>Jazda sa automaticky ukončí po príchode do cieľa (50m)</span>
-            </p>
-          )}
 
-          {/* Manual complete button */}
-          <div className="mb-4 sm:mb-6">
+          {/* Manual complete - subtle */}
+          <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+              Jazda sa dokončí automaticky pri dosiahnutí cieľa
+            </p>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground w-full sm:w-auto"
+              className="gap-2 text-destructive hover:bg-destructive/10 h-8"
               onClick={handleManualComplete}
               disabled={completing}
             >
-              <Flag className="w-4 h-4" />
-              {completing ? 'Dokončujem...' : 'Dokončiť jazdu manuálne'}
+              <Flag className="w-3.5 h-3.5" />
+              {completing ? 'Dokončujem...' : 'Ukončiť teraz'}
             </Button>
           </div>
 
@@ -447,81 +436,84 @@ const ManagePassengers = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
-                        <Button
-                          variant="hero"
-                          size="sm"
-                          className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openNavigation(
-                              Number(passenger.pickup_lat), 
-                              Number(passenger.pickup_lng), 
-                              passenger.pickup_address
-                            );
-                          }}
-                        >
-                          <NavIcon className="w-3.5 h-3.5" />
-                          Navigovať
-                        </Button>
-                        
-                        {passenger.passenger.phone && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1.5 h-8 px-2.5 sm:h-9 sm:px-3"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(`tel:${passenger.passenger.phone}`, '_self');
-                            }}
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                          </Button>
-                        )}
-
+                      {/* Primary next-step action (single big button) */}
+                      <div className="mt-3 sm:mt-4 space-y-2">
                         {passenger.status === 'accepted' && (
                           <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 border-amber-500 text-amber-600 hover:bg-amber-50"
+                            size="lg"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-amber-500 hover:bg-amber-600 text-white"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleArrived(passenger.id, passenger.passenger.full_name);
                             }}
                           >
-                            <Bell className="w-3.5 h-3.5" />
-                            Som na mieste
+                            <Bell className="w-5 h-5" />
+                            Som na mieste — upozorniť pasažiera
                           </Button>
                         )}
-                        
-                        {(passenger.status === 'accepted' || passenger.status === 'driver_arrived') && !passenger.driver_confirmed_at && (
+
+                        {passenger.status === 'driver_arrived' && !passenger.driver_confirmed_at && (
                           <Button
-                            size="sm"
-                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-primary hover:bg-primary/90"
+                            size="lg"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold"
                             onClick={(e) => {
                               e.stopPropagation();
                               setPinDialogFor(passenger);
                             }}
                           >
-                            <KeyRound className="w-3.5 h-3.5" />
-                            Potvrdiť nástup
+                            <KeyRound className="w-5 h-5" />
+                            Overiť PIN a začať jazdu
                           </Button>
                         )}
 
-
                         {passenger.status === 'picked_up' && (
                           <Button
-                            size="sm"
-                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-sm sm:h-9 sm:px-3 bg-blue-600 hover:bg-blue-700"
+                            size="lg"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-blue-600 hover:bg-blue-700"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDropoff(passenger.id, passenger.passenger.full_name);
                             }}
                           >
-                            <LogOut className="w-3.5 h-3.5" />
-                            Dokončiť jazdu
+                            <LogOut className="w-5 h-5" />
+                            Pasažier vystúpil — ukončiť
                           </Button>
                         )}
+
+                        {/* Secondary actions — compact */}
+                        <div className="flex flex-wrap gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-xs flex-1 min-w-[120px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openNavigation(
+                                Number(passenger.pickup_lat),
+                                Number(passenger.pickup_lng),
+                                passenger.pickup_address
+                              );
+                            }}
+                          >
+                            <NavIcon className="w-3.5 h-3.5" />
+                            Navigovať
+                          </Button>
+
+                          {passenger.passenger.phone && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1.5 h-8 px-2.5 text-[11px] sm:text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`tel:${passenger.passenger.phone}`, '_self');
+                              }}
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              Zavolať
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
