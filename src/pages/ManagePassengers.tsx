@@ -224,6 +224,36 @@ const ManagePassengers = () => {
     }
   };
 
+  const handleAcceptRequest = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase.from('ride_requests').update({ status: 'accepted' }).eq('id', requestId);
+    if (error) {
+      toast({ title: 'Nepodarilo sa prijať', description: error.message, variant: 'destructive' });
+      return;
+    }
+    if (ride && (ride.available_seats ?? 0) > 0) {
+      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 1) - 1 }).eq('id', ride.id);
+    }
+    toast({ title: 'Žiadosť prijatá', description: `${passengerName} bol pridaný na jazdu.` });
+    fetchRideAndPassengers();
+  };
+
+  const handleRejectRequest = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase.from('ride_requests').update({ status: 'rejected' }).eq('id', requestId);
+    if (error) {
+      toast({ title: 'Nepodarilo sa odmietnuť', description: error.message, variant: 'destructive' });
+      return;
+    }
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: requestId, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
+    }
+    toast({ title: 'Žiadosť odmietnutá', description: `${passengerName} bol odmietnutý.` });
+    fetchRideAndPassengers();
+  };
+
   const openNavigation = (lat: number, lng: number, address: string) => {
     // Try to open in native maps app, fallback to Google Maps
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
