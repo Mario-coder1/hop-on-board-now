@@ -217,6 +217,27 @@ const ManagePassengers = () => {
     fetchRideAndPassengers();
   };
 
+  // Cancel a single passenger (driver-initiated) — refund + free seat
+  const handleCancelPassenger = async (requestId: string, passengerName: string) => {
+    if (!window.confirm(`Naozaj zrušiť trasu pre ${passengerName}? Pasažierovi budú vrátené peniaze.`)) return;
+    const { error } = await supabase.from('ride_requests').update({
+      status: 'cancelled',
+      cancellation_reason: 'Vodič zrušil pasažiera',
+      cancelled_at: new Date().toISOString(),
+    }).eq('id', requestId);
+    if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
+    if (ride) {
+      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
+    }
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: requestId, environment: getStripeEnvironment() },
+      });
+    } catch (e) { console.error('refund', e); }
+    toast({ title: 'Pasažier zrušený', description: `${passengerName} bol odstránený a peniaze vrátené.` });
+    fetchRideAndPassengers();
+  };
+
   const openNavigation = (lat: number, lng: number) => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
@@ -381,11 +402,13 @@ const ManagePassengers = () => {
               rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
               onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
               onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
+              onCancelPassenger={() => handleCancelPassenger(p.id, p.passenger.full_name)}
               onArrived={() => handleArrived(p.id, p.passenger.full_name)}
               onPin={() => setPinDialogFor(p)}
               onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
               onNavigate={openNavigation}
             />
+
           ))
         )}
       </div>
