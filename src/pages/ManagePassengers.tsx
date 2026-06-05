@@ -558,7 +558,7 @@ const ManagePassengers = () => {
                         {passenger.status === 'accepted' && (
                           <Button
                             size="lg"
-                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-amber-500 hover:bg-amber-600 text-white"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/90 text-[hsl(var(--warning-foreground))]"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleArrived(passenger.id, passenger.passenger.full_name);
@@ -586,7 +586,7 @@ const ManagePassengers = () => {
                         {passenger.status === 'picked_up' && (
                           <Button
                             size="lg"
-                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold bg-blue-600 hover:bg-blue-700"
+                            className="w-full gap-2 h-12 text-sm sm:text-base font-semibold"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDropoff(passenger.id, passenger.passenger.full_name);
@@ -644,22 +644,22 @@ const ManagePassengers = () => {
                   <Map 
                     markers={[...markers, ...gasStations]}
                     showRoute
-                    className="h-[180px] sm:h-[300px] lg:h-[500px]"
-                    center={selectedPassenger ? [
-                      Number(selectedPassenger.pickup_lng),
-                      Number(selectedPassenger.pickup_lat)
+                    className="h-[136px] min-[390px]:h-[150px] sm:h-[300px] lg:h-[500px]"
+                    center={activePassenger ? [
+                      Number(activePassenger.pickup_lng),
+                      Number(activePassenger.pickup_lat)
                     ] : undefined}
-                    zoom={selectedPassenger ? 13 : 10}
+                    zoom={activePassenger ? 13 : 10}
                   />
                 </CardContent>
               </Card>
               
                 {selectedPassenger && selectedPassenger.passenger && (
-                <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-card border border-border">
+                <div className="hidden sm:block mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-card border border-border">
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2">Vybraný pasažier:</p>
                   <p className="font-semibold text-sm sm:text-base break-words">{selectedPassenger.passenger.full_name}</p>
-                  <p className="text-xs sm:text-sm text-green-600 break-words">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
-                  <p className="text-xs sm:text-sm text-red-500 break-words">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
+                  <p className="text-xs sm:text-sm text-primary break-words">📍 Nastúpenie: {selectedPassenger.pickup_address}</p>
+                  <p className="text-xs sm:text-sm text-accent break-words">🏁 Vystúpenie: {selectedPassenger.dropoff_address || ride?.destination_address || 'Cieľ trasy'}</p>
                   <Button
                     variant="hero"
                     size="sm"
