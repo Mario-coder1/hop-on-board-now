@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag, KeyRound, Check, X } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, LogOut, Flag, KeyRound, Check, X } from 'lucide-react';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,12 +52,18 @@ interface RideInfo {
   available_seats?: number;
 }
 
+const getPassengerPriority = (status: string) =>
+  status === 'pending' ? 0 : status === 'picked_up' ? 1 : status === 'driver_arrived' ? 2 : status === 'accepted' ? 3 : 4;
+
+const getPassengerStep = (status: string) =>
+  status === 'pending' ? 1 : status === 'accepted' ? 2 : status === 'driver_arrived' ? 3 : status === 'picked_up' ? 4 : 1;
+
 const ManagePassengers = () => {
   const { rideId } = useParams();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
-  const { isTracking, startTracking, stopTracking } = useLocationBroadcast(profile?.id || null);
+  const { isTracking, startTracking } = useLocationBroadcast(profile?.id || null);
   
   const [passengers, setPassengers] = useState<AcceptedPassenger[]>([]);
   const [ride, setRide] = useState<RideInfo | null>(null);
