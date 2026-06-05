@@ -147,7 +147,8 @@ const ActiveRideFAB: React.FC = () => {
     }
   };
 
-  const visible = isDriver && activeRide && !shouldHide;
+  // Only show FAB when there are pending requests — "ukončiť jazdu" lives only inside Drive Mode now
+  const visible = isDriver && activeRide && !shouldHide && (activeRide.pendingCount ?? 0) > 0;
 
   return (
     <>
@@ -161,14 +162,14 @@ const ActiveRideFAB: React.FC = () => {
             className="fixed z-[60] inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] md:inset-x-auto md:right-6 md:bottom-6"
           >
             <Button
-              variant={activeRide.pendingCount ? 'success' : 'destructive'}
+              variant="success"
               size="lg"
-              onClick={() => activeRide.pendingCount ? navigate(`/manage-passengers/${activeRide.id}`) : setConfirmOpen(true)}
+              onClick={() => navigate(`/manage-passengers/${activeRide!.id}`)}
               className="w-full md:w-auto rounded-full shadow-2xl gap-2 h-12 md:h-14 px-5 font-semibold text-sm md:text-base"
             >
-              {activeRide.pendingCount ? <Bell className="w-5 h-5" /> : <Flag className="w-5 h-5" />}
+              <Bell className="w-5 h-5" />
               <span className="truncate">
-                {activeRide.pendingCount ? `Nová žiadosť${activeRide.pendingCount > 1 ? ` (${activeRide.pendingCount})` : ''}` : 'Ukončiť jazdu'}
+                {`Nová žiadosť${(activeRide!.pendingCount ?? 0) > 1 ? ` (${activeRide!.pendingCount})` : ''}`}
               </span>
             </Button>
           </motion.div>
