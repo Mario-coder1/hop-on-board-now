@@ -527,7 +527,7 @@ const ManagePassengers = () => {
                   <Map 
                     markers={[...markers, ...gasStations]}
                     showRoute
-                    className="h-[260px] sm:h-[360px] lg:h-[500px]"
+                    className="h-[180px] sm:h-[300px] lg:h-[500px]"
                     center={selectedPassenger ? [
                       Number(selectedPassenger.pickup_lng),
                       Number(selectedPassenger.pickup_lat)
