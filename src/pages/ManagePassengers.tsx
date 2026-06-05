@@ -296,7 +296,6 @@ const ManagePassengers = () => {
   // Build map markers
   const gasStations = useGasStations();
   const nextPassenger = [...passengers]
-    .filter(p => p.passenger)
     .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0];
   const activePassenger = selectedPassenger || nextPassenger || null;
   const markers = [];
@@ -319,8 +318,6 @@ const ManagePassengers = () => {
   }
 
   passengers.forEach(p => {
-    if (!p.passenger) return; // Skip if passenger data is null
-    
     // Pickup marker
     markers.push({
       id: `pickup-${p.id}`,
@@ -493,7 +490,7 @@ const ManagePassengers = () => {
                   </CardContent>
                 </Card>
               ) : (
-                passengers.filter(p => p.passenger !== null).map((passenger) => (
+                passengers.map((passenger) => (
                   <Card 
                     key={passenger.id} 
                     className={`border-0 shadow-card cursor-pointer transition-all overflow-hidden ${
