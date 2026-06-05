@@ -131,17 +131,23 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
       id: string;
       lat: number;
       lng: number;
-      type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup';
+      type: 'driver' | 'passenger' | 'origin' | 'destination' | 'pickup' | 'live-driver';
       popup?: string;
+      avatarUrl?: string | null;
+      label?: string;
     }> = [];
 
     if (location) {
+      const carInfo = [driver?.car_color, driver?.car_model, driver?.license_plate].filter(Boolean).join(' · ');
+      const speedKmh = location.speed ? `${Math.round(location.speed * 3.6)} km/h` : '0 km/h';
       m.push({
         id: 'driver',
         lat: location.lat,
         lng: location.lng,
-        type: 'driver',
-        popup: `<strong>Vodič</strong><br/>Rýchlosť: ${location.speed ? `${Math.round(location.speed * 3.6)} km/h` : 'N/A'}`
+        type: 'live-driver',
+        avatarUrl: driver?.avatar_url ?? null,
+        label: driver?.full_name || 'Vodič',
+        popup: `<div style="min-width:160px"><strong>${driver?.full_name || 'Vodič'}</strong>${carInfo ? `<br/><span style="color:#64748b">${carInfo}</span>` : ''}<br/>Rýchlosť: ${speedKmh}</div>`
       });
     }
 
@@ -166,7 +172,8 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     }
 
     return m;
-  }, [location, passengerLocation, destinationLocation]);
+  }, [location, passengerLocation, destinationLocation, driver]);
+
 
   const mapCenter: [number, number] = location 
     ? [location.lng, location.lat] 
