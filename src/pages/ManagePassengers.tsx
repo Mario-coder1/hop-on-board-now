@@ -280,6 +280,10 @@ const ManagePassengers = () => {
 
   // Build map markers
   const gasStations = useGasStations();
+  const nextPassenger = [...passengers]
+    .filter(p => p.passenger)
+    .sort((a, b) => getPassengerPriority(a.status) - getPassengerPriority(b.status))[0];
+  const activePassenger = selectedPassenger || nextPassenger || null;
   const markers = [];
   
   if (ride) {
@@ -339,13 +343,13 @@ const ManagePassengers = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <NavigationBar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-[13rem] md:pb-8 max-w-full">
+      <div className="container mx-auto px-2.5 sm:px-4 py-2 sm:py-8 pb-[7.75rem] md:pb-8 max-w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start">
+          <div className="flex items-center justify-between gap-2 mb-2 sm:mb-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="self-start h-8 px-2.5">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Späť
             </Button>
@@ -353,7 +357,7 @@ const ManagePassengers = () => {
             {/* Auto GPS status (no manual toggle) */}
             <div className="flex items-center gap-2">
               {isTracking ? (
-                <Badge variant="default" className="bg-green-500 gap-1.5">
+                <Badge variant="success" className="gap-1.5 text-[10px] sm:text-xs">
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                   Zdieľam polohu
                 </Badge>
@@ -366,21 +370,21 @@ const ManagePassengers = () => {
             </div>
           </div>
 
-          <h1 className="font-display text-xl sm:text-3xl font-bold mb-1">Vaši pasažieri</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mb-4 break-words">
+          <h1 className="font-display text-lg sm:text-3xl font-bold mb-0.5 sm:mb-1">Vaši pasažieri</h1>
+          <p className="text-xs sm:text-base text-muted-foreground mb-2 sm:mb-4 break-words line-clamp-1 sm:line-clamp-none">
             {ride?.origin_address} → {ride?.destination_address}
           </p>
 
           {/* Manual complete - subtle */}
-          <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <div className="mb-2 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
+            <p className="hidden sm:flex text-xs text-muted-foreground items-center gap-1.5">
               <CheckCircle className="w-3.5 h-3.5 text-green-500" />
               Jazda sa dokončí automaticky pri dosiahnutí cieľa
             </p>
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 text-destructive hover:bg-destructive/10 h-8"
+              className="gap-1.5 text-destructive hover:bg-destructive/10 h-8 px-2.5 text-xs ml-auto"
               onClick={handleManualComplete}
               disabled={completing}
             >
