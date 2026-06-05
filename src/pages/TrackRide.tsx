@@ -263,11 +263,37 @@ const TrackRide: React.FC = () => {
               <h1 className="text-lg sm:text-2xl font-bold truncate">Sledovanie jazdy</h1>
               <p className="text-xs sm:text-base text-muted-foreground truncate">
                 {rideRequest.status === 'accepted' && 'Vodič je na ceste'}
+                {rideRequest.status === 'driver_arrived' && 'Vodič vás čaká na mieste'}
                 {rideRequest.status === 'picked_up' && 'Ste na ceste k cieľu'}
                 {rideRequest.status === 'completed' && 'Jazda dokončená'}
               </p>
             </div>
           </div>
+
+          {/* Prominent driver-arrived banner */}
+          {rideRequest.status === 'driver_arrived' && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 sm:p-5 shadow-lg border-2 border-amber-300"
+            >
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                  className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0"
+                >
+                  <Car className="w-6 h-6" />
+                </motion.div>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-base sm:text-lg leading-tight">🚗 Vodič dorazil!</h3>
+                  <p className="text-xs sm:text-sm opacity-95 leading-snug">
+                    {displayDriver.full_name} vás čaká na mieste vyzdvihnutia. Ukážte mu váš PIN nižšie.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Map */}
           <LiveTrackingMap
