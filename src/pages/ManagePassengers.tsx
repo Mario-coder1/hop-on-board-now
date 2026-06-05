@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag, KeyRound } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, MessageCircle, CheckCircle, MapPin, User, Bell, Radio, CircleOff, LogOut, Flag, KeyRound, Check, X } from 'lucide-react';
+import { getStripeEnvironment } from '@/lib/stripe';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -139,7 +140,7 @@ const ManagePassengers = () => {
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
       .eq('ride_id', rideId)
-      .in('status', ['accepted', 'driver_arrived', 'picked_up']);
+      .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (passengersData) {
       setPassengers(passengersData as unknown as AcceptedPassenger[]);
@@ -221,6 +222,36 @@ const ManagePassengers = () => {
       });
       fetchRideAndPassengers();
     }
+  };
+
+  const handleAcceptRequest = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase.from('ride_requests').update({ status: 'accepted' }).eq('id', requestId);
+    if (error) {
+      toast({ title: 'Nepodarilo sa prijať', description: error.message, variant: 'destructive' });
+      return;
+    }
+    if (ride && (ride.available_seats ?? 0) > 0) {
+      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 1) - 1 }).eq('id', ride.id);
+    }
+    toast({ title: 'Žiadosť prijatá', description: `${passengerName} bol pridaný na jazdu.` });
+    fetchRideAndPassengers();
+  };
+
+  const handleRejectRequest = async (requestId: string, passengerName: string) => {
+    const { error } = await supabase.from('ride_requests').update({ status: 'rejected' }).eq('id', requestId);
+    if (error) {
+      toast({ title: 'Nepodarilo sa odmietnuť', description: error.message, variant: 'destructive' });
+      return;
+    }
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: requestId, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
+    }
+    toast({ title: 'Žiadosť odmietnutá', description: `${passengerName} bol odmietnutý.` });
+    fetchRideAndPassengers();
   };
 
   const openNavigation = (lat: number, lng: number, address: string) => {
@@ -580,31 +611,37 @@ const ManagePassengers = () => {
 
       {/* Plávajúca akčná bublina – ďalší krok pre najbližšieho pasažiera */}
       {(() => {
-        const priority = (s: string) => (s === 'picked_up' ? 0 : s === 'driver_arrived' ? 1 : s === 'accepted' ? 2 : 3);
+        const priority = (s: string) => (s === 'pending' ? 0 : s === 'picked_up' ? 1 : s === 'driver_arrived' ? 2 : s === 'accepted' ? 3 : 4);
         const next = [...passengers]
           .filter(p => p.passenger)
           .sort((a, b) => priority(a.status) - priority(b.status))[0];
         if (!next) return null;
 
         const name = next.passenger.full_name.split(' ')[0];
+        const isPending = next.status === 'pending';
         const isPickedUp = next.status === 'picked_up';
         const isArrived = next.status === 'driver_arrived';
         const isAccepted = next.status === 'accepted';
 
-        const label = isPickedUp
-          ? `Vysadiť ${name}`
-          : isArrived
-            ? `Overiť PIN — ${name}`
-            : `Som na mieste — ${name}`;
-        const Icon = isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
-        const bg = isPickedUp
-          ? 'bg-blue-600 hover:bg-blue-700'
-          : isArrived
-            ? 'bg-primary hover:bg-primary/90'
-            : 'bg-amber-500 hover:bg-amber-600';
+        const label = isPending
+          ? `Prijať — ${name}`
+          : isPickedUp
+            ? `Vysadiť ${name}`
+            : isArrived
+              ? `Overiť PIN — ${name}`
+              : `Som na mieste — ${name}`;
+        const Icon = isPending ? Check : isPickedUp ? LogOut : isArrived ? KeyRound : Bell;
+        const bg = isPending
+          ? 'bg-green-600 hover:bg-green-700'
+          : isPickedUp
+            ? 'bg-blue-600 hover:bg-blue-700'
+            : isArrived
+              ? 'bg-primary hover:bg-primary/90'
+              : 'bg-amber-500 hover:bg-amber-600';
 
         const onPrimary = () => {
-          if (isPickedUp) handleDropoff(next.id, next.passenger.full_name);
+          if (isPending) handleAcceptRequest(next.id, next.passenger.full_name);
+          else if (isPickedUp) handleDropoff(next.id, next.passenger.full_name);
           else if (isArrived) setPinDialogFor(next);
           else if (isAccepted) handleArrived(next.id, next.passenger.full_name);
         };
@@ -628,15 +665,27 @@ const ManagePassengers = () => {
                 <Icon className="w-5 h-5" />
                 <span className="truncate">{label}</span>
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-14 w-14 shrink-0"
-                onClick={() => openNavigation(navTarget.lat, navTarget.lng, navTarget.addr)}
-                aria-label="Navigovať"
-              >
-                <NavIcon className="w-5 h-5" />
-              </Button>
+              {isPending ? (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-14 w-14 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  onClick={() => handleRejectRequest(next.id, next.passenger.full_name)}
+                  aria-label="Odmietnuť"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-14 w-14 shrink-0"
+                  onClick={() => openNavigation(navTarget.lat, navTarget.lng, navTarget.addr)}
+                  aria-label="Navigovať"
+                >
+                  <NavIcon className="w-5 h-5" />
+                </Button>
+              )}
               {next.passenger.phone && (
                 <Button
                   variant="outline"
