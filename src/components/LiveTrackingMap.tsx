@@ -4,6 +4,7 @@ import { Navigation, MapPin, Clock } from 'lucide-react';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
 import { formatDbDate } from '@/lib/datetime';
+import { supabase } from '@/integrations/supabase/client';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
