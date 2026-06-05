@@ -28,6 +28,21 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const [etaSec, setEtaSec] = useState<number | null>(null);
   const [etaTargetKm, setEtaTargetKm] = useState<number | null>(null);
   const [etaTarget, setEtaTarget] = useState<'pickup' | 'destination' | null>(null);
+  const [driver, setDriver] = useState<{ full_name: string | null; avatar_url: string | null; car_model: string | null; car_color: string | null; license_plate: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!driverProfileId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url, car_model, car_color, license_plate')
+        .eq('id', driverProfileId)
+        .maybeSingle();
+      if (!cancelled && data) setDriver(data as any);
+    })();
+    return () => { cancelled = true; };
+  }, [driverProfileId]);
 
   // Fetch full route only once when static points are known (not on driver location changes)
   useEffect(() => {
