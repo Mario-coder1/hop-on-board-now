@@ -255,13 +255,36 @@ const Map: React.FC<MapProps> = ({
 
         const avatarRing = document.createElement('div');
         avatarRing.style.cssText = `
-          width: 48px;
-          height: 48px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           background: linear-gradient(135deg, #20b4a8, #16a085);
           padding: 3px;
           position: relative;
         `;
+
+        // Pulsing ring around the avatar — signals "live"
+        const pulse = document.createElement('div');
+        pulse.style.cssText = `
+          position: absolute;
+          inset: -6px;
+          border-radius: 50%;
+          background: rgba(32, 180, 168, 0.35);
+          animation: lovable-live-driver-pulse 1.8s ease-out infinite;
+          pointer-events: none;
+        `;
+        avatarRing.appendChild(pulse);
+
+        if (!document.getElementById('lovable-live-driver-pulse-style')) {
+          const style = document.createElement('style');
+          style.id = 'lovable-live-driver-pulse-style';
+          style.textContent = `@keyframes lovable-live-driver-pulse {
+            0% { transform: scale(0.85); opacity: 0.8; }
+            70% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(1.6); opacity: 0; }
+          }`;
+          document.head.appendChild(style);
+        }
 
         const avatar = document.createElement('div');
         avatar.style.cssText = `
