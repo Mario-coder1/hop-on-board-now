@@ -522,7 +522,7 @@ const Map: React.FC<MapProps> = ({
 
     if (map.current.isStyleLoaded()) addPlanned();
     else map.current.on('load', addPlanned);
-  }, [plannedRoute, providedRoute, fetchedRoute, safeMarkers]);
+  }, [plannedRoute]);
 
   // Draw route on map
   useEffect(() => {
@@ -616,7 +616,7 @@ const Map: React.FC<MapProps> = ({
     } else {
       map.current.on('load', addRoute);
     }
-  }, [route, safeMarkers]);
+  }, [route]);
 
   return (
     <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
