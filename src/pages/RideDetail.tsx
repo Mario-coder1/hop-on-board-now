@@ -30,7 +30,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { sk } from 'date-fns/locale';
-import { formatDbDate } from '@/lib/datetime';
+import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
