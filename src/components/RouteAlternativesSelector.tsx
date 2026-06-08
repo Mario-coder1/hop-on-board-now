@@ -10,6 +10,7 @@ export interface RouteOption {
   durationSec: number;
   distanceM: number;
   summary?: string;
+  kind?: 'fastest' | 'no-motorway' | 'no-toll' | 'alternative';
 }
 
 interface Props {
