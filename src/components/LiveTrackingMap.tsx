@@ -242,6 +242,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         center={mapCenter}
         zoom={14}
         markers={markers}
+        plannedRoute={plannedRoute}
         route={route || undefined}
         className="h-full w-full"
         interactive={true}
