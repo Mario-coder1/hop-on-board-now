@@ -64,22 +64,66 @@ const RouteAlternativesSelector = ({
 
         // Mapbox returns alternatives only when there are no via-waypoints
         const canHaveAlternatives = waypoints.length === 0;
-        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coords}?geometries=geojson&overview=full&alternatives=${canHaveAlternatives}&access_token=${MAPBOX_TOKEN}`;
-        const res = await fetch(url, { signal: ctrl.signal });
-        const data = await res.json();
+        const base = `https://api.mapbox.com/directions/v5/mapbox/driving/${coords}`;
+        const common = `geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`;
 
-        if (!data.routes || data.routes.length === 0) {
+        // Fire multiple variants in parallel so the driver ALWAYS has options:
+        //  1) default (fastest, with up to 2 alternatives)
+        //  2) exclude=motorway (no-highway option — often missing from default alternatives)
+        //  3) exclude=toll      (no-toll option)
+        const urls = [
+          `${base}?${common}&alternatives=${canHaveAlternatives}`,
+          `${base}?${common}&exclude=motorway`,
+          `${base}?${common}&exclude=toll`,
+        ];
+
+        const responses = await Promise.allSettled(
+          urls.map((u) => fetch(u, { signal: ctrl.signal }).then((r) => r.json()))
+        );
+
+        type Tagged = { kind: RouteOption['kind']; raw: any };
+        const tagged: Tagged[] = [];
+        const r0 = responses[0].status === 'fulfilled' ? responses[0].value : null;
+        if (r0?.routes?.length) {
+          r0.routes.forEach((raw: any, i: number) =>
+            tagged.push({ kind: i === 0 ? 'fastest' : 'alternative', raw })
+          );
+        }
+        const r1 = responses[1].status === 'fulfilled' ? responses[1].value : null;
+        if (r1?.routes?.[0]) tagged.push({ kind: 'no-motorway', raw: r1.routes[0] });
+        const r2 = responses[2].status === 'fulfilled' ? responses[2].value : null;
+        if (r2?.routes?.[0]) tagged.push({ kind: 'no-toll', raw: r2.routes[0] });
+
+        if (tagged.length === 0) {
           setError('Nepodarilo sa nájsť trasu.');
           setRoutes([]);
           return;
         }
 
-        const opts: RouteOption[] = data.routes.map((r: any, idx: number) => ({
+        // Deduplicate by similar duration+distance (within 3%) — keep first occurrence.
+        // Priority: fastest > alternative > no-motorway > no-toll
+        const kindRank: Record<NonNullable<RouteOption['kind']>, number> = {
+          fastest: 0, alternative: 1, 'no-motorway': 2, 'no-toll': 3,
+        };
+        tagged.sort((a, b) => kindRank[a.kind!] - kindRank[b.kind!]);
+
+        const deduped: Tagged[] = [];
+        for (const t of tagged) {
+          const isDupe = deduped.some((d) => {
+            const dDur = Math.abs(d.raw.duration - t.raw.duration) / Math.max(d.raw.duration, 1);
+            const dDist = Math.abs(d.raw.distance - t.raw.distance) / Math.max(d.raw.distance, 1);
+            return dDur < 0.03 && dDist < 0.03;
+          });
+          if (!isDupe) deduped.push(t);
+        }
+
+        const opts: RouteOption[] = deduped.slice(0, 4).map((t, idx) => ({
           index: idx,
-          coordinates: r.geometry.coordinates,
-          durationSec: r.duration,
-          distanceM: r.distance,
-          summary: r.legs?.map((l: any) => l.summary).filter(Boolean).join(' • ') || undefined,
+          coordinates: t.raw.geometry.coordinates,
+          durationSec: t.raw.duration,
+          distanceM: t.raw.distance,
+          summary: t.raw.legs?.map((l: any) => l.summary).filter(Boolean).join(' • ') || undefined,
+          kind: t.kind,
         }));
 
         setRoutes(opts);
@@ -90,7 +134,6 @@ const RouteAlternativesSelector = ({
         if (!validIdx) {
           onSelect(opts[0]);
         } else {
-          // Re-emit the matching route so parent gets updated coordinates
           onSelect(validIdx);
         }
       } catch (e) {
@@ -104,7 +147,6 @@ const RouteAlternativesSelector = ({
     })();
 
     return () => ctrl.abort();
-    // Intentionally exclude selectedIndex/onSelect to avoid refetch loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [origin?.lat, origin?.lng, destination?.lat, destination?.lng, JSON.stringify(waypoints)]);
 
