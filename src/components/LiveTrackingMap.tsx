@@ -65,6 +65,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   plannedRoute,
   className = ''
 }) => {
+  const { toast } = useToast();
   const { location: rawLocation, isLoading, error } = useDriverTracking(driverProfileId);
   const location = useSmoothedLocation(rawLocation);
   const [route, setRoute] = useState<Array<[number, number]> | null>(null);
