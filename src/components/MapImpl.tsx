@@ -616,7 +616,7 @@ const Map: React.FC<MapProps> = ({
     } else {
       map.current.on('load', addRoute);
     }
-  }, [route, safeMarkers]);
+  }, [route]);
 
   return (
     <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
