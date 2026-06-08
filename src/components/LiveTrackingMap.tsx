@@ -12,6 +12,7 @@ interface LiveTrackingMapProps {
   passengerLocation?: { lat: number; lng: number };
   destinationLocation?: { lat: number; lng: number };
   originLocation?: { lat: number; lng: number };
+  plannedRoute?: Array<[number, number]>;
   className?: string;
 }
 
@@ -60,6 +61,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   passengerLocation,
   destinationLocation,
   originLocation,
+  plannedRoute,
   className = ''
 }) => {
   const { location: rawLocation, isLoading, error } = useDriverTracking(driverProfileId);
