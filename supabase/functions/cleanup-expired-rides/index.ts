@@ -16,15 +16,13 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Get current date at midnight (start of today)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    // Delete rides whose departure_time is more than 24 hours in the past
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-    // Delete rides where departure_time is before today
     const { data: deletedRides, error } = await supabase
       .from('rides')
       .delete()
-      .lt('departure_time', today.toISOString())
+      .lt('departure_time', cutoff.toISOString())
       .select('id')
 
     if (error) {
