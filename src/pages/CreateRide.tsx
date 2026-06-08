@@ -265,10 +265,17 @@ const CreateRide = () => {
     setRoutePolyline(polyline);
   }, []);
 
+  const mapRef = React.useRef<HTMLDivElement | null>(null);
+
   const handleRouteSelect = useCallback((route: RouteOption) => {
     setSelectedRouteIndex(route.index);
-    setSelectedRouteCoords(route.coordinates);
+    // New array reference so the Map's route effect always re-runs and redraws the line
+    setSelectedRouteCoords([...route.coordinates]);
     setRoutePolyline(JSON.stringify(route.coordinates));
+    // On mobile the map is below the form — scroll it into view so the driver sees the route
+    if (typeof window !== 'undefined' && window.innerWidth < 1024 && mapRef.current) {
+      mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }, []);
 
   const markers = [];
