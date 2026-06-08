@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation, MapPin, Clock, Wifi, WifiOff, Gauge, Phone, Share2, Shield } from 'lucide-react';
+import { Navigation, MapPin, Clock, Wifi, WifiOff, Gauge, Phone, Share2, MoreVertical, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
