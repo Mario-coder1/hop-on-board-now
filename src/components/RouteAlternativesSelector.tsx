@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Route as RouteIcon, Clock, Navigation } from 'lucide-react';
+import { Loader2, Route as RouteIcon, Clock, Navigation, Zap, TrafficCone, MapPinned } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
