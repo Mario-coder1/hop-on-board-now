@@ -264,11 +264,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     }
   };
 
-  const handleEmergency = () => {
-    if (confirm('Zavolať tiesňovú linku 112?')) {
-      window.location.href = 'tel:112';
-    }
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className={`relative ${className}`}>
@@ -282,35 +278,45 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         interactive={true}
       />
       
-      {/* Right-side floating action buttons for passenger */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.1 }}
-        className="absolute top-1/2 -translate-y-1/2 right-3 flex flex-col gap-2 z-10"
-      >
-        <button
-          onClick={handleCall}
-          aria-label="Zavolať vodičovi"
-          className="w-11 h-11 rounded-full bg-background/95 backdrop-blur-md shadow-xl border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+      {/* Floating action menu — compact, bottom-right above info bar */}
+      <div className="absolute bottom-[88px] right-3 z-10 flex flex-col items-end gap-2">
+        <AnimatePresence>
+          {menuOpen && (
+            <>
+              <motion.button
+                initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => { setMenuOpen(false); handleCall(); }}
+                aria-label="Zavolať vodičovi"
+                className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-md shadow-lg border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+              >
+                <Phone className="w-4 h-4" />
+              </motion.button>
+              <motion.button
+                initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                transition={{ duration: 0.15, delay: 0.05 }}
+                onClick={() => { setMenuOpen(false); handleShare(); }}
+                aria-label="Zdieľať jazdu"
+                className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-md shadow-lg border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+              >
+                <Share2 className="w-4 h-4" />
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
+        <motion.button
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label={menuOpen ? 'Zavrieť menu' : 'Otvoriť menu'}
+          className="w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95"
+          whileTap={{ scale: 0.9 }}
         >
-          <Phone className="w-5 h-5" />
-        </button>
-        <button
-          onClick={handleShare}
-          aria-label="Zdieľať jazdu"
-          className="w-11 h-11 rounded-full bg-background/95 backdrop-blur-md shadow-xl border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
-        >
-          <Share2 className="w-5 h-5" />
-        </button>
-        <button
-          onClick={handleEmergency}
-          aria-label="Tiesňová linka 112"
-          className="w-11 h-11 rounded-full bg-destructive text-destructive-foreground shadow-xl border border-destructive/50 flex items-center justify-center hover:bg-destructive/90 transition-colors active:scale-95"
-        >
-          <Shield className="w-5 h-5" />
-        </button>
-      </motion.div>
+          {menuOpen ? <X className="w-4 h-4" /> : <MoreVertical className="w-4 h-4" />}
+        </motion.button>
+      </div>
       
       
       {/* Top-left status pill */}
