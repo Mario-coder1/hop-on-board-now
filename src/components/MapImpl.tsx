@@ -522,7 +522,7 @@ const Map: React.FC<MapProps> = ({
 
     if (map.current.isStyleLoaded()) addPlanned();
     else map.current.on('load', addPlanned);
-  }, [plannedRoute, providedRoute, fetchedRoute, safeMarkers]);
+  }, [plannedRoute]);
 
   // Draw route on map
   useEffect(() => {
