@@ -179,7 +179,22 @@ const RouteAlternativesSelector = ({
         <div className="space-y-2">
           {routes.map((r, idx) => {
             const isSelected = r.index === selectedIndex;
-            const labels = ['Najrýchlejšia', 'Alternatíva', 'Iná alternatíva'];
+            const meta = (() => {
+              switch (r.kind) {
+                case 'fastest':
+                  return { label: 'Najrýchlejšia', Icon: Zap, hint: 'odporúčaná' };
+                case 'no-motorway':
+                  return { label: 'Bez diaľnice', Icon: TrafficCone, hint: 'pomalšie cesty' };
+                case 'no-toll':
+                  return { label: 'Bez mýta', Icon: MapPinned, hint: 'vyhýba sa spoplatneným úsekom' };
+                default:
+                  return { label: `Alternatíva ${idx}`, Icon: RouteIcon, hint: undefined };
+              }
+            })();
+            const Icon = meta.Icon;
+            const fastest = routes.find((x) => x.kind === 'fastest') ?? routes[0];
+            const diffMin = Math.round((r.durationSec - fastest.durationSec) / 60);
+            const diffKm = Math.round(((r.distanceM - fastest.distanceM) / 1000) * 10) / 10;
             return (
               <button
                 key={r.index}
@@ -193,8 +208,9 @@ const RouteAlternativesSelector = ({
                 )}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={cn('text-sm font-semibold', isSelected && 'text-primary')}>
-                    {labels[idx] || `Trasa ${idx + 1}`}
+                  <span className={cn('text-sm font-semibold flex items-center gap-1.5', isSelected && 'text-primary')}>
+                    <Icon className="w-3.5 h-3.5" />
+                    {meta.label}
                   </span>
                   {isSelected && (
                     <span className="text-[10px] uppercase tracking-wider font-bold text-primary">
@@ -202,7 +218,7 @@ const RouteAlternativesSelector = ({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatDuration(r.durationSec)}
@@ -211,9 +227,19 @@ const RouteAlternativesSelector = ({
                     <Navigation className="w-3 h-3" />
                     {formatDistance(r.distanceM)}
                   </span>
+                  {r.kind !== 'fastest' && (diffMin > 0 || diffKm !== 0) && (
+                    <span className="text-amber-600 dark:text-amber-500">
+                      {diffMin > 0 ? `+${diffMin} min` : ''}
+                      {diffMin > 0 && diffKm !== 0 ? ' · ' : ''}
+                      {diffKm > 0 ? `+${diffKm} km` : diffKm < 0 ? `${diffKm} km` : ''}
+                    </span>
+                  )}
                 </div>
                 {r.summary && (
                   <p className="text-[11px] text-muted-foreground mt-1 truncate">cez {r.summary}</p>
+                )}
+                {meta.hint && !r.summary && (
+                  <p className="text-[11px] text-muted-foreground mt-1">{meta.hint}</p>
                 )}
               </button>
             );
