@@ -555,6 +555,14 @@ const RideDetail = () => {
     }
   }, [requestStatus]);
 
+  const ttlDate = useMemo(() => {
+    if (!ride?.departure_time) return null;
+    const d = parseDbTimestamp(ride.departure_time);
+    if (!d) return null;
+    d.setHours(d.getHours() + 24);
+    return d;
+  }, [ride?.departure_time]);
+
   const gasStations = useGasStations();
   const markers = useMemo(() => {
     if (!ride) return [];
