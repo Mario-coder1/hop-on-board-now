@@ -16,6 +16,7 @@ interface MapProps {
   }>;
   waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
   route?: Array<[number, number]>;
+  plannedRoute?: Array<[number, number]>;
   showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
   onMarkerClick?: (id: string) => void;
@@ -48,6 +49,7 @@ const Map: React.FC<MapProps> = ({
   markers = [],
   waypoints = [],
   route: providedRoute,
+  plannedRoute,
   showRoute = false,
   onMapClick,
   onMarkerClick,
