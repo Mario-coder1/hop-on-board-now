@@ -13,6 +13,7 @@ import { ReportDialog } from '@/components/ReportDialog';
 import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { parseRoutePolyline } from '@/lib/routeProximity';
 
 interface DriverInfo {
   id: string;
@@ -42,6 +43,7 @@ interface RideRequest {
     destination_address: string;
     departure_time: string;
     driver_id: string;
+    route_polyline: string | null;
   };
 }
 
@@ -80,7 +82,8 @@ const TrackRide: React.FC = () => {
           destination_lng,
           destination_address,
           departure_time,
-          driver_id
+          driver_id,
+          route_polyline
         )
       `)
       .eq('id', requestId)
@@ -308,6 +311,7 @@ const TrackRide: React.FC = () => {
                 lat: Number(ride.destination_lat),
                 lng: Number(ride.destination_lng)
               }}
+              plannedRoute={parseRoutePolyline(ride.route_polyline) ?? undefined}
               className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
             />
           )}

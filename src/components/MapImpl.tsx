@@ -16,6 +16,7 @@ interface MapProps {
   }>;
   waypoints?: Array<{ lat: number; lng: number }>; // Intermediate stops for route
   route?: Array<[number, number]>;
+  plannedRoute?: Array<[number, number]>;
   showRoute?: boolean; // Auto-fetch route between origin and destination markers
   onMapClick?: (lng: number, lat: number) => void;
   onMarkerClick?: (id: string) => void;
@@ -48,6 +49,7 @@ const Map: React.FC<MapProps> = ({
   markers = [],
   waypoints = [],
   route: providedRoute,
+  plannedRoute,
   showRoute = false,
   onMapClick,
   onMarkerClick,
@@ -460,6 +462,67 @@ const Map: React.FC<MapProps> = ({
       markersRef.current.push(marker);
     });
   }, [safeMarkers, onMarkerClick]);
+
+  // Draw planned (pre-trip) route — dashed amber underlay so passengers
+  // always see the driver's chosen path, even after pickup.
+  useEffect(() => {
+    if (!map.current || !plannedRoute || plannedRoute.length < 2) return;
+
+    const sourceId = 'planned-route';
+    const layerId = 'planned-route-line';
+    const casingId = 'planned-route-casing';
+
+    const addPlanned = () => {
+      if (!map.current) return;
+      [layerId, casingId].forEach(id => {
+        if (map.current!.getLayer(id)) map.current!.removeLayer(id);
+      });
+      if (map.current.getSource(sourceId)) map.current.removeSource(sourceId);
+
+      map.current.addSource(sourceId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'LineString', coordinates: plannedRoute }
+        }
+      });
+
+      map.current.addLayer({
+        id: casingId,
+        type: 'line',
+        source: sourceId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#ffffff', 'line-width': 7, 'line-opacity': 0.85 }
+      });
+
+      map.current.addLayer({
+        id: layerId,
+        type: 'line',
+        source: sourceId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': '#f59e0b',
+          'line-width': 4,
+          'line-opacity': 0.9,
+          'line-dasharray': [2, 1.5]
+        }
+      });
+
+      // If no live route, fit bounds to the planned route + markers
+      if (!providedRoute && !fetchedRoute) {
+        const bounds = plannedRoute.reduce(
+          (b, coord) => b.extend(coord as [number, number]),
+          new mapboxgl.LngLatBounds(plannedRoute[0], plannedRoute[0])
+        );
+        safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => bounds.extend([m.lng, m.lat]));
+        map.current.fitBounds(bounds, { padding: 60 });
+      }
+    };
+
+    if (map.current.isStyleLoaded()) addPlanned();
+    else map.current.on('load', addPlanned);
+  }, [plannedRoute, providedRoute, fetchedRoute, safeMarkers]);
 
   // Draw route on map
   useEffect(() => {

@@ -23,6 +23,7 @@ export interface MapProps {
   markers?: MapMarker[];
   waypoints?: Array<{ lat: number; lng: number }>;
   route?: Array<[number, number]>;
+  plannedRoute?: Array<[number, number]>;
   showRoute?: boolean;
   onMapClick?: (lng: number, lat: number) => void;
   onMarkerClick?: (id: string) => void;
