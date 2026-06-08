@@ -238,6 +238,38 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const speedKmh = location?.speed ? Math.round(location.speed * 3.6) : 0;
   const isMoving = speedKmh > 3;
 
+  const handleCall = () => {
+    if (driver?.phone) {
+      window.location.href = `tel:${driver.phone}`;
+    } else {
+      toast({ title: 'Telefón nie je k dispozícii', description: 'Vodič nemá uvedené telefónne číslo.' });
+    }
+  };
+
+  const handleShare = async () => {
+    const etaPart = etaText ? ` ETA ${etaArrival} (${etaText})` : '';
+    const drvPart = driver?.full_name ? ` Vodič: ${driver.full_name}.` : '';
+    const carPart = driver?.car_model ? ` Auto: ${[driver.car_color, driver.car_model, driver.license_plate].filter(Boolean).join(' ')}.` : '';
+    const text = `Som na ceste cez TakeMe.${drvPart}${carPart}${etaPart}`;
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Moja jazda – TakeMe', text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        toast({ title: 'Skopírované', description: 'Detaily jazdy sú v schránke.' });
+      }
+    } catch (e) {
+      // user cancelled share
+    }
+  };
+
+  const handleEmergency = () => {
+    if (confirm('Zavolať tiesňovú linku 112?')) {
+      window.location.href = 'tel:112';
+    }
+  };
+
   return (
     <div className={`relative ${className}`}>
       <Map
@@ -249,6 +281,37 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         className="h-full w-full"
         interactive={true}
       />
+      
+      {/* Right-side floating action buttons for passenger */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+        className="absolute top-1/2 -translate-y-1/2 right-3 flex flex-col gap-2 z-10"
+      >
+        <button
+          onClick={handleCall}
+          aria-label="Zavolať vodičovi"
+          className="w-11 h-11 rounded-full bg-background/95 backdrop-blur-md shadow-xl border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+        >
+          <Phone className="w-5 h-5" />
+        </button>
+        <button
+          onClick={handleShare}
+          aria-label="Zdieľať jazdu"
+          className="w-11 h-11 rounded-full bg-background/95 backdrop-blur-md shadow-xl border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+        >
+          <Share2 className="w-5 h-5" />
+        </button>
+        <button
+          onClick={handleEmergency}
+          aria-label="Tiesňová linka 112"
+          className="w-11 h-11 rounded-full bg-destructive text-destructive-foreground shadow-xl border border-destructive/50 flex items-center justify-center hover:bg-destructive/90 transition-colors active:scale-95"
+        >
+          <Shield className="w-5 h-5" />
+        </button>
+      </motion.div>
+      
       
       {/* Top-left status pill */}
       <motion.div
