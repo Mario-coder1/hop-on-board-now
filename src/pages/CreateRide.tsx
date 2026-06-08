@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -265,10 +265,17 @@ const CreateRide = () => {
     setRoutePolyline(polyline);
   }, []);
 
+  const mapRef = useRef<HTMLDivElement | null>(null);
+
   const handleRouteSelect = useCallback((route: RouteOption) => {
     setSelectedRouteIndex(route.index);
-    setSelectedRouteCoords(route.coordinates);
+    // New array reference so the Map's route effect always re-runs and redraws the line
+    setSelectedRouteCoords([...route.coordinates]);
     setRoutePolyline(JSON.stringify(route.coordinates));
+    // On mobile the map is below the form — scroll it into view so the driver sees the route
+    if (typeof window !== 'undefined' && window.innerWidth < 1024 && mapRef.current) {
+      mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }, []);
 
   const markers = [];
@@ -654,7 +661,7 @@ const CreateRide = () => {
             </div>
 
             {/* Map */}
-            <div className="lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-24" ref={mapRef}>
               <Map
                 markers={markers}
                 waypoints={waypoints}
