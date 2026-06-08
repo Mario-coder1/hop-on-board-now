@@ -71,7 +71,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const [etaSec, setEtaSec] = useState<number | null>(null);
   const [etaTargetKm, setEtaTargetKm] = useState<number | null>(null);
   const [etaTarget, setEtaTarget] = useState<'pickup' | 'destination' | null>(null);
-  const [driver, setDriver] = useState<{ full_name: string | null; avatar_url: string | null; car_model: string | null; car_color: string | null; license_plate: string | null } | null>(null);
+  const [driver, setDriver] = useState<{ full_name: string | null; avatar_url: string | null; car_model: string | null; car_color: string | null; license_plate: string | null; phone: string | null } | null>(null);
   const [nowTick, setNowTick] = useState(Date.now());
 
   // Tick every 5s so "last update" relative time stays fresh
