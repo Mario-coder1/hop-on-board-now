@@ -18,6 +18,7 @@ import {
   Wind,
   Coffee,
   Info,
+  Timer,
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
