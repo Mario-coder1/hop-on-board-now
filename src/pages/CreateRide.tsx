@@ -661,7 +661,7 @@ const CreateRide = () => {
             </div>
 
             {/* Map */}
-            <div className="lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-24" ref={mapRef}>
               <Map
                 markers={markers}
                 waypoints={waypoints}
