@@ -265,7 +265,7 @@ const CreateRide = () => {
     setRoutePolyline(polyline);
   }, []);
 
-  const mapRef = React.useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
 
   const handleRouteSelect = useCallback((route: RouteOption) => {
     setSelectedRouteIndex(route.index);
