@@ -735,6 +735,18 @@ const RideDetail = () => {
                     <p className="text-sm text-muted-foreground">za miesto</p>
                   </div>
                 </div>
+
+                {ttlDate && (
+                  <div className="mt-4 p-3 rounded-xl bg-muted/50 border border-border flex items-start gap-2 text-xs text-muted-foreground">
+                    <Timer className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      Jazda sa automaticky zmaže:{' '}
+                      <span className="font-medium text-foreground">
+                        {formatDbDate(ttlDate.toISOString(), 'd. MMMM HH:mm', { locale: sk })}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </article>
 
               {/* Map with route */}
