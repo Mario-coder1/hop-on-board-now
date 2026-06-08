@@ -86,7 +86,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
     (async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, car_model, car_color, license_plate')
+        .select('full_name, avatar_url, car_model, car_color, license_plate, phone')
         .eq('id', driverProfileId)
         .maybeSingle();
       if (!cancelled && data) setDriver(data as any);
