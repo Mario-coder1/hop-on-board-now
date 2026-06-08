@@ -18,6 +18,7 @@ import {
   Wind,
   Coffee,
   Info,
+  Timer,
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
@@ -29,7 +30,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { sk } from 'date-fns/locale';
-import { formatDbDate } from '@/lib/datetime';
+import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -554,6 +555,14 @@ const RideDetail = () => {
     }
   }, [requestStatus]);
 
+  const ttlDate = useMemo(() => {
+    if (!ride?.departure_time) return null;
+    const d = parseDbTimestamp(ride.departure_time);
+    if (!d) return null;
+    d.setHours(d.getHours() + 24);
+    return d;
+  }, [ride?.departure_time]);
+
   const gasStations = useGasStations();
   const markers = useMemo(() => {
     if (!ride) return [];
@@ -726,6 +735,18 @@ const RideDetail = () => {
                     <p className="text-sm text-muted-foreground">za miesto</p>
                   </div>
                 </div>
+
+                {ttlDate && (
+                  <div className="mt-4 p-3 rounded-xl bg-muted/50 border border-border flex items-start gap-2 text-xs text-muted-foreground">
+                    <Timer className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      Jazda sa automaticky zmaže:{' '}
+                      <span className="font-medium text-foreground">
+                        {formatDbDate(ttlDate.toISOString(), 'd. MMMM HH:mm', { locale: sk })}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </article>
 
               {/* Map with route */}
