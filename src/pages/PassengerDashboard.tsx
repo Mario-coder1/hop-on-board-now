@@ -369,20 +369,20 @@ const PassengerDashboard: React.FC = () => {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-5 animate-pulse dark:bg-white/[0.03] dark:border-white/10">
+                <div key={i} className="rounded-3xl border border-blue-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/50 to-cyan-50/30 backdrop-blur-xl p-5 animate-pulse dark:border-white/10 dark:from-white/[0.04] dark:via-white/[0.02] dark:to-white/[0.04]">
                   <div className="h-4 bg-foreground/10 rounded w-3/4 mb-3" />
                   <div className="h-4 bg-foreground/10 rounded w-1/2" />
                 </div>
               ))}
             </div>
           ) : filteredRides.length === 0 ? (
-            <div className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-10 sm:p-14 text-center dark:bg-white/[0.03] dark:border-white/10">
-              <div className="w-14 h-14 rounded-2xl bg-foreground/5 border border-foreground/10 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-6 h-6 text-foreground" strokeWidth={1.6} />
+            <div className="rounded-3xl border border-blue-200/50 bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-cyan-50/30 backdrop-blur-xl p-10 sm:p-14 text-center dark:border-white/10 dark:from-white/[0.04] dark:via-white/[0.02] dark:to-white/[0.04]">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-200/50 flex items-center justify-center mx-auto mb-4 shadow-sm dark:from-white/10 dark:to-white/5 dark:border-white/10">
+                <Search className="w-6 h-6 text-blue-600 dark:text-white" strokeWidth={1.6} />
               </div>
-              <h3 className="text-base font-semibold tracking-tight mb-1">Žiadne jazdy</h3>
+              <h3 className="text-base font-bold tracking-tight mb-1">Žiadne jazdy</h3>
               <p className="text-sm text-muted-foreground mb-5">Skús upraviť vyhľadávanie</p>
-              <Button variant="outline" size="sm" className="rounded-full" onClick={() => { setSearchFrom(''); setSearchTo(''); }}>
+              <Button variant="outline" size="sm" className="rounded-full border-blue-200/60 hover:bg-blue-50 dark:border-white/15 dark:hover:bg-white/5" onClick={() => { setSearchFrom(''); setSearchTo(''); }}>
                 Vymazať filtre
               </Button>
             </div>
@@ -392,45 +392,55 @@ const PassengerDashboard: React.FC = () => {
                 const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
                 const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
                 const isLive = ride.status === 'in_progress';
+                // Rotating soft color tints for visual variety
+                const tints = [
+                  { bg: 'from-blue-500/10 via-indigo-500/5 to-cyan-400/10', border: 'border-blue-400/30', orb1: 'bg-blue-400/20', orb2: 'bg-cyan-400/15', btn: 'bg-blue-600 hover:bg-blue-500' },
+                  { bg: 'from-violet-500/10 via-fuchsia-500/5 to-purple-400/10', border: 'border-violet-400/30', orb1: 'bg-violet-400/20', orb2: 'bg-fuchsia-400/15', btn: 'bg-violet-600 hover:bg-violet-500' },
+                  { bg: 'from-emerald-500/10 via-teal-500/5 to-green-400/10', border: 'border-emerald-400/30', orb1: 'bg-emerald-400/20', orb2: 'bg-teal-400/15', btn: 'bg-emerald-600 hover:bg-emerald-500' },
+                  { bg: 'from-amber-500/10 via-orange-500/5 to-yellow-400/10', border: 'border-amber-400/30', orb1: 'bg-amber-400/20', orb2: 'bg-orange-400/15', btn: 'bg-amber-600 hover:bg-amber-500' },
+                  { bg: 'from-rose-500/10 via-pink-500/5 to-red-400/10', border: 'border-rose-400/30', orb1: 'bg-rose-400/20', orb2: 'bg-pink-400/15', btn: 'bg-rose-600 hover:bg-rose-500' },
+                  { bg: 'from-sky-500/10 via-blue-500/5 to-indigo-400/10', border: 'border-sky-400/30', orb1: 'bg-sky-400/20', orb2: 'bg-indigo-400/15', btn: 'bg-sky-600 hover:bg-sky-500' },
+                ];
+                const tint = tints[index % tints.length];
                 return (
                   <motion.div
                     key={ride.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.04 * Math.min(index, 8), ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -2 }}
+                    whileHover={{ y: -3, scale: 1.01 }}
                   >
                     <Link to={`/ride/${ride.id}`} className="block">
-                      <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/50 backdrop-blur-2xl shadow-[0_8px_32px_-12px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_48px_-16px_rgba(0,0,0,0.18)] hover:border-foreground/30 transition-all duration-300 cursor-pointer group dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/25">
-                        {/* Decorative glass orbs */}
-                        <div className="pointer-events-none absolute -top-16 -right-12 w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-3xl opacity-60" />
-                        <div className="pointer-events-none absolute -bottom-20 -left-10 w-44 h-44 rounded-full bg-gradient-to-tr from-accent/15 to-primary/10 blur-3xl opacity-50" />
+                      <div className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br ${tint.bg} ${tint.border} backdrop-blur-2xl shadow-[0_8px_32px_-12px_rgba(0,0,0,0.14)] hover:shadow-[0_24px_56px_-16px_rgba(0,0,0,0.22)] transition-all duration-300 cursor-pointer group dark:from-white/[0.06] dark:via-white/[0.03] dark:to-white/[0.06] dark:border-white/15`}>
+                        {/* Colorful decorative orbs */}
+                        <div className={`pointer-events-none absolute -top-20 -right-14 w-48 h-48 rounded-full ${tint.orb1} blur-3xl opacity-70 group-hover:opacity-100 transition-opacity`} />
+                        <div className={`pointer-events-none absolute -bottom-24 -left-12 w-52 h-52 rounded-full ${tint.orb2} blur-3xl opacity-60 group-hover:opacity-90 transition-opacity`} />
                         {isLive && (
-                          <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-emerald-400/30" />
+                          <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-emerald-400/40" />
                         )}
 
                         <div className="relative p-4 sm:p-5">
                           {/* Top: date + LIVE + price */}
                           <div className="flex items-center justify-between mb-4 gap-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground bg-foreground/[0.04] border border-foreground/10 rounded-full px-2.5 py-1 backdrop-blur-sm">
-                                <span className="tabular-nums">{date}</span>
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] bg-white/70 dark:bg-white/10 border border-white/60 dark:border-white/20 rounded-full px-3 py-1.5 backdrop-blur-sm shadow-sm">
+                                <span className="tabular-nums text-foreground/80">{date}</span>
                               </span>
                               {isLive && (
-                                <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase font-bold bg-emerald-500/90 text-white px-2 py-1 rounded-full backdrop-blur-sm shadow-[0_0_12px_rgba(16,185,129,0.5)]">
-                                  <span className="relative flex w-1.5 h-1.5">
-                                    <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase bg-emerald-500 text-white px-2.5 py-1.5 rounded-full backdrop-blur-sm shadow-[0_0_16px_rgba(16,185,129,0.5)]">
+                                  <span className="relative flex w-2 h-2">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-80 animate-ping" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
                                   </span>
                                   Live
                                 </span>
                               )}
                             </div>
                             <div className="flex items-baseline gap-0.5 shrink-0">
-                              <span className="display-mono text-2xl sm:text-3xl font-bold text-foreground leading-none tracking-tight">
+                              <span className="display-mono text-2xl sm:text-3xl font-extrabold text-foreground leading-none tracking-tight">
                                 {ride.price_per_seat}
                               </span>
-                              <span className="text-sm text-muted-foreground font-medium">€</span>
+                              <span className="text-sm text-muted-foreground font-semibold">€</span>
                             </div>
                           </div>
 
@@ -439,22 +449,22 @@ const PassengerDashboard: React.FC = () => {
                             <div className="flex flex-col items-center pt-1">
                               <span className="text-[11px] font-mono font-bold tabular-nums text-foreground">{time}</span>
                               <div className="flex flex-col items-center flex-1 my-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-foreground ring-4 ring-foreground/10" />
-                                <div className="w-px flex-1 min-h-[22px] bg-gradient-to-b from-foreground/40 via-foreground/20 to-foreground/40 my-1.5" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-background border-2 border-foreground" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-foreground to-foreground/70 ring-4 ring-foreground/10" />
+                                <div className="w-px flex-1 min-h-[22px] bg-gradient-to-b from-foreground/50 via-foreground/20 to-foreground/50 my-1.5" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-background border-[2.5px] border-foreground" />
                               </div>
                             </div>
                             <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
-                              <div className="truncate font-semibold text-[14px] sm:text-[15px] tracking-tight">{ride.origin_address}</div>
+                              <div className="truncate font-bold text-[14px] sm:text-[15px] tracking-tight">{ride.origin_address}</div>
                               <div className="h-3 sm:h-5" />
-                              <div className="truncate font-semibold text-[14px] sm:text-[15px] tracking-tight">{ride.destination_address}</div>
+                              <div className="truncate font-bold text-[14px] sm:text-[15px] tracking-tight">{ride.destination_address}</div>
                             </div>
                           </div>
 
                           {/* Footer */}
                           <div className="flex items-center justify-between mt-4 pt-4 border-t border-foreground/10 gap-2">
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-foreground/10 to-foreground/5 border border-white/60 flex items-center justify-center text-foreground font-bold text-sm shrink-0 overflow-hidden shadow-sm dark:border-white/10">
+                              <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-white to-white/80 border-2 border-white/80 flex items-center justify-center text-foreground font-bold text-sm shrink-0 overflow-hidden shadow-md dark:from-white/10 dark:to-white/5 dark:border-white/20">
                                 {ride.driver?.avatar_url ? (
                                   <img src={ride.driver.avatar_url} alt="" className="w-full h-full object-cover" />
                                 ) : (
@@ -462,10 +472,10 @@ const PassengerDashboard: React.FC = () => {
                                 )}
                               </div>
                               <div className="min-w-0">
-                                <p className="font-semibold text-[13px] truncate tracking-tight leading-tight">{ride.driver?.full_name}</p>
+                                <p className="font-bold text-[13px] truncate tracking-tight leading-tight">{ride.driver?.full_name}</p>
                                 <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                                   <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                                  <span className="tabular-nums font-semibold text-foreground/80">{ride.driver?.rating?.toFixed(1) || '5.0'}</span>
+                                  <span className="tabular-nums font-bold text-foreground/80">{ride.driver?.rating?.toFixed(1) || '5.0'}</span>
                                   {ride.driver?.car_model && (
                                     <span className="truncate ml-1">· {ride.driver.car_model}</span>
                                   )}
@@ -473,12 +483,12 @@ const PassengerDashboard: React.FC = () => {
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-foreground/[0.04] border border-foreground/10 rounded-full px-2 py-1">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-white/10 border border-white/50 dark:border-white/15 rounded-full px-2.5 py-1.5 backdrop-blur-sm">
                                 <Users className="w-3 h-3" />
                                 <span className="tabular-nums">{ride.available_seats}</span>
                               </span>
-                              <div className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              <div className={`w-9 h-9 rounded-full ${tint.btn} text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg`}>
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                               </div>
                             </div>
                           </div>
