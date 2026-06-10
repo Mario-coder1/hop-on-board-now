@@ -376,13 +376,13 @@ const PassengerDashboard: React.FC = () => {
               ))}
             </div>
           ) : filteredRides.length === 0 ? (
-            <div className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-10 sm:p-14 text-center dark:bg-white/[0.03] dark:border-white/10">
-              <div className="w-14 h-14 rounded-2xl bg-foreground/5 border border-foreground/10 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-6 h-6 text-foreground" strokeWidth={1.6} />
+            <div className="rounded-3xl border border-blue-200/50 bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-cyan-50/30 backdrop-blur-xl p-10 sm:p-14 text-center dark:border-white/10 dark:from-white/[0.04] dark:via-white/[0.02] dark:to-white/[0.04]">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-200/50 flex items-center justify-center mx-auto mb-4 shadow-sm dark:from-white/10 dark:to-white/5 dark:border-white/10">
+                <Search className="w-6 h-6 text-blue-600 dark:text-white" strokeWidth={1.6} />
               </div>
-              <h3 className="text-base font-semibold tracking-tight mb-1">Žiadne jazdy</h3>
+              <h3 className="text-base font-bold tracking-tight mb-1">Žiadne jazdy</h3>
               <p className="text-sm text-muted-foreground mb-5">Skús upraviť vyhľadávanie</p>
-              <Button variant="outline" size="sm" className="rounded-full" onClick={() => { setSearchFrom(''); setSearchTo(''); }}>
+              <Button variant="outline" size="sm" className="rounded-full border-blue-200/60 hover:bg-blue-50 dark:border-white/15 dark:hover:bg-white/5" onClick={() => { setSearchFrom(''); setSearchTo(''); }}>
                 Vymazať filtre
               </Button>
             </div>
