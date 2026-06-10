@@ -356,25 +356,28 @@ const PassengerDashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-lg font-bold tracking-tight">Najbližšie jazdy</h2>
+          <div className="flex items-baseline justify-between mb-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1">Live · Aktuálne</p>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-[-0.02em]">Najbližšie jazdy</h2>
+            </div>
             {filteredRides.length > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">{filteredRides.length} výsledkov</span>
+              <span className="text-xs text-muted-foreground tabular-nums shrink-0">{filteredRides.length} výsledkov</span>
             )}
           </div>
 
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="card-mono p-5 animate-pulse">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-3" />
-                  <div className="h-4 bg-muted rounded w-1/2" />
+                <div key={i} className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-5 animate-pulse dark:bg-white/[0.03] dark:border-white/10">
+                  <div className="h-4 bg-foreground/10 rounded w-3/4 mb-3" />
+                  <div className="h-4 bg-foreground/10 rounded w-1/2" />
                 </div>
               ))}
             </div>
           ) : filteredRides.length === 0 ? (
-            <div className="card-mono p-10 sm:p-14 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+            <div className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-10 sm:p-14 text-center dark:bg-white/[0.03] dark:border-white/10">
+              <div className="w-14 h-14 rounded-2xl bg-foreground/5 border border-foreground/10 flex items-center justify-center mx-auto mb-4">
                 <Search className="w-6 h-6 text-foreground" strokeWidth={1.6} />
               </div>
               <h3 className="text-base font-semibold tracking-tight mb-1">Žiadne jazdy</h3>
@@ -384,83 +387,103 @@ const PassengerDashboard: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 sm:space-y-4">
               {filteredRides.map((ride, index) => {
                 const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
                 const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
+                const isLive = ride.status === 'in_progress';
                 return (
                   <motion.div
                     key={ride.id}
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.04 * Math.min(index, 8) }}
+                    transition={{ delay: 0.04 * Math.min(index, 8), ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -2 }}
                   >
-                    <Link to={`/ride/${ride.id}`}>
-                      <div className="card-mono hover:border-foreground/40 transition-all p-3.5 sm:p-5 cursor-pointer group">
-                        {/* Top: date + LIVE + price */}
-                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
-                          <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
-                            <span className="tabular-nums uppercase tracking-wider font-medium shrink-0">{date}</span>
-                            {ride.status === 'in_progress' && (
-                              <Badge className="bg-foreground text-background h-4 px-1.5 text-[9px] rounded-sm font-mono uppercase gap-1">
-                                <Radio className="w-2 h-2" />
-                                Live
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="display-mono text-xl sm:text-2xl text-foreground leading-none shrink-0">
-                            {ride.price_per_seat}<span className="text-sm sm:text-base text-muted-foreground">€</span>
-                          </span>
-                        </div>
+                    <Link to={`/ride/${ride.id}`} className="block">
+                      <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/50 backdrop-blur-2xl shadow-[0_8px_32px_-12px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_48px_-16px_rgba(0,0,0,0.18)] hover:border-foreground/30 transition-all duration-300 cursor-pointer group dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/25">
+                        {/* Decorative glass orbs */}
+                        <div className="pointer-events-none absolute -top-16 -right-12 w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-3xl opacity-60" />
+                        <div className="pointer-events-none absolute -bottom-20 -left-10 w-44 h-44 rounded-full bg-gradient-to-tr from-accent/15 to-primary/10 blur-3xl opacity-50" />
+                        {isLive && (
+                          <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-emerald-400/30" />
+                        )}
 
-                        {/* Route */}
-                        <div className="flex gap-3">
-                          <div className="flex flex-col items-center pt-1">
-                            <span className="text-xs font-mono font-semibold tabular-nums">{time}</span>
-                            <div className="flex flex-col items-center flex-1 my-1.5">
-                              <div className="w-2 h-2 rounded-full bg-foreground" />
-                              <div className="w-px flex-1 min-h-[18px] bg-border my-1" />
-                              <div className="w-2 h-2 rounded-full border border-foreground" />
-                            </div>
-                          </div>
-                          <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
-                            <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.origin_address}</div>
-                            <div className="h-2 sm:h-5" />
-                            <div className="truncate font-semibold text-[13px] sm:text-sm tracking-tight">{ride.destination_address}</div>
-                          </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="flex items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center text-foreground font-semibold text-xs shrink-0 overflow-hidden">
-                              {ride.driver?.avatar_url ? (
-                                <img src={ride.driver.avatar_url} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                ride.driver?.full_name?.charAt(0) || '?'
+                        <div className="relative p-4 sm:p-5">
+                          {/* Top: date + LIVE + price */}
+                          <div className="flex items-center justify-between mb-4 gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground bg-foreground/[0.04] border border-foreground/10 rounded-full px-2.5 py-1 backdrop-blur-sm">
+                                <span className="tabular-nums">{date}</span>
+                              </span>
+                              {isLive && (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase font-bold bg-emerald-500/90 text-white px-2 py-1 rounded-full backdrop-blur-sm shadow-[0_0_12px_rgba(16,185,129,0.5)]">
+                                  <span className="relative flex w-1.5 h-1.5">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                                  </span>
+                                  Live
+                                </span>
                               )}
                             </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-xs truncate tracking-tight">{ride.driver?.full_name}</p>
-                              <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                <Star className="w-2.5 h-2.5 fill-foreground text-foreground" />
-                                <span className="tabular-nums">{ride.driver?.rating?.toFixed(1) || '5.0'}</span>
-                                {ride.driver?.car_model && (
-                                  <span className="truncate ml-1">· {ride.driver.car_model}</span>
-                                )}
-                              </p>
+                            <div className="flex items-baseline gap-0.5 shrink-0">
+                              <span className="display-mono text-2xl sm:text-3xl font-bold text-foreground leading-none tracking-tight">
+                                {ride.price_per_seat}
+                              </span>
+                              <span className="text-sm text-muted-foreground font-medium">€</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                              <Users className="w-3 h-3" />
-                              <span className="tabular-nums">{ride.available_seats}</span>
-                            </span>
-                            <ArrowRight className="w-4 h-4 text-foreground group-hover:translate-x-0.5 transition-transform" />
+
+                          {/* Route */}
+                          <div className="flex gap-3.5">
+                            <div className="flex flex-col items-center pt-1">
+                              <span className="text-[11px] font-mono font-bold tabular-nums text-foreground">{time}</span>
+                              <div className="flex flex-col items-center flex-1 my-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-foreground ring-4 ring-foreground/10" />
+                                <div className="w-px flex-1 min-h-[22px] bg-gradient-to-b from-foreground/40 via-foreground/20 to-foreground/40 my-1.5" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-background border-2 border-foreground" />
+                              </div>
+                            </div>
+                            <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+                              <div className="truncate font-semibold text-[14px] sm:text-[15px] tracking-tight">{ride.origin_address}</div>
+                              <div className="h-3 sm:h-5" />
+                              <div className="truncate font-semibold text-[14px] sm:text-[15px] tracking-tight">{ride.destination_address}</div>
+                            </div>
+                          </div>
+
+                          {/* Footer */}
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-foreground/10 gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-foreground/10 to-foreground/5 border border-white/60 flex items-center justify-center text-foreground font-bold text-sm shrink-0 overflow-hidden shadow-sm dark:border-white/10">
+                                {ride.driver?.avatar_url ? (
+                                  <img src={ride.driver.avatar_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  ride.driver?.full_name?.charAt(0) || '?'
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-semibold text-[13px] truncate tracking-tight leading-tight">{ride.driver?.full_name}</p>
+                                <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                  <span className="tabular-nums font-semibold text-foreground/80">{ride.driver?.rating?.toFixed(1) || '5.0'}</span>
+                                  {ride.driver?.car_model && (
+                                    <span className="truncate ml-1">· {ride.driver.car_model}</span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-foreground/[0.04] border border-foreground/10 rounded-full px-2 py-1">
+                                <Users className="w-3 h-3" />
+                                <span className="tabular-nums">{ride.available_seats}</span>
+                              </span>
+                              <div className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-
                     </Link>
                   </motion.div>
                 );
