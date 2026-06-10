@@ -452,7 +452,7 @@ export type Database = {
           rated_user_id: string
           rater_id: string
           rating: number
-          ride_request_id: string
+          ride_request_id: string | null
         }
         Insert: {
           comment?: string | null
@@ -461,7 +461,7 @@ export type Database = {
           rated_user_id: string
           rater_id: string
           rating: number
-          ride_request_id: string
+          ride_request_id?: string | null
         }
         Update: {
           comment?: string | null
@@ -470,7 +470,7 @@ export type Database = {
           rated_user_id?: string
           rater_id?: string
           rating?: number
-          ride_request_id?: string
+          ride_request_id?: string | null
         }
         Relationships: [
           {

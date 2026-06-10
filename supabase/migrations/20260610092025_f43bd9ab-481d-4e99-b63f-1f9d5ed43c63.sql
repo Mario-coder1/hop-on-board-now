@@ -1,0 +1,2 @@
+ALTER TABLE public.ratings DROP CONSTRAINT ratings_ride_request_id_fkey;
+ALTER TABLE public.ratings ADD CONSTRAINT ratings_ride_request_id_fkey FOREIGN KEY (ride_request_id) REFERENCES public.ride_requests(id) ON DELETE SET NULL;

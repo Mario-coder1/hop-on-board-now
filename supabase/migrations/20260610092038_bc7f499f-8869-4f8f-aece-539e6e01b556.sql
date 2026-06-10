@@ -1,0 +1,1 @@
+ALTER TABLE public.ratings ALTER COLUMN ride_request_id DROP NOT NULL;
