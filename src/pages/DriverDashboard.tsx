@@ -294,7 +294,16 @@ const DriverDashboard: React.FC = () => {
             <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Live</span>
           </div>
           <div className="card-mono overflow-hidden">
-            <Map className="h-[280px] sm:h-[360px]" markers={mapMarkers} zoom={8} />
+            <Map
+              className="h-[280px] sm:h-[360px]"
+              markers={mapMarkers}
+              zoom={8}
+              showRoute={activeRides.length > 0}
+              waypoints={activeRides[0] ? [
+                { lat: Number(activeRides[0].origin_lat), lng: Number(activeRides[0].origin_lng) },
+                { lat: Number(activeRides[0].destination_lat), lng: Number(activeRides[0].destination_lng) },
+              ] : undefined}
+            />
           </div>
         </motion.div>
 
