@@ -370,12 +370,12 @@ const DriverDashboard: React.FC = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="grid grid-cols-1 min-[390px]:grid-cols-[auto,minmax(0,1fr)] items-center gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
+                    <div className="grid grid-cols-1 sm:grid-cols-[auto,minmax(0,1fr)] items-center gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
                       <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground min-w-0">
                         <Users className="w-3 h-3" />
                         <span className="tabular-nums">{ride.available_seats}</span> miest
                       </span>
-                      <div className="grid grid-cols-2 gap-1.5 min-w-0 min-[390px]:justify-self-end min-[390px]:w-auto w-full">
+                      <div className="grid grid-cols-2 gap-1.5 min-w-0 w-full sm:justify-self-end sm:w-auto">
                         <Link to={`/ride/${ride.id}`} className="min-w-0">
                           <Button variant="outline" size="sm" className="h-8 w-full min-w-0 px-2.5 text-[11px] rounded-full">
                             Detail
