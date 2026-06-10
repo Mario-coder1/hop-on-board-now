@@ -246,7 +246,10 @@ const TrackRide: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 md:pb-8">
+    <div
+      className="min-h-screen bg-background md:pb-8"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 7rem)' }}
+    >
       <Navigation />
       
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
