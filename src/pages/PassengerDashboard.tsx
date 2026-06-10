@@ -369,7 +369,7 @@ const PassengerDashboard: React.FC = () => {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-3xl border border-white/40 bg-white/40 backdrop-blur-xl p-5 animate-pulse dark:bg-white/[0.03] dark:border-white/10">
+                <div key={i} className="rounded-3xl border border-blue-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/50 to-cyan-50/30 backdrop-blur-xl p-5 animate-pulse dark:border-white/10 dark:from-white/[0.04] dark:via-white/[0.02] dark:to-white/[0.04]">
                   <div className="h-4 bg-foreground/10 rounded w-3/4 mb-3" />
                   <div className="h-4 bg-foreground/10 rounded w-1/2" />
                 </div>
