@@ -358,15 +358,19 @@ const TrackRide: React.FC = () => {
 
               <div className="flex gap-2">
                 {displayDriver.phone && (
-                  <a href={`tel:${displayDriver.phone}`}>
+                  <a href={`tel:${displayDriver.phone}`} aria-label="Zavolať vodičovi">
                     <Button variant="outline" size="icon">
                       <Phone className="w-4 h-4" />
                     </Button>
                   </a>
                 )}
-                <Button variant="outline" size="icon">
-                  <MessageCircle className="w-4 h-4" />
-                </Button>
+                {displayDriver.phone && (
+                  <a href={`sms:${displayDriver.phone}`} aria-label="Poslať SMS vodičovi">
+                    <Button variant="outline" size="icon">
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
+                  </a>
+                )}
                 <ReportDialog
                   reportedUserId={displayDriver.id}
                   reportedUserName={displayDriver.full_name}
