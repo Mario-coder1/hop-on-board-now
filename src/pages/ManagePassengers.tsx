@@ -332,6 +332,10 @@ const ManagePassengers = () => {
           <Map
             markers={[...markers, ...gasStations]}
             plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
+            waypoints={ride ? [
+              { lat: Number(ride.origin_lat), lng: Number(ride.origin_lng) },
+              { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) },
+            ] : undefined}
             showRoute
             className="h-full w-full"
           />
