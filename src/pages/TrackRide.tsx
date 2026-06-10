@@ -462,7 +462,25 @@ const TrackRide: React.FC = () => {
               </div>
             )}
 
-            {/* Completed Status */}
+            {/* Cancelled / Rejected */}
+            {(rideRequest.status === 'cancelled' || rideRequest.status === 'rejected') && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-center">
+                  <XCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                  <p className="font-semibold text-destructive">
+                    {rideRequest.status === 'cancelled' ? 'Jazda bola zrušená' : 'Žiadosť bola odmietnutá'}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {rideRequest.status === 'cancelled'
+                      ? 'Táto rezervácia už nie je aktívna. Ak bola platba uhradená, peniaze ti budú vrátené.'
+                      : 'Vodič odmietol tvoju žiadosť. Skús inú jazdu.'}
+                  </p>
+                  <Link to="/passenger">
+                    <Button variant="outline" className="mt-4 rounded-full">Späť na vyhľadávanie jázd</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
             {rideRequest.status === 'completed' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
