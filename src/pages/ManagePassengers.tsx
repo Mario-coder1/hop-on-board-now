@@ -16,6 +16,7 @@ import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
+import { parseRoutePolyline } from '@/lib/routeProximity';
 
 import { useGasStations } from '@/hooks/useGasStations';
 import {
@@ -62,6 +63,7 @@ interface RideInfo {
   destination_lat: number;
   destination_lng: number;
   available_seats?: number;
+  route_polyline?: string | null;
 }
 
 const statusLabel = (s: string) =>
@@ -329,6 +331,7 @@ const ManagePassengers = () => {
         <div className="h-[28vh] min-h-[180px] max-h-[260px] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
+            plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
             showRoute
             className="h-full w-full"
           />
