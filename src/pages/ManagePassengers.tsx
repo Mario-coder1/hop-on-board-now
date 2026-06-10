@@ -296,7 +296,7 @@ const ManagePassengers = () => {
   }
 
   return (
-    <div className="h-[100dvh] min-h-[100dvh] bg-background flex flex-col overflow-hidden">
+    <div className="h-[100svh] min-h-[100svh] bg-background flex flex-col overflow-hidden">
       <SEO title="Drive Mode" description="Riadiaci panel vodiča" path="/manage-passengers" noindex />
       <NavigationBar />
 
@@ -328,7 +328,7 @@ const ManagePassengers = () => {
 
       {/* Compact map */}
       <div className="px-3 pb-2 shrink-0">
-        <div className="h-[clamp(150px,24dvh,250px)] rounded-2xl overflow-hidden border border-border shadow-card">
+        <div className="h-[clamp(150px,24svh,250px)] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
             plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
