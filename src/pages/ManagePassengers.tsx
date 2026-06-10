@@ -62,6 +62,7 @@ interface RideInfo {
   destination_lat: number;
   destination_lng: number;
   available_seats?: number;
+  route_polyline?: string | null;
 }
 
 const statusLabel = (s: string) =>
