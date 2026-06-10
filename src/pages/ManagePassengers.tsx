@@ -296,12 +296,12 @@ const ManagePassengers = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-[100dvh] min-h-[100dvh] bg-background flex flex-col overflow-hidden">
       <SEO title="Drive Mode" description="Riadiaci panel vodiča" path="/manage-passengers" noindex />
       <NavigationBar />
 
       {/* Compact top bar with inline location toggle */}
-      <div className="px-3 pt-2 pb-2 flex items-center gap-2">
+      <div className="px-3 pt-2 pb-1.5 flex items-center gap-2 shrink-0">
         <Button variant="ghost" size="sm" onClick={() => navigate('/driver')} className="h-9 px-2 shrink-0">
           <ArrowLeft className="w-4 h-4" />
         </Button>
@@ -327,8 +327,8 @@ const ManagePassengers = () => {
       </div>
 
       {/* Compact map */}
-      <div className="px-3 pb-2">
-        <div className="h-[28vh] min-h-[180px] max-h-[260px] rounded-2xl overflow-hidden border border-border shadow-card">
+      <div className="px-3 pb-2 shrink-0">
+        <div className="h-[clamp(150px,24dvh,250px)] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
             plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
@@ -339,7 +339,7 @@ const ManagePassengers = () => {
       </div>
 
       {/* Passenger list header — always visible */}
-      <div className="px-3 pb-2 flex items-center justify-between">
+      <div className="px-3 pb-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4 text-primary" />
           <h2 className="font-bold text-sm">Pasažieri ({totalCount})</h2>
@@ -353,8 +353,7 @@ const ManagePassengers = () => {
 
       {/* Passenger list — ALWAYS visible, no sheet. Bottom padding leaves room for fixed action bar + mobile nav */}
       <div
-        className="flex-1 overflow-y-auto px-3 md:pb-28 space-y-2.5 min-h-0"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 11rem)' }}
+        className="flex-1 overflow-y-auto px-3 space-y-2.5 min-h-0 overscroll-contain"
       >
         {passengers.length === 0 ? (
           <div className="text-center py-10">
@@ -384,10 +383,10 @@ const ManagePassengers = () => {
         )}
       </div>
 
-      {/* Fixed bottom action bar — sits above the floating mobile bottom navigation. Inline style ensures iOS/Android safe-area is respected on every device. */}
+      {/* Bottom action bar is in normal layout flow, so it does not jump when mobile browser chrome changes height. */}
       <div
-        className="fixed left-0 right-0 z-[55] border-t bg-card/95 backdrop-blur px-3 pt-2 pb-2 md:bottom-0 md:pt-3 md:pb-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}
+        className="shrink-0 border-t bg-background/95 backdrop-blur px-3 pt-2 md:pt-3 md:pb-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.08)]"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.75rem)' }}
       >
         <Button
           onClick={() => setEndConfirmOpen(true)}
