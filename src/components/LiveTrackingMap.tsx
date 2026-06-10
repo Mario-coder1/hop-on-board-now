@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation, MapPin, Clock, Wifi, WifiOff, Gauge, Phone, Share2, MoreVertical, X } from 'lucide-react';
+import { Navigation, MapPin, Clock, Wifi, WifiOff, Gauge, Phone, Share2, MoreVertical, X, Maximize2, Minimize2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Map from './Map';
 import { useDriverTracking } from '@/hooks/useDriverTracking';
@@ -265,9 +265,10 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   };
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${fullscreen ? 'fixed inset-0 z-[100] bg-background' : ''} ${className}`}>
       <Map
         center={mapCenter}
         zoom={14}
@@ -278,45 +279,15 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         interactive={true}
       />
       
-      {/* Floating action menu — compact, bottom-right above info bar */}
-      <div className="absolute bottom-[88px] right-3 z-10 flex flex-col items-end gap-2">
-        <AnimatePresence>
-          {menuOpen && (
-            <>
-              <motion.button
-                initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.8 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => { setMenuOpen(false); handleCall(); }}
-                aria-label="Zavolať vodičovi"
-                className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-md shadow-lg border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
-              >
-                <Phone className="w-4 h-4" />
-              </motion.button>
-              <motion.button
-                initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.8 }}
-                transition={{ duration: 0.15, delay: 0.05 }}
-                onClick={() => { setMenuOpen(false); handleShare(); }}
-                aria-label="Zdieľať jazdu"
-                className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-md shadow-lg border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
-              >
-                <Share2 className="w-4 h-4" />
-              </motion.button>
-            </>
-          )}
-        </AnimatePresence>
-        <motion.button
-          onClick={() => setMenuOpen((o) => !o)}
-          aria-label={menuOpen ? 'Zavrieť menu' : 'Otvoriť menu'}
-          className="w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95"
-          whileTap={{ scale: 0.9 }}
-        >
-          {menuOpen ? <X className="w-4 h-4" /> : <MoreVertical className="w-4 h-4" />}
-        </motion.button>
-      </div>
+      {/* Fullscreen toggle — top-right */}
+      <button
+        onClick={() => setFullscreen((f) => !f)}
+        aria-label={fullscreen ? 'Zavrieť celú obrazovku' : 'Zobraziť na celú obrazovku'}
+        className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-background/95 backdrop-blur-md shadow-lg border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors active:scale-95"
+      >
+        {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+      </button>
+      
       
       
       {/* Top-left status pill */}
