@@ -268,7 +268,15 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   const [fullscreen, setFullscreen] = useState(false);
 
   return (
-    <div className={`relative ${fullscreen ? 'fixed inset-0 z-[100] bg-background' : ''} ${className}`}>
+    <div
+      className={
+        fullscreen
+          ? 'fixed inset-0 z-[100] bg-background'
+          : `relative ${className}`
+      }
+      style={fullscreen ? { width: '100vw', height: '100svh' } : undefined}
+    >
+
       <Map
         center={mapCenter}
         zoom={14}
