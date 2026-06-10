@@ -337,7 +337,7 @@ const DriverDashboard: React.FC = () => {
                 const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
                 const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
                 return (
-                  <div key={ride.id} className="card-mono p-3.5 sm:p-5 hover:border-foreground/40 transition-colors">
+                    <div key={ride.id} className="card-mono max-w-full overflow-hidden p-3 sm:p-5 hover:border-foreground/40 transition-colors">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
                       <div className="flex items-center gap-2 text-[11px] text-muted-foreground min-w-0">
@@ -370,19 +370,19 @@ const DriverDashboard: React.FC = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
-                      <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground shrink-0">
+                    <div className="grid grid-cols-1 min-[390px]:grid-cols-[auto,minmax(0,1fr)] items-center gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
+                      <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground min-w-0">
                         <Users className="w-3 h-3" />
                         <span className="tabular-nums">{ride.available_seats}</span> miest
                       </span>
-                      <div className="flex gap-1.5 shrink-0">
-                        <Link to={`/ride/${ride.id}`}>
-                          <Button variant="outline" size="sm" className="h-8 px-3 text-[11px] rounded-full">
+                      <div className="grid grid-cols-2 gap-1.5 min-w-0 min-[390px]:justify-self-end min-[390px]:w-auto w-full">
+                        <Link to={`/ride/${ride.id}`} className="min-w-0">
+                          <Button variant="outline" size="sm" className="h-8 w-full min-w-0 px-2.5 text-[11px] rounded-full">
                             Detail
                           </Button>
                         </Link>
-                        <Link to={`/manage-passengers/${ride.id}`}>
-                          <Button size="sm" className="h-8 px-3 text-[11px] rounded-full">
+                        <Link to={`/manage-passengers/${ride.id}`} className="min-w-0">
+                          <Button size="sm" className="h-8 w-full min-w-0 px-2.5 text-[11px] rounded-full">
                             Pasažieri
                           </Button>
                         </Link>
