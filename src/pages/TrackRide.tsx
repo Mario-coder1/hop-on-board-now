@@ -269,6 +269,9 @@ const TrackRide: React.FC = () => {
                 {rideRequest.status === 'driver_arrived' && 'Vodič vás čaká na mieste'}
                 {rideRequest.status === 'picked_up' && 'Ste na ceste k cieľu'}
                 {rideRequest.status === 'completed' && 'Jazda dokončená'}
+                {rideRequest.status === 'cancelled' && 'Jazda bola zrušená'}
+                {rideRequest.status === 'rejected' && 'Žiadosť bola odmietnutá'}
+                {rideRequest.status === 'pending' && 'Čaká sa na schválenie vodičom'}
               </p>
             </div>
           </div>
