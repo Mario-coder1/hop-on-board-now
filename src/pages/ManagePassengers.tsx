@@ -16,6 +16,7 @@ import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
+import { parseRoutePolyline } from '@/lib/routeProximity';
 
 import { useGasStations } from '@/hooks/useGasStations';
 import {
