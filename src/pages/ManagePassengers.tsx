@@ -352,7 +352,10 @@ const ManagePassengers = () => {
       </div>
 
       {/* Passenger list — ALWAYS visible, no sheet. Bottom padding leaves room for fixed action bar + mobile nav */}
-      <div className="flex-1 overflow-y-auto px-3 pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-28 space-y-2.5 min-h-0">
+      <div
+        className="flex-1 overflow-y-auto px-3 md:pb-28 space-y-2.5 min-h-0"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 11rem)' }}
+      >
         {passengers.length === 0 ? (
           <div className="text-center py-10">
             <User className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
@@ -381,11 +384,14 @@ const ManagePassengers = () => {
         )}
       </div>
 
-      {/* Fixed bottom action bar — sits above the mobile bottom navigation */}
-      <div className="fixed left-0 right-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-0 border-t bg-card/95 backdrop-blur p-3 grid grid-cols-1 gap-2 z-40 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]">
+      {/* Fixed bottom action bar — sits above the floating mobile bottom navigation. Inline style ensures iOS/Android safe-area is respected on every device. */}
+      <div
+        className="fixed left-0 right-0 z-[55] border-t bg-card/95 backdrop-blur px-3 pt-2 pb-2 md:bottom-0 md:pt-3 md:pb-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.1)]"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}
+      >
         <Button
           onClick={() => setEndConfirmOpen(true)}
-          className="gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm"
+          className="w-full gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-sm"
         >
           <Flag className="w-4 h-4" /> Ukončiť jazdu
         </Button>
