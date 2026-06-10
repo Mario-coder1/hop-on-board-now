@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, QrCode } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, User, Car, MapPin, CheckCircle, KeyRound, QrCode, XCircle } from 'lucide-react';
 import PinQrDialog from '@/components/PinQrDialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -269,6 +269,9 @@ const TrackRide: React.FC = () => {
                 {rideRequest.status === 'driver_arrived' && 'Vodič vás čaká na mieste'}
                 {rideRequest.status === 'picked_up' && 'Ste na ceste k cieľu'}
                 {rideRequest.status === 'completed' && 'Jazda dokončená'}
+                {rideRequest.status === 'cancelled' && 'Jazda bola zrušená'}
+                {rideRequest.status === 'rejected' && 'Žiadosť bola odmietnutá'}
+                {rideRequest.status === 'pending' && 'Čaká sa na schválenie vodičom'}
               </p>
             </div>
           </div>
@@ -355,15 +358,19 @@ const TrackRide: React.FC = () => {
 
               <div className="flex gap-2">
                 {displayDriver.phone && (
-                  <a href={`tel:${displayDriver.phone}`}>
+                  <a href={`tel:${displayDriver.phone}`} aria-label="Zavolať vodičovi">
                     <Button variant="outline" size="icon">
                       <Phone className="w-4 h-4" />
                     </Button>
                   </a>
                 )}
-                <Button variant="outline" size="icon">
-                  <MessageCircle className="w-4 h-4" />
-                </Button>
+                {displayDriver.phone && (
+                  <a href={`sms:${displayDriver.phone}`} aria-label="Poslať SMS vodičovi">
+                    <Button variant="outline" size="icon">
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
+                  </a>
+                )}
                 <ReportDialog
                   reportedUserId={displayDriver.id}
                   reportedUserName={displayDriver.full_name}
@@ -455,7 +462,25 @@ const TrackRide: React.FC = () => {
               </div>
             )}
 
-            {/* Completed Status */}
+            {/* Cancelled / Rejected */}
+            {(rideRequest.status === 'cancelled' || rideRequest.status === 'rejected') && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-center">
+                  <XCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                  <p className="font-semibold text-destructive">
+                    {rideRequest.status === 'cancelled' ? 'Jazda bola zrušená' : 'Žiadosť bola odmietnutá'}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {rideRequest.status === 'cancelled'
+                      ? 'Táto rezervácia už nie je aktívna. Ak bola platba uhradená, peniaze ti budú vrátené.'
+                      : 'Vodič odmietol tvoju žiadosť. Skús inú jazdu.'}
+                  </p>
+                  <Link to="/passenger">
+                    <Button variant="outline" className="mt-4 rounded-full">Späť na vyhľadávanie jázd</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
             {rideRequest.status === 'completed' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
