@@ -331,6 +331,7 @@ const ManagePassengers = () => {
         <div className="h-[28vh] min-h-[180px] max-h-[260px] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
+            plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
             showRoute
             className="h-full w-full"
           />
