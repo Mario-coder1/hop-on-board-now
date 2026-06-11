@@ -295,6 +295,7 @@ export type Database = {
           bio: string | null
           car_color: string | null
           car_model: string | null
+          cold_start_activated_at: string | null
           cold_start_bonus_paid_at: string | null
           cold_start_eligible: boolean
           cold_start_qualified_at: string | null
@@ -323,6 +324,7 @@ export type Database = {
           bio?: string | null
           car_color?: string | null
           car_model?: string | null
+          cold_start_activated_at?: string | null
           cold_start_bonus_paid_at?: string | null
           cold_start_eligible?: boolean
           cold_start_qualified_at?: string | null
@@ -351,6 +353,7 @@ export type Database = {
           bio?: string | null
           car_color?: string | null
           car_model?: string | null
+          cold_start_activated_at?: string | null
           cold_start_bonus_paid_at?: string | null
           cold_start_eligible?: boolean
           cold_start_qualified_at?: string | null
@@ -1404,6 +1407,7 @@ export type Database = {
       }
     }
     Functions: {
+      activate_cold_start: { Args: never; Returns: Json }
       admin_get_user_activity: {
         Args: never
         Returns: {
@@ -1413,6 +1417,7 @@ export type Database = {
         }[]
       }
       cleanup_old_location_history: { Args: never; Returns: undefined }
+      cold_start_status: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
       get_internal_push_secret: { Args: never; Returns: string }
       get_public_stats: {

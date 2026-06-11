@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { BADGE_TIERS, getEarnedBadges } from '@/lib/badges';
+import { ColdStartCard } from '@/components/ColdStartCard';
 
 interface Notification {
   id: string;
@@ -703,6 +704,8 @@ const Profile = () => {
             </div>
             <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
           </Link>
+
+          {profile.selected_role === 'driver' && <ColdStartCard />}
 
           {/* Tutorial Link */}
           <Link
