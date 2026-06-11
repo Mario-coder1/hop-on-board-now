@@ -652,6 +652,17 @@ const SearchRides = () => {
                   const time = formatDbDate(ride.departure_time, 'HH:mm', { locale: sk });
                   const date = formatDbDate(ride.departure_time, 'd. MMM', { locale: sk });
                   const stops = (ride.ride_stops ?? []).slice().sort((a, b) => a.stop_order - b.stop_order).slice(0, 3);
+                  const isLive = ride.status === 'in_progress';
+                  // Rotating soft color tints for visual variety
+                  const tints = [
+                    { bg: 'from-blue-500/10 via-indigo-500/5 to-cyan-400/10', border: 'border-blue-400/30', orb1: 'bg-blue-400/20', orb2: 'bg-cyan-400/15' },
+                    { bg: 'from-violet-500/10 via-fuchsia-500/5 to-purple-400/10', border: 'border-violet-400/30', orb1: 'bg-violet-400/20', orb2: 'bg-fuchsia-400/15' },
+                    { bg: 'from-emerald-500/10 via-teal-500/5 to-green-400/10', border: 'border-emerald-400/30', orb1: 'bg-emerald-400/20', orb2: 'bg-teal-400/15' },
+                    { bg: 'from-amber-500/10 via-orange-500/5 to-yellow-400/10', border: 'border-amber-400/30', orb1: 'bg-amber-400/20', orb2: 'bg-orange-400/15' },
+                    { bg: 'from-rose-500/10 via-pink-500/5 to-red-400/10', border: 'border-rose-400/30', orb1: 'bg-rose-400/20', orb2: 'bg-pink-400/15' },
+                    { bg: 'from-sky-500/10 via-blue-500/5 to-indigo-400/10', border: 'border-sky-400/30', orb1: 'bg-sky-400/20', orb2: 'bg-indigo-400/15' },
+                  ];
+                  const tint = tints[index % tints.length];
                   return (
                     <motion.div
                       key={ride.id}
@@ -659,119 +670,149 @@ const SearchRides = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.04 }}
                       onClick={() => setSelectedRide(ride)}
-                      className={`p-4 sm:p-5 rounded-2xl bg-card border cursor-pointer transition-all hover:shadow-md ${
-                        selectedRide?.id === ride.id ? 'border-primary shadow-md' : 'border-border'
-                      }`}
+                      whileHover={{ y: -3, scale: 1.01 }}
+                      className="cursor-pointer group"
                     >
-                      {/* Header: date + LIVE badge + price */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span className="font-medium">{date}</span>
-                          {ride.status === 'in_progress' && (
-                            <Badge className="bg-green-500 hover:bg-green-600 text-white gap-1 animate-pulse h-5 px-1.5 text-[10px]">
-                              <Radio className="w-2.5 h-2.5" />
-                              LIVE
-                            </Badge>
-                          )}
-                        </div>
-                        <span className="text-xl sm:text-2xl font-bold text-primary leading-none">{ride.price_per_seat}€</span>
-                      </div>
-
-                      {/* Proximity warnings — shown only when "near me" annotator is enabled */}
-                      {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
-                        <div className="mb-3 space-y-1.5">
-                          {ride._nearMe === false && (
-                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px]">
-                              <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                              <span>Táto jazda nevedie cez tvoju polohu (mimo zvoleného okruhu).</span>
-                            </div>
-                          )}
-                          {ride._driverPassed && (
-                            <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-[11px]">
-                              <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                              <span>Vodič ťa už pravdepodobne prešiel — vracať sa nebude.</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Driver detour willingness badge */}
-                      {Number(ride.max_detour_km) > 0 && (
-                        <div className="mb-3">
-                          <Badge variant="secondary" className="h-5 px-2 text-[10px] gap-1">
-                            <Locate className="w-2.5 h-2.5" />
-                            Vodič zájde až {ride.max_detour_km} km mimo trasu
-                          </Badge>
-                        </div>
-                      )}
-
-
-                      {/* Route text only — no map-like points in the card */}
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-3 min-w-0">
-                          <span className="w-12 shrink-0 text-sm font-semibold tabular-nums">{time}</span>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Odkiaľ</p>
-                            <p className="truncate font-medium text-sm">{ride.origin_address}</p>
-                          </div>
-                        </div>
-                        {stops.length > 0 && (
-                          <div className="pl-[60px] space-y-1">
-                            {stops.map((stop) => (
-                              <p key={stop.id} className="truncate text-xs text-muted-foreground">
-                                Zastávka · {stop.address}
-                              </p>
-                            ))}
-                          </div>
+                      <div className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br ${tint.bg} ${tint.border} backdrop-blur-2xl shadow-[0_8px_32px_-12px_rgba(0,0,0,0.14)] hover:shadow-[0_24px_56px_-16px_rgba(0,0,0,0.22)] transition-all duration-300 dark:from-white/[0.06] dark:via-white/[0.03] dark:to-white/[0.06] dark:border-white/15 ${selectedRide?.id === ride.id ? 'ring-1 ring-primary shadow-[0_24px_56px_-16px_rgba(0,0,0,0.22)]' : ''}`}>
+                        {/* Colorful decorative orbs */}
+                        <div className={`pointer-events-none absolute -top-20 -right-14 w-48 h-48 rounded-full ${tint.orb1} blur-3xl opacity-70 group-hover:opacity-100 transition-opacity`} />
+                        <div className={`pointer-events-none absolute -bottom-24 -left-12 w-52 h-52 rounded-full ${tint.orb2} blur-3xl opacity-60 group-hover:opacity-90 transition-opacity`} />
+                        {isLive && (
+                          <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-emerald-400/40" />
                         )}
-                        <div className="flex items-start gap-3 min-w-0">
-                          <span className="w-12 shrink-0 text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Kam</span>
-                          <p className="truncate font-medium text-sm min-w-0 flex-1">{ride.destination_address}</p>
-                        </div>
-                      </div>
 
-                      {/* Footer: driver + seats + detail */}
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/60 gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                            {ride.driver?.avatar_url ? (
-                              <img
-                                src={ride.driver.avatar_url}
-                                alt={`${ride.driver?.full_name ?? 'Vodič'} profilová fotka vodiča`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-sm font-medium">{(ride.driver?.full_name?.[0] ?? '?').toUpperCase()}</span>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <p className="font-medium text-xs truncate">{ride.driver?.full_name ?? 'Vodič'}</p>
-                              {ride.driver?.total_rides ? (
-                                <span className="text-[10px] text-muted-foreground">{ride.driver.total_rides} jázd</span>
-                              ) : null}
+                        <div className="relative p-4 sm:p-5">
+                          {/* Header: date + LIVE badge + price */}
+                          <div className="flex items-center justify-between mb-3 gap-2">
+                            <div className="flex items-center gap-2 text-xs min-w-0">
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] bg-white/70 dark:bg-white/10 border border-white/60 dark:border-white/20 rounded-full px-3 py-1.5 backdrop-blur-sm shadow-sm">
+                                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="tabular-nums text-foreground/80">{date}</span>
+                              </span>
+                              {isLive && (
+                                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase bg-emerald-500 text-white px-2.5 py-1.5 rounded-full backdrop-blur-sm shadow-[0_0_16px_rgba(16,185,129,0.5)]">
+                                  <span className="relative flex w-2 h-2">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-80 animate-ping" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                                  </span>
+                                  Live
+                                </span>
+                              )}
                             </div>
-                            <p className="text-[11px] text-muted-foreground">⭐ {ride.driver?.rating?.toFixed(1) ?? '5.0'}</p>
+                            <div className="flex items-baseline gap-0.5 shrink-0">
+                              <span className="display-mono text-2xl sm:text-3xl font-extrabold text-foreground leading-none tracking-tight">
+                                {ride.price_per_seat}
+                              </span>
+                              <span className="text-sm text-muted-foreground font-semibold">€</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Users className="w-3.5 h-3.5" />
-                            {ride.available_seats}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/ride/${ride.id}`);
-                            }}
-                          >
-                            Detail
-                            <ArrowRight className="w-4 h-4 ml-1" />
-                          </Button>
+
+                          {/* Proximity warnings — shown only when "near me" annotator is enabled */}
+                          {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
+                            <div className="mb-3 space-y-1.5">
+                              {ride._nearMe === false && (
+                                <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px]">
+                                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                  <span>Táto jazda nevedie cez tvoju polohu (mimo zvoleného okruhu).</span>
+                                </div>
+                              )}
+                              {ride._driverPassed && (
+                                <div className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-[11px]">
+                                  <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                  <span>Vodič ťa už pravdepodobne prešiel — vracať sa nebude.</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Driver detour willingness badge */}
+                          {Number(ride.max_detour_km) > 0 && (
+                            <div className="mb-3">
+                              <Badge variant="secondary" className="h-5 px-2 text-[10px] gap-1 bg-white/60 dark:bg-white/10 border-white/50 dark:border-white/15 backdrop-blur-sm">
+                                <Locate className="w-2.5 h-2.5" />
+                                Vodič zájde až {ride.max_detour_km} km mimo trasu
+                              </Badge>
+                            </div>
+                          )}
+
+                          {/* Route text only — no map-like points in the card */}
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className="flex flex-col items-center pt-0.5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-foreground to-foreground/70 ring-4 ring-foreground/10" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Odkiaľ</p>
+                                <p className="truncate font-bold text-sm">{ride.origin_address}</p>
+                              </div>
+                            </div>
+                            {stops.length > 0 && (
+                              <div className="pl-5 space-y-1">
+                                {stops.map((stop) => (
+                                  <p key={stop.id} className="truncate text-xs text-muted-foreground flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+                                    Zastávka · {stop.address}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className="flex flex-col items-center pt-0.5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-background border-[2.5px] border-foreground" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">Kam</p>
+                                <p className="truncate font-bold text-sm">{ride.destination_address}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Footer: driver + seats + detail */}
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-foreground/10 gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-white to-white/80 border-2 border-white/80 flex items-center justify-center text-foreground font-bold text-sm shrink-0 overflow-hidden shadow-md dark:from-white/10 dark:to-white/5 dark:border-white/20">
+                                {ride.driver?.avatar_url ? (
+                                  <img
+                                    src={ride.driver.avatar_url}
+                                    alt={`${ride.driver?.full_name ?? 'Vodič'} profilová fotka vodiča`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-sm font-medium">{(ride.driver?.full_name?.[0] ?? '?').toUpperCase()}</span>
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="font-bold text-xs truncate">{ride.driver?.full_name ?? 'Vodič'}</p>
+                                  {ride.driver?.total_rides ? (
+                                    <span className="text-[10px] text-muted-foreground">{ride.driver.total_rides} jázd</span>
+                                  ) : null}
+                                </div>
+                                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                  <span className="tabular-nums font-bold text-foreground/80">{ride.driver?.rating?.toFixed(1) ?? '5.0'}</span>
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 shrink-0">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-white/10 border border-white/50 dark:border-white/15 rounded-full px-2.5 py-1.5 backdrop-blur-sm">
+                                <Users className="w-3 h-3" />
+                                {ride.available_seats}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 rounded-full hover:bg-primary/10 hover:text-primary"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/ride/${ride.id}`);
+                                }}
+                              >
+                                Detail
+                                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
