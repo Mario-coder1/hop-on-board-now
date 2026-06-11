@@ -35,8 +35,6 @@ const Index = () => {
   const onlineCount = useOnlineUsers();
   const { t } = useLanguage();
 
-  const [stats, setStats] = useState<PublicStats>({ users: 0, rides: 0, rating: 0 });
-
   useEffect(() => {
     if (loading) return;
 
@@ -50,25 +48,6 @@ const Index = () => {
       }
     }
   }, [user, profile, loading, navigate]);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data, error } = await supabase.rpc("get_public_stats");
-        console.log("[Stats] raw:", data, error);
-        if (error || !data || data.length === 0) return;
-        const row = data[0];
-        setStats({
-          users: Number(row.users) || 0,
-          rides: Number(row.rides) || 0,
-          rating: row.rating ? Number(row.rating) : 0,
-        });
-      } catch (e) {
-        console.error("[Stats] catch:", e);
-      }
-    };
-    fetchStats();
-  }, []);
 
   if (loading || (user && !profile)) {
     return (
