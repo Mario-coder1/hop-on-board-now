@@ -739,48 +739,31 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="reports" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="reports" className="gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              Nahlásenia
-            </TabsTrigger>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="w-4 h-4" />
-              Používatelia
-            </TabsTrigger>
-            <TabsTrigger value="search" className="gap-2">
-              <Search className="w-4 h-4" />
-              Vyhľadávanie
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2">
-              <Megaphone className="w-4 h-4" />
-              Notifikácie
-            </TabsTrigger>
-            <TabsTrigger value="visitors" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Návštevnosť
-            </TabsTrigger>
-            <TabsTrigger value="payouts" className="gap-2">
-              <Wallet className="w-4 h-4" />
-              Platby
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="w-4 h-4" />
-              Nastavenia
-            </TabsTrigger>
-            <TabsTrigger value="gas_stations" className="gap-2">
-              <Fuel className="w-4 h-4" />
-              Stanice
-            </TabsTrigger>
-            <TabsTrigger value="disputes" className="gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              Reklamácie
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="gap-2">
-              <ShieldCheck className="w-4 h-4" />
-              Audit
-            </TabsTrigger>
-          </TabsList>
+          <div className="-mx-2 px-2 overflow-x-auto scrollbar-hide">
+            <TabsList className="inline-flex h-auto w-auto gap-1.5 bg-muted/40 backdrop-blur-sm border border-border/50 rounded-full p-1.5 shadow-sm">
+              {[
+                { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
+                { v: 'users', icon: Users, label: 'Používatelia' },
+                { v: 'search', icon: Search, label: 'Vyhľadávanie' },
+                { v: 'notifications', icon: Megaphone, label: 'Notifikácie' },
+                { v: 'visitors', icon: BarChart3, label: 'Návštevnosť' },
+                { v: 'payouts', icon: Wallet, label: 'Platby' },
+                { v: 'settings', icon: Settings, label: 'Nastavenia' },
+                { v: 'gas_stations', icon: Fuel, label: 'Stanice' },
+                { v: 'disputes', icon: AlertTriangle, label: 'Reklamácie' },
+                { v: 'audit', icon: ShieldCheck, label: 'Audit' },
+              ].map(({ v, icon: Icon, label }) => (
+                <TabsTrigger
+                  key={v}
+                  value={v}
+                  className="gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:text-foreground whitespace-nowrap"
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
           <TabsContent value="audit" className="space-y-4">
             <SecurityAuditTab />
