@@ -63,6 +63,7 @@ const Index = () => {
     const fetchStats = async () => {
       try {
         const { data, error } = await supabase.rpc("get_public_stats");
+        console.log("[Stats] raw:", data, error);
         if (error || !data || data.length === 0) return;
         const row = data[0];
         setStats({
@@ -70,8 +71,8 @@ const Index = () => {
           rides: Number(row.rides) || 0,
           rating: row.rating ? Number(row.rating) : 0,
         });
-      } catch {
-        // stats stay at 0
+      } catch (e) {
+        console.error("[Stats] catch:", e);
       }
     };
     fetchStats();
