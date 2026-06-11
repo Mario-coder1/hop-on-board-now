@@ -890,8 +890,8 @@ const Admin = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <Wifi className="w-3 h-3" />
-                              Naposledy aktívny: {lastActiveMap[userProfile.id]
-                                ? new Date(lastActiveMap[userProfile.id]).toLocaleString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                              Naposledy aktívny: {lastActiveMap[userProfile.user_id]
+                                ? new Date(lastActiveMap[userProfile.user_id]).toLocaleString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                                 : '—'}
                             </span>
                           </div>
