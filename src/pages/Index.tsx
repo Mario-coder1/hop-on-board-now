@@ -257,57 +257,6 @@ const Index = () => {
           </div>
         </motion.section>
 
-        {/* Testimonials */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-32"
-        >
-          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
-            {t("testimonials.title")}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                quote: t("testimonials.t1.quote"),
-                name: t("testimonials.t1.name"),
-                role: t("testimonials.t1.role"),
-              },
-              {
-                quote: t("testimonials.t2.quote"),
-                name: t("testimonials.t2.name"),
-                role: t("testimonials.t2.role"),
-              },
-              {
-                quote: t("testimonials.t3.quote"),
-                name: t("testimonials.t3.name"),
-                role: t("testimonials.t3.role"),
-              },
-            ].map((tItem, i) => (
-              <motion.div
-                key={tItem.name}
-                variants={fadeUp}
-                custom={i}
-                className="relative p-5 rounded-2xl border border-border/50 bg-background/50"
-              >
-                <Quote className="w-6 h-6 text-primary/20 absolute top-4 right-4" />
-                <p className="text-sm text-foreground/90 leading-relaxed mb-4 pr-6">
-                  {tItem.quote}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
-                    {tItem.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">{tItem.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{tItem.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
 
         {/* Bottom CTA */}
         <motion.section
