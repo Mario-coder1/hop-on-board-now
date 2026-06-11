@@ -652,90 +652,43 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <Users className="w-10 h-10 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold">{users.length}</p>
-                  <p className="text-muted-foreground text-sm">Používatelia</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setOnlineDialogOpen(true)}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <Wifi className="w-10 h-10 text-emerald-500" />
-                <div>
-                  <p className="text-2xl font-bold">{onlineCount}</p>
-                  <p className="text-muted-foreground text-sm">Online teraz · klikni</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <AlertTriangle className="w-10 h-10 text-yellow-500" />
-                <div>
-                  <p className="text-2xl font-bold">
-                    {reports.filter(r => r.status === 'pending').length}
-                  </p>
-                  <p className="text-muted-foreground text-sm">Nahlásenia</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <Ban className="w-10 h-10 text-destructive" />
-                <div>
-                  <p className="text-2xl font-bold">
-                    {users.filter(u => u.banned).length}
-                  </p>
-                  <p className="text-muted-foreground text-sm">Zabanovaní</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <Car className="w-10 h-10 text-blue-500" />
-                <div>
-                  <p className="text-2xl font-bold">{rideStats.total}</p>
-                  <p className="text-muted-foreground text-sm">Celkom jázd</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <MapPin className="w-10 h-10 text-green-500" />
-                <div>
-                  <p className="text-2xl font-bold">{rideStats.active + rideStats.inProgress}</p>
-                  <p className="text-muted-foreground text-sm">Aktívne jazdy</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <CheckCircle className="w-10 h-10 text-emerald-500" />
-                <div>
-                  <p className="text-2xl font-bold">{rideStats.completed}</p>
-                  <p className="text-muted-foreground text-sm">Dokončené</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            { icon: Users, value: users.length, label: 'Používatelia', from: 'from-indigo-500/15', to: 'to-indigo-500/5', ring: 'ring-indigo-500/20', iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-500' },
+            { icon: Wifi, value: onlineCount, label: 'Online teraz · klikni', from: 'from-emerald-500/15', to: 'to-emerald-500/5', ring: 'ring-emerald-500/20', iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-500', onClick: () => setOnlineDialogOpen(true), pulse: true },
+            { icon: AlertTriangle, value: reports.filter(r => r.status === 'pending').length, label: 'Nahlásenia', from: 'from-amber-500/15', to: 'to-amber-500/5', ring: 'ring-amber-500/20', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500' },
+            { icon: Ban, value: users.filter(u => u.banned).length, label: 'Zabanovaní', from: 'from-rose-500/15', to: 'to-rose-500/5', ring: 'ring-rose-500/20', iconBg: 'bg-rose-500/10', iconColor: 'text-rose-500' },
+            { icon: Car, value: rideStats.total, label: 'Celkom jázd', from: 'from-blue-500/15', to: 'to-blue-500/5', ring: 'ring-blue-500/20', iconBg: 'bg-blue-500/10', iconColor: 'text-blue-500' },
+            { icon: MapPin, value: rideStats.active + rideStats.inProgress, label: 'Aktívne jazdy', from: 'from-green-500/15', to: 'to-green-500/5', ring: 'ring-green-500/20', iconBg: 'bg-green-500/10', iconColor: 'text-green-500' },
+            { icon: CheckCircle, value: rideStats.completed, label: 'Dokončené', from: 'from-teal-500/15', to: 'to-teal-500/5', ring: 'ring-teal-500/20', iconBg: 'bg-teal-500/10', iconColor: 'text-teal-500' },
+          ].map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <Card
+                key={i}
+                onClick={s.onClick}
+                className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${s.from} ${s.to} backdrop-blur-sm ring-1 ${s.ring} transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${s.onClick ? 'cursor-pointer' : ''}`}
+              >
+                <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/5 blur-2xl" />
+                <CardContent className="pt-6 relative">
+                  <div className="flex items-center gap-4">
+                    <div className={`relative w-12 h-12 rounded-2xl ${s.iconBg} flex items-center justify-center ring-1 ${s.ring} group-hover:scale-110 transition-transform`}>
+                      <Icon className={`w-6 h-6 ${s.iconColor}`} />
+                      {s.pulse && (
+                        <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-2xl font-bold tabular-nums tracking-tight">{s.value}</p>
+                      <p className="text-muted-foreground text-xs truncate">{s.label}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <Tabs defaultValue="reports" className="space-y-4">
