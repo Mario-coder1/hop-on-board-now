@@ -456,6 +456,34 @@ const Index = () => {
           </div>
         </motion.section>
 
+        {/* Download / PWA */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-24 md:mt-32"
+        >
+          <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-8 md:p-10 text-center">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <Smartphone className="w-8 h-8 text-primary/40 mx-auto mb-4" />
+            <h2 className="font-display text-xl md:text-2xl font-bold mb-3">
+              {t("download.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              {t("download.desc")}
+            </p>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/install")}
+              className="text-base px-7 rounded-full h-12"
+            >
+              {t("download.cta")}
+            </Button>
+          </div>
+        </motion.section>
+
         {/* Subtle popular routes — minimal */}
         <motion.section
           initial={{ opacity: 0 }}
