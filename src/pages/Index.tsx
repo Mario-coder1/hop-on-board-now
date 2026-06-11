@@ -1,20 +1,49 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  ArrowRight,
+  Search,
+  MousePointerClick,
+  MapPin,
+  Wallet,
+  ShieldCheck,
+  Leaf,
+  Users,
+  Star,
+  Quote,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
+
+interface PublicStats {
+  users: number;
+  rides: number;
+  rating: number;
+}
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5 },
+  }),
+};
 
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const onlineCount = useOnlineUsers();
   const { t } = useLanguage();
+
+  const [stats, setStats] = useState<PublicStats>({ users: 0, rides: 0, rating: 0 });
 
   useEffect(() => {
     if (loading) return;
@@ -29,6 +58,31 @@ const Index = () => {
       }
     }
   }, [user, profile, loading, navigate]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [
+          { count: userCount },
+          { count: rideCount },
+          { data: ratingData },
+        ] = await Promise.all([
+          supabase.from("profiles").select("*", { count: "exact", head: true }).eq("banned", false),
+          supabase.from("rides").select("*", { count: "exact", head: true }).eq("status", "completed"),
+          supabase.rpc("get_avg_rating"),
+        ]);
+
+        setStats({
+          users: userCount || 0,
+          rides: rideCount || 0,
+          rating: ratingData ? Number(ratingData) : 0,
+        });
+      } catch {
+        // stats stay at 0
+      }
+    };
+    fetchStats();
+  }, []);
 
   if (loading || (user && !profile)) {
     return (
@@ -67,8 +121,8 @@ const Index = () => {
         <LanguageSwitcher />
       </header>
 
-      {/* Hero — clean & airy */}
       <main className="relative container mx-auto px-6 pt-20 md:pt-32 pb-24 max-w-3xl">
+        {/* Hero — clean & airy */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,11 +168,229 @@ const Index = () => {
           </div>
         </motion.div>
 
+        {/* Social proof stats */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={fadeUp}
+          custom={0}
+          className="mt-20 md:mt-28"
+        >
+          <div className="grid grid-cols-3 gap-4 md:gap-6">
+            {[
+              { value: stats.users, suffix: "+", label: t("stats.users") },
+              { value: stats.rides, suffix: "+", label: t("stats.rides") },
+              {
+                value: stats.rating,
+                suffix: "/5",
+                label: t("stats.rating"),
+                icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />,
+              },
+            ].map((s, i) => (
+              <motion.div
+                key={s.label}
+                variants={fadeUp}
+                custom={i}
+                className="text-center p-4 rounded-2xl border border-border/50 bg-background/50"
+              >
+                <div className="flex items-center justify-center gap-1">
+                  <span className="font-display text-2xl md:text-3xl font-bold tracking-tight">
+                    {s.value || "—"}
+                  </span>
+                  {s.suffix && (
+                    <span className="font-display text-lg md:text-xl font-bold text-muted-foreground">
+                      {s.suffix}
+                    </span>
+                  )}
+                  {s.icon && <span className="ml-0.5">{s.icon}</span>}
+                </div>
+                <p className="text-[11px] md:text-xs text-muted-foreground mt-1">{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* How it works */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
+            {t("howitworks.title")}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: <Search className="w-5 h-5" />,
+                title: t("howitworks.step1.title"),
+                desc: t("howitworks.step1.desc"),
+              },
+              {
+                icon: <MousePointerClick className="w-5 h-5" />,
+                title: t("howitworks.step2.title"),
+                desc: t("howitworks.step2.desc"),
+              },
+              {
+                icon: <MapPin className="w-5 h-5" />,
+                title: t("howitworks.step3.title"),
+                desc: t("howitworks.step3.desc"),
+              },
+            ].map((step, i) => (
+              <motion.div
+                key={step.title}
+                variants={fadeUp}
+                custom={i}
+                className="relative p-5 rounded-2xl border border-border/50 bg-background/50 text-center"
+              >
+                <div className="w-10 h-10 mx-auto rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3">
+                  {step.icon}
+                </div>
+                <h3 className="font-display font-semibold text-sm mb-1">{step.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                <span className="absolute top-4 left-4 text-[10px] font-bold text-muted-foreground/40">
+                  0{i + 1}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Why TakeMe */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
+            {t("why.title")}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              {
+                icon: <Wallet className="w-5 h-5" />,
+                title: t("why.money.title"),
+                desc: t("why.money.desc"),
+              },
+              {
+                icon: <ShieldCheck className="w-5 h-5" />,
+                title: t("why.safe.title"),
+                desc: t("why.safe.desc"),
+              },
+              {
+                icon: <Leaf className="w-5 h-5" />,
+                title: t("why.green.title"),
+                desc: t("why.green.desc"),
+              },
+              {
+                icon: <Users className="w-5 h-5" />,
+                title: t("why.people.title"),
+                desc: t("why.people.desc"),
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                variants={fadeUp}
+                custom={i}
+                className="p-4 rounded-2xl border border-border/50 bg-background/50 text-center"
+              >
+                <div className="w-9 h-9 mx-auto rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2.5">
+                  {item.icon}
+                </div>
+                <h3 className="font-display font-semibold text-xs mb-0.5">{item.title}</h3>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Testimonials */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
+            {t("testimonials.title")}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                quote: t("testimonials.t1.quote"),
+                name: t("testimonials.t1.name"),
+                role: t("testimonials.t1.role"),
+              },
+              {
+                quote: t("testimonials.t2.quote"),
+                name: t("testimonials.t2.name"),
+                role: t("testimonials.t2.role"),
+              },
+              {
+                quote: t("testimonials.t3.quote"),
+                name: t("testimonials.t3.name"),
+                role: t("testimonials.t3.role"),
+              },
+            ].map((tItem, i) => (
+              <motion.div
+                key={tItem.name}
+                variants={fadeUp}
+                custom={i}
+                className="relative p-5 rounded-2xl border border-border/50 bg-background/50"
+              >
+                <Quote className="w-6 h-6 text-primary/20 absolute top-4 right-4" />
+                <p className="text-sm text-foreground/90 leading-relaxed mb-4 pr-6">
+                  {tItem.quote}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
+                    {tItem.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">{tItem.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{tItem.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Bottom CTA */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-24 md:mt-32 text-center"
+        >
+          <div className="p-8 md:p-10 rounded-3xl border border-border/50 bg-background/50">
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">
+              {t("cta.ready.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+              {t("cta.ready.desc")}
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="text-base px-7 rounded-full h-12 group"
+            >
+              {t("cta.ready.button")}
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
+          </div>
+        </motion.section>
+
         {/* Subtle popular routes — minimal */}
         <motion.section
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
           className="mt-24 md:mt-32"
         >
           <div className="flex items-baseline justify-between mb-4">
