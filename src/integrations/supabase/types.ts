@@ -1392,6 +1392,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_user_activity: {
+        Args: never
+        Returns: {
+          email: string
+          last_sign_in_at: string
+          user_id: string
+        }[]
+      }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       current_profile_id: { Args: never; Returns: string }
       get_internal_push_secret: { Args: never; Returns: string }

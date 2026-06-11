@@ -175,20 +175,20 @@ const Admin = () => {
       console.error('Error fetching users:', error);
     } else {
       setUsers(data || []);
-      // Fetch last activity per profile from page_views
-      const { data: pv } = await supabase
-        .from('page_views')
-        .select('profile_id, created_at')
-        .not('profile_id', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(5000);
-      const map: Record<string, string> = {};
-      (pv || []).forEach((row: any) => {
-        if (row.profile_id && !map[row.profile_id]) {
-          map[row.profile_id] = row.created_at;
-        }
-      });
-      setLastActiveMap(map);
+      // Fetch real last_sign_in_at via admin RPC (auth.users)
+      const { data: activity, error: actErr } = await supabase
+        .rpc('admin_get_user_activity' as any);
+      if (actErr) {
+        console.error('Error fetching user activity:', actErr);
+      } else {
+        const map: Record<string, string> = {};
+        (activity as any[] || []).forEach((row) => {
+          if (row.user_id && row.last_sign_in_at) {
+            map[row.user_id] = row.last_sign_in_at;
+          }
+        });
+        setLastActiveMap(map);
+      }
     }
     setLoadingData(false);
   };
@@ -890,8 +890,8 @@ const Admin = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <Wifi className="w-3 h-3" />
-                              Naposledy aktívny: {lastActiveMap[userProfile.id]
-                                ? new Date(lastActiveMap[userProfile.id]).toLocaleString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                              Naposledy aktívny: {lastActiveMap[userProfile.user_id]
+                                ? new Date(lastActiveMap[userProfile.user_id]).toLocaleString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                                 : '—'}
                             </span>
                           </div>
