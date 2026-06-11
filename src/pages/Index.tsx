@@ -269,6 +269,39 @@ const Index = () => {
           </div>
         </motion.section>
 
+        {/* Trust badges */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-8">
+            {t("trust.title")}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { icon: <Mail className="w-5 h-5" />, title: t("trust.verified"), desc: t("trust.verified.desc") },
+              { icon: <CreditCard className="w-5 h-5" />, title: t("trust.payment"), desc: t("trust.payment.desc") },
+              { icon: <MapPin className="w-5 h-5" />, title: t("trust.tracking"), desc: t("trust.tracking.desc") },
+              { icon: <Bell className="w-5 h-5" />, title: t("trust.support"), desc: t("trust.support.desc") },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                variants={fadeUp}
+                custom={i}
+                className="p-4 rounded-2xl border border-border/50 bg-background/50 text-center"
+              >
+                <div className="w-9 h-9 mx-auto rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 mb-2.5">
+                  {item.icon}
+                </div>
+                <h3 className="font-display font-semibold text-xs mb-0.5">{item.title}</h3>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
         {/* Coverage */}
         <motion.section
           initial="hidden"
