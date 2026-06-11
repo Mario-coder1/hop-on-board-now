@@ -134,6 +134,10 @@ const Index = () => {
               {t("hero.cta_search")}
             </Button>
           </div>
+          <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70">
+            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+            {t("free.badge")}
+          </p>
         </motion.div>
 
         {/* Early adopter appeal */}
