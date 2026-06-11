@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // VAPID public key - must match the one hardcoded in supabase/functions/internal-send-push/index.ts
 const VAPID_PUBLIC_KEY = 'BJvuHuOuT9RaGband3V0sHNlQdlOrdJ5SLk2l45kt5pOw29dgC8LvVVBLiM8fqHHU-tShI-f5zmW8EMYC9kcAxU';
+const PUSH_SW_URL = '/push-sw.js';
 
 type PushUnsupportedReason = 'browser_not_supported' | 'ios_install_required' | null;
 export type PushSubscriptionError =
@@ -56,7 +57,12 @@ export function usePushNotifications() {
     if (!profile?.id) return;
 
     try {
-      const registration = await navigator.serviceWorker.ready;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const registration = registrations.find((item) => item.active?.scriptURL.endsWith(PUSH_SW_URL));
+      if (!registration) {
+        setIsSubscribed(false);
+        return;
+      }
       const pm = (registration as any).pushManager;
       if (!pm) {
         console.warn('[Push] pushManager not available');
@@ -99,7 +105,7 @@ export function usePushNotifications() {
   }, [profile?.id, checkExistingSubscription]);
 
   const registerServiceWorker = async (): Promise<ServiceWorkerRegistration> => {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
+    const registration = await navigator.serviceWorker.register(PUSH_SW_URL, {
       scope: '/'
     });
 
@@ -217,7 +223,12 @@ export function usePushNotifications() {
 
     setIsLoading(true);
     try {
-      const registration = await navigator.serviceWorker.ready;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const registration = registrations.find((item) => item.active?.scriptURL.endsWith(PUSH_SW_URL));
+      if (!registration) {
+        setIsSubscribed(false);
+        return true;
+      }
       const pm = (registration as any).pushManager;
       const subscription = pm ? await pm.getSubscription() : null;
 
