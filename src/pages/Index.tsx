@@ -73,7 +73,6 @@ const Index = () => {
             applicationCategory: 'TravelApplication',
             operatingSystem: 'Web, iOS, Android',
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-            aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', ratingCount: '120' },
           },
         ]}
       />
