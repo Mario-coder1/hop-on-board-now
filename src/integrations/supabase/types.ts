@@ -295,6 +295,10 @@ export type Database = {
           bio: string | null
           car_color: string | null
           car_model: string | null
+          cold_start_bonus_paid_at: string | null
+          cold_start_eligible: boolean
+          cold_start_qualified_at: string | null
+          commission_exempt_until: string | null
           created_at: string
           full_name: string
           id: string
@@ -319,6 +323,10 @@ export type Database = {
           bio?: string | null
           car_color?: string | null
           car_model?: string | null
+          cold_start_bonus_paid_at?: string | null
+          cold_start_eligible?: boolean
+          cold_start_qualified_at?: string | null
+          commission_exempt_until?: string | null
           created_at?: string
           full_name: string
           id?: string
@@ -343,6 +351,10 @@ export type Database = {
           bio?: string | null
           car_color?: string | null
           car_model?: string | null
+          cold_start_bonus_paid_at?: string | null
+          cold_start_eligible?: boolean
+          cold_start_qualified_at?: string | null
+          commission_exempt_until?: string | null
           created_at?: string
           full_name?: string
           id?: string
