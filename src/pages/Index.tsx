@@ -17,6 +17,11 @@ import {
   CheckCircle,
   ChevronDown,
   Globe,
+  Clock,
+  Mail,
+  CreditCard,
+  Bell,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
