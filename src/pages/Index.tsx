@@ -14,6 +14,9 @@ import {
   Leaf,
   Users,
   Sparkles,
+  CheckCircle,
+  ChevronDown,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
@@ -34,6 +37,7 @@ const Index = () => {
   const navigate = useNavigate();
   const onlineCount = useOnlineUsers();
   const { t } = useLanguage();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -130,6 +134,10 @@ const Index = () => {
               {t("hero.cta_search")}
             </Button>
           </div>
+          <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70">
+            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+            {t("free.badge")}
+          </p>
         </motion.div>
 
         {/* Early adopter appeal */}
@@ -256,6 +264,88 @@ const Index = () => {
           </div>
         </motion.section>
 
+        {/* Coverage */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-6">
+            {t("coverage.title")}
+          </h2>
+          <p className="text-sm text-muted-foreground text-center max-w-md mx-auto mb-8">
+            {t("coverage.desc")}
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { flag: "🇸🇰", label: "Slovensko" },
+              { flag: "🇨🇿", label: "Česko" },
+              { flag: "🇵🇱", label: "Poľsko" },
+              { flag: "🇦🇹", label: "Rakúsko" },
+              { flag: "🇩🇪", label: "Nemecko" },
+              { flag: "🇪🇺", label: "EÚ" },
+            ].map((c) => (
+              <div
+                key={c.label}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 text-xs text-foreground/80 bg-background/50"
+              >
+                <span className="text-base leading-none">{c.flag}</span>
+                <span>{c.label}</span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* FAQ */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-8">
+            {t("faq.title")}
+          </h2>
+          <div className="space-y-2 max-w-xl mx-auto">
+            {[
+              { q: t("faq.q1"), a: t("faq.a1") },
+              { q: t("faq.q2"), a: t("faq.a2") },
+              { q: t("faq.q3"), a: t("faq.a3") },
+              { q: t("faq.q4"), a: t("faq.a4") },
+            ].map((item, i) => {
+              const isOpen = openFaq === i;
+              return (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-border/50 bg-background/50 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  >
+                    <span className="text-sm font-medium">{item.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-muted-foreground transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <motion.div
+                    initial={false}
+                    animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-5 pb-4 text-xs text-muted-foreground leading-relaxed">
+                      {item.a}
+                    </p>
+                  </motion.div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
 
         {/* Bottom CTA */}
         <motion.section
