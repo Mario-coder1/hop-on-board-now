@@ -385,6 +385,51 @@ const Index = () => {
           </div>
         </motion.section>
 
+        {/* Quick start — 30 seconds */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mt-24 md:mt-32"
+        >
+          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-8">
+            {t("quickstart.title")}
+          </h2>
+          <div className="max-w-xl mx-auto">
+            <div className="relative flex items-center justify-between">
+              {/* connector line */}
+              <div className="absolute top-4 left-0 right-0 h-px bg-border/60 mx-8" />
+              {[
+                { icon: <Mail className="w-4 h-4" />, label: t("quickstart.step1") },
+                { icon: <CheckCircle className="w-4 h-4" />, label: t("quickstart.step2") },
+                { icon: <Search className="w-4 h-4" />, label: t("quickstart.step3") },
+              ].map((step, i) => (
+                <motion.div
+                  key={i}
+                  variants={fadeUp}
+                  custom={i}
+                  className="relative z-10 flex flex-col items-center text-center w-28"
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold mb-3 ring-4 ring-background">
+                    {i + 1}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-tight">{step.label}</p>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <Button
+                size="lg"
+                onClick={() => navigate("/auth")}
+                className="text-base px-7 rounded-full h-12 group"
+              >
+                {t("quickstart.cta")}
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+            </div>
+          </div>
+        </motion.section>
+
         {/* Bottom CTA */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
