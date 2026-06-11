@@ -112,6 +112,7 @@ const Admin = () => {
   const [onlineDialogOpen, setOnlineDialogOpen] = useState(false);
   
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [lastActiveMap, setLastActiveMap] = useState<Record<string, string>>({});
   const [reports, setReports] = useState<Report[]>([]);
   const [rideStats, setRideStats] = useState({ total: 0, active: 0, inProgress: 0, completed: 0 });
   const [loadingData, setLoadingData] = useState(true);
@@ -174,6 +175,20 @@ const Admin = () => {
       console.error('Error fetching users:', error);
     } else {
       setUsers(data || []);
+      // Fetch last activity per profile from page_views
+      const { data: pv } = await supabase
+        .from('page_views')
+        .select('profile_id, created_at')
+        .not('profile_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(5000);
+      const map: Record<string, string> = {};
+      (pv || []).forEach((row: any) => {
+        if (row.profile_id && !map[row.profile_id]) {
+          map[row.profile_id] = row.created_at;
+        }
+      });
+      setLastActiveMap(map);
     }
     setLoadingData(false);
   };
@@ -866,6 +881,18 @@ const Admin = () => {
                             </span>
                             <span>
                               {userProfile.selected_role === 'driver' ? 'Vodič' : 'Pasažier'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              Registrácia: {new Date(userProfile.created_at).toLocaleDateString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Wifi className="w-3 h-3" />
+                              Naposledy aktívny: {lastActiveMap[userProfile.id]
+                                ? new Date(lastActiveMap[userProfile.id]).toLocaleString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                : '—'}
                             </span>
                           </div>
                           {userProfile.ban_reason && (
