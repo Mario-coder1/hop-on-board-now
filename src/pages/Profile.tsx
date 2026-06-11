@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { BADGE_TIERS, getEarnedBadges } from '@/lib/badges';
+import { ColdStartCard } from '@/components/ColdStartCard';
 
 interface Notification {
   id: string;
