@@ -37,6 +37,7 @@ const Index = () => {
   const navigate = useNavigate();
   const onlineCount = useOnlineUsers();
   const { t } = useLanguage();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     if (loading) return;
