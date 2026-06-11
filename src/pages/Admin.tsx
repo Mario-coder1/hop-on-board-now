@@ -175,6 +175,20 @@ const Admin = () => {
       console.error('Error fetching users:', error);
     } else {
       setUsers(data || []);
+      // Fetch last activity per profile from page_views
+      const { data: pv } = await supabase
+        .from('page_views')
+        .select('profile_id, created_at')
+        .not('profile_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(5000);
+      const map: Record<string, string> = {};
+      (pv || []).forEach((row: any) => {
+        if (row.profile_id && !map[row.profile_id]) {
+          map[row.profile_id] = row.created_at;
+        }
+      });
+      setLastActiveMap(map);
     }
     setLoadingData(false);
   };
