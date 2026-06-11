@@ -7,9 +7,14 @@ Disallow: /manage-passengers/
 Disallow: /my-rides
 Disallow: /my-trips
 Disallow: /profile
+Disallow: /chat
+Disallow: /driver
+Disallow: /passenger
+Disallow: /create-ride
+Disallow: /search
+Disallow: /wallet
+Disallow: /checkout/
+Disallow: /komunity
+Disallow: /top-drivers
 
 Sitemap: https://www.takeme.sk/sitemap.xml
-Sitemap: https://www.takeme.sk/sitemap-core.xml
-Sitemap: https://www.takeme.sk/sitemap-cities.xml
-Sitemap: https://www.takeme.sk/sitemap-pairs.xml
-Sitemap: https://www.takeme.sk/sitemap-pair-variants.xml
