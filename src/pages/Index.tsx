@@ -65,17 +65,21 @@ const Index = () => {
         const [
           { count: userCount },
           { count: rideCount },
-          { data: ratingData },
+          { data: ratingsData },
         ] = await Promise.all([
           supabase.from("profiles").select("*", { count: "exact", head: true }).eq("banned", false),
           supabase.from("rides").select("*", { count: "exact", head: true }).eq("status", "completed"),
-          supabase.rpc("get_avg_rating"),
+          supabase.from("ratings").select("rating"),
         ]);
+
+        const avgRating = ratingsData && ratingsData.length > 0
+          ? Number((ratingsData.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / ratingsData.length).toFixed(1))
+          : 0;
 
         setStats({
           users: userCount || 0,
           rides: rideCount || 0,
-          rating: ratingData ? Number(ratingData) : 0,
+          rating: avgRating,
         });
       } catch {
         // stats stay at 0
