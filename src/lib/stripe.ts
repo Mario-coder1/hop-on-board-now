@@ -1,4 +1,4 @@
-import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
 
 type StripeEnv = "sandbox" | "live";
 
@@ -10,7 +10,7 @@ let stripePromise: Promise<Stripe | null> | null = null;
 export function getStripe(): Promise<Stripe | null> {
   if (!stripePromise) {
     if (!clientToken) throw new Error("VITE_PAYMENTS_CLIENT_TOKEN is not set");
-    stripePromise = loadStripe(clientToken);
+    stripePromise = import("@stripe/stripe-js").then(({ loadStripe }) => loadStripe(clientToken));
   }
   return stripePromise;
 }
