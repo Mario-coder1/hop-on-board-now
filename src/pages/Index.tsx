@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight,
   Search,
@@ -14,19 +13,12 @@ import {
   ShieldCheck,
   Leaf,
   Users,
-  Star,
-  Quote,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
-
-interface PublicStats {
-  users: number;
-  rides: number;
-  rating: number;
-}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
