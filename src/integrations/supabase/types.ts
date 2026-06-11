@@ -1395,6 +1395,14 @@ export type Database = {
       cleanup_old_location_history: { Args: never; Returns: undefined }
       current_profile_id: { Args: never; Returns: string }
       get_internal_push_secret: { Args: never; Returns: string }
+      get_public_stats: {
+        Args: never
+        Returns: {
+          rating: number
+          rides: number
+          users: number
+        }[]
+      }
       has_ride_request: { Args: { _ride_id: string }; Returns: boolean }
       has_role: {
         Args: {
