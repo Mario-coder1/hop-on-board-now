@@ -14,6 +14,9 @@ import {
   Leaf,
   Users,
   Sparkles,
+  CheckCircle,
+  ChevronDown,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
