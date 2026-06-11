@@ -62,24 +62,13 @@ const Index = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [
-          { count: userCount },
-          { count: rideCount },
-          { data: ratingsData },
-        ] = await Promise.all([
-          supabase.from("profiles").select("*", { count: "exact", head: true }).not("banned", "is", "true"),
-          supabase.from("rides").select("*", { count: "exact", head: true }).eq("status", "completed"),
-          supabase.from("ratings").select("rating"),
-        ]);
-
-        const avgRating = ratingsData && ratingsData.length > 0
-          ? Number((ratingsData.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / ratingsData.length).toFixed(1))
-          : 0;
-
+        const { data, error } = await supabase.rpc("get_public_stats");
+        if (error || !data || data.length === 0) return;
+        const row = data[0];
         setStats({
-          users: userCount || 0,
-          rides: rideCount || 0,
-          rating: avgRating,
+          users: Number(row.users) || 0,
+          rides: Number(row.rides) || 0,
+          rating: row.rating ? Number(row.rating) : 0,
         });
       } catch {
         // stats stay at 0
