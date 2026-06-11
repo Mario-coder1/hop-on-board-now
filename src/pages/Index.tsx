@@ -133,7 +133,7 @@ const Index = () => {
           </div>
         </motion.div>
 
-        {/* Social proof stats */}
+        {/* Early adopter appeal */}
         <motion.section
           initial="hidden"
           whileInView="visible"
@@ -142,37 +142,22 @@ const Index = () => {
           custom={0}
           className="mt-20 md:mt-28"
         >
-          <div className="grid grid-cols-3 gap-4 md:gap-6">
-            {[
-              { value: stats.users, suffix: "+", label: t("stats.users") },
-              { value: stats.rides, suffix: "+", label: t("stats.rides") },
-              {
-                value: stats.rating,
-                suffix: "/5",
-                label: t("stats.rating"),
-                icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />,
-              },
-            ].map((s, i) => (
-              <motion.div
-                key={s.label}
-                variants={fadeUp}
-                custom={i}
-                className="text-center p-4 rounded-2xl border border-border/50 bg-background/50"
-              >
-                <div className="flex items-center justify-center gap-1">
-                  <span className="font-display text-2xl md:text-3xl font-bold tracking-tight">
-                    {s.value || "—"}
-                  </span>
-                  {s.suffix && (
-                    <span className="font-display text-lg md:text-xl font-bold text-muted-foreground">
-                      {s.suffix}
-                    </span>
-                  )}
-                  {s.icon && <span className="ml-0.5">{s.icon}</span>}
-                </div>
-                <p className="text-[11px] md:text-xs text-muted-foreground mt-1">{s.label}</p>
-              </motion.div>
-            ))}
+          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/5 p-8 md:p-10 text-center">
+            <Sparkles className="w-8 h-8 text-primary/40 mx-auto mb-4" />
+            <h2 className="font-display text-xl md:text-2xl font-bold mb-3">
+              {t("early.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              {t("early.desc")}
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="text-base px-7 rounded-full h-12 group"
+            >
+              {t("early.cta")}
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
           </div>
         </motion.section>
 
