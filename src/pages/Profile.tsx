@@ -704,6 +704,8 @@ const Profile = () => {
             <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
           </Link>
 
+          {profile.selected_role === 'driver' && <ColdStartCard />}
+
           {/* Tutorial Link */}
           <Link
             to="/tutorial"
