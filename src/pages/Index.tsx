@@ -67,7 +67,7 @@ const Index = () => {
           { count: rideCount },
           { data: ratingsData },
         ] = await Promise.all([
-          supabase.from("profiles").select("*", { count: "exact", head: true }).eq("banned", false),
+          supabase.from("profiles").select("*", { count: "exact", head: true }).not("banned", "is", "true"),
           supabase.from("rides").select("*", { count: "exact", head: true }).eq("status", "completed"),
           supabase.from("ratings").select("rating"),
         ]);
