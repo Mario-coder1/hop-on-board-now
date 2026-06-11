@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowRight,
   Search,
@@ -14,19 +13,12 @@ import {
   ShieldCheck,
   Leaf,
   Users,
-  Star,
-  Quote,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
-
-interface PublicStats {
-  users: number;
-  rides: number;
-  rating: number;
-}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -43,8 +35,6 @@ const Index = () => {
   const onlineCount = useOnlineUsers();
   const { t } = useLanguage();
 
-  const [stats, setStats] = useState<PublicStats>({ users: 0, rides: 0, rating: 0 });
-
   useEffect(() => {
     if (loading) return;
 
@@ -58,25 +48,6 @@ const Index = () => {
       }
     }
   }, [user, profile, loading, navigate]);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data, error } = await supabase.rpc("get_public_stats");
-        console.log("[Stats] raw:", data, error);
-        if (error || !data || data.length === 0) return;
-        const row = data[0];
-        setStats({
-          users: Number(row.users) || 0,
-          rides: Number(row.rides) || 0,
-          rating: row.rating ? Number(row.rating) : 0,
-        });
-      } catch (e) {
-        console.error("[Stats] catch:", e);
-      }
-    };
-    fetchStats();
-  }, []);
 
   if (loading || (user && !profile)) {
     return (
@@ -102,7 +73,6 @@ const Index = () => {
             applicationCategory: 'TravelApplication',
             operatingSystem: 'Web, iOS, Android',
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-            aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', ratingCount: '120' },
           },
         ]}
       />
@@ -162,7 +132,7 @@ const Index = () => {
           </div>
         </motion.div>
 
-        {/* Social proof stats */}
+        {/* Early adopter appeal */}
         <motion.section
           initial="hidden"
           whileInView="visible"
@@ -171,37 +141,22 @@ const Index = () => {
           custom={0}
           className="mt-20 md:mt-28"
         >
-          <div className="grid grid-cols-3 gap-4 md:gap-6">
-            {[
-              { value: stats.users, suffix: "+", label: t("stats.users") },
-              { value: stats.rides, suffix: "+", label: t("stats.rides") },
-              {
-                value: stats.rating,
-                suffix: "/5",
-                label: t("stats.rating"),
-                icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />,
-              },
-            ].map((s, i) => (
-              <motion.div
-                key={s.label}
-                variants={fadeUp}
-                custom={i}
-                className="text-center p-4 rounded-2xl border border-border/50 bg-background/50"
-              >
-                <div className="flex items-center justify-center gap-1">
-                  <span className="font-display text-2xl md:text-3xl font-bold tracking-tight">
-                    {s.value || "—"}
-                  </span>
-                  {s.suffix && (
-                    <span className="font-display text-lg md:text-xl font-bold text-muted-foreground">
-                      {s.suffix}
-                    </span>
-                  )}
-                  {s.icon && <span className="ml-0.5">{s.icon}</span>}
-                </div>
-                <p className="text-[11px] md:text-xs text-muted-foreground mt-1">{s.label}</p>
-              </motion.div>
-            ))}
+          <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/5 p-8 md:p-10 text-center">
+            <Sparkles className="w-8 h-8 text-primary/40 mx-auto mb-4" />
+            <h2 className="font-display text-xl md:text-2xl font-bold mb-3">
+              {t("early.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              {t("early.desc")}
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="text-base px-7 rounded-full h-12 group"
+            >
+              {t("early.cta")}
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
           </div>
         </motion.section>
 
@@ -301,57 +256,6 @@ const Index = () => {
           </div>
         </motion.section>
 
-        {/* Testimonials */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-32"
-        >
-          <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
-            {t("testimonials.title")}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                quote: t("testimonials.t1.quote"),
-                name: t("testimonials.t1.name"),
-                role: t("testimonials.t1.role"),
-              },
-              {
-                quote: t("testimonials.t2.quote"),
-                name: t("testimonials.t2.name"),
-                role: t("testimonials.t2.role"),
-              },
-              {
-                quote: t("testimonials.t3.quote"),
-                name: t("testimonials.t3.name"),
-                role: t("testimonials.t3.role"),
-              },
-            ].map((tItem, i) => (
-              <motion.div
-                key={tItem.name}
-                variants={fadeUp}
-                custom={i}
-                className="relative p-5 rounded-2xl border border-border/50 bg-background/50"
-              >
-                <Quote className="w-6 h-6 text-primary/20 absolute top-4 right-4" />
-                <p className="text-sm text-foreground/90 leading-relaxed mb-4 pr-6">
-                  {tItem.quote}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
-                    {tItem.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">{tItem.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{tItem.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
 
         {/* Bottom CTA */}
         <motion.section
