@@ -112,6 +112,7 @@ const Admin = () => {
   const [onlineDialogOpen, setOnlineDialogOpen] = useState(false);
   
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [lastActiveMap, setLastActiveMap] = useState<Record<string, string>>({});
   const [reports, setReports] = useState<Report[]>([]);
   const [rideStats, setRideStats] = useState({ total: 0, active: 0, inProgress: 0, completed: 0 });
   const [loadingData, setLoadingData] = useState(true);
