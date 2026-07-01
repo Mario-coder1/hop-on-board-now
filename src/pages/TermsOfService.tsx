@@ -109,7 +109,7 @@ const TermsOfService = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p><strong className="text-foreground">5.1.</strong> Cenu jazdy určuje výlučne vodič. Cena musí byť primeraná a nesmie presahovať skutočné náklady na jazdu na osobu.</p>
-              <p><strong className="text-foreground">5.2.</strong> TakeMe si z každej úspešnej jazdy účtuje províziu vo výške určenej v administrácii (aktuálne 15 %). Táto provízia sa strháva automaticky pri platbe.</p>
+              <p><strong className="text-foreground">5.2.</strong> TakeMe si z každej úspešnej jazdy účtuje províziu vo výške určenej v administrácii (aktuálne 10 %). Táto provízia sa strháva automaticky pri platbe.</p>
               <p><strong className="text-foreground">5.3.</strong> Spolujazdec platí cenu jazdy cez integrovanú platobnú bránu Stripe. TakeMe neukladá ani nemá prístup k údajom platobnej karty.</p>
               <p><strong className="text-foreground">5.4.</strong> Vodičovi je zvyšok po odpočítaní provízie pripísaný do internej peňaženky. Vyplatenie peňaženky na bankový účet prebieha na základe žiadosti vodiča a môže trvať niekoľko pracovných dní.</p>
               <p><strong className="text-foreground">5.5.</strong> Dobitie peňaženky cez Stripe môže byť spoplatnené poplatkom podľa aktuálnych nastavení v administrácii.</p>
@@ -117,6 +117,18 @@ const TermsOfService = () => {
           </section>
 
           <section className="p-6 rounded-2xl bg-card border border-border">
+            <div className="flex items-center gap-3 mb-4">
+              <Star className="w-6 h-6 text-primary" />
+              <h2 className="font-display text-2xl font-semibold">5a. Cold Start Bonus (registračný bonus)</h2>
+            </div>
+            <div className="space-y-3 text-muted-foreground">
+              <p><strong className="text-foreground">5a.1.</strong> „Cold Start Bonus" je časovo obmedzený uvítací program, v rámci ktorého môže nový overený používateľ získať kredit do internej peňaženky po splnení podmienok stanovených prevádzkovateľom (napr. dokončenie registrácie, overenie e-mailu/telefónu, prvá jazda).</p>
+              <p><strong className="text-foreground">5a.2.</strong> Bonus je <strong>nepeňažný kredit</strong> použiteľný výhradne v aplikácii TakeMe na úhradu jázd. Bonus nie je možné vyplatiť v hotovosti ani previesť na bankový účet a nie je zameniteľný za peniaze.</p>
+              <p><strong className="text-foreground">5a.3.</strong> Bonus je neprenosný, viazaný na jeden účet a jednu osobu. Vytváranie viacerých účtov, zneužívanie odporúčaní alebo iné obchádzanie pravidiel vedie k okamžitému odobratiu bonusu a k zablokovaniu účtu.</p>
+              <p><strong className="text-foreground">5a.4.</strong> Prevádzkovateľ si vyhradzuje právo program kedykoľvek zmeniť, obmedziť alebo ukončiť, ako aj upraviť výšku a podmienky bonusu. Nevyužitý bonus môže expirovať po dobe uvedenej pri jeho pripísaní.</p>
+              <p><strong className="text-foreground">5a.5.</strong> Pri zrušení účtu alebo porušení VOP nárok na nevyužitý bonus zaniká bez náhrady.</p>
+            </div>
+          </section>
             <div className="flex items-center gap-3 mb-4">
               <Ban className="w-6 h-6 text-primary" />
               <h2 className="font-display text-2xl font-semibold">6. Zrušenie a storno</h2>

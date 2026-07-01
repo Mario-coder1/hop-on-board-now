@@ -177,6 +177,16 @@ const GDPR = () => {
 
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
+              <CreditCard className="w-6 h-6 text-primary" />
+              <h2 className="font-display text-2xl font-semibold">Cold Start Bonus</h2>
+            </div>
+            <div className="space-y-2 text-muted-foreground">
+              <p>V rámci uvítacieho programu „Cold Start Bonus" spracúvame len údaje nevyhnutné na overenie nároku (e-mail, identifikátor účtu, zariadenia a IP adresa) na právnom základe plnenia zmluvy a oprávneného záujmu (prevencia zneužitia a viacnásobných registrácií). Údaje uchovávame po dobu trvania programu a max. 12 mesiacov po jeho ukončení pre účely kontroly a účtovníctva. Podrobné pravidlá programu sú v <a href="/terms" className="text-primary underline">Obchodných podmienkach</a>.</p>
+            </div>
+          </section>
+
+          <section className="p-6 rounded-2xl bg-card border border-border">
+            <div className="flex items-center gap-3 mb-4">
               <Shield className="w-6 h-6 text-primary" />
               <h2 className="font-display text-2xl font-semibold">Dozorný orgán</h2>
             </div>
