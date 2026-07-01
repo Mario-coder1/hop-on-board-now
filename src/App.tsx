@@ -19,6 +19,7 @@ import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import { WelcomeOnboardingDialog } from "./components/WelcomeOnboardingDialog";
 import { OnboardingTour } from "./components/OnboardingTour";
 import RequireFullNameDialog from "./components/RequireFullNameDialog";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 // Lazy-load all non-critical routes for faster initial load
 const Auth = lazy(() => import("./pages/Auth"));
@@ -93,6 +94,7 @@ const AppRoutes = () => {
       <WelcomeOnboardingDialog />
       <OnboardingTour />
       <RequireFullNameDialog />
+      <CookieConsentBanner />
       <main id="main-content">
         <Suspense fallback={<RouteFallback />}>
           <Routes>
