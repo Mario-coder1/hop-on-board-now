@@ -129,6 +129,8 @@ const TermsOfService = () => {
               <p><strong className="text-foreground">5a.5.</strong> Pri zrušení účtu alebo porušení VOP nárok na nevyužitý bonus zaniká bez náhrady.</p>
             </div>
           </section>
+
+          <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <Ban className="w-6 h-6 text-primary" />
               <h2 className="font-display text-2xl font-semibold">6. Zrušenie a storno</h2>
