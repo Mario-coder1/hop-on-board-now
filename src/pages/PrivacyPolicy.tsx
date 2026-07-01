@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-  const lastUpdated = '1. 6. 2026';
+  const lastUpdated = '1. 7. 2026';
 
   return (
     <div className="min-h-screen bg-background">
