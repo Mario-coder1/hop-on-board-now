@@ -94,6 +94,7 @@ const AppRoutes = () => {
       <WelcomeOnboardingDialog />
       <OnboardingTour />
       <RequireFullNameDialog />
+      <CookieConsentBanner />
       <main id="main-content">
         <Suspense fallback={<RouteFallback />}>
           <Routes>
