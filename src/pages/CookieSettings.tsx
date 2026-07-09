@@ -4,7 +4,7 @@ import { Cookie, ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { SEO } from '@/components/SEO';
+import SEO from '@/components/SEO';
 import { getCookieConsent, type CookieConsent } from '@/components/CookieConsentBanner';
 
 const STORAGE_KEY = 'takeme_cookie_consent_v1';
