@@ -9,11 +9,9 @@ import {
   CheckCircle2,
   CreditCard,
   Bell,
-  Star,
   Navigation as NavIcon,
   Search,
   Plus,
-  Wallet,
   Route,
   Sparkles,
 } from 'lucide-react';
@@ -28,7 +26,6 @@ import shotSearch from '@/assets/tutorial/02-search.png.asset.json';
 import shotCreate from '@/assets/tutorial/03-create.png.asset.json';
 import shotMyRides from '@/assets/tutorial/04-myrides.png.asset.json';
 import shotProfile from '@/assets/tutorial/05-profile.png.asset.json';
-import shotWallet from '@/assets/tutorial/06-wallet.png.asset.json';
 import shotMyTrips from '@/assets/tutorial/07-mytrips.png.asset.json';
 
 /* --------------------------- Phone Frame (responsive) --------------------------- */
@@ -109,13 +106,6 @@ const driverSteps: Step[] = [
     tag: 'Počas jazdy',
     image: shotMyTrips.url,
   },
-  {
-    title: 'Výplata z peňaženky',
-    description: '90 % ceny ti automaticky pristane v peňaženke po dokončení jazdy. Cez „Požiadať o výplatu" si peniaze pošleš na účet.',
-    icon: Wallet,
-    tag: 'Zarábanie',
-    image: shotWallet.url,
-  },
 ];
 
 const passengerSteps: Step[] = [
@@ -152,13 +142,6 @@ const passengerSteps: Step[] = [
     description: 'Po schválení vidíš vodičovu polohu v reálnom čase. Keď je na mieste, dostaneš notifikáciu. Jazda sa ukončí automaticky < 50 m od cieľa.',
     icon: NavIcon,
     tag: 'Počas jazdy',
-    image: shotMyTrips.url,
-  },
-  {
-    title: 'Ohodnoť vodiča',
-    description: 'Po jazde ohodnoť vodiča 1–5 hviezdičkami. V Mojich cestách máš celú históriu a môžeš nahlásiť prípadný problém.',
-    icon: Star,
-    tag: 'Po jazde',
     image: shotMyTrips.url,
   },
 ];
