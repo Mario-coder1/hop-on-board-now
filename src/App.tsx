@@ -49,6 +49,7 @@ const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
 const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
 const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 const Wallet = lazy(() => import("./pages/Wallet"));
+const CookieSettings = lazy(() => import("./pages/CookieSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -126,6 +127,7 @@ const AppRoutes = () => {
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+            <Route path="/cookies" element={<CookieSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
