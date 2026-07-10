@@ -125,7 +125,6 @@ const AppRoutes = () => {
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/tutorial" element={<Tutorial />} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
-            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="/cookies" element={<CookieSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
