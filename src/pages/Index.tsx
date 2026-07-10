@@ -9,7 +9,7 @@ import {
   Search,
   MousePointerClick,
   MapPin,
-  Wallet,
+  Coins,
   ShieldCheck,
   Leaf,
   Users,
@@ -248,7 +248,7 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
-                icon: <Wallet className="w-5 h-5" />,
+                icon: <Coins className="w-5 h-5" />,
                 title: t("why.money.title"),
                 desc: t("why.money.desc"),
               },
