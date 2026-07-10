@@ -87,11 +87,11 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
     : estPrice;
 
   const title = variantOverride
-    ? `Spolujazda ${fromCity.name} → ${toCity.name} ${variantOverride.titleSuffix} | TakeMe`
-    : `Spolujazda ${fromCity.name} → ${toCity.name} | TakeMe`;
+    ? `${fromCity.name} do ${toCity.name} — ${variantOverride.titleSuffix} | Spolujazda a odvoz na TakeMe.sk`
+    : `${fromCity.name} do ${toCity.name} | Spolujazda a odvoz na TakeMe.sk`;
   const description = variantOverride
-    ? `Spolujazda z ${fromCity.name} do ${toCity.name} ${variantOverride.titleSuffix}. ${variantOverride.descSuffix} ${km} km, cca ${duration}, priemerná cena ${avgPrice} €.`
-    : `Nájdi spolujazdu z ${fromCity.name} do ${toCity.name}. ${km} km, cca ${duration}. Aktuálne ${rides.length} jázd, priemerná cena ${avgPrice} €. Lacná a rýchla doprava na trase ${fromCity.name} – ${toCity.name}.`;
+    ? `Hľadáte spolujazdu na trase ${fromCity.name} – ${toCity.name}? ${variantOverride.descSuffix} Pozrite si ponuku voľných miest, pridajte sa k vodičovi a cestujte lacnejšie s TakeMe.sk. ${km} km, cca ${duration}, priemerná cena ${avgPrice} €.`
+    : `Hľadáte spolujazdu na trase ${fromCity.name} – ${toCity.name}? Pozrite si ponuku voľných miest, pridajte sa k vodičovi a cestujte lacnejšie s TakeMe.sk. ${km} km, cca ${duration}, aktuálne ${rides.length} jázd, priemerná cena ${avgPrice} €.`;
   const path = variantOverride
     ? `/jazdy/${fromCity.slug}-${toCity.slug}/${variantOverride.slug}`
     : `/jazdy/${fromCity.slug}-${toCity.slug}`;
