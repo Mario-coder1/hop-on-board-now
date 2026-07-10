@@ -688,22 +688,8 @@ const Profile = () => {
             </a>
           </div>
 
-          {/* Wallet */}
-          <Link
-            to="/wallet"
-            className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-between hover:from-primary/15 hover:to-primary/10 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-                <WalletIcon className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <div className="font-semibold">Moja peňaženka</div>
-                <div className="text-xs text-muted-foreground">Zostatok, transakcie, výplaty</div>
-              </div>
-            </div>
-            <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
-          </Link>
+
+
 
           {profile.selected_role === 'driver' && <ColdStartCard />}
 
