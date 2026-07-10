@@ -69,16 +69,33 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background relative">
       <SEO
-        title="TakeMe — Zdieľané jazdy na Slovensku"
-        description="Slovenská spolujazda. Nájdi vodiča alebo ponúkni miesto v aute, sleduj jazdu naživo a šetri náklady. Bratislava, Košice, Žilina a celé Slovensko."
+        title="TakeMe.sk – Slovenská spolujazda a ridesharing"
+        description="Hľadáte lacný odvoz? TakeMe.sk je slovenská platforma na ridesharing a zdieľanú spolujazdu. Cestujte ekologicky, nájdite vodiča a zdieľajte náklady na palivo."
         path="/"
-        keywords="spolujazda, zdieľané jazdy, takeme, blablacar Slovensko, carpooling, jazdy Bratislava Košice, lacná doprava, vodič hľadá pasažierov"
+        keywords="spolujazda, ridesharing, zdieľané jazdy, takeme, takeme.sk, blablacar Slovensko, carpooling, lacný odvoz, vodič hľadá pasažierov, zdieľanie nákladov na palivo"
         jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: 'takeme.sk',
+            serviceType: 'Ridesharing a spolujazda',
+            url: 'https://www.takeme.sk/',
+            areaServed: { '@type': 'Country', name: 'Slovakia' },
+            provider: {
+              '@type': 'Organization',
+              name: 'takeme.sk',
+              url: 'https://www.takeme.sk/',
+              email: 'support@takeme.sk',
+              logo: 'https://www.takeme.sk/pwa-512x512.png',
+            },
+            description: 'Hľadáte lacný odvoz? TakeMe.sk je slovenská platforma na ridesharing a spolujazdu. Cestujte ekologicky, nájdite vodiča a zdieľajte náklady na palivo.',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+          },
           {
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
             name: 'TakeMe',
-            url: 'https://takeme.sk/',
+            url: 'https://www.takeme.sk/',
             applicationCategory: 'TravelApplication',
             operatingSystem: 'Web, iOS, Android',
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
@@ -111,10 +128,8 @@ const Index = () => {
             <span>{onlineCount} {t("hero.badge_online")}</span>
           </div>
 
-          <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 leading-[1.02] tracking-tight">
-            {t("hero.title_1")}
-            <br />
-            <span className="text-muted-foreground">{t("hero.title_2")}</span>
+          <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 leading-[1.02] tracking-tight">
+            Slovenská spolujazda a ridesharing
           </h1>
 
           <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
