@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
+import PhoneDemoMockup from "@/components/PhoneDemoMockup";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -158,6 +159,16 @@ const Index = () => {
             <CheckCircle className="w-3.5 h-3.5 text-green-500" />
             {t("free.badge")}
           </p>
+
+          {/* Live app demo — animated phone mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="mt-16 md:mt-20"
+          >
+            <PhoneDemoMockup />
+          </motion.div>
         </motion.div>
 
         {/* Early adopter appeal */}
