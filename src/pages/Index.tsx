@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
+import PhoneDemoMockup from "@/components/PhoneDemoMockup";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
