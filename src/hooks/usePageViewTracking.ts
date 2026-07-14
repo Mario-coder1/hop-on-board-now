@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SESSION_KEY = 'tm_session_id';
 
@@ -17,8 +18,15 @@ function getSessionId(): string {
   }
 }
 
+/**
+ * Lightweight page-view tracking:
+ * - Reuses profile from AuthContext (no extra auth.getUser / profiles select per navigation).
+ * - Deduplicates same-path navigations.
+ * - Fires the insert lazily via requestIdleCallback so it never blocks render.
+ */
 export function usePageViewTracking() {
   const location = useLocation();
+  const { profile } = useAuth();
   const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
@@ -26,30 +34,22 @@ export function usePageViewTracking() {
     if (lastPath.current === path) return;
     lastPath.current = path;
 
-    const log = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        let profileId: string | null = null;
-        if (user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          profileId = data?.id ?? null;
-        }
-
-        await supabase.from('page_views').insert({
-          path,
-          session_id: getSessionId(),
-          profile_id: profileId,
-          referrer: document.referrer || null,
-          user_agent: navigator.userAgent,
-        });
-      } catch {
-        // silent
-      }
+    const payload = {
+      path,
+      session_id: getSessionId(),
+      profile_id: profile?.id ?? null,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
     };
-    log();
-  }, [location.pathname]);
+
+    const send = () => {
+      supabase.from('page_views').insert(payload).then(() => {}, () => {});
+    };
+
+    const ric = (window as any).requestIdleCallback as
+      | ((cb: () => void, opts?: { timeout: number }) => number)
+      | undefined;
+    if (ric) ric(send, { timeout: 2000 });
+    else setTimeout(send, 500);
+  }, [location.pathname, profile?.id]);
 }
