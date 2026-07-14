@@ -720,6 +720,7 @@ const Admin = () => {
                 { v: 'settings', icon: Settings, label: 'Nastavenia' },
                 { v: 'gas_stations', icon: Fuel, label: 'Stanice' },
                 { v: 'disputes', icon: AlertTriangle, label: 'Reklamácie' },
+                { v: 'live', icon: Radio, label: 'Live poloha' },
                 { v: 'audit', icon: ShieldCheck, label: 'Audit' },
               ].map(({ v, icon: Icon, label }) => (
                 <TabsTrigger
