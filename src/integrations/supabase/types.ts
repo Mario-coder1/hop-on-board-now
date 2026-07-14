@@ -1416,6 +1416,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_visitor_stats: { Args: never; Returns: Json }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
