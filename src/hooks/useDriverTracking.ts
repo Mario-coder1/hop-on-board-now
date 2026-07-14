@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DriverLocation {
@@ -8,6 +8,8 @@ interface DriverLocation {
   speed: number | null;
   updated_at: string;
 }
+
+const broadcastTopic = (profileId: string) => `driver-loc:${profileId}`;
 
 export const useDriverTracking = (driverProfileId: string | null) => {
   const [location, setLocation] = useState<DriverLocation | null>(null);
@@ -20,6 +22,8 @@ export const useDriverTracking = (driverProfileId: string | null) => {
       return;
     }
 
+    let cancelled = false;
+
     const fetchInitialLocation = async () => {
       const { data, error } = await supabase
         .from('user_locations')
@@ -27,8 +31,8 @@ export const useDriverTracking = (driverProfileId: string | null) => {
         .eq('profile_id', driverProfileId)
         .maybeSingle();
 
+      if (cancelled) return;
       if (error) {
-        console.error('Error fetching driver location:', error);
         setError(error.message);
       } else if (data) {
         setLocation({
@@ -36,7 +40,7 @@ export const useDriverTracking = (driverProfileId: string | null) => {
           lng: Number(data.lng),
           heading: data.heading ? Number(data.heading) : null,
           speed: data.speed ? Number(data.speed) : null,
-          updated_at: data.updated_at
+          updated_at: data.updated_at,
         });
       }
       setIsLoading(false);
@@ -44,8 +48,24 @@ export const useDriverTracking = (driverProfileId: string | null) => {
 
     fetchInitialLocation();
 
-    // Subscribe to realtime updates
-    const channel = supabase
+    // Primary: ephemeral Realtime Broadcast channel (no DB write per tick)
+    const bcast = supabase
+      .channel(broadcastTopic(driverProfileId), { config: { broadcast: { self: false } } })
+      .on('broadcast', { event: 'loc' }, (msg) => {
+        const p = msg.payload as any;
+        if (!p) return;
+        setLocation({
+          lat: Number(p.lat),
+          lng: Number(p.lng),
+          heading: p.heading != null ? Number(p.heading) : null,
+          speed: p.speed != null ? Number(p.speed) : null,
+          updated_at: p.updated_at ?? new Date().toISOString(),
+        });
+      })
+      .subscribe();
+
+    // Fallback: DB row changes (rare, for recovery / initial persistence)
+    const dbch = supabase
       .channel(`driver-location-${driverProfileId}`)
       .on(
         'postgres_changes',
@@ -53,18 +73,24 @@ export const useDriverTracking = (driverProfileId: string | null) => {
           event: '*',
           schema: 'public',
           table: 'user_locations',
-          filter: `profile_id=eq.${driverProfileId}`
+          filter: `profile_id=eq.${driverProfileId}`,
         },
         (payload) => {
-          console.log('Location update received:', payload);
           if (payload.new && typeof payload.new === 'object') {
             const newData = payload.new as any;
-            setLocation({
-              lat: Number(newData.lat),
-              lng: Number(newData.lng),
-              heading: newData.heading ? Number(newData.heading) : null,
-              speed: newData.speed ? Number(newData.speed) : null,
-              updated_at: newData.updated_at
+            setLocation((prev) => {
+              const next = {
+                lat: Number(newData.lat),
+                lng: Number(newData.lng),
+                heading: newData.heading ? Number(newData.heading) : null,
+                speed: newData.speed ? Number(newData.speed) : null,
+                updated_at: newData.updated_at,
+              };
+              // Prefer newer timestamp
+              if (prev && new Date(prev.updated_at).getTime() >= new Date(next.updated_at).getTime()) {
+                return prev;
+              }
+              return next;
             });
           }
         }
@@ -72,7 +98,9 @@ export const useDriverTracking = (driverProfileId: string | null) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      supabase.removeChannel(bcast);
+      supabase.removeChannel(dbch);
     };
   }, [driverProfileId]);
 
@@ -81,49 +109,123 @@ export const useDriverTracking = (driverProfileId: string | null) => {
 
 const TRACKING_STORAGE_KEY = 'takeme_location_tracking_active';
 
-// Module-level singleton so tracking persists across component remounts within the session
+// Module-level singletons so tracking persists across component remounts
 let activeWatchId: number | null = null;
 let activeProfileId: string | null = null;
+let activeBroadcastChannel: ReturnType<typeof supabase.channel> | null = null;
 
+// Throttling state
+let lastBroadcastAt = 0;
+let lastDbUpsertAt = 0;
 let lastHistoryWriteAt = 0;
-const HISTORY_INTERVAL_MS = 10000; // write to history at most every 10s
+let lastSentLat: number | null = null;
+let lastSentLng: number | null = null;
+
+const MIN_MOVE_METERS = 15;              // ignore jitter under 15 m
+const MIN_INTERVAL_MOVING_MS = 2000;     // when moving: max 1 update / 2 s
+const MIN_INTERVAL_IDLE_MS = 30000;      // when stationary: 1 update / 30 s (heartbeat)
+const DB_UPSERT_INTERVAL_MS = 15000;     // persist to DB at most every 15 s
+const HISTORY_INTERVAL_MS = 20000;       // history sample every 20 s
+
+// Haversine distance in meters
+const distanceMeters = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+};
+
+const ensureBroadcastChannel = (profileId: string) => {
+  if (activeBroadcastChannel && activeProfileId === profileId) return activeBroadcastChannel;
+  if (activeBroadcastChannel) {
+    supabase.removeChannel(activeBroadcastChannel);
+    activeBroadcastChannel = null;
+  }
+  activeBroadcastChannel = supabase.channel(broadcastTopic(profileId), {
+    config: { broadcast: { self: false, ack: false } },
+  });
+  activeBroadcastChannel.subscribe();
+  return activeBroadcastChannel;
+};
 
 const startWatch = (profileId: string): number => {
+  // Reset throttle state for new session
+  lastBroadcastAt = 0;
+  lastDbUpsertAt = 0;
+  lastHistoryWriteAt = 0;
+  lastSentLat = null;
+  lastSentLng = null;
+
+  const channel = ensureBroadcastChannel(profileId);
+
   return navigator.geolocation.watchPosition(
     async (position) => {
       const { latitude, longitude, heading, speed } = position.coords;
-      console.log('Broadcasting location:', { latitude, longitude });
+      const now = Date.now();
 
-      const { error } = await supabase
-        .from('user_locations')
-        .upsert({
-          profile_id: profileId,
-          lat: latitude,
-          lng: longitude,
-          heading: heading,
-          speed: speed,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'profile_id'
-        });
+      const movedM =
+        lastSentLat != null && lastSentLng != null
+          ? distanceMeters(lastSentLat, lastSentLng, latitude, longitude)
+          : Infinity;
 
-      if (error) {
-        console.error('Error updating location:', error);
+      const isMoving = (speed != null && speed > 0.5) || movedM >= MIN_MOVE_METERS;
+      const minInterval = isMoving ? MIN_INTERVAL_MOVING_MS : MIN_INTERVAL_IDLE_MS;
+      const elapsed = now - lastBroadcastAt;
+
+      // Skip if not enough time AND not enough movement
+      if (elapsed < minInterval && movedM < MIN_MOVE_METERS) {
+        return;
       }
 
-      // Persist to history (throttled) for dispute resolution
-      const now = Date.now();
+      lastBroadcastAt = now;
+      lastSentLat = latitude;
+      lastSentLng = longitude;
+
+      const updatedAt = new Date(now).toISOString();
+      const payload = {
+        lat: latitude,
+        lng: longitude,
+        heading,
+        speed,
+        updated_at: updatedAt,
+      };
+
+      // 1. Fast path: ephemeral Realtime Broadcast (WebSocket, no DB write)
+      try {
+        await channel.send({ type: 'broadcast', event: 'loc', payload });
+      } catch (e) {
+        console.error('broadcast send error:', e);
+      }
+
+      // 2. Slow path: throttled DB upsert for persistence + late joiners
+      if (now - lastDbUpsertAt >= DB_UPSERT_INTERVAL_MS) {
+        lastDbUpsertAt = now;
+        const { error } = await supabase
+          .from('user_locations')
+          .upsert(
+            {
+              profile_id: profileId,
+              lat: latitude,
+              lng: longitude,
+              heading,
+              speed,
+              updated_at: updatedAt,
+            },
+            { onConflict: 'profile_id' }
+          );
+        if (error) console.error('Error upserting location:', error);
+      }
+
+      // 3. History (for disputes)
       if (now - lastHistoryWriteAt >= HISTORY_INTERVAL_MS) {
         lastHistoryWriteAt = now;
         const { error: histErr } = await supabase
           .from('driver_location_history')
-          .insert({
-            profile_id: profileId,
-            lat: latitude,
-            lng: longitude,
-            heading,
-            speed,
-          });
+          .insert({ profile_id: profileId, lat: latitude, lng: longitude, heading, speed });
         if (histErr) console.error('Error writing location history:', histErr);
       }
     },
@@ -133,11 +235,22 @@ const startWatch = (profileId: string): number => {
     {
       enableHighAccuracy: true,
       timeout: 10000,
-      maximumAge: 0
+      maximumAge: 0,
     }
   );
 };
 
+const stopWatch = () => {
+  if (activeWatchId !== null) {
+    navigator.geolocation.clearWatch(activeWatchId);
+    activeWatchId = null;
+  }
+  if (activeBroadcastChannel) {
+    supabase.removeChannel(activeBroadcastChannel);
+    activeBroadcastChannel = null;
+  }
+  activeProfileId = null;
+};
 
 export const useLocationBroadcast = (profileId: string | null) => {
   const [isTracking, setIsTracking] = useState<boolean>(() => {
@@ -152,24 +265,19 @@ export const useLocationBroadcast = (profileId: string | null) => {
     const wasActive = localStorage.getItem(TRACKING_STORAGE_KEY) === 'true';
     if (!wasActive) return;
 
-    // Already tracking for this profile — just sync UI state
     if (activeWatchId !== null && activeProfileId === profileId) {
       setIsTracking(true);
       return;
     }
 
-    // Clear stale watch from a previous profile
-    if (activeWatchId !== null) {
-      navigator.geolocation.clearWatch(activeWatchId);
-      activeWatchId = null;
-    }
+    if (activeWatchId !== null) stopWatch();
 
     activeWatchId = startWatch(profileId);
     activeProfileId = profileId;
     setIsTracking(true);
   }, [profileId]);
 
-  // Auto-start tracking when driver has any active/in-progress ride (for dispute evidence)
+  // Auto-start when driver has active ride
   useEffect(() => {
     if (!profileId || !navigator.geolocation) return;
     let cancelled = false;
@@ -184,7 +292,7 @@ export const useLocationBroadcast = (profileId: string | null) => {
       if (cancelled || error) return;
       const hasActive = (data?.length ?? 0) > 0;
       if (hasActive && (activeWatchId === null || activeProfileId !== profileId)) {
-        if (activeWatchId !== null) navigator.geolocation.clearWatch(activeWatchId);
+        if (activeWatchId !== null) stopWatch();
         activeWatchId = startWatch(profileId);
         activeProfileId = profileId;
         localStorage.setItem(TRACKING_STORAGE_KEY, 'true');
@@ -194,7 +302,6 @@ export const useLocationBroadcast = (profileId: string | null) => {
 
     ensureTrackingForActiveRide();
 
-    // Re-check when driver's rides change (new ride created, ride started, etc.)
     const channel = supabase
       .channel(`auto-track-${profileId}`)
       .on(
@@ -211,15 +318,8 @@ export const useLocationBroadcast = (profileId: string | null) => {
   }, [profileId]);
 
   const startTracking = useCallback(async () => {
-    if (!profileId || !navigator.geolocation) {
-      console.error('Geolocation not available or no profile ID');
-      return;
-    }
-
-    if (activeWatchId !== null) {
-      navigator.geolocation.clearWatch(activeWatchId);
-    }
-
+    if (!profileId || !navigator.geolocation) return;
+    if (activeWatchId !== null) stopWatch();
     activeWatchId = startWatch(profileId);
     activeProfileId = profileId;
     localStorage.setItem(TRACKING_STORAGE_KEY, 'true');
@@ -227,11 +327,7 @@ export const useLocationBroadcast = (profileId: string | null) => {
   }, [profileId]);
 
   const stopTracking = useCallback(() => {
-    if (activeWatchId !== null) {
-      navigator.geolocation.clearWatch(activeWatchId);
-      activeWatchId = null;
-      activeProfileId = null;
-    }
+    stopWatch();
     localStorage.removeItem(TRACKING_STORAGE_KEY);
     setIsTracking(false);
   }, []);
