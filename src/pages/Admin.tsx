@@ -37,6 +37,7 @@ import {
   Megaphone,
   BarChart3,
   Wifi,
+  Radio,
   Fuel,
   ShieldCheck
 } from 'lucide-react';
@@ -45,6 +46,7 @@ import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
 import AdminDisputes from '@/components/admin/AdminDisputes';
 import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
+import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
 
 import {
   Dialog,
@@ -719,6 +721,7 @@ const Admin = () => {
                 { v: 'settings', icon: Settings, label: 'Nastavenia' },
                 { v: 'gas_stations', icon: Fuel, label: 'Stanice' },
                 { v: 'disputes', icon: AlertTriangle, label: 'Reklamácie' },
+                { v: 'live', icon: Radio, label: 'Live poloha' },
                 { v: 'audit', icon: ShieldCheck, label: 'Audit' },
               ].map(({ v, icon: Icon, label }) => (
                 <TabsTrigger
@@ -735,6 +738,10 @@ const Admin = () => {
 
           <TabsContent value="audit" className="space-y-4">
             <SecurityAuditTab />
+          </TabsContent>
+
+          <TabsContent value="live" className="space-y-4">
+            <LiveUpdatesStats />
           </TabsContent>
 
           <TabsContent value="disputes" className="space-y-4">
