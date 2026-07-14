@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
 }
 
 Deno.serve(async (req) => {
@@ -13,10 +13,18 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Delete rides whose departure_time is more than 24 hours in the past
+    // Auth: require x-internal-secret matching stored internal secret (used by pg_cron)
+    const providedSecret = req.headers.get('x-internal-secret')
+    const { data: expected, error: secretErr } = await supabase.rpc('get_internal_push_secret')
+    if (secretErr || !expected || !providedSecret || providedSecret !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
     const { data: deletedRides, error } = await supabase
@@ -33,11 +41,9 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log(`Deleted ${deletedRides?.length || 0} expired rides`)
-
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         deleted: deletedRides?.length || 0,
         timestamp: new Date().toISOString()
       }),
