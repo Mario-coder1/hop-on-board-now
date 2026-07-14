@@ -37,6 +37,7 @@ import {
   Megaphone,
   BarChart3,
   Wifi,
+  Radio,
   Fuel,
   ShieldCheck
 } from 'lucide-react';
