@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.95.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
 };
 
 const DAYS_AHEAD = 7;
@@ -18,6 +18,16 @@ Deno.serve(async (req) => {
   );
 
   try {
+    // Auth: shared internal secret (pg_cron passes this header)
+    const providedSecret = req.headers.get('x-internal-secret');
+    const { data: expected, error: secretErr } = await supabase.rpc('get_internal_push_secret');
+    if (secretErr || !expected || !providedSecret || providedSecret !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { data: templates, error } = await supabase
       .from('ride_templates')
       .select('*')
