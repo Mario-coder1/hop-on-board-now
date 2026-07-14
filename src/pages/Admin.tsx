@@ -740,6 +740,10 @@ const Admin = () => {
             <SecurityAuditTab />
           </TabsContent>
 
+          <TabsContent value="live" className="space-y-4">
+            <LiveUpdatesStats />
+          </TabsContent>
+
           <TabsContent value="disputes" className="space-y-4">
             <AdminDisputes />
           </TabsContent>
