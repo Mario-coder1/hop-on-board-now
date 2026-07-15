@@ -139,7 +139,7 @@ const GDPR = () => {
               <div className="mt-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
                 <p className="text-destructive flex items-center gap-2">
                   <AlertCircle className="w-5 h-5" />
-                  <strong>Upozornenie:</strong> Zmazanie účtu je nevratné. Pred žiadosťou si vyberte zostatok z peňaženky.
+                  <strong>Upozornenie:</strong> Zmazanie účtu je nevratné. Prípadné nevyplatené prostriedky vodiča sú pred zrušením účtu vyplatené cez Stripe na jeho bankový účet.
                 </p>
               </div>
             </div>
