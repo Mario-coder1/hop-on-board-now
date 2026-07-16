@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -73,13 +73,18 @@ const Auth: React.FC = () => {
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Preserve ?next= (must be same-origin relative path) through login/signup/OAuth
+  const rawNext = searchParams.get('next');
+  const nextPath = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(nextPath, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, nextPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +106,7 @@ const Auth: React.FC = () => {
             title: "Vitajte späť!",
             description: "Úspešne ste sa prihlásili."
           });
-          navigate('/');
+          navigate(nextPath, { replace: true });
         }
       } else {
         const nameErr = validateFullNameStrict(fullName);
@@ -146,7 +151,7 @@ const Auth: React.FC = () => {
             title: "Účet vytvorený",
             description: "Registrácia je hotová, môžeš pokračovať v aplikácii."
           });
-          navigate('/');
+          navigate(nextPath, { replace: true });
         }
       }
 
@@ -400,7 +405,8 @@ const Auth: React.FC = () => {
                 size="lg"
                 className="w-full"
                 onClick={async () => {
-                  const result = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
+                  const redirect = window.location.origin + nextPath;
+                  const result = await lovable.auth.signInWithOAuth('google', { redirect_uri: redirect });
                   if (result.error) toast({ title: 'Chyba', description: result.error.message, variant: 'destructive' });
                 }}
               >
@@ -414,7 +420,8 @@ const Auth: React.FC = () => {
                 size="lg"
                 className="w-full"
                 onClick={async () => {
-                  const result = await lovable.auth.signInWithOAuth('apple', { redirect_uri: window.location.origin });
+                  const redirect = window.location.origin + nextPath;
+                  const result = await lovable.auth.signInWithOAuth('apple', { redirect_uri: redirect });
                   if (result.error) toast({ title: 'Chyba', description: result.error.message, variant: 'destructive' });
                 }}
               >
