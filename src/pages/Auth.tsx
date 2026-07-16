@@ -106,7 +106,7 @@ const Auth: React.FC = () => {
             title: "Vitajte späť!",
             description: "Úspešne ste sa prihlásili."
           });
-          navigate('/');
+          navigate(nextPath, { replace: true });
         }
       } else {
         const nameErr = validateFullNameStrict(fullName);
@@ -151,7 +151,7 @@ const Auth: React.FC = () => {
             title: "Účet vytvorený",
             description: "Registrácia je hotová, môžeš pokračovať v aplikácii."
           });
-          navigate('/');
+          navigate(nextPath, { replace: true });
         }
       }
 
@@ -405,7 +405,8 @@ const Auth: React.FC = () => {
                 size="lg"
                 className="w-full"
                 onClick={async () => {
-                  const result = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
+                  const redirect = window.location.origin + nextPath;
+                  const result = await lovable.auth.signInWithOAuth('google', { redirect_uri: redirect });
                   if (result.error) toast({ title: 'Chyba', description: result.error.message, variant: 'destructive' });
                 }}
               >
@@ -419,7 +420,8 @@ const Auth: React.FC = () => {
                 size="lg"
                 className="w-full"
                 onClick={async () => {
-                  const result = await lovable.auth.signInWithOAuth('apple', { redirect_uri: window.location.origin });
+                  const redirect = window.location.origin + nextPath;
+                  const result = await lovable.auth.signInWithOAuth('apple', { redirect_uri: redirect });
                   if (result.error) toast({ title: 'Chyba', description: result.error.message, variant: 'destructive' });
                 }}
               >
