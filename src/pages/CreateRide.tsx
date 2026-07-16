@@ -167,6 +167,28 @@ const CreateRide = () => {
       return;
     }
 
+    if (!isRecurring) {
+      const { data: existing, error: existingError } = await supabase
+        .from('rides')
+        .select('id')
+        .eq('driver_id', profile.id)
+        .in('status', ['active', 'in_progress'])
+        .limit(1);
+      if (existingError) {
+        toast({ title: 'Chyba', description: existingError.message, variant: 'destructive' });
+        return;
+      }
+      if (existing && existing.length > 0) {
+        toast({
+          title: 'Už máš aktívnu jazdu',
+          description: 'Novú jazdu môžeš vytvoriť až po dokončení alebo zrušení tej aktuálnej.',
+          variant: 'destructive',
+        });
+        navigate('/driver');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       if (isRecurring) {
