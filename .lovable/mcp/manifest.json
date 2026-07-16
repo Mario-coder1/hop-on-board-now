@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.2",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://cufiyqtmfpwnogxtgrru.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "takeme-mcp",
+      "version": "0.1.0",
+      "title": "TakeMe"
+    },
+    "tools": [
+      {
+        "name": "search_rides",
+        "title": "Vyhľadať dostupné jazdy",
+        "description": "Vyhľadá aktívne a prebiehajúce jazdy podľa mesta pôvodu a cieľa (case-insensitive substring). Vráti až 20 jázd zoradených podľa času odchodu.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "origin": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Mesto alebo časť adresy pôvodu, napr. 'Bratislava'."
+            },
+            "destination": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Mesto alebo časť adresy cieľa, napr. 'Košice'."
+            },
+            "max_price": {
+              "description": "Maximálna cena za miesto v EUR.",
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "origin",
+            "destination"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_rides",
+        "title": "Zoznam mojich jázd (vodič)",
+        "description": "Vráti jazdy, ktoré signed-in používateľ vytvoril ako vodič (aktívne, prebiehajúce, dokončené). Zoradené od najnovších.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter podľa stavu jazdy. Predvolené: all.",
+              "type": "string",
+              "enum": [
+                "active",
+                "in_progress",
+                "completed",
+                "cancelled",
+                "all"
+              ]
+            },
+            "limit": {
+              "description": "Max počet záznamov. Predvolené: 20.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_trips",
+        "title": "Zoznam mojich ciest (spolujazdec)",
+        "description": "Vráti žiadosti o jazdu (ride_requests), kde signed-in používateľ vystupuje ako spolujazdec.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter podľa stavu žiadosti. Predvolené: all.",
+              "type": "string",
+              "enum": [
+                "pending",
+                "accepted",
+                "driver_arrived",
+                "picked_up",
+                "completed",
+                "cancelled",
+                "rejected",
+                "all"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_profile",
+        "title": "Môj profil",
+        "description": "Vráti základné údaje profilu prihláseného používateľa TakeMe: meno, hodnotenie, počet jázd, vybraná rola.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
