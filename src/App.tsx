@@ -20,6 +20,7 @@ import { WelcomeOnboardingDialog } from "./components/WelcomeOnboardingDialog";
 import { OnboardingTour } from "./components/OnboardingTour";
 import RequireFullNameDialog from "./components/RequireFullNameDialog";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import { LegalUpdateDialog } from "./components/LegalUpdateDialog";
 
 // Lazy-load all non-critical routes for faster initial load
 const Auth = lazy(() => import("./pages/Auth"));
@@ -92,6 +93,7 @@ const AppRoutes = () => {
       <ActiveRideFAB />
       <IOSInstallPrompt />
       <WelcomeOnboardingDialog />
+      <LegalUpdateDialog />
       <OnboardingTour />
       <RequireFullNameDialog />
       <CookieConsentBanner />
