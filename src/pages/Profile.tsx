@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -688,8 +688,22 @@ const Profile = () => {
             </a>
           </div>
 
-
-
+          {/* AI Assistant */}
+          <Link
+            to="/ai-assistant"
+            className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border border-primary/30 mt-6 hover:border-primary/60 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-semibold">AI asistent</div>
+                <div className="text-xs text-muted-foreground">Opýtaj sa čokoľvek o TakeMe</div>
+              </div>
+            </div>
+            <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
+          </Link>
 
           {profile.selected_role === 'driver' && <ColdStartCard />}
 

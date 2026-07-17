@@ -51,6 +51,7 @@ const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
 const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 const CookieSettings = lazy(() => import("./pages/CookieSettings"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const AiAssistant = lazy(() => import("./pages/AiAssistant"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +116,7 @@ const AppRoutes = () => {
             <Route path="/manage-passengers/:rideId" element={<ProtectedRoute><ManagePassengers /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
+            <Route path="/ai-assistant" element={<ProtectedRoute><AiAssistant /></ProtectedRoute>} />
             <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
             <Route path="/komunity" element={<ProtectedRoute><Komunity /></ProtectedRoute>} />
             <Route path="/co2" element={<Co2Calculator />} />
