@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Car, MapPin, Users, ArrowRight, Mail, Lock, User, FileText } from 'lucide-react';
+import { Car, MapPin, Users, ArrowRight, Mail, Lock, User, FileText, Eye, EyeOff, Shield, Cookie } from 'lucide-react';
 import SEO from '@/components/SEO';
 import AnimatedAuthBackground from '@/components/AnimatedAuthBackground';
 import AuthOnboardingSteps from '@/components/AuthOnboardingSteps';
@@ -68,6 +68,8 @@ const Auth: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -332,14 +334,23 @@ const Auth: React.FC = () => {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-11 h-12"
+                    className="pl-11 pr-11 h-12"
                     required
                     minLength={isLogin ? 6 : 8}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? 'Skryť heslo' : 'Zobraziť heslo'}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
                 {!isLogin && (
                   <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
@@ -353,20 +364,30 @@ const Auth: React.FC = () => {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="confirmPassword"
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-11 h-12"
+                      className="pl-11 pr-11 h-12"
                       required
                       minLength={8}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showConfirmPassword ? 'Skryť heslo' : 'Zobraziť heslo'}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                   {confirmPassword.length > 0 && password !== confirmPassword && (
                     <p className="text-xs text-destructive">Heslá sa nezhodujú.</p>
                   )}
                 </div>
               )}
+
 
 
               {!isLogin && (
@@ -494,6 +515,27 @@ const Auth: React.FC = () => {
                 Tutoriál — ako TakeMe funguje
               </a>
             </div>
+
+            <div className="mt-6 pt-6 border-t border-border/50">
+              <p className="text-xs text-center text-muted-foreground mb-3">
+                Prezrite si dokumenty aj bez prihlásenia:
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+                <a href="/terms" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <FileText className="w-3.5 h-3.5" /> Obchodné podmienky
+                </a>
+                <a href="/privacy" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Shield className="w-3.5 h-3.5" /> Ochrana súkromia
+                </a>
+                <a href="/gdpr" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Shield className="w-3.5 h-3.5" /> GDPR
+                </a>
+                <a href="/cookies" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Cookie className="w-3.5 h-3.5" /> Cookies
+                </a>
+              </div>
+            </div>
+
           </motion.div>
         </div>
       </motion.div>
