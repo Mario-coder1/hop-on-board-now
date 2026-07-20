@@ -62,18 +62,19 @@ const PublicChat = () => {
     fetchMessages();
 
     const channel = supabase
-      .channel('public-chat')
+      .channel("public-chat")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'public_chat_messages'
+          event: "INSERT",
+          schema: "public",
+          table: "public_chat_messages",
         },
         async (payload) => {
           const { data } = await supabase
-            .from('public_chat_messages')
-            .select(`
+            .from("public_chat_messages")
+            .select(
+              `
               id,
               message,
               image_url,
@@ -86,25 +87,26 @@ const PublicChat = () => {
                 badge,
                 total_rides
               )
-            `)
-            .eq('id', payload.new.id)
+            `,
+            )
+            .eq("id", payload.new.id)
             .single();
 
           if (data) {
-            setMessages(prev => [...prev, data as unknown as ChatMessage]);
+            setMessages((prev) => [...prev, data as unknown as ChatMessage]);
           }
-        }
+        },
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'public_chat_messages'
+          event: "DELETE",
+          schema: "public",
+          table: "public_chat_messages",
         },
         (payload) => {
-          setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-        }
+          setMessages((prev) => prev.filter((msg) => msg.id !== payload.old.id));
+        },
       )
       .subscribe();
 
@@ -116,8 +118,9 @@ const PublicChat = () => {
   const fetchMessages = async () => {
     try {
       const { data, error } = await supabase
-        .from('public_chat_messages')
-        .select(`
+        .from("public_chat_messages")
+        .select(
+          `
           id,
           message,
           image_url,
@@ -130,14 +133,15 @@ const PublicChat = () => {
             badge,
             total_rides
           )
-        `)
-        .order('created_at', { ascending: true })
+        `,
+        )
+        .order("created_at", { ascending: true })
         .limit(100);
 
       if (error) throw error;
       setMessages((data as unknown as ChatMessage[]) || []);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error("Error fetching messages:", error);
       toast.error("Nepodarilo sa načítať správy");
     } finally {
       setLoading(false);
@@ -148,7 +152,7 @@ const PublicChat = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Vyber prosím obrázok");
       return;
     }
@@ -170,33 +174,31 @@ const PublicChat = () => {
     setSelectedImage(null);
     setImagePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const uploadImage = async (): Promise<string | null> => {
     if (!selectedImage || !profile?.id) return null;
 
-    const fileExt = selectedImage.name.split('.').pop();
+    const fileExt = selectedImage.name.split(".").pop();
     const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('chat-images')
-      .upload(fileName, selectedImage);
+    const { error: uploadError } = await supabase.storage.from("chat-images").upload(fileName, selectedImage);
 
     if (uploadError) {
       throw uploadError;
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('chat-images')
-      .getPublicUrl(fileName);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("chat-images").getPublicUrl(fileName);
 
     return publicUrl;
   };
 
   const addEmoji = (emoji: any) => {
-    setNewMessage(prev => prev + emoji.native);
+    setNewMessage((prev) => prev + emoji.native);
     setEmojiOpen(false);
     inputRef.current?.focus();
   };
@@ -215,21 +217,19 @@ const PublicChat = () => {
         imageUrl = await uploadImage();
       }
 
-      const { error } = await supabase
-        .from('public_chat_messages')
-        .insert({
-          profile_id: profile.id,
-          message: newMessage.trim(),
-          image_url: imageUrl
-        });
+      const { error } = await supabase.from("public_chat_messages").insert({
+        profile_id: profile.id,
+        message: newMessage.trim(),
+        image_url: imageUrl,
+      });
 
       if (error) throw error;
-      
+
       setNewMessage("");
       clearSelectedImage();
       inputRef.current?.focus();
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       toast.error("Nepodarilo sa odoslať správu");
     } finally {
       setSending(false);
@@ -239,23 +239,20 @@ const PublicChat = () => {
 
   const deleteMessage = async (messageId: string) => {
     try {
-      const { error } = await supabase
-        .from('public_chat_messages')
-        .delete()
-        .eq('id', messageId);
+      const { error } = await supabase.from("public_chat_messages").delete().eq("id", messageId);
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error deleting message:', error);
+      console.error("Error deleting message:", error);
       toast.error("Nepodarilo sa vymazať správu");
     }
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -264,16 +261,21 @@ const PublicChat = () => {
     const date = new Date(dateString);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-    
+
     if (isToday) {
-      return format(date, 'HH:mm');
+      return format(date, "HH:mm");
     }
-    return format(date, 'd. MMM HH:mm', { locale: sk });
+    return format(date, "d. MMM HH:mm", { locale: sk });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
-      <SEO title="Chat komunity" description="Verejný chat komunity TakeMe — diskutuj s ostatnými vodičmi a pasažiermi." path="/chat" noindex />
+      <SEO
+        title="Chat komunity"
+        description="Verejný chat komunity TakeMe — diskutuj s ostatnými vodičmi a pasažiermi."
+        path="/chat"
+        noindex
+      />
       {/* Fullscreen Image Modal */}
       <AnimatePresence>
         {fullscreenImage && (
@@ -307,15 +309,15 @@ const PublicChat = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3"
       >
         <div className="flex items-center gap-3 max-w-3xl mx-auto">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Späť na predchádzajúcu stránku"
             onClick={() => navigate(-1)}
             className="shrink-0"
@@ -355,7 +357,7 @@ const PublicChat = () => {
             />
           </div>
         ) : messages.length === 0 ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center h-full text-center py-12"
@@ -371,7 +373,7 @@ const PublicChat = () => {
             {messages.map((msg, index) => {
               const isOwn = msg.profile_id === profile?.id;
               const showAvatar = index === 0 || messages[index - 1]?.profile_id !== msg.profile_id;
-              
+
               return (
                 <motion.div
                   key={msg.id}
@@ -379,25 +381,23 @@ const PublicChat = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
+                  className={`flex gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {showAvatar ? (
                     <Avatar className="w-8 h-8 shrink-0 ring-2 ring-background shadow-md">
                       <AvatarImage src={msg.profiles?.avatar_url || undefined} />
                       <AvatarFallback className="text-xs bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
-                        {getInitials(msg.profiles?.full_name || 'U')}
+                        {getInitials(msg.profiles?.full_name || "U")}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
                     <div className="w-8 shrink-0" />
                   )}
-                  
-                  <div className={`flex flex-col max-w-[75%] ${isOwn ? 'items-end' : 'items-start'}`}>
+
+                  <div className={`flex flex-col max-w-[75%] ${isOwn ? "items-end" : "items-start"}`}>
                     {showAvatar && !isOwn && (
                       <div className="flex items-center gap-1.5 mb-1 ml-1 flex-wrap">
-                        <span className="text-xs text-muted-foreground">
-                          {msg.profiles?.full_name}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{msg.profiles?.full_name}</span>
                         <RideBadge totalRides={msg.profiles?.total_rides} size="xs" />
                         {msg.profiles?.badge && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium">
@@ -407,11 +407,11 @@ const PublicChat = () => {
                       </div>
                     )}
                     <div className="group relative">
-                      <Card 
+                      <Card
                         className={`px-3 py-2 shadow-sm border-0 overflow-hidden ${
-                          isOwn 
-                            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-2xl rounded-tr-md' 
-                            : 'bg-card/80 backdrop-blur-sm text-card-foreground rounded-2xl rounded-tl-md'
+                          isOwn
+                            ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-2xl rounded-tr-md"
+                            : "bg-card/80 backdrop-blur-sm text-card-foreground rounded-2xl rounded-tl-md"
                         }`}
                       >
                         {msg.image_url && (
@@ -425,7 +425,9 @@ const PublicChat = () => {
                           />
                         )}
                         {msg.message && (
-                          <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                          <p className="text-sm whitespace-pre-wrap break-words font-mono text-slate-900">
+                            {msg.message}
+                          </p>
                         )}
                       </Card>
                       {isOwn && (
@@ -440,7 +442,7 @@ const PublicChat = () => {
                         </Button>
                       )}
                     </div>
-                    <span className={`text-[10px] text-muted-foreground mt-0.5 ${isOwn ? 'mr-1' : 'ml-1'}`}>
+                    <span className={`text-[10px] text-muted-foreground mt-0.5 ${isOwn ? "mr-1" : "ml-1"}`}>
                       {formatMessageTime(msg.created_at)}
                     </span>
                   </div>
@@ -455,16 +457,16 @@ const PublicChat = () => {
       {/* Image Preview */}
       <AnimatePresence>
         {imagePreview && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="bg-background/80 backdrop-blur-xl border-t border-border/50 px-4 py-2"
           >
             <div className="max-w-3xl mx-auto relative inline-block">
-              <img 
-                src={imagePreview} 
-                alt="Náhľad vybraného obrázka pred odoslaním" 
+              <img
+                src={imagePreview}
+                alt="Náhľad vybraného obrázka pred odoslaním"
                 className="h-20 rounded-lg object-cover"
               />
               <Button
@@ -482,20 +484,14 @@ const PublicChat = () => {
       </AnimatePresence>
 
       {/* Input */}
-      <motion.div 
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="sticky bottom-0 bg-background/80 backdrop-blur-xl border-t border-border/50 px-4 py-3 pb-safe"
       >
         <form onSubmit={sendMessage} className="flex gap-2 max-w-3xl mx-auto items-center">
           {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageSelect}
-            className="hidden"
-          />
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
 
           {/* Image upload button */}
           <Button
@@ -524,14 +520,10 @@ const PublicChat = () => {
                 <Smile className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-auto p-0 border-0" 
-              side="top" 
-              align="start"
-            >
-              <Picker 
-                data={data} 
-                onEmojiSelect={addEmoji} 
+            <PopoverContent className="w-auto p-0 border-0" side="top" align="start">
+              <Picker
+                data={data}
+                onEmojiSelect={addEmoji}
                 theme="auto"
                 locale="sk"
                 previewPosition="none"
@@ -549,18 +541,14 @@ const PublicChat = () => {
             disabled={sending}
           />
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             size="icon"
             aria-label="Odoslať správu"
             disabled={(!newMessage.trim() && !selectedImage) || sending}
             className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
           >
-            {uploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
       </motion.div>
