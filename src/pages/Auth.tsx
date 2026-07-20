@@ -225,8 +225,8 @@ const Auth: React.FC = () => {
                   <item.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display font-semibold text-primary-foreground text-lg">{item.title}</h3>
-                  <p className="text-primary-foreground/60">{item.desc}</p>
+                  <h3 className="font-display font-semibold text-black text-lg">{item.title}</h3>
+                  <p className="text-black/70">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
