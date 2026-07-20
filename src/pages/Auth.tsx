@@ -65,6 +65,7 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -124,6 +125,11 @@ const Auth: React.FC = () => {
         const pwdErr = validatePasswordStrict(password);
         if (pwdErr) {
           toast({ title: 'Slabé heslo', description: pwdErr, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
+        if (password !== confirmPassword) {
+          toast({ title: 'Heslá sa nezhodujú', description: 'Zadané heslá musia byť rovnaké.', variant: 'destructive' });
           setLoading(false);
           return;
         }
