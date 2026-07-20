@@ -65,6 +65,7 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -124,6 +125,11 @@ const Auth: React.FC = () => {
         const pwdErr = validatePasswordStrict(password);
         if (pwdErr) {
           toast({ title: 'Slabé heslo', description: pwdErr, variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
+        if (password !== confirmPassword) {
+          toast({ title: 'Heslá sa nezhodujú', description: 'Zadané heslá musia byť rovnaké.', variant: 'destructive' });
           setLoading(false);
           return;
         }
@@ -225,8 +231,8 @@ const Auth: React.FC = () => {
                   <item.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display font-semibold text-primary-foreground text-lg">{item.title}</h3>
-                  <p className="text-primary-foreground/60">{item.desc}</p>
+                  <h3 className="font-display font-semibold text-black text-lg">{item.title}</h3>
+                  <p className="text-black/70">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -339,6 +345,29 @@ const Auth: React.FC = () => {
                   <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
                 )}
               </div>
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Potvrď heslo</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-11 h-12"
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                  {confirmPassword.length > 0 && password !== confirmPassword && (
+                    <p className="text-xs text-destructive">Heslá sa nezhodujú.</p>
+                  )}
+                </div>
+              )}
+
 
               {!isLogin && (
                 <div className="flex items-start gap-3">

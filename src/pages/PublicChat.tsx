@@ -545,7 +545,7 @@ const PublicChat = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Napíš správu..."
-            className="flex-1 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-full px-4"
+            className="flex-1 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-full px-4 text-foreground placeholder:text-muted-foreground"
             disabled={sending}
           />
 
