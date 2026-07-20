@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Car, MapPin, Users, ArrowRight, Mail, Lock, User, FileText } from 'lucide-react';
+import { Car, MapPin, Users, ArrowRight, Mail, Lock, User, FileText, Eye, EyeOff, Shield, Cookie } from 'lucide-react';
 import SEO from '@/components/SEO';
 import AnimatedAuthBackground from '@/components/AnimatedAuthBackground';
 import AuthOnboardingSteps from '@/components/AuthOnboardingSteps';
