@@ -347,6 +347,29 @@ const Auth: React.FC = () => {
               </div>
 
               {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Potvrď heslo</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-11 h-12"
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                  {confirmPassword.length > 0 && password !== confirmPassword && (
+                    <p className="text-xs text-destructive">Heslá sa nezhodujú.</p>
+                  )}
+                </div>
+              )}
+
+
+              {!isLogin && (
                 <div className="flex items-start gap-3">
                   <input
                     id="terms"
