@@ -515,6 +515,27 @@ const Auth: React.FC = () => {
                 Tutoriál — ako TakeMe funguje
               </a>
             </div>
+
+            <div className="mt-6 pt-6 border-t border-border/50">
+              <p className="text-xs text-center text-muted-foreground mb-3">
+                Prezrite si dokumenty aj bez prihlásenia:
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+                <a href="/terms" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <FileText className="w-3.5 h-3.5" /> Obchodné podmienky
+                </a>
+                <a href="/privacy" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Shield className="w-3.5 h-3.5" /> Ochrana súkromia
+                </a>
+                <a href="/gdpr" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Shield className="w-3.5 h-3.5" /> GDPR
+                </a>
+                <a href="/cookies" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                  <Cookie className="w-3.5 h-3.5" /> Cookies
+                </a>
+              </div>
+            </div>
+
           </motion.div>
         </div>
       </motion.div>
