@@ -375,26 +375,43 @@ const ManagePassengers = () => {
         </Button>
       </div>
 
-      {/* Compact map */}
-      <div className="px-3 pb-2 shrink-0">
-        <div className="h-[clamp(150px,24svh,250px)] rounded-2xl overflow-hidden border border-border shadow-card">
-          <Map
-            markers={[...markers, ...gasStations]}
-            plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
-            waypoints={ride ? [
-              { lat: Number(ride.origin_lat), lng: Number(ride.origin_lng) },
-              { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) },
-            ] : undefined}
-            showRoute
-            className="h-full w-full"
-          />
+      {/* NEXT ACTION banner — tells driver exactly what to do now */}
+      {nextPassenger && (
+        <div className="px-3 pb-2 shrink-0">
+          <button
+            onClick={() => openNavigation(targetFor(nextPassenger).lat, targetFor(nextPassenger).lng)}
+            className="w-full rounded-2xl border-2 border-primary bg-primary/5 p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              {targetFor(nextPassenger).kind === 'pickup' ? <MapPin className="w-5 h-5" /> : <Target className="w-5 h-5" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-wider font-bold text-primary leading-none mb-0.5">
+                Ďalší krok · {targetFor(nextPassenger).kind === 'pickup' ? 'Vyzdvihnutie' : 'Vysadenie'}
+              </p>
+              <p className="font-semibold text-sm truncate">{nextPassenger.passenger.full_name}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {targetFor(nextPassenger).kind === 'pickup' ? nextPassenger.pickup_address : (nextPassenger.dropoff_address || ride?.destination_address)}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              {myPos && (
+                <p className="text-base font-bold tabular-nums leading-none">
+                  {fmtDist(distKm(myPos, targetFor(nextPassenger)))}
+                </p>
+              )}
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1 flex items-center gap-1 justify-end">
+                Naviguj <ArrowRight className="w-3 h-3" />
+              </p>
+            </div>
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Passenger list header — always visible */}
-      <div className="px-3 pb-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-primary" />
+      {/* Passenger list header + progress */}
+      <div className="px-3 pb-2 flex items-center justify-between shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Users className="w-4 h-4 text-primary shrink-0" />
           <h2 className="font-bold text-sm">Pasažieri ({totalCount})</h2>
           {pendingCount > 0 && (
             <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] animate-pulse">
@@ -402,7 +419,17 @@ const ManagePassengers = () => {
             </Badge>
           )}
         </div>
+        {acceptedList.length > 0 && (
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground shrink-0">
+            <span className="tabular-nums">{pickedUpCount}/{acceptedList.length}</span>
+            <span className="uppercase tracking-wider">v aute</span>
+            <span>·</span>
+            <span className="tabular-nums">{toPickupCount}</span>
+            <span className="uppercase tracking-wider">nástup</span>
+          </div>
+        )}
       </div>
+
 
       {/* Passenger list — ALWAYS visible, no sheet. Bottom padding leaves room for fixed action bar + mobile nav */}
       <div
