@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Navigation as NavIcon, Phone, CheckCircle, MapPin, User, Bell, Radio, LogOut, Flag, KeyRound, Check, X, Users, MessageCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Navigation as NavIcon, Phone, CheckCircle, MapPin, User, Bell, Radio, LogOut, Flag, KeyRound, Check, X, Users, MessageCircle, Loader2, ArrowRight, Target } from 'lucide-react';
 import { getStripeEnvironment } from '@/lib/stripe';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -87,7 +87,19 @@ const ManagePassengers = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [endingRide, setEndingRide] = useState(false);
+  const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const lastPendingIdsRef = useRef<Set<string>>(new Set());
+
+  // Watch driver position locally for distance/ETA chips (independent from broadcast)
+  useEffect(() => {
+    if (!('geolocation' in navigator)) return;
+    const id = navigator.geolocation.watchPosition(
+      (pos) => setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, []);
 
   // Auto-complete ride at destination
   const { completeRide } = useAutoCompleteRide(
@@ -283,6 +295,43 @@ const ManagePassengers = () => {
   const pendingCount = passengers.filter(p => p.status === 'pending').length;
   const totalCount = passengers.length;
 
+  // ORIENTATION helpers
+  const distKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+    const R = 6371, toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s));
+  };
+  const fmtDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
+
+  const targetFor = (p: AcceptedPassenger) => {
+    if (p.status === 'picked_up') {
+      return { lat: Number(p.dropoff_lat ?? ride?.destination_lat), lng: Number(p.dropoff_lng ?? ride?.destination_lng), kind: 'dropoff' as const };
+    }
+    return { lat: Number(p.pickup_lat), lng: Number(p.pickup_lng), kind: 'pickup' as const };
+  };
+
+  // Progress: pickups done = accepted -> picked_up counts; dropoffs done implicit
+  const acceptedList = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
+  const pickedUpCount = passengers.filter(p => p.status === 'picked_up').length;
+  const toPickupCount = passengers.filter(p => ['accepted', 'driver_arrived'].includes(p.status)).length;
+
+  // "Next" passenger = nearest actionable one (pickup phase preferred, then dropoff)
+  const nextPassenger = useMemo(() => {
+    const actionable = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
+    if (actionable.length === 0) return null;
+    // Prefer pickup phase first
+    const phase = actionable.some(p => p.status !== 'picked_up')
+      ? actionable.filter(p => p.status !== 'picked_up')
+      : actionable;
+    if (!myPos) return phase[0];
+    return [...phase].sort((a, b) => {
+      const ta = targetFor(a), tb = targetFor(b);
+      return distKm(myPos, ta) - distKm(myPos, tb);
+    })[0];
+  }, [passengers, myPos]);
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -342,10 +391,43 @@ const ManagePassengers = () => {
         </div>
       </div>
 
-      {/* Passenger list header — always visible */}
-      <div className="px-3 pb-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-primary" />
+      {/* NEXT ACTION banner — tells driver exactly what to do now */}
+      {nextPassenger && (
+        <div className="px-3 pb-2 shrink-0">
+          <button
+            onClick={() => openNavigation(targetFor(nextPassenger).lat, targetFor(nextPassenger).lng)}
+            className="w-full rounded-2xl border-2 border-primary bg-primary/5 p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              {targetFor(nextPassenger).kind === 'pickup' ? <MapPin className="w-5 h-5" /> : <Target className="w-5 h-5" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-wider font-bold text-primary leading-none mb-0.5">
+                Ďalší krok · {targetFor(nextPassenger).kind === 'pickup' ? 'Vyzdvihnutie' : 'Vysadenie'}
+              </p>
+              <p className="font-semibold text-sm truncate">{nextPassenger.passenger.full_name}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {targetFor(nextPassenger).kind === 'pickup' ? nextPassenger.pickup_address : (nextPassenger.dropoff_address || ride?.destination_address)}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              {myPos && (
+                <p className="text-base font-bold tabular-nums leading-none">
+                  {fmtDist(distKm(myPos, targetFor(nextPassenger)))}
+                </p>
+              )}
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1 flex items-center gap-1 justify-end">
+                Naviguj <ArrowRight className="w-3 h-3" />
+              </p>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Passenger list header + progress */}
+      <div className="px-3 pb-2 flex items-center justify-between shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Users className="w-4 h-4 text-primary shrink-0" />
           <h2 className="font-bold text-sm">Pasažieri ({totalCount})</h2>
           {pendingCount > 0 && (
             <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] animate-pulse">
@@ -353,7 +435,17 @@ const ManagePassengers = () => {
             </Badge>
           )}
         </div>
+        {acceptedList.length > 0 && (
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground shrink-0">
+            <span className="tabular-nums">{pickedUpCount}/{acceptedList.length}</span>
+            <span className="uppercase tracking-wider">v aute</span>
+            <span>·</span>
+            <span className="tabular-nums">{toPickupCount}</span>
+            <span className="uppercase tracking-wider">nástup</span>
+          </div>
+        )}
       </div>
+
 
       {/* Passenger list — ALWAYS visible, no sheet. Bottom padding leaves room for fixed action bar + mobile nav */}
       <div
@@ -374,9 +466,10 @@ const ManagePassengers = () => {
               key={p.id}
               p={p}
               rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
+              isNext={nextPassenger?.id === p.id}
+              distanceKm={myPos ? distKm(myPos, targetFor(p)) : null}
               onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
               onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
-              
               onArrived={() => handleArrived(p.id, p.passenger.full_name)}
               onPin={() => setPinDialogFor(p)}
               onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
@@ -439,10 +532,12 @@ const ManagePassengers = () => {
 
 // ====== Passenger card ======
 const PassengerCard = ({
-  p, rideDest, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
+  p, rideDest, isNext, distanceKm, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
 }: {
   p: AcceptedPassenger;
   rideDest: { lat: number; lng: number; addr: string } | null;
+  isNext?: boolean;
+  distanceKm?: number | null;
   onAccept: () => void; onReject: () => void;
   onArrived: () => void; onPin: () => void;
   onDropoff: () => void;
@@ -463,8 +558,20 @@ const PassengerCard = ({
     : isArrived ? 'bg-primary text-primary-foreground'
     : 'bg-muted text-foreground';
 
+  const fmtDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
+    <div className={`rounded-2xl border bg-card p-3 shadow-sm transition-all ${isNext ? 'border-primary border-2 ring-2 ring-primary/20' : 'border-border'}`}>
+      {(isNext || distanceKm != null) && !isPending && (
+        <div className="flex items-center gap-1.5 mb-2">
+          {isNext && <span className="text-[9px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-1.5 py-0.5 rounded">Ďalší</span>}
+          {distanceKm != null && (
+            <span className="text-[10px] font-semibold tabular-nums text-muted-foreground flex items-center gap-1">
+              <NavIcon className="w-2.5 h-2.5" /> {fmtDist(distanceKm)} {isPickedUp ? 'do výstupu' : 'k nástupu'}
+            </span>
+          )}
+        </div>
+      )}
       <div className="flex items-start gap-3 mb-2">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
           {p.passenger.avatar_url ? (
