@@ -64,6 +64,8 @@ const Map: React.FC<MapProps> = ({
   const [fetchedRoute, setFetchedRoute] = useState<Array<[number, number]> | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapUnavailable, setMapUnavailable] = useState(false);
+  const hasFittedRef = useRef(false);
+  const userInteractedRef = useRef(false);
 
   const normalizedCenter = React.useMemo<[number, number]>(() => (
     Number.isFinite(center[0]) && Number.isFinite(center[1]) ? center : DEFAULT_CENTER
@@ -165,6 +167,10 @@ const Map: React.FC<MapProps> = ({
       console.warn('Mapbox map error:', event.error || event);
       setMapUnavailable(true);
     });
+    // Mark map as user-interacted so we stop auto-fitting on live route refresh
+    const markInteracted = () => { userInteractedRef.current = true; };
+    instance.on('dragstart', markInteracted);
+    instance.on('zoomstart', (e: any) => { if (e.originalEvent) markInteracted(); });
 
     instance.addControl(
       new mapboxgl.NavigationControl({ visualizePitch: true }),
@@ -509,14 +515,15 @@ const Map: React.FC<MapProps> = ({
         }
       });
 
-      // If no live route, fit bounds to the planned route + markers
-      if (!providedRoute && !fetchedRoute) {
+      // If no live route, fit bounds to the planned route + markers (once)
+      if (!providedRoute && !fetchedRoute && !hasFittedRef.current && !userInteractedRef.current) {
         const bounds = plannedRoute.reduce(
           (b, coord) => b.extend(coord as [number, number]),
           new mapboxgl.LngLatBounds(plannedRoute[0], plannedRoute[0])
         );
         safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => bounds.extend([m.lng, m.lat]));
         map.current.fitBounds(bounds, { padding: 60 });
+        hasFittedRef.current = true;
       }
     };
 
@@ -596,19 +603,22 @@ const Map: React.FC<MapProps> = ({
         }
       });
 
-      // Fit bounds to show the entire route
-      const bounds = route.reduce(
-        (bounds, coord) => bounds.extend(coord as [number, number]),
-        new mapboxgl.LngLatBounds(route[0], route[0])
-      );
-      
-      // Include all markers in bounds
-      // Include all non-context markers in bounds (skip gas stations)
-      safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
-        bounds.extend([m.lng, m.lat]);
-      });
-
-      map.current.fitBounds(bounds, { padding: 60 });
+      // Fit bounds once so live route refreshes don't yank the viewport.
+      // Include planned route so users keep the full trip in view.
+      if (!hasFittedRef.current && !userInteractedRef.current) {
+        const bounds = route.reduce(
+          (bounds, coord) => bounds.extend(coord as [number, number]),
+          new mapboxgl.LngLatBounds(route[0], route[0])
+        );
+        if (plannedRoute && plannedRoute.length > 1) {
+          plannedRoute.forEach(coord => bounds.extend(coord as [number, number]));
+        }
+        safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
+          bounds.extend([m.lng, m.lat]);
+        });
+        map.current.fitBounds(bounds, { padding: 60 });
+        hasFittedRef.current = true;
+      }
     };
 
     if (map.current.isStyleLoaded()) {
