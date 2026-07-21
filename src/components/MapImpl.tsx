@@ -603,19 +603,22 @@ const Map: React.FC<MapProps> = ({
         }
       });
 
-      // Fit bounds to show the entire route
-      const bounds = route.reduce(
-        (bounds, coord) => bounds.extend(coord as [number, number]),
-        new mapboxgl.LngLatBounds(route[0], route[0])
-      );
-      
-      // Include all markers in bounds
-      // Include all non-context markers in bounds (skip gas stations)
-      safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
-        bounds.extend([m.lng, m.lat]);
-      });
-
-      map.current.fitBounds(bounds, { padding: 60 });
+      // Fit bounds once so live route refreshes don't yank the viewport.
+      // Include planned route so users keep the full trip in view.
+      if (!hasFittedRef.current && !userInteractedRef.current) {
+        const bounds = route.reduce(
+          (bounds, coord) => bounds.extend(coord as [number, number]),
+          new mapboxgl.LngLatBounds(route[0], route[0])
+        );
+        if (plannedRoute && plannedRoute.length > 1) {
+          plannedRoute.forEach(coord => bounds.extend(coord as [number, number]));
+        }
+        safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => {
+          bounds.extend([m.lng, m.lat]);
+        });
+        map.current.fitBounds(bounds, { padding: 60 });
+        hasFittedRef.current = true;
+      }
     };
 
     if (map.current.isStyleLoaded()) {
