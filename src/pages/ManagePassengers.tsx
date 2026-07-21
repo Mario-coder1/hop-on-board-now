@@ -532,10 +532,12 @@ const ManagePassengers = () => {
 
 // ====== Passenger card ======
 const PassengerCard = ({
-  p, rideDest, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
+  p, rideDest, isNext, distanceKm, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
 }: {
   p: AcceptedPassenger;
   rideDest: { lat: number; lng: number; addr: string } | null;
+  isNext?: boolean;
+  distanceKm?: number | null;
   onAccept: () => void; onReject: () => void;
   onArrived: () => void; onPin: () => void;
   onDropoff: () => void;
@@ -556,8 +558,20 @@ const PassengerCard = ({
     : isArrived ? 'bg-primary text-primary-foreground'
     : 'bg-muted text-foreground';
 
+  const fmtDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
+    <div className={`rounded-2xl border bg-card p-3 shadow-sm transition-all ${isNext ? 'border-primary border-2 ring-2 ring-primary/20' : 'border-border'}`}>
+      {(isNext || distanceKm != null) && !isPending && (
+        <div className="flex items-center gap-1.5 mb-2">
+          {isNext && <span className="text-[9px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-1.5 py-0.5 rounded">Ďalší</span>}
+          {distanceKm != null && (
+            <span className="text-[10px] font-semibold tabular-nums text-muted-foreground flex items-center gap-1">
+              <NavIcon className="w-2.5 h-2.5" /> {fmtDist(distanceKm)} {isPickedUp ? 'do výstupu' : 'k nástupu'}
+            </span>
+          )}
+        </div>
+      )}
       <div className="flex items-start gap-3 mb-2">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
           {p.passenger.avatar_url ? (
