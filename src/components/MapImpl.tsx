@@ -167,6 +167,10 @@ const Map: React.FC<MapProps> = ({
       console.warn('Mapbox map error:', event.error || event);
       setMapUnavailable(true);
     });
+    // Mark map as user-interacted so we stop auto-fitting on live route refresh
+    const markInteracted = () => { userInteractedRef.current = true; };
+    instance.on('dragstart', markInteracted);
+    instance.on('zoomstart', (e: any) => { if (e.originalEvent) markInteracted(); });
 
     instance.addControl(
       new mapboxgl.NavigationControl({ visualizePitch: true }),
