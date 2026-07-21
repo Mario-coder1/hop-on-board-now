@@ -87,7 +87,19 @@ const ManagePassengers = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [endingRide, setEndingRide] = useState(false);
+  const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const lastPendingIdsRef = useRef<Set<string>>(new Set());
+
+  // Watch driver position locally for distance/ETA chips (independent from broadcast)
+  useEffect(() => {
+    if (!('geolocation' in navigator)) return;
+    const id = navigator.geolocation.watchPosition(
+      (pos) => setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, []);
 
   // Auto-complete ride at destination
   const { completeRide } = useAutoCompleteRide(
