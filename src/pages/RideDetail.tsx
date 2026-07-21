@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -242,6 +242,18 @@ const RideDetail = () => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [id, profile?.id]);
+
+  // Auto-navigate passenger to live tracking when driver accepts the request
+  const autoRedirectedRef = useRef(false);
+  useEffect(() => {
+    if (autoRedirectedRef.current) return;
+    if (!requestId) return;
+    if (requestStatus === 'accepted' || requestStatus === 'driver_arrived' || requestStatus === 'picked_up') {
+      autoRedirectedRef.current = true;
+      toast({ title: 'Vodič schválil tvoju jazdu 🎉', description: 'Presúvam ťa na živé sledovanie…' });
+      setTimeout(() => navigate(`/track/${requestId}`), 800);
+    }
+  }, [requestStatus, requestId, navigate, toast]);
 
 
   // Removed: Default pickup = origin - now passengers must specify their own pickup location
