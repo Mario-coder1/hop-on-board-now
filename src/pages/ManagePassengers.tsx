@@ -466,9 +466,10 @@ const ManagePassengers = () => {
               key={p.id}
               p={p}
               rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
+              isNext={nextPassenger?.id === p.id}
+              distanceKm={myPos ? distKm(myPos, targetFor(p)) : null}
               onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
               onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
-              
               onArrived={() => handleArrived(p.id, p.passenger.full_name)}
               onPin={() => setPinDialogFor(p)}
               onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
