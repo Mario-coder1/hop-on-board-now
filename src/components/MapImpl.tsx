@@ -64,6 +64,8 @@ const Map: React.FC<MapProps> = ({
   const [fetchedRoute, setFetchedRoute] = useState<Array<[number, number]> | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapUnavailable, setMapUnavailable] = useState(false);
+  const hasFittedRef = useRef(false);
+  const userInteractedRef = useRef(false);
 
   const normalizedCenter = React.useMemo<[number, number]>(() => (
     Number.isFinite(center[0]) && Number.isFinite(center[1]) ? center : DEFAULT_CENTER
