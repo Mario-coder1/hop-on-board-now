@@ -630,12 +630,24 @@ const Map: React.FC<MapProps> = ({
 
   return (
     <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
-      <img
-        src={staticMapUrl}
-        alt="Mapa jázd"
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${mapReady && !mapUnavailable && !preferStatic ? 'opacity-0' : 'opacity-100'}`}
-        loading="lazy"
-      />
+      {/* Neutral loader while the interactive map boots. We intentionally do
+          NOT show a static 2-pin preview — it was misleading (no route line). */}
+      {!preferStatic && (!mapReady || mapUnavailable) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+            <span className="text-xs">Načítavam mapu…</span>
+          </div>
+        </div>
+      )}
+      {preferStatic && (
+        <img
+          src={staticMapUrl}
+          alt="Mapa jázd"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+        />
+      )}
       {!preferStatic && (
         <div
           ref={mapContainer}
