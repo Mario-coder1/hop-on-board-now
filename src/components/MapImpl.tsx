@@ -515,14 +515,15 @@ const Map: React.FC<MapProps> = ({
         }
       });
 
-      // If no live route, fit bounds to the planned route + markers
-      if (!providedRoute && !fetchedRoute) {
+      // If no live route, fit bounds to the planned route + markers (once)
+      if (!providedRoute && !fetchedRoute && !hasFittedRef.current && !userInteractedRef.current) {
         const bounds = plannedRoute.reduce(
           (b, coord) => b.extend(coord as [number, number]),
           new mapboxgl.LngLatBounds(plannedRoute[0], plannedRoute[0])
         );
         safeMarkers.filter(m => m.type !== 'gas_station').forEach(m => bounds.extend([m.lng, m.lat]));
         map.current.fitBounds(bounds, { padding: 60 });
+        hasFittedRef.current = true;
       }
     };
 
