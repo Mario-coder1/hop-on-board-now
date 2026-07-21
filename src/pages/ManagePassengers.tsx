@@ -386,6 +386,7 @@ const ManagePassengers = () => {
               { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) },
             ] : undefined}
             showRoute
+            interactive
             className="h-full w-full"
           />
         </div>
