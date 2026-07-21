@@ -295,6 +295,43 @@ const ManagePassengers = () => {
   const pendingCount = passengers.filter(p => p.status === 'pending').length;
   const totalCount = passengers.length;
 
+  // ORIENTATION helpers
+  const distKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+    const R = 6371, toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s));
+  };
+  const fmtDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
+
+  const targetFor = (p: AcceptedPassenger) => {
+    if (p.status === 'picked_up') {
+      return { lat: Number(p.dropoff_lat ?? ride?.destination_lat), lng: Number(p.dropoff_lng ?? ride?.destination_lng), kind: 'dropoff' as const };
+    }
+    return { lat: Number(p.pickup_lat), lng: Number(p.pickup_lng), kind: 'pickup' as const };
+  };
+
+  // Progress: pickups done = accepted -> picked_up counts; dropoffs done implicit
+  const acceptedList = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
+  const pickedUpCount = passengers.filter(p => p.status === 'picked_up').length;
+  const toPickupCount = passengers.filter(p => ['accepted', 'driver_arrived'].includes(p.status)).length;
+
+  // "Next" passenger = nearest actionable one (pickup phase preferred, then dropoff)
+  const nextPassenger = useMemo(() => {
+    const actionable = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
+    if (actionable.length === 0) return null;
+    // Prefer pickup phase first
+    const phase = actionable.some(p => p.status !== 'picked_up')
+      ? actionable.filter(p => p.status !== 'picked_up')
+      : actionable;
+    if (!myPos) return phase[0];
+    return [...phase].sort((a, b) => {
+      const ta = targetFor(a), tb = targetFor(b);
+      return distKm(myPos, ta) - distKm(myPos, tb);
+    })[0];
+  }, [passengers, myPos]);
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
