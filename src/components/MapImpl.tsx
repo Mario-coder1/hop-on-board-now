@@ -161,11 +161,13 @@ const Map: React.FC<MapProps> = ({
 
     instance.on('load', () => {
       setMapReady(true);
+      setMapUnavailable(false);
       instance.resize();
     });
     instance.on('error', (event) => {
       console.warn('Mapbox map error:', event.error || event);
-      setMapUnavailable(true);
+      // Mapbox can emit non-fatal tile/glyph errors while the map is still usable.
+      // Do not hide the map behind the loader because of those transient errors.
     });
     // Mark map as user-interacted so we stop auto-fitting on live route refresh
     const markInteracted = () => { userInteractedRef.current = true; };
@@ -200,7 +202,11 @@ const Map: React.FC<MapProps> = ({
     const t1 = setTimeout(resizeMap, 100);
     const t2 = setTimeout(resizeMap, 500);
     const fallbackTimer = setTimeout(() => {
-      if (!instance.loaded()) setMapUnavailable(true);
+      if (!instance.loaded()) {
+        setMapUnavailable(true);
+        setMapReady(true);
+        instance.resize();
+      }
     }, 7000);
 
     let ro: ResizeObserver | null = null;
@@ -632,7 +638,7 @@ const Map: React.FC<MapProps> = ({
     <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
       {/* Neutral loader while the interactive map boots. We intentionally do
           NOT show a static 2-pin preview — it was misleading (no route line). */}
-      {!preferStatic && (!mapReady || mapUnavailable) && (
+      {!preferStatic && !mapReady && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -651,7 +657,7 @@ const Map: React.FC<MapProps> = ({
       {!preferStatic && (
         <div
           ref={mapContainer}
-          className={`absolute inset-0 transition-opacity duration-300 ${mapReady && !mapUnavailable ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute inset-0 transition-opacity duration-300 ${mapReady ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         />
       )}
     </div>
