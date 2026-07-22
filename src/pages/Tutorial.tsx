@@ -570,12 +570,12 @@ const Tutorial = () => {
               </div>
               <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:ml-auto">
                 <Button asChild variant="outline" size="default" className="w-full sm:w-auto">
-                  <a href="/tutorials/TakeMe-Tutorial-Pasazier.pdf" target="_blank" rel="noopener">
+                  <a href="/tutorials/TakeMe-Tutorial-Pasazier.pdf" download="TakeMe-Tutorial-Pasazier.pdf" rel="noopener">
                     <Download className="w-4 h-4 mr-1.5" /> Pasažier
                   </a>
                 </Button>
                 <Button asChild size="default" className="w-full sm:w-auto">
-                  <a href="/tutorials/TakeMe-Tutorial-Vodic.pdf" target="_blank" rel="noopener">
+                  <a href="/tutorials/TakeMe-Tutorial-Vodic.pdf" download="TakeMe-Tutorial-Vodic.pdf" rel="noopener">
                     <Download className="w-4 h-4 mr-1.5" /> Vodič
                   </a>
                 </Button>
