@@ -207,11 +207,11 @@ const Auth: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <h1 className="font-display text-5xl font-bold text-primary-foreground mb-4">
+            <h1 className="font-display text-5xl font-bold text-black mb-4">
               Take<span className="text-primary">Me</span>
               <span className="sr-only"> — Prihlásenie a registrácia</span>
             </h1>
-            <p className="text-xl text-primary-foreground/80 mb-12">
+            <p className="text-xl text-black/80 mb-12">
               Zdieľaj jazdu, šetri peniaze, chráň planétu.
             </p>
           </motion.div>
