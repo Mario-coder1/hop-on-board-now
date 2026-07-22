@@ -13,6 +13,7 @@ import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
 import RouteAlerts from '@/components/RouteAlerts';
+import LocationSearchInput from '@/components/LocationSearchInput';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -410,34 +411,17 @@ const SearchRides = () => {
           {/* Search Bar */}
           <div className="p-3 sm:p-4 rounded-2xl bg-card border border-border mb-4">
             <div className="grid sm:grid-cols-3 gap-3">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Odkiaľ (vrátane zastávok)"
-                  value={searchOrigin}
-                  onChange={(e) => setSearchOrigin(e.target.value)}
-                  className="pl-10 pr-11"
-                />
-                <button
-                  type="button"
-                  onClick={autofillOriginFromLocation}
-                  disabled={autoFillingOrigin}
-                  aria-label="Použi moju polohu"
-                  title="Použi moju polohu"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
-                >
-                  {autoFillingOrigin ? <Loader2 className="w-4 h-4 animate-spin" /> : <Locate className="w-4 h-4" />}
-                </button>
-              </div>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Kam (vrátane zastávok)"
-                  value={searchDestination}
-                  onChange={(e) => setSearchDestination(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <LocationSearchInput
+                value={searchOrigin}
+                onChange={setSearchOrigin}
+                placeholder="Odkiaľ (vrátane zastávok)"
+                showGps
+              />
+              <LocationSearchInput
+                value={searchDestination}
+                onChange={setSearchDestination}
+                placeholder="Kam (vrátane zastávok)"
+              />
               <Button variant="hero" className="w-full" onClick={() => setShowFilters(false)}>
                 <Search className="w-4 h-4 mr-2" />
                 Hľadať

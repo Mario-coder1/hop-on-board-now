@@ -14,6 +14,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
+import LocationSearchInput from '@/components/LocationSearchInput';
 
 interface ActiveRequest {
   id: string;
@@ -250,25 +251,24 @@ const PassengerDashboard: React.FC = () => {
         >
           <div className="card-mono p-1.5 sm:p-2">
             <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-1">
-              <div className="flex-1 relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-foreground" />
-                <Input
-                  placeholder="Odkiaľ?"
-                  value={searchFrom}
-                  onChange={(e) => setSearchFrom(e.target.value)}
-                  className="pl-10 h-12 border-0 bg-transparent !shadow-none focus-visible:ring-0 text-[15px] font-medium"
-                />
-              </div>
+              <LocationSearchInput
+                value={searchFrom}
+                onChange={setSearchFrom}
+                placeholder="Odkiaľ?"
+                showGps
+                className="flex-1"
+                inputClassName="h-12 border-0 bg-transparent !shadow-none focus-visible:ring-0 text-[15px] font-medium"
+                leftDot={<div className="w-2 h-2 rounded-full bg-foreground" />}
+              />
               <div className="hidden sm:block w-px bg-border my-2" />
-              <div className="flex-1 relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-foreground" />
-                <Input
-                  placeholder="Kam?"
-                  value={searchTo}
-                  onChange={(e) => setSearchTo(e.target.value)}
-                  className="pl-10 h-12 border-0 bg-transparent !shadow-none focus-visible:ring-0 text-[15px] font-medium"
-                />
-              </div>
+              <LocationSearchInput
+                value={searchTo}
+                onChange={setSearchTo}
+                placeholder="Kam?"
+                className="flex-1"
+                inputClassName="h-12 border-0 bg-transparent !shadow-none focus-visible:ring-0 text-[15px] font-medium"
+                leftDot={<div className="w-2 h-2 rounded-full border border-foreground" />}
+              />
               <Link to="/search" className="sm:shrink-0">
                 <Button size="lg" className="w-full sm:w-auto gap-2 h-12 rounded-full px-6">
                   <Search className="w-4 h-4" />
