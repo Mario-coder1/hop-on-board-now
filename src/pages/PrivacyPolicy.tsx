@@ -61,7 +61,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Údaje o vozidle (vodiči):</strong> značka a model auta, farba, evidenčné číslo (ŠPZ), počet sedadiel.</li>
                 <li><strong>Údaje o jazdách:</strong> miesto vyzdvihnutia a vystúpenia, čas, cena, počet miest, zastávky, žiadosti spolujazdcov, stav jazdy, dôvody zrušenia.</li>
                 <li><strong>Lokalizačné údaje:</strong> GPS poloha vodiča počas aktívnej jazdy (live tracking) a aktuálna poloha spolujazdca pri vyhľadávaní jazdy alebo voľbe miesta vyzdvihnutia. Poloha sa spracúva len keď je relevantná funkcia aktívna.</li>
-                <li><strong>Platobné údaje:</strong> história platieb, dobitia peňaženky, výplaty a provízie. Údaje o karte zadávate priamo poskytovateľovi platobnej brány (Stripe) — TakeMe k číslam kariet nemá prístup.</li>
+                <li><strong>Platobné údaje:</strong> história platieb, výplaty vodičom a provízie. Všetky platby prebiehajú výhradne cez platobnú bránu Stripe — TakeMe nezadržiava peniaze používateľov a nemá prístup k údajom platobnej karty.</li>
                 <li><strong>Komunikácia:</strong> správy vo verejnom chate, hodnotenia, hlásenia (reports), komunikácia s podporou.</li>
                 <li><strong>Technické údaje:</strong> IP adresa, typ zariadenia, prehliadač, identifikátor push notifikácií (push subscription), návštevy stránok (interná štatistika), logy chýb.</li>
                 <li><strong>Cookies a lokálne úložisko:</strong> session token autentifikácie, jazykové preferencie, stav onboardingu.</li>
@@ -138,10 +138,10 @@ const PrivacyPolicy = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6. Platby, peňaženka a provízie</h2>
+              <h2 className="font-display text-2xl font-semibold">6. Platby a provízie</h2>
             </div>
             <div className="space-y-2 text-muted-foreground">
-              <p>Platby spolujazdcov sú spracúvané prostredníctvom Stripe. TakeMe neukladá ani nemá prístup k údajom platobnej karty. Z každej úspešnej jazdy si platforma účtuje províziu (aktuálne 10 %), zvyšok je pripísaný vodičovi do internej peňaženky a vyplácaný bankovým prevodom na vyžiadanie. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
+              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe nezadržiava peniaze používateľov, neprevádzkuje žiadnu internú peňaženku a nemá prístup k údajom platobnej karty. Z každej úspešnej jazdy si platforma účtuje províziu (aktuálne 10 %), zvyšok je vyplatený vodičovi priamo cez Stripe. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
             </div>
           </section>
 
