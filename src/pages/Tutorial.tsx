@@ -44,7 +44,8 @@ type Visual =
   | { kind: 'search' }
   | { kind: 'alert' }
   | { kind: 'checkout' }
-  | { kind: 'live-tracking' };
+  | { kind: 'live-tracking' }
+  | { kind: 'image'; src: string; alt: string };
 
 const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
   <div
