@@ -31,6 +31,11 @@ import p2Search from '@/assets/tutorial-passenger/p2-search.jpeg.asset.json';
 import p3Alert from '@/assets/tutorial-passenger/p3-alert.jpeg.asset.json';
 import p4Checkout from '@/assets/tutorial-passenger/p4-checkout.jpeg.asset.json';
 import p5Tracking from '@/assets/tutorial-passenger/p5-tracking.jpeg.asset.json';
+import d1Role from '@/assets/tutorial-driver/d1-role.jpeg.asset.json';
+import d2Nav from '@/assets/tutorial-driver/d2-nav.jpeg.asset.json';
+import d3Type from '@/assets/tutorial-driver/d3-type.jpeg.asset.json';
+import d4Rides from '@/assets/tutorial-driver/d4-rides.jpeg.asset.json';
+import d5Drive from '@/assets/tutorial-driver/d5-drive.jpeg.asset.json';
 
 /* --------------------------- Illustrative Visual --------------------------- */
 
@@ -331,38 +336,38 @@ interface Step {
 const driverSteps: Step[] = [
   {
     title: 'Prepni sa do role Vodič',
-    description: 'V Profile si v dropdowne vyber rolu „Vodič". Tvoje rozhranie sa prispôsobí — uvidíš ovládanie pre tvorbu a správu jázd.',
+    description: 'V hornej lište appky vidíš prepínač Vodič / Cestujúci. Klikni na „Vodič" — rozhranie sa okamžite prispôsobí tvorbe a správe jázd.',
     icon: UserCog,
-    tag: 'Profil',
-    visual: { kind: 'role-switch' },
+    tag: 'Prepínač rolí',
+    visual: { kind: 'image', src: d1Role.url, alt: 'Horná lišta s prepínačom Vodič / Cestujúci' },
   },
   {
     title: 'Vytvor novú jazdu',
-    description: 'Stredným tlačidlom otvor formulár. Štart sa vyplní automaticky z GPS, cieľ a až 5 zastávok pridáš cez vyhľadávanie adresy.',
+    description: 'V spodnom navigačnom bare stlač tlačidlo „Nová" — otvorí sa formulár pre vytvorenie jazdy.',
     icon: Plus,
     tag: 'Nová jazda',
-    visual: { kind: 'create-form' },
+    visual: { kind: 'image', src: d2Nav.url, alt: 'Spodná navigácia s tlačidlom Nová' },
   },
   {
     title: 'Jednorazová alebo pravidelná',
-    description: 'Pre opakujúce trasy zvoľ dni v týždni — systém ich automaticky generuje na 7 dní dopredu. Cena a počet miest sú flexibilné.',
+    description: 'Vyber typ jazdy: „Jednorazová" pre jeden konkrétny dátum, alebo „Pravidelná" pre opakovanie každý týždeň. Potom vyplň dátum a čas odchodu.',
     icon: Route,
-    tag: 'Plánovanie',
-    visual: { kind: 'recurring' },
+    tag: 'Typ jazdy',
+    visual: { kind: 'image', src: d3Type.url, alt: 'Výber typu jazdy — jednorazová alebo pravidelná' },
   },
   {
-    title: 'Spravuj jazdy a žiadosti',
-    description: 'V sekcii Jazdy vidíš aktívne, čakajúce a dokončené. Schvaľuj alebo zamietaj žiadosti pasažierov jedným klikom.',
+    title: 'Spravuj svoje jazdy',
+    description: 'V sekcii „Tvoje jazdy" máš prehľad všetkých vypísaných trás s dátumom, časom, cenou a počtom voľných miest. Cez „Detail" vidíš info, cez „Pasažieri" spravuješ žiadosti.',
     icon: CheckCircle2,
     tag: 'Správa',
-    visual: { kind: 'manage-requests' },
+    visual: { kind: 'image', src: d4Rides.url, alt: 'Zoznam Tvoje jazdy s Detail a Pasažieri' },
   },
   {
-    title: 'Live tracking a príchod',
-    description: 'Pred jazdou zapni zdieľanie polohy. Pasažier ťa vidí v reálnom čase. Po príchode stlač „Som na mieste" — príde mu push notifikácia.',
+    title: 'Drive mode a Som na mieste',
+    description: 'Po spustení jazdy vidíš mapu s trasou, aktuálny krok a pasažierov. Zapni Live zdieľanie polohy a po príchode stlač „Som na mieste" — pasažier dostane push notifikáciu.',
     icon: NavIcon,
     tag: 'Počas jazdy',
-    visual: { kind: 'live-arrival' },
+    visual: { kind: 'image', src: d5Drive.url, alt: 'Drive mode s mapou, pasažierom a tlačidlom Som na mieste' },
   },
 ];
 
