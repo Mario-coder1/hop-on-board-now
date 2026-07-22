@@ -26,6 +26,8 @@ Deno.serve(async (req) => {
     // 1) Transcribe
     const sttForm = new FormData();
     sttForm.append("model", "openai/gpt-4o-mini-transcribe");
+    sttForm.append("language", "sk");
+    sttForm.append("prompt", "Prepis slovenskej reči o jazde. Zachovaj čísla ako číslice (napr. Čierne 1333, 3 miesta, 5 eur, 15:00).");
     sttForm.append("file", file, file.name || "recording.webm");
     const sttRes = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
       method: "POST",
@@ -47,8 +49,8 @@ Deno.serve(async (req) => {
 Aktuálny čas: ${now} (ISO, Europe/Bratislava). Z prepisu extrahuj JSON.
 
 Polia:
-- destination_text: cieľová adresa/mesto (napr. "Žilina", "Košice, Hlavná 12"). Povinné ak spomenuté.
-- origin_text: ak používateľ výslovne uvedie odkiaľ (inak null).
+- destination_text: PRESNÁ cieľová adresa vrátane čísla domu ak bolo povedané (napr. "Čierne 1333", "Košice, Hlavná 12", "Žilina"). Slovné čísla preveď na číslice ("tisíc tristo tridsať tri" → "1333", "dvanásť" → "12"). NIKDY nevynechaj číslo domu ak zaznelo. Povinné ak spomenuté.
+- origin_text: ak používateľ výslovne uvedie odkiaľ (rovnaké pravidlá pre čísla). Inak null.
 - seats: počet voľných miest (integer 1-8) alebo null.
 - price: cena za miesto v EUR (number) alebo null.
 - departure_iso: ISO 8601 čas odchodu. Rozumej výrazom ako "za hodinu", "o 15:00", "zajtra ráno o 7", "o 30 minút", "dnes večer o 20". Ak nie je spomenuté, null.
