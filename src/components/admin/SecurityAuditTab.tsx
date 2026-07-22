@@ -29,7 +29,7 @@ const AUDIT_ITEMS: AuditItem[] = [
   { category: "Row-Level Security", title: "Roly v samostatnej tabuľke user_roles", description: "Roly nie sú uložené v profiles, čo chráni pred eskaláciou oprávnení.", status: "ok" },
   { category: "Row-Level Security", title: "Funkcia has_role() ako SECURITY DEFINER", description: "Bezpečne obchádza RLS a zabraňuje rekurzii v politikách.", status: "ok" },
   { category: "Row-Level Security", title: "Pohľad public_profiles", description: "Citlivé údaje (telefón, e-mail) sú skryté, vystavené sú iba neutrálne informácie.", status: "ok" },
-  { category: "Row-Level Security", title: "RLS na peňaženkách (wallets)", description: "Prístup má iba vlastník peňaženky alebo service_role.", status: "ok" },
+  { category: "Row-Level Security", title: "RLS na platobných záznamoch", description: "Prístup k platobným záznamom má iba vlastník alebo service_role. Peniaze nezadržiavame — všetko ide cez Stripe.", status: "ok" },
 
   // Admin
   { category: "Administrátorské operácie", title: "Edge funkcie overujú JWT a admin rolu", description: "Funkcie admin-user-management a send-mass-push overujú token cez has_role.", status: "ok" },
