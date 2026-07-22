@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf } from 'lucide-react';
+import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,10 +12,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 const Navigation: React.FC = () => {
-  const { profile, signOut, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin, updateRole } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleRoleSwitch = async (role: 'driver' | 'passenger') => {
+    if (profile?.selected_role === role) return;
+    try {
+      await updateRole(role);
+      toast.success(role === 'driver' ? 'Prepnuté na vodiča' : 'Prepnuté na cestujúceho');
+      navigate(role === 'driver' ? '/driver' : '/passenger');
+    } catch (e: any) {
+      toast.error('Nepodarilo sa prepnúť rolu', { description: e?.message });
+    }
+  };
 
   const isDriver = profile?.selected_role === 'driver';
 
@@ -98,6 +111,35 @@ const Navigation: React.FC = () => {
 
             {/* User */}
             <div className="flex items-center gap-2">
+              {/* Role switch — compact segmented toggle */}
+              {profile && (
+                <div className="flex items-center bg-muted/70 backdrop-blur rounded-full p-0.5 border border-border/60">
+                  <button
+                    onClick={() => handleRoleSwitch('driver')}
+                    aria-label="Prepnúť na vodiča"
+                    className={`flex items-center gap-1 px-2 sm:px-3 h-7 rounded-full text-[11px] font-semibold transition-all ${
+                      isDriver
+                        ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Car className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline sm:inline">Vodič</span>
+                  </button>
+                  <button
+                    onClick={() => handleRoleSwitch('passenger')}
+                    aria-label="Prepnúť na cestujúceho"
+                    className={`flex items-center gap-1 px-2 sm:px-3 h-7 rounded-full text-[11px] font-semibold transition-all ${
+                      !isDriver
+                        ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline sm:inline">Cestujúci</span>
+                  </button>
+                </div>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
@@ -180,7 +222,7 @@ const Navigation: React.FC = () => {
                   }`}
                 >
                   <item.icon className="w-[18px] h-[18px]" strokeWidth={isActive ? 2.4 : 1.8} />
-                  <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${isActive ? 'opacity-100' : 'opacity-0 h-0'}`}>
+                  <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                     {item.label}
                   </span>
                 </Link>
@@ -196,7 +238,7 @@ const Navigation: React.FC = () => {
                 }`}
               >
                 <Shield className="w-[18px] h-[18px]" />
-                <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/admin' ? 'opacity-100' : 'opacity-0 h-0'}`}>
+                <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/admin' ? 'opacity-100' : 'opacity-70'}`}>
                   Admin
                 </span>
               </Link>
@@ -211,7 +253,7 @@ const Navigation: React.FC = () => {
               }`}
             >
               <User className="w-[18px] h-[18px]" />
-              <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/profile' ? 'opacity-100' : 'opacity-0 h-0'}`}>
+              <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/profile' ? 'opacity-100' : 'opacity-70'}`}>
                 Profil
               </span>
             </Link>
