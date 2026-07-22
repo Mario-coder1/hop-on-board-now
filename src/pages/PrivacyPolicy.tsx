@@ -61,7 +61,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Údaje o vozidle (vodiči):</strong> značka a model auta, farba, evidenčné číslo (ŠPZ), počet sedadiel.</li>
                 <li><strong>Údaje o jazdách:</strong> miesto vyzdvihnutia a vystúpenia, čas, cena, počet miest, zastávky, žiadosti spolujazdcov, stav jazdy, dôvody zrušenia.</li>
                 <li><strong>Lokalizačné údaje:</strong> GPS poloha vodiča počas aktívnej jazdy (live tracking) a aktuálna poloha spolujazdca pri vyhľadávaní jazdy alebo voľbe miesta vyzdvihnutia. Poloha sa spracúva len keď je relevantná funkcia aktívna.</li>
-                <li><strong>Platobné údaje:</strong> história platieb, dobitia peňaženky, výplaty a provízie. Údaje o karte zadávate priamo poskytovateľovi platobnej brány (Stripe) — TakeMe k číslam kariet nemá prístup.</li>
+                <li><strong>Platobné údaje:</strong> história platieb, výplaty vodičom a provízie. Všetky platby prebiehajú výhradne cez platobnú bránu Stripe — TakeMe nezadržiava peniaze používateľov a nemá prístup k údajom platobnej karty.</li>
                 <li><strong>Komunikácia:</strong> správy vo verejnom chate, hodnotenia, hlásenia (reports), komunikácia s podporou.</li>
                 <li><strong>Technické údaje:</strong> IP adresa, typ zariadenia, prehliadač, identifikátor push notifikácií (push subscription), návštevy stránok (interná štatistika), logy chýb.</li>
                 <li><strong>Cookies a lokálne úložisko:</strong> session token autentifikácie, jazykové preferencie, stav onboardingu.</li>
