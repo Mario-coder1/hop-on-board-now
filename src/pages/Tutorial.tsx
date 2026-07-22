@@ -304,6 +304,17 @@ const VisualRender = ({ v }: { v: Visual }) => {
           </div>
         </div>
       );
+    case 'image':
+      return (
+        <div className="h-full w-full overflow-hidden rounded-lg bg-muted">
+          <img
+            src={v.src}
+            alt={v.alt}
+            loading="lazy"
+            className="w-full h-full object-cover object-top"
+          />
+        </div>
+      );
   }
 };
 
