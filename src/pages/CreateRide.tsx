@@ -360,7 +360,18 @@ const CreateRide = () => {
             Späť
           </Button>
 
-          <h1 className="font-display text-3xl font-bold mb-8">Vytvor novú jazdu</h1>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+            <h1 className="font-display text-3xl font-bold">Vytvor novú jazdu</h1>
+            <VoiceRideButton
+              onApply={(patch) => {
+                if (patch.origin) setOrigin(patch.origin);
+                if (patch.destination) setDestination(patch.destination);
+                if (typeof patch.seats === 'number') setSeats(patch.seats);
+                if (typeof patch.price === 'number') setPrice(patch.price);
+                if (patch.departureLocal) { setIsRecurring(false); setDepartureTime(patch.departureLocal); }
+              }}
+            />
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Form */}
