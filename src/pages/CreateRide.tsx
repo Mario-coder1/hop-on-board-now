@@ -21,6 +21,7 @@ import { mapDatabaseError } from '@/lib/errorMapping';
 import { useMyMemberships } from '@/hooks/useUniversities';
 import { GraduationCap } from 'lucide-react';
 import SEO from '@/components/SEO';
+import VoiceRideButton from '@/components/VoiceRideButton';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
 const WEEKDAYS = [
