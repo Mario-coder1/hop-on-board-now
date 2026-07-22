@@ -13,6 +13,7 @@ import Navigation from '@/components/Navigation';
 import Map from '@/components/Map';
 import SEO from '@/components/SEO';
 import RouteAlerts from '@/components/RouteAlerts';
+import LocationSearchInput from '@/components/LocationSearchInput';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
