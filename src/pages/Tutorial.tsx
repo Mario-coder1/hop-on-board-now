@@ -436,9 +436,20 @@ const StepCard = ({ step, index, total }: { step: Step; index: number; total: nu
         </div>
 
         <div className="order-1 md:order-2 flex justify-center md:justify-end mb-5 md:mb-0">
-          <PhoneFrame>
-            <VisualRender v={step.visual} />
-          </PhoneFrame>
+          {step.visual.kind === 'image' ? (
+            <div className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-muted">
+              <img
+                src={step.visual.src}
+                alt={step.visual.alt}
+                loading="lazy"
+                className="w-full h-auto block"
+              />
+            </div>
+          ) : (
+            <PhoneFrame>
+              <VisualRender v={step.visual} />
+            </PhoneFrame>
+          )}
         </div>
 
         <div className="order-2 md:order-1 space-y-3 md:space-y-4">
