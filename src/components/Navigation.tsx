@@ -222,7 +222,7 @@ const Navigation: React.FC = () => {
                   }`}
                 >
                   <item.icon className="w-[18px] h-[18px]" strokeWidth={isActive ? 2.4 : 1.8} />
-                  <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${isActive ? 'opacity-100' : 'opacity-0 h-0'}`}>
+                  <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                     {item.label}
                   </span>
                 </Link>
@@ -238,7 +238,7 @@ const Navigation: React.FC = () => {
                 }`}
               >
                 <Shield className="w-[18px] h-[18px]" />
-                <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/admin' ? 'opacity-100' : 'opacity-0 h-0'}`}>
+                <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/admin' ? 'opacity-100' : 'opacity-70'}`}>
                   Admin
                 </span>
               </Link>
@@ -253,7 +253,7 @@ const Navigation: React.FC = () => {
               }`}
             >
               <User className="w-[18px] h-[18px]" />
-              <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/profile' ? 'opacity-100' : 'opacity-0 h-0'}`}>
+              <span className={`text-[9px] font-semibold mt-0.5 tracking-tight ${location.pathname === '/profile' ? 'opacity-100' : 'opacity-70'}`}>
                 Profil
               </span>
             </Link>
