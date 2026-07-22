@@ -184,7 +184,7 @@ export default function Co2Calculator() {
                 <div>
                   <p className="font-semibold text-sm">Spolujazda = polovica CO₂</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Každý ďalší pasažier v aute zníži jeho podiel na emisiách. Zdieľaj cestu cez takeme a šetri planétu aj peňaženku.
+                    Každý ďalší pasažier v aute zníži jeho podiel na emisiách. Zdieľaj cestu cez takeme a šetri planétu aj peniaze.
                   </p>
                 </div>
               </CardContent>
