@@ -31,6 +31,11 @@ import p2Search from '@/assets/tutorial-passenger/p2-search.jpeg.asset.json';
 import p3Alert from '@/assets/tutorial-passenger/p3-alert.jpeg.asset.json';
 import p4Checkout from '@/assets/tutorial-passenger/p4-checkout.jpeg.asset.json';
 import p5Tracking from '@/assets/tutorial-passenger/p5-tracking.jpeg.asset.json';
+import d1Role from '@/assets/tutorial-driver/d1-role.jpeg.asset.json';
+import d2Nav from '@/assets/tutorial-driver/d2-nav.jpeg.asset.json';
+import d3Type from '@/assets/tutorial-driver/d3-type.jpeg.asset.json';
+import d4Rides from '@/assets/tutorial-driver/d4-rides.jpeg.asset.json';
+import d5Drive from '@/assets/tutorial-driver/d5-drive.jpeg.asset.json';
 
 /* --------------------------- Illustrative Visual --------------------------- */
 
