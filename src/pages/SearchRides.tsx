@@ -80,6 +80,46 @@ const SearchRides = () => {
   const [nearMeRadiusKm, setNearMeRadiusKm] = useState('10');
   const [myLocation, setMyLocation] = useState<LngLat | null>(null);
   const [locatingMe, setLocatingMe] = useState(false);
+  const [autoFillingOrigin, setAutoFillingOrigin] = useState(false);
+
+  // Detect current GPS position and reverse-geocode it into the "Odkiaľ" input
+  const autofillOriginFromLocation = () => {
+    if (!('geolocation' in navigator)) {
+      toast({ title: 'Poloha nedostupná', description: 'Tvoj prehliadač nepodporuje geolokáciu.', variant: 'destructive' });
+      return;
+    }
+    setAutoFillingOrigin(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { longitude, latitude } = pos.coords;
+        setMyLocation([longitude, latitude]);
+        try {
+          const token = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?language=sk&limit=1&access_token=${token}`
+          );
+          const data = await res.json();
+          const place = data?.features?.[0];
+          const label = place?.place_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          // Prefer the city/locality token so it also matches ride origin_address fields
+          const cityCtx = place?.context?.find((c: any) => /place|locality|region/.test(c.id));
+          setSearchOrigin(cityCtx?.text || place?.text || label);
+          toast({ title: 'Odkiaľ vyplnené', description: label });
+        } catch (e) {
+          setSearchOrigin(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          toast({ title: 'Poloha zistená', description: 'Použil som súradnice, adresa sa nenačítala.' });
+        } finally {
+          setAutoFillingOrigin(false);
+        }
+      },
+      (err) => {
+        console.warn('Geolocation error:', err);
+        setAutoFillingOrigin(false);
+        toast({ title: 'Nepodarilo sa zistiť polohu', description: 'Skontroluj povolenie polohy v prehliadači.', variant: 'destructive' });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
 
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
@@ -376,8 +416,18 @@ const SearchRides = () => {
                   placeholder="Odkiaľ (vrátane zastávok)"
                   value={searchOrigin}
                   onChange={(e) => setSearchOrigin(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-11"
                 />
+                <button
+                  type="button"
+                  onClick={autofillOriginFromLocation}
+                  disabled={autoFillingOrigin}
+                  aria-label="Použi moju polohu"
+                  title="Použi moju polohu"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
+                >
+                  {autoFillingOrigin ? <Loader2 className="w-4 h-4 animate-spin" /> : <Locate className="w-4 h-4" />}
+                </button>
               </div>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

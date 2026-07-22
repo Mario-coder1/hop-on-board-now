@@ -7,21 +7,22 @@ import { motion } from 'framer-motion';
  * Uses CSS offset-path (motion path) for reliable animation across browsers.
  */
 const AnimatedAuthBackground: React.FC = () => {
-  // Routes — same path string used for SVG stroke AND CSS offset-path
+  // Routes are kept along the top and bottom edges so animated cars never
+  // overlap the feature text sitting in the vertical middle of the panel.
   const routes = [
-    { id: 'ba-ke', d: 'M 90 230 Q 250 180 400 200 T 720 210', duration: 14, delay: 0 },
-    { id: 'ba-za', d: 'M 90 230 Q 220 200 340 150 T 500 120', duration: 11, delay: 1.5 },
-    { id: 'bb-po', d: 'M 380 230 Q 500 200 600 180 T 700 160', duration: 13, delay: 3 },
-    { id: 'za-ke', d: 'M 500 120 Q 600 160 660 190 T 720 210', duration: 12, delay: 4.5 },
+    { id: 'ba-ke', d: 'M 60 370 Q 250 340 400 360 T 740 355', duration: 14, delay: 0 },
+    { id: 'ba-za', d: 'M 60 370 Q 220 355 340 345 T 720 335', duration: 11, delay: 1.5 },
+    { id: 'bb-po', d: 'M 60 40 Q 250 30 420 45 T 740 40', duration: 13, delay: 3 },
+    { id: 'za-ke', d: 'M 60 60 Q 260 75 460 60 T 740 70', duration: 12, delay: 4.5 },
   ];
 
   const cities = [
-    { name: 'BA', x: 90, y: 230 },
-    { name: 'NR', x: 200, y: 240 },
-    { name: 'BB', x: 380, y: 230 },
-    { name: 'ZA', x: 500, y: 120 },
-    { name: 'PO', x: 700, y: 160 },
-    { name: 'KE', x: 720, y: 210 },
+    { name: 'BA', x: 60, y: 370 },
+    { name: 'NR', x: 240, y: 358 },
+    { name: 'BB', x: 420, y: 358 },
+    { name: 'ZA', x: 560, y: 345 },
+    { name: 'PO', x: 680, y: 350 },
+    { name: 'KE', x: 740, y: 355 },
   ];
 
   return (
