@@ -111,6 +111,35 @@ const Navigation: React.FC = () => {
 
             {/* User */}
             <div className="flex items-center gap-2">
+              {/* Role switch — compact segmented toggle */}
+              {profile && (
+                <div className="flex items-center bg-muted/70 backdrop-blur rounded-full p-0.5 border border-border/60">
+                  <button
+                    onClick={() => handleRoleSwitch('driver')}
+                    aria-label="Prepnúť na vodiča"
+                    className={`flex items-center gap-1 px-2 sm:px-3 h-7 rounded-full text-[11px] font-semibold transition-all ${
+                      isDriver
+                        ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Car className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline sm:inline">Vodič</span>
+                  </button>
+                  <button
+                    onClick={() => handleRoleSwitch('passenger')}
+                    aria-label="Prepnúť na cestujúceho"
+                    className={`flex items-center gap-1 px-2 sm:px-3 h-7 rounded-full text-[11px] font-semibold transition-all ${
+                      !isDriver
+                        ? 'bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-cta'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline sm:inline">Cestujúci</span>
+                  </button>
+                </div>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
