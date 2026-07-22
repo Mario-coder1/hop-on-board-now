@@ -369,38 +369,38 @@ const driverSteps: Step[] = [
 const passengerSteps: Step[] = [
   {
     title: 'Vyber si rolu Pasažier',
-    description: 'V Profile prepni rolu. Doplň meno a fotku — vodičom to dáva istotu, koho zoberú do auta.',
+    description: 'V hornej lište prepni na „Cestujúci". Domovská obrazovka ťa privíta a rovno ti ponúkne vyhľadávanie odkiaľ a kam.',
     icon: Users,
     tag: 'Profil',
-    visual: { kind: 'profile-passenger' },
+    visual: { kind: 'image', src: p1Home.url, alt: 'Domovská obrazovka pasažiera s prepínačom rolí' },
   },
   {
     title: 'Vyhľadaj jazdu',
-    description: 'Zadaj odkiaľ a kam. Vyhľadávanie zohľadňuje aj zastávky vodičov a aktuálne prebiehajúce jazdy označené LIVE.',
+    description: 'Zadaj odkiaľ a kam — vyhľadávanie zohľadňuje aj zastávky vodičov a aktuálne prebiehajúce jazdy označené LIVE. Cez ikonku GPS použiješ svoju polohu.',
     icon: Search,
     tag: 'Hľadanie',
-    visual: { kind: 'search' },
+    visual: { kind: 'image', src: p2Search.url, alt: 'Obrazovka Hľadať jazdy' },
   },
   {
     title: 'Nastav alert na trasu',
-    description: 'Nenašiel si jazdu? Pridaj si trasu medzi alerty — keď ju niekto vypíše, dostaneš okamžitú push notifikáciu.',
+    description: 'Nenašiel si jazdu? Pridaj si trasu medzi Alerty na trasy — keď ju niekto vypíše, dostaneš okamžitú push notifikáciu.',
     icon: Bell,
     tag: 'Notifikácie',
-    visual: { kind: 'alert' },
+    visual: { kind: 'image', src: p3Alert.url, alt: 'Karta Alerty na trasy' },
   },
   {
     title: 'Pošli žiadosť a zaplať',
-    description: 'Zadaj presné miesto vyzdvihnutia a vystúpenia. Plať kartou, Apple Pay alebo Google Pay — bezpečne cez Stripe.',
+    description: 'Uvidíš prehľadný rozpis: cena vodiča, poplatok platformy a poplatok za platbu kartou. Plať bezpečne cez Stripe — kartou, Apple Pay alebo Google Pay.',
     icon: CreditCard,
     tag: 'Rezervácia',
-    visual: { kind: 'checkout' },
+    visual: { kind: 'image', src: p4Checkout.url, alt: 'Rozpis ceny a tlačidlo Rezervovať a zaplatiť' },
   },
   {
     title: 'Sleduj vodiča naživo',
-    description: 'Po schválení vidíš vodičovu polohu v reálnom čase. Keď je na mieste, dostaneš notifikáciu. Jazda sa ukončí automaticky < 50 m od cieľa.',
+    description: 'Po schválení vidíš vodičovu polohu, ETA aj rýchlosť v reálnom čase. Pri nastúpení mu ukážeš svoj PIN alebo QR kód a jazda sa automaticky spustí.',
     icon: NavIcon,
     tag: 'Počas jazdy',
-    visual: { kind: 'live-tracking' },
+    visual: { kind: 'image', src: p5Tracking.url, alt: 'Sledovanie jazdy s PIN kódom pre vodiča' },
   },
 ];
 
