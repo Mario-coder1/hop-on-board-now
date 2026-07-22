@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf } from 'lucide-react';
+import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,10 +12,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 const Navigation: React.FC = () => {
-  const { profile, signOut, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin, updateRole } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleRoleSwitch = async (role: 'driver' | 'passenger') => {
+    if (profile?.selected_role === role) return;
+    try {
+      await updateRole(role);
+      toast.success(role === 'driver' ? 'Prepnuté na vodiča' : 'Prepnuté na cestujúceho');
+      navigate(role === 'driver' ? '/driver' : '/passenger');
+    } catch (e: any) {
+      toast.error('Nepodarilo sa prepnúť rolu', { description: e?.message });
+    }
+  };
 
   const isDriver = profile?.selected_role === 'driver';
 
