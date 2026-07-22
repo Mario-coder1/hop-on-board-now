@@ -65,8 +65,8 @@ const AUDIT_ITEMS: AuditItem[] = [
   { category: "Odporúčania", title: "Dvojfaktorové overenie pre adminov", description: "Odporúčané: vyžadovať TOTP pre administrátorské účty.", status: "info" },
   { category: "Odporúčania", title: "Pravidelná rotácia VAPID a Stripe kľúčov", description: "Odporúčané: rotovať každých 6 až 12 mesiacov.", status: "info" },
 
-  // Kritické
-  { category: "Kritické", title: "Stripe Connect (výplaty vodičom)", description: "Aktuálne držíme peniaze vodičov vo wallete – právne riziko. Plánovaný prechod na Stripe Connect Express.", status: "critical" },
+  // Platby cez Stripe
+  { category: "Platby", title: "Žiadna interná peňaženka", description: "Peniaze používateľov nezadržiavame. Platby aj výplaty vodičom idú výhradne cez Stripe.", status: "ok" },
 ];
 
 const STATUS_LABEL: Record<Severity, string> = {
