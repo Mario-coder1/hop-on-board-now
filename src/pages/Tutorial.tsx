@@ -26,6 +26,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import SEO from '@/components/SEO';
 import Navigation from '@/components/Navigation';
+import p1Home from '@/assets/tutorial-passenger/p1-home.jpeg.asset.json';
+import p2Search from '@/assets/tutorial-passenger/p2-search.jpeg.asset.json';
+import p3Alert from '@/assets/tutorial-passenger/p3-alert.jpeg.asset.json';
+import p4Checkout from '@/assets/tutorial-passenger/p4-checkout.jpeg.asset.json';
+import p5Tracking from '@/assets/tutorial-passenger/p5-tracking.jpeg.asset.json';
 
 /* --------------------------- Illustrative Visual --------------------------- */
 
