@@ -85,7 +85,7 @@ export const ColdStartCard = () => {
           </div>
           <div className="text-sm text-muted-foreground mt-1">
             Pre prvých 10 vodičov, ktorí dokončia 5 jázd s pasažiermi:
-            <strong className="text-foreground"> 10 € do peňaženky + 0 % komisia na 2 mesiace.</strong>
+            <strong className="text-foreground"> 10 € bonus cez Stripe + 0 % komisia na 2 mesiace.</strong>
           </div>
           <div className="text-xs text-emerald-700 dark:text-emerald-400 mt-2 font-medium">
             Zostáva {status.slots_remaining} {status.slots_remaining === 1 ? "miesto" : "miest"} z 10
