@@ -138,10 +138,10 @@ const PrivacyPolicy = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6. Platby, peňaženka a provízie</h2>
+              <h2 className="font-display text-2xl font-semibold">6. Platby a provízie</h2>
             </div>
             <div className="space-y-2 text-muted-foreground">
-              <p>Platby spolujazdcov sú spracúvané prostredníctvom Stripe. TakeMe neukladá ani nemá prístup k údajom platobnej karty. Z každej úspešnej jazdy si platforma účtuje províziu (aktuálne 10 %), zvyšok je pripísaný vodičovi do internej peňaženky a vyplácaný bankovým prevodom na vyžiadanie. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
+              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe nezadržiava peniaze používateľov, neprevádzkuje žiadnu internú peňaženku a nemá prístup k údajom platobnej karty. Z každej úspešnej jazdy si platforma účtuje províziu (aktuálne 10 %), zvyšok je vyplatený vodičovi priamo cez Stripe. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
             </div>
           </section>
 
