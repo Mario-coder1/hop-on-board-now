@@ -24,12 +24,20 @@ interface Props {
 }
 
 async function geocode(query: string) {
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&language=sk&country=sk,cz,at,hu,pl&limit=1`;
-  const r = await fetch(url);
-  const j = await r.json();
-  const f = j.features?.[0];
+  // Prefer address-level match (with house number). Fallback to broader search.
+  const base = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&language=sk&country=sk,cz,at,hu,pl&limit=5&autocomplete=false`;
+  const tryFetch = async (url: string) => {
+    const r = await fetch(url);
+    const j = await r.json();
+    return (j.features || []) as Array<{ place_name: string; center: [number, number]; place_type: string[] }>;
+  };
+  let feats = await tryFetch(`${base}&types=address,poi`);
+  if (!feats.length) feats = await tryFetch(base);
+  // Prefer address matches if query contains a number
+  const hasNum = /\d/.test(query);
+  const f = hasNum ? (feats.find((x) => x.place_type?.includes("address")) ?? feats[0]) : feats[0];
   if (!f) return null;
-  return { address: f.place_name as string, lng: f.center[0] as number, lat: f.center[1] as number };
+  return { address: f.place_name, lng: f.center[0], lat: f.center[1] };
 }
 
 function isoToLocalInput(iso: string): string | undefined {
