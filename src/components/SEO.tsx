@@ -31,6 +31,17 @@ const HREFLANGS: { code: string; lang: string }[] = [
   { code: 'pl-PL', lang: 'pl' },
   { code: 'en', lang: 'en' },
   { code: 'en-GB', lang: 'en' },
+  { code: 'en-IN', lang: 'en' },
+  { code: 'hi', lang: 'hi' },
+  { code: 'hi-IN', lang: 'hi' },
+  { code: 'bn-IN', lang: 'bn' },
+  { code: 'ta-IN', lang: 'ta' },
+  { code: 'te-IN', lang: 'te' },
+  { code: 'mr-IN', lang: 'mr' },
+  { code: 'gu-IN', lang: 'gu' },
+  { code: 'kn-IN', lang: 'kn' },
+  { code: 'ml-IN', lang: 'ml' },
+  { code: 'pa-IN', lang: 'pa' },
   { code: 'de', lang: 'de' },
   { code: 'de-DE', lang: 'de' },
   { code: 'de-AT', lang: 'de' },
@@ -41,7 +52,7 @@ const HREFLANGS: { code: string; lang: string }[] = [
   { code: 'es', lang: 'es' },
 ];
 
-const OG_ALT_LOCALES = ['cs_CZ', 'pl_PL', 'en_GB', 'en_US', 'de_DE', 'de_AT', 'hu_HU', 'fr_FR', 'it_IT', 'es_ES'];
+const OG_ALT_LOCALES = ['cs_CZ', 'pl_PL', 'en_GB', 'en_US', 'en_IN', 'hi_IN', 'bn_IN', 'ta_IN', 'te_IN', 'mr_IN', 'gu_IN', 'kn_IN', 'ml_IN', 'pa_IN', 'de_DE', 'de_AT', 'hu_HU', 'fr_FR', 'it_IT', 'es_ES'];
 
 const SEO = ({
   title,
