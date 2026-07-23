@@ -21,6 +21,9 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
+    // Optimalizácia tokenov: pošli len posledných 8 správ z histórie
+    const trimmed = Array.isArray(messages) ? messages.slice(-8) : [];
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -28,9 +31,10 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
         stream: true,
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        max_tokens: 500,
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
       }),
     });
 

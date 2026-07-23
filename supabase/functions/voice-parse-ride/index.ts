@@ -61,7 +61,8 @@ Vráť LEN JSON, žiadny komentár.`;
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
+        max_tokens: 200,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system },
