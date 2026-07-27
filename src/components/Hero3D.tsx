@@ -16,84 +16,153 @@ const Car = () => {
     if (group.current) {
       group.current.position.y = -0.15 + Math.sin(t * 2) * 0.03;
       group.current.rotation.y = -0.55 + Math.sin(t * 0.4) * 0.06;
-      group.current.rotation.z = Math.sin(t * 1.8) * 0.015;
+      group.current.rotation.z = Math.sin(t * 1.8) * 0.012;
     }
     wheels.current.forEach((w) => {
       if (w) w.rotation.x = t * 10;
     });
   });
 
+  // Octavia 3 wheelbase ~ longer, wider stance
   const wheelPositions: [number, number, number][] = [
-    [-0.6, -0.24, 0.4],
-    [0.6, -0.24, 0.4],
-    [-0.6, -0.24, -0.4],
-    [0.6, -0.24, -0.4],
+    [-0.78, -0.24, 0.44],
+    [0.78, -0.24, 0.44],
+    [-0.78, -0.24, -0.44],
+    [0.78, -0.24, -0.44],
   ];
+
+  // Silver metallic body — signature Škoda "Brilliant Silver"
+  const bodyColor = "#c9ced4";
+  const bodyDark = "#9aa2ab";
 
   return (
     <group ref={group}>
-      {/* main chassis — sleek wedge */}
+      {/* main body — long liftback silhouette */}
       <mesh position={[0, -0.05, 0]} castShadow>
-        <boxGeometry args={[1.9, 0.22, 0.82]} />
-        <meshStandardMaterial color="#2563eb" metalness={0.85} roughness={0.18} />
+        <boxGeometry args={[2.3, 0.24, 0.88]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.9} roughness={0.22} />
       </mesh>
 
-      {/* front nose (tapered) */}
-      <mesh position={[0.92, -0.08, 0]} rotation={[0, 0, -0.18]}>
-        <boxGeometry args={[0.35, 0.16, 0.78]} />
-        <meshStandardMaterial color="#1d4ed8" metalness={0.85} roughness={0.2} />
+      {/* lower rocker panel (darker) */}
+      <mesh position={[0, -0.2, 0]}>
+        <boxGeometry args={[2.25, 0.06, 0.9]} />
+        <meshStandardMaterial color="#3a4049" metalness={0.5} roughness={0.6} />
       </mesh>
 
-      {/* rear boot */}
-      <mesh position={[-0.92, -0.05, 0]}>
-        <boxGeometry args={[0.28, 0.2, 0.8]} />
-        <meshStandardMaterial color="#1e40af" metalness={0.85} roughness={0.2} />
+      {/* bonnet — flat with sharp crease */}
+      <mesh position={[0.85, 0.04, 0]}>
+        <boxGeometry args={[0.7, 0.05, 0.84]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.92} roughness={0.2} />
       </mesh>
 
-      {/* cabin / greenhouse — low sloping roof */}
-      <mesh position={[-0.05, 0.16, 0]}>
-        <boxGeometry args={[0.95, 0.22, 0.72]} />
+      {/* front bumper */}
+      <mesh position={[1.18, -0.1, 0]}>
+        <boxGeometry args={[0.12, 0.24, 0.84]} />
+        <meshStandardMaterial color={bodyDark} metalness={0.85} roughness={0.25} />
+      </mesh>
+
+      {/* Škoda signature split grille — two chrome bars */}
+      <mesh position={[1.24, -0.02, 0.14]}>
+        <boxGeometry args={[0.02, 0.08, 0.22]} />
+        <meshStandardMaterial color="#0b1120" roughness={0.7} />
+      </mesh>
+      <mesh position={[1.24, -0.02, -0.14]}>
+        <boxGeometry args={[0.02, 0.08, 0.22]} />
+        <meshStandardMaterial color="#0b1120" roughness={0.7} />
+      </mesh>
+      {/* chrome grille frame */}
+      <mesh position={[1.24, 0.02, 0]}>
+        <boxGeometry args={[0.01, 0.005, 0.56]} />
+        <meshStandardMaterial color="#e5e7eb" metalness={1} roughness={0.1} />
+      </mesh>
+      <mesh position={[1.24, -0.06, 0]}>
+        <boxGeometry args={[0.01, 0.005, 0.56]} />
+        <meshStandardMaterial color="#e5e7eb" metalness={1} roughness={0.1} />
+      </mesh>
+
+      {/* rear liftback — sloping */}
+      <mesh position={[-0.95, 0.02, 0]} rotation={[0, 0, 0.12]}>
+        <boxGeometry args={[0.5, 0.22, 0.84]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.92} roughness={0.22} />
+      </mesh>
+
+      {/* rear bumper */}
+      <mesh position={[-1.18, -0.1, 0]}>
+        <boxGeometry args={[0.1, 0.24, 0.84]} />
+        <meshStandardMaterial color={bodyDark} metalness={0.85} roughness={0.25} />
+      </mesh>
+
+      {/* cabin / greenhouse — Octavia's characteristic long roofline */}
+      <mesh position={[-0.08, 0.2, 0]}>
+        <boxGeometry args={[1.15, 0.26, 0.78]} />
         <meshStandardMaterial
-          color="#0ea5e9"
-          metalness={0.95}
-          roughness={0.05}
+          color="#0f172a"
+          metalness={0.6}
+          roughness={0.1}
           transparent
-          opacity={0.75}
-          emissive="#38bdf8"
-          emissiveIntensity={0.4}
+          opacity={0.85}
         />
       </mesh>
 
-      {/* roof strip (modern glass panel) */}
-      <mesh position={[-0.05, 0.28, 0]}>
-        <boxGeometry args={[0.7, 0.02, 0.6]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.1} />
+      {/* A-pillar & C-pillar tint darker frames */}
+      <mesh position={[0.48, 0.2, 0]} rotation={[0, 0, -0.35]}>
+        <boxGeometry args={[0.06, 0.28, 0.8]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.9} roughness={0.2} />
+      </mesh>
+      <mesh position={[-0.62, 0.2, 0]} rotation={[0, 0, 0.35]}>
+        <boxGeometry args={[0.06, 0.28, 0.8]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.9} roughness={0.2} />
       </mesh>
 
-      {/* side accent (light bar) */}
-      <mesh position={[0, -0.14, 0.415]}>
-        <boxGeometry args={[1.4, 0.015, 0.005]} />
-        <meshBasicMaterial color="#93c5fd" />
-      </mesh>
-      <mesh position={[0, -0.14, -0.415]}>
-        <boxGeometry args={[1.4, 0.015, 0.005]} />
-        <meshBasicMaterial color="#93c5fd" />
+      {/* roof top */}
+      <mesh position={[-0.08, 0.335, 0]}>
+        <boxGeometry args={[1.0, 0.03, 0.74]} />
+        <meshStandardMaterial color={bodyColor} metalness={0.92} roughness={0.2} />
       </mesh>
 
-      {/* headlights — sleek slim */}
-      <mesh position={[1.06, -0.05, 0.28]}>
-        <boxGeometry args={[0.03, 0.045, 0.16]} />
-        <meshStandardMaterial color="#fffbe6" emissive="#fef3c7" emissiveIntensity={4} />
+      {/* door line / character crease */}
+      <mesh position={[0, -0.02, 0.442]}>
+        <boxGeometry args={[1.9, 0.008, 0.005]} />
+        <meshStandardMaterial color="#6b7280" metalness={0.8} roughness={0.3} />
       </mesh>
-      <mesh position={[1.06, -0.05, -0.28]}>
-        <boxGeometry args={[0.03, 0.045, 0.16]} />
-        <meshStandardMaterial color="#fffbe6" emissive="#fef3c7" emissiveIntensity={4} />
+      <mesh position={[0, -0.02, -0.442]}>
+        <boxGeometry args={[1.9, 0.008, 0.005]} />
+        <meshStandardMaterial color="#6b7280" metalness={0.8} roughness={0.3} />
       </mesh>
 
-      {/* taillight strip */}
-      <mesh position={[-1.06, -0.02, 0]}>
-        <boxGeometry args={[0.02, 0.05, 0.6]} />
-        <meshStandardMaterial color="#ff5c6c" emissive="#ef4444" emissiveIntensity={3} />
+      {/* LED headlights — angular, Octavia style */}
+      <mesh position={[1.19, 0.02, 0.32]}>
+        <boxGeometry args={[0.04, 0.06, 0.14]} />
+        <meshStandardMaterial color="#fffbe6" emissive="#fef3c7" emissiveIntensity={4.5} />
+      </mesh>
+      <mesh position={[1.19, 0.02, -0.32]}>
+        <boxGeometry args={[0.04, 0.06, 0.14]} />
+        <meshStandardMaterial color="#fffbe6" emissive="#fef3c7" emissiveIntensity={4.5} />
+      </mesh>
+      {/* DRL strip below headlights */}
+      <mesh position={[1.2, -0.04, 0.32]}>
+        <boxGeometry args={[0.02, 0.015, 0.16]} />
+        <meshBasicMaterial color="#e0f2fe" />
+      </mesh>
+      <mesh position={[1.2, -0.04, -0.32]}>
+        <boxGeometry args={[0.02, 0.015, 0.16]} />
+        <meshBasicMaterial color="#e0f2fe" />
+      </mesh>
+
+      {/* C-shaped taillights (Škoda signature) */}
+      <mesh position={[-1.18, 0.0, 0.3]}>
+        <boxGeometry args={[0.025, 0.07, 0.16]} />
+        <meshStandardMaterial color="#ff5c6c" emissive="#ef4444" emissiveIntensity={3.5} />
+      </mesh>
+      <mesh position={[-1.18, 0.0, -0.3]}>
+        <boxGeometry args={[0.025, 0.07, 0.16]} />
+        <meshStandardMaterial color="#ff5c6c" emissive="#ef4444" emissiveIntensity={3.5} />
+      </mesh>
+
+      {/* Škoda badge on rear — small chrome dot */}
+      <mesh position={[-1.21, 0.05, 0]}>
+        <cylinderGeometry args={[0.035, 0.035, 0.01, 16]} />
+        <meshStandardMaterial color="#22c55e" metalness={0.9} roughness={0.2} emissive="#166534" emissiveIntensity={0.6} />
       </mesh>
 
       {/* wheels */}
@@ -106,38 +175,32 @@ const Car = () => {
           }}
         >
           <mesh rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.19, 0.19, 0.11, 28]} />
+            <cylinderGeometry args={[0.21, 0.21, 0.12, 32]} />
             <meshStandardMaterial color="#0b1120" roughness={0.85} />
           </mesh>
-          {/* rim */}
+          {/* alloy rim */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.11, 0.11, 0.116, 24]} />
-            <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.15} />
+            <cylinderGeometry args={[0.14, 0.14, 0.126, 28]} />
+            <meshStandardMaterial color="#d1d5db" metalness={0.95} roughness={0.18} />
           </mesh>
-          {/* spokes */}
-          <mesh rotation={[0, 0, Math.PI / 2]}>
-            <boxGeometry args={[0.02, 0.02, 0.19]} />
-            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
-          </mesh>
-          <mesh rotation={[Math.PI / 3, 0, Math.PI / 2]}>
-            <boxGeometry args={[0.02, 0.02, 0.19]} />
-            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
-          </mesh>
-          <mesh rotation={[-Math.PI / 3, 0, Math.PI / 2]}>
-            <boxGeometry args={[0.02, 0.02, 0.19]} />
-            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
-          </mesh>
+          {/* five spokes — Octavia-style alloys */}
+          {[0, 1, 2, 3, 4].map((k) => (
+            <mesh key={k} rotation={[(Math.PI / 2.5) * k, 0, Math.PI / 2]}>
+              <boxGeometry args={[0.025, 0.02, 0.24]} />
+              <meshStandardMaterial color="#e5e7eb" metalness={0.92} roughness={0.2} />
+            </mesh>
+          ))}
           {/* hub */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.035, 0.035, 0.12, 12]} />
-            <meshStandardMaterial color="#60a5fa" emissive="#3b82f6" emissiveIntensity={1.5} />
+            <cylinderGeometry args={[0.04, 0.04, 0.13, 12]} />
+            <meshStandardMaterial color="#22c55e" emissive="#16a34a" emissiveIntensity={1.2} />
           </mesh>
         </group>
       ))}
 
       {/* ground glow under car */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.44, 0]}>
-        <planeGeometry args={[2.2, 1.1]} />
+        <planeGeometry args={[2.6, 1.2]} />
         <meshBasicMaterial color="#3b82f6" transparent opacity={0.18} />
       </mesh>
     </group>
