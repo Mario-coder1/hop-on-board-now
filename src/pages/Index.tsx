@@ -166,13 +166,13 @@ const Index = () => {
             <div className="md:col-span-7">
               <div className="flex flex-wrap gap-2 mb-6">
                 <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
-                  ⚡ Live tracking
+                  ⚡ {t("hero.badge_live_tracking")}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
-                  🔒 Stripe payments
+                  🔒 {t("hero.badge_stripe_payments")}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
-                  🇸🇰 Made in Slovakia
+                  🇸🇰 {t("hero.badge_made_in_slovakia")}
                 </span>
               </div>
 
