@@ -75,7 +75,7 @@ const Hero3D = () => {
           <Dot radius={2.6} tilt={0.4} speed={0.6} phase={0} />
           <Dot radius={2.6} tilt={0.4} speed={0.6} phase={Math.PI} color="#38bdf8" />
           <Dot radius={3.1} tilt={-0.6} speed={0.4} phase={1.2} color="#a78bfa" />
-          <Environment preset="city" />
+          
         </Suspense>
       </Canvas>
     </div>
