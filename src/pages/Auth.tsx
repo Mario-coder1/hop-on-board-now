@@ -370,10 +370,24 @@ const Auth: React.FC = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {!isLogin && (
+                {!isLogin && password.length > 0 && (() => {
+                  const s = passwordStrength(password);
+                  return (
+                    <div className="space-y-1">
+                      <div className="flex gap-1">
+                        {[0,1,2,3,4].map((i) => (
+                          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < s.score ? s.color : 'bg-muted'}`} />
+                        ))}
+                      </div>
+                      <p className={`text-xs ${s.hint ? 'text-destructive' : 'text-green-600'}`}>
+                        {s.hint || `Sila hesla: ${s.label}`}
+                      </p>
+                    </div>
+                  );
+                })()}
+                {!isLogin && password.length === 0 && (
                   <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
                 )}
-              </div>
 
               {!isLogin && (
                 <div className="space-y-2">
