@@ -120,14 +120,6 @@ const Index = () => {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          {/* Online indicator */}
-          <div className="inline-flex items-center gap-2 mb-8 text-xs text-muted-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span>{onlineCount} {t("hero.badge_online")}</span>
-          </div>
 
           <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 leading-[1.02] tracking-tight">
             Slovenská spolujazda a ridesharing
