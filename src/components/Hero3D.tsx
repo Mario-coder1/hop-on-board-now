@@ -116,6 +116,22 @@ const Car = () => {
           </mesh>
           {/* hub */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.11, 0.11, 0.116, 24]} />
+            <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.15} />
+          </mesh>
+          {/* spokes */}
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <boxGeometry args={[0.02, 0.02, 0.19]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
+          </mesh>
+          <mesh rotation={[Math.PI / 3, 0, Math.PI / 2]}>
+            <boxGeometry args={[0.02, 0.02, 0.19]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 3, 0, Math.PI / 2]}>
+            <boxGeometry args={[0.02, 0.02, 0.19]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.2} />
+          </mesh>
             <cylinderGeometry args={[0.035, 0.035, 0.12, 12]} />
             <meshStandardMaterial color="#60a5fa" emissive="#3b82f6" emissiveIntensity={1.5} />
           </mesh>
