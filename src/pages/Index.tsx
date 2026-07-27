@@ -133,20 +133,11 @@ const Index = () => {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
             </span>
             <span className="font-display font-black text-lg tracking-tight">TakeMe</span>
-            <span className="ml-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 font-mono">
-              v1.0 · SK
-            </span>
           </div>
           <LanguageSwitcher />
         </header>
 
         <div className="relative container mx-auto px-6 pt-14 md:pt-24 pb-20 md:pb-32 z-10">
-          {/* editorial meta row */}
-          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] font-mono text-muted-foreground/80 mb-8 md:mb-12">
-            <span>№ 001 — Ridesharing</span>
-            <span className="hidden sm:inline">48.148° N / 17.107° E</span>
-            <span>2026 —</span>
-          </div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
