@@ -156,10 +156,13 @@ const Auth: React.FC = () => {
           });
         } else {
           toast({
-            title: "Účet vytvorený",
-            description: "Registrácia je hotová, môžeš pokračovať v aplikácii."
+            title: "Skontroluj svoj email 📧",
+            description: "Poslali sme ti potvrdzovací link. Klikni naň v emaili a potom sa môžeš prihlásiť.",
+            duration: 10000,
           });
-          navigate(nextPath, { replace: true });
+          setIsLogin(true);
+          setPassword('');
+          setConfirmPassword('');
         }
       }
 
