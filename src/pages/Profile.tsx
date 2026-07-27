@@ -233,6 +233,28 @@ const Profile = () => {
     }
   };
 
+  const [savingField, setSavingField] = useState<string | null>(null);
+  const handleFieldSave = async (field: keyof typeof formData) => {
+    if (!profile) return;
+    setSavingField(field);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [field]: formData[field] })
+        .eq('id', profile.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: 'Uložené!', description: 'Zmena bola uložená.' });
+    } catch (error: any) {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    } finally {
+      setSavingField(null);
+    }
+  };
+
+  const isDirty = (field: keyof typeof formData) =>
+    (formData[field] || '') !== ((profile as any)?.[field] || '');
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
