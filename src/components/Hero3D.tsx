@@ -1,202 +1,180 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, Suspense, useMemo } from "react";
 import * as THREE from "three";
 
 /**
- * Ridesharing-themed 3D hero:
- * - A stylised globe (wireframe sphere) representing Slovakia / the network
- * - Glowing route arcs jumping between cities (ridesharing connections)
- * - Pulsing city pins on the surface
+ * Ridesharing hero: stylised low-poly car speeding along a glowing route.
+ * Positioned on the right half so hero text on the left stays fully readable.
  */
 
-const CITY_POINTS: [number, number][] = [
-  // [latitude, longitude] approximation of key SK cities (spread on globe)
-  [48.15, 17.11], // Bratislava
-  [48.72, 21.26], // Košice
-  [49.22, 18.74], // Žilina
-  [48.99, 21.24], // Prešov
-  [48.31, 18.09], // Nitra
-  [48.74, 19.15], // B. Bystrica
-  [49.06, 20.30], // Poprad
-  [48.89, 18.04], // Trenčín
-  [48.37, 17.59], // Trnava
-];
-
-const latLonToVec3 = (lat: number, lon: number, r: number) => {
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lon + 20) * (Math.PI / 180);
-  return new THREE.Vector3(
-    -r * Math.sin(phi) * Math.cos(theta),
-    r * Math.cos(phi),
-    r * Math.sin(phi) * Math.sin(theta)
-  );
-};
-
-const Globe = () => {
-  const ref = useRef<THREE.Group>(null!);
+const Car = () => {
+  const group = useRef<THREE.Group>(null!);
+  const wheels = useRef<THREE.Group[]>([]);
   useFrame((s) => {
-    if (ref.current) ref.current.rotation.y = s.clock.elapsedTime * 0.08;
+    if (group.current) {
+      group.current.position.y = Math.sin(s.clock.elapsedTime * 1.4) * 0.06;
+      group.current.rotation.z = Math.sin(s.clock.elapsedTime * 1.2) * 0.02;
+    }
+    wheels.current.forEach((w) => {
+      if (w) w.rotation.x = s.clock.elapsedTime * 8;
+    });
   });
+
+  const wheelPositions: [number, number, number][] = [
+    [-0.55, -0.28, 0.42],
+    [0.55, -0.28, 0.42],
+    [-0.55, -0.28, -0.42],
+    [0.55, -0.28, -0.42],
+  ];
+
   return (
-    <group ref={ref}>
-      {/* soft inner sphere */}
-      <mesh>
-        <sphereGeometry args={[1.6, 64, 64]} />
+    <group ref={group} rotation={[0, -0.5, 0]}>
+      {/* body lower */}
+      <mesh position={[0, -0.05, 0]} castShadow>
+        <boxGeometry args={[1.7, 0.35, 0.85]} />
+        <meshStandardMaterial color="#3b82f6" metalness={0.6} roughness={0.25} />
+      </mesh>
+      {/* body upper / cabin */}
+      <mesh position={[0.05, 0.22, 0]}>
+        <boxGeometry args={[1.05, 0.35, 0.78]} />
+        <meshStandardMaterial color="#1e40af" metalness={0.5} roughness={0.3} />
+      </mesh>
+      {/* windshield glass */}
+      <mesh position={[0.05, 0.22, 0]}>
+        <boxGeometry args={[1.055, 0.28, 0.79]} />
         <meshStandardMaterial
-          color="#0b2a5b"
-          roughness={0.9}
-          metalness={0.1}
+          color="#0ea5e9"
+          metalness={0.9}
+          roughness={0.05}
           transparent
-          opacity={0.85}
+          opacity={0.55}
+          emissive="#38bdf8"
+          emissiveIntensity={0.3}
         />
       </mesh>
-      {/* wireframe overlay */}
-      <mesh>
-        <sphereGeometry args={[1.605, 40, 24]} />
-        <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.25} />
+      {/* headlights */}
+      <mesh position={[0.86, -0.02, 0.28]}>
+        <boxGeometry args={[0.04, 0.1, 0.15]} />
+        <meshStandardMaterial color="#fff7cc" emissive="#fde68a" emissiveIntensity={3} />
       </mesh>
+      <mesh position={[0.86, -0.02, -0.28]}>
+        <boxGeometry args={[0.04, 0.1, 0.15]} />
+        <meshStandardMaterial color="#fff7cc" emissive="#fde68a" emissiveIntensity={3} />
+      </mesh>
+      {/* taillights */}
+      <mesh position={[-0.86, -0.02, 0.28]}>
+        <boxGeometry args={[0.04, 0.1, 0.14]} />
+        <meshStandardMaterial color="#ff4d5e" emissive="#ef4444" emissiveIntensity={2.5} />
+      </mesh>
+      <mesh position={[-0.86, -0.02, -0.28]}>
+        <boxGeometry args={[0.04, 0.1, 0.14]} />
+        <meshStandardMaterial color="#ff4d5e" emissive="#ef4444" emissiveIntensity={2.5} />
+      </mesh>
+      {/* wheels */}
+      {wheelPositions.map((p, i) => (
+        <group
+          key={i}
+          position={p}
+          ref={(el) => {
+            if (el) wheels.current[i] = el;
+          }}
+        >
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.18, 0.18, 0.12, 24]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.8} />
+          </mesh>
+          <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, 0]}>
+            <cylinderGeometry args={[0.08, 0.08, 0.13, 12]} />
+            <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.2} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 };
 
-const CityPin = ({ pos, delay }: { pos: THREE.Vector3; delay: number }) => {
+const SpeedLine = ({ y, z, delay, color = "#60a5fa" }: { y: number; z: number; delay: number; color?: string }) => {
   const ref = useRef<THREE.Mesh>(null!);
-  const ring = useRef<THREE.Mesh>(null!);
   useFrame((s) => {
-    const t = (s.clock.elapsedTime + delay) % 2.4;
-    const p = t / 2.4;
-    if (ring.current) {
-      const scale = 1 + p * 2.5;
-      ring.current.scale.setScalar(scale);
-      (ring.current.material as THREE.MeshBasicMaterial).opacity = 1 - p;
-    }
+    const t = (s.clock.elapsedTime * 3 + delay) % 4;
     if (ref.current) {
-      ref.current.scale.setScalar(1 + Math.sin(s.clock.elapsedTime * 2 + delay) * 0.1);
+      ref.current.position.x = 2.5 - t;
+      (ref.current.material as THREE.MeshBasicMaterial).opacity =
+        t < 0.3 ? t / 0.3 : t > 3.5 ? (4 - t) / 0.5 : 0.9;
     }
   });
   return (
-    <group position={pos}>
-      <mesh ref={ref}>
-        <sphereGeometry args={[0.035, 12, 12]} />
-        <meshStandardMaterial
-          color="#60a5fa"
-          emissive="#60a5fa"
-          emissiveIntensity={2}
-        />
-      </mesh>
-      <mesh ref={ring} rotation={[Math.PI / 2, 0, 0]} lookAt={[0, 0, 0] as any}>
-        <ringGeometry args={[0.05, 0.065, 32]} />
-        <meshBasicMaterial color="#93c5fd" transparent opacity={0.8} side={THREE.DoubleSide} />
-      </mesh>
-    </group>
+    <mesh ref={ref} position={[2.5, y, z]}>
+      <boxGeometry args={[0.6, 0.02, 0.02]} />
+      <meshBasicMaterial color={color} transparent opacity={0.9} />
+    </mesh>
   );
 };
 
-const Arc = ({
-  from,
-  to,
-  speed = 0.5,
-  phase = 0,
-  color = "#60a5fa",
-}: {
-  from: THREE.Vector3;
-  to: THREE.Vector3;
-  speed?: number;
-  phase?: number;
-  color?: string;
-}) => {
-  const { curve, points } = useMemo(() => {
-    const mid = from.clone().add(to).multiplyScalar(0.5);
-    const dist = from.distanceTo(to);
-    mid.normalize().multiplyScalar(1.6 + dist * 0.55);
-    const c = new THREE.QuadraticBezierCurve3(from, mid, to);
-    return { curve: c, points: c.getPoints(64) };
-  }, [from, to]);
-
-  const lineGeom = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
-
-  const dotRef = useRef<THREE.Mesh>(null!);
+const RoadDash = ({ i }: { i: number }) => {
+  const ref = useRef<THREE.Mesh>(null!);
   useFrame((s) => {
-    const t = ((s.clock.elapsedTime * speed + phase) % 1);
-    const p = curve.getPoint(t);
-    if (dotRef.current) dotRef.current.position.copy(p);
+    const t = (s.clock.elapsedTime * 2 + i * 0.5) % 6;
+    if (ref.current) ref.current.position.x = 3 - t;
   });
-
   return (
-    <group>
-      <primitive
-        object={new THREE.Line(
-          lineGeom,
-          new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.35 })
-        )}
-      />
-      <mesh ref={dotRef}>
-        <sphereGeometry args={[0.05, 12, 12]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} />
-      </mesh>
-    </group>
+    <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]} position={[3, -0.55, 0]}>
+      <planeGeometry args={[0.35, 0.06]} />
+      <meshBasicMaterial color="#93c5fd" transparent opacity={0.6} />
+    </mesh>
   );
 };
+
+const Ground = () => (
+  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.56, 0]}>
+    <planeGeometry args={[14, 4]} />
+    <meshStandardMaterial
+      color="#0b1e3f"
+      metalness={0.3}
+      roughness={0.6}
+      transparent
+      opacity={0.55}
+    />
+  </mesh>
+);
 
 const Scene = () => {
   const group = useRef<THREE.Group>(null!);
   useFrame((s) => {
     if (group.current) {
-      group.current.rotation.y = Math.sin(s.clock.elapsedTime * 0.15) * 0.25;
-      group.current.rotation.x = Math.cos(s.clock.elapsedTime * 0.1) * 0.12;
+      group.current.rotation.y = Math.sin(s.clock.elapsedTime * 0.25) * 0.08;
     }
   });
-
-  const pinPositions = useMemo(
-    () => CITY_POINTS.map(([lat, lon]) => latLonToVec3(lat, lon, 1.62)),
-    []
-  );
-
-  const arcs = useMemo(() => {
-    const pairs: Array<[number, number]> = [
-      [0, 1], // BA-KE
-      [0, 2], // BA-ZA
-      [0, 4], // BA-NR
-      [2, 3], // ZA-PO
-      [1, 6], // KE-PP
-      [5, 0], // BB-BA
-      [7, 0], // TN-BA
-      [8, 0], // TT-BA (short)
-    ];
-    return pairs.map(([a, b], i) => ({
-      from: pinPositions[a],
-      to: pinPositions[b],
-      speed: 0.25 + (i % 3) * 0.08,
-      phase: (i * 0.17) % 1,
-      color: i % 2 === 0 ? "#60a5fa" : "#38bdf8",
-    }));
-  }, [pinPositions]);
-
+  const dashes = useMemo(() => Array.from({ length: 10 }, (_, i) => i), []);
   return (
-    <group ref={group}>
-      <Globe />
-      {pinPositions.map((p, i) => (
-        <CityPin key={i} pos={p} delay={i * 0.3} />
+    <group ref={group} position={[0.2, 0, 0]}>
+      <Ground />
+      {dashes.map((i) => (
+        <RoadDash key={i} i={i} />
       ))}
-      {arcs.map((a, i) => (
-        <Arc key={i} {...a} />
-      ))}
+      <Car />
+      <SpeedLine y={0.05} z={0.6} delay={0} />
+      <SpeedLine y={0.15} z={-0.55} delay={0.7} color="#38bdf8" />
+      <SpeedLine y={-0.15} z={0.3} delay={1.4} />
+      <SpeedLine y={0.25} z={0.1} delay={2.1} color="#38bdf8" />
+      <SpeedLine y={-0.05} z={-0.3} delay={2.8} />
     </group>
   );
 };
 
 const Hero3D = () => {
   return (
-    <div className="absolute inset-0 -z-10 pointer-events-none">
+    <div className="absolute inset-y-0 right-0 w-full md:w-[60%] -z-10 pointer-events-none">
       <Canvas
         dpr={[1, 1.5]}
-        camera={{ position: [0, 0.3, 5], fov: 45 }}
+        camera={{ position: [1.2, 1.1, 3.6], fov: 42 }}
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[5, 5, 5]} intensity={1.1} />
-          <pointLight position={[-4, -2, -2]} color="#38bdf8" intensity={2} />
+          <ambientLight intensity={0.65} />
+          <directionalLight position={[4, 6, 3]} intensity={1.3} />
+          <pointLight position={[-2, 1, 3]} color="#38bdf8" intensity={2} />
+          <pointLight position={[3, -1, -2]} color="#a78bfa" intensity={1.2} />
           <Scene />
         </Suspense>
       </Canvas>
