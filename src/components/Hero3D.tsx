@@ -200,11 +200,11 @@ const Hero3D = () => {
         </Canvas>
       </div>
 
-      {/* Desktop: right side, larger */}
-      <div className="hidden md:block absolute inset-y-0 right-0 w-[55%] -z-10 pointer-events-none">
+      {/* Desktop: right side, smaller & floating */}
+      <div className="hidden md:block absolute top-[8%] right-[4%] w-[42%] h-[70%] -z-10 pointer-events-none">
         <Canvas
           dpr={[1, 1.5]}
-          camera={{ position: [1.2, 1.1, 3.6], fov: 40 }}
+          camera={{ position: [1.4, 1.2, 4.2], fov: 36 }}
           gl={{ antialias: true, alpha: true }}
         >
           <Suspense fallback={null}>
