@@ -41,7 +41,7 @@ const fadeUp = {
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
-  const onlineCount = useOnlineUsers();
+  
   const { t } = useLanguage();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
