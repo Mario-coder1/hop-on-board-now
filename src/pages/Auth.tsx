@@ -63,6 +63,8 @@ function passwordStrength(pwd: string): { score: number; label: string; color: s
   const labels = ['Veľmi slabé', 'Slabé', 'Stredné', 'Dobré', 'Silné', 'Veľmi silné'];
   const colors = ['bg-destructive', 'bg-destructive', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
   return { score, label: labels[score], color: colors[score], hint };
+}
+
 
 function validateFullNameStrict(name: string): string | null {
   const n = name.trim();
