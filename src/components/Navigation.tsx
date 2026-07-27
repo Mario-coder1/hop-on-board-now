@@ -141,6 +141,7 @@ const Navigation: React.FC = () => {
                   </button>
                 </div>
               )}
+              <NotificationsBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
