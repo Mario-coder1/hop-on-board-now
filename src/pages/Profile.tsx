@@ -233,6 +233,28 @@ const Profile = () => {
     }
   };
 
+  const [savingField, setSavingField] = useState<string | null>(null);
+  const handleFieldSave = async (field: keyof typeof formData) => {
+    if (!profile) return;
+    setSavingField(field);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [field]: formData[field] })
+        .eq('id', profile.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: 'Uložené!', description: 'Zmena bola uložená.' });
+    } catch (error: any) {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    } finally {
+      setSavingField(null);
+    }
+  };
+
+  const isDirty = (field: keyof typeof formData) =>
+    (formData[field] || '') !== ((profile as any)?.[field] || '');
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
@@ -620,26 +642,40 @@ const Profile = () => {
             <div className="space-y-4">
               <div>
                 <Label>Celé meno</Label>
-                <Input
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  placeholder="Vaše meno"
-                />
-              </div>
-              
-              <div>
-                <Label>Telefón</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <div className="flex gap-2">
                   <Input
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+421 XXX XXX XXX"
-                    className="pl-10"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    placeholder="Vaše meno"
                   />
+                  {isDirty('full_name') && (
+                    <Button size="sm" onClick={() => handleFieldSave('full_name')} disabled={savingField === 'full_name'}>
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
-              
+
+              <div>
+                <Label>Telefón</Label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="+421 XXX XXX XXX"
+                      className="pl-10"
+                    />
+                  </div>
+                  {isDirty('phone') && (
+                    <Button size="sm" onClick={() => handleFieldSave('phone')} disabled={savingField === 'phone'}>
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <Label>O mne</Label>
                 <Textarea
@@ -648,6 +684,11 @@ const Profile = () => {
                   placeholder="Napíšte niečo o sebe..."
                   rows={3}
                 />
+                {isDirty('bio') && (
+                  <Button size="sm" className="mt-2" onClick={() => handleFieldSave('bio')} disabled={savingField === 'bio'}>
+                    <Save className="w-4 h-4 mr-1" /> Uložiť
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -656,6 +697,7 @@ const Profile = () => {
           {profile.selected_role === 'driver' && (
             <VehiclesManager profileId={profile.id} />
           )}
+
 
           <Button
             variant="hero"

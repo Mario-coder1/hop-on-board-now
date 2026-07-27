@@ -51,6 +51,21 @@ function validatePasswordStrict(pwd: string): string | null {
   return null;
 }
 
+function passwordStrength(pwd: string): { score: number; label: string; color: string; hint: string | null } {
+  if (!pwd) return { score: 0, label: '', color: '', hint: null };
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (pwd.length >= 12) score++;
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+  const hint = validatePasswordStrict(pwd);
+  const labels = ['Veľmi slabé', 'Slabé', 'Stredné', 'Dobré', 'Silné', 'Veľmi silné'];
+  const colors = ['bg-destructive', 'bg-destructive', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
+  return { score, label: labels[score], color: colors[score], hint };
+}
+
+
 function validateFullNameStrict(name: string): string | null {
   const n = name.trim();
   if (n.length < 2) return 'Meno musí mať aspoň 2 znaky.';
@@ -355,10 +370,26 @@ const Auth: React.FC = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {!isLogin && (
+                {!isLogin && password.length > 0 && (() => {
+                  const s = passwordStrength(password);
+                  return (
+                    <div className="space-y-1">
+                      <div className="flex gap-1">
+                        {[0,1,2,3,4].map((i) => (
+                          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < s.score ? s.color : 'bg-muted'}`} />
+                        ))}
+                      </div>
+                      <p className={`text-xs ${s.hint ? 'text-destructive' : 'text-green-600'}`}>
+                        {s.hint || `Sila hesla: ${s.label}`}
+                      </p>
+                    </div>
+                  );
+                })()}
+                {!isLogin && password.length === 0 && (
                   <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
                 )}
               </div>
+
 
               {!isLogin && (
                 <div className="space-y-2">
