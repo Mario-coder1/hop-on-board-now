@@ -388,6 +388,8 @@ const Auth: React.FC = () => {
                 {!isLogin && password.length === 0 && (
                   <p className="text-xs text-muted-foreground">Min. 8 znakov, veľké aj malé písmeno a číslica.</p>
                 )}
+              </div>
+
 
               {!isLogin && (
                 <div className="space-y-2">
