@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import NotificationsBell from '@/components/NotificationsBell';
 
 const Navigation: React.FC = () => {
   const { profile, signOut, isAdmin, updateRole } = useAuth();
@@ -140,6 +141,7 @@ const Navigation: React.FC = () => {
                   </button>
                 </div>
               )}
+              <NotificationsBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button data-tour="nav-profile" aria-label="Otvoriť používateľské menu" className="flex items-center gap-2 pr-1 pl-1 h-9 rounded-full hover:bg-primary/5 transition-colors">
