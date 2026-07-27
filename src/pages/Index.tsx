@@ -28,7 +28,7 @@ import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
 import PhoneDemoMockup from "@/components/PhoneDemoMockup";
-import Hero3D from "@/components/Hero3D";
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -107,12 +107,8 @@ const Index = () => {
 
       <InstallBanner />
 
-      {/* ================= HERO — Editorial + 3D ================= */}
+      {/* ================= HERO — Editorial ================= */}
       <section className="relative overflow-hidden border-b border-foreground/10">
-        {/* 3D scene */}
-        <div className="absolute inset-0 opacity-70 md:opacity-90">
-          <Hero3D />
-        </div>
         {/* subtle grid + noise */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.15]"
