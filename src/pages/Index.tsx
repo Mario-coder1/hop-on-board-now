@@ -28,6 +28,7 @@ import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
 import PhoneDemoMockup from "@/components/PhoneDemoMockup";
+import Hero3D from "@/components/Hero3D";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
