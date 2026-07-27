@@ -28,6 +28,7 @@ import InstallBanner from "@/components/InstallBanner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SEO from "@/components/SEO";
 import PhoneDemoMockup from "@/components/PhoneDemoMockup";
+import Hero3D from "@/components/Hero3D";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -106,62 +107,193 @@ const Index = () => {
 
       <InstallBanner />
 
-      {/* Top bar */}
-      <header className="relative container mx-auto px-6 pt-5 flex items-center justify-between">
-        <span className="font-display font-bold text-lg tracking-tight">TakeMe</span>
-        <LanguageSwitcher />
-      </header>
+      {/* ================= HERO — Editorial + 3D ================= */}
+      <section className="relative overflow-hidden border-b border-foreground/10">
+        {/* 3D scene */}
+        <div className="absolute inset-0 opacity-70 md:opacity-90">
+          <Hero3D />
+        </div>
+        {/* subtle grid + noise */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.15]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, hsl(var(--foreground)/0.08) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground)/0.08) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+            maskImage:
+              "radial-gradient(ellipse at 50% 40%, black 40%, transparent 75%)",
+          }}
+        />
 
-      <main className="relative container mx-auto px-6 pt-20 md:pt-32 pb-24 max-w-3xl">
-        {/* Hero — clean & airy */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-
-          <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 leading-[1.02] tracking-tight">
-            Slovenská spolujazda a ridesharing
-          </h1>
-
-          <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
-            {t("hero.subtitle")}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              size="lg"
-              onClick={() => navigate("/auth")}
-              className="text-base px-7 rounded-full h-12 group"
-            >
-              {t("hero.cta_start")}
-              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => navigate("/search")}
-              className="text-base px-7 rounded-full h-12"
-            >
-              {t("hero.cta_search")}
-            </Button>
+        {/* Top bar */}
+        <header className="relative container mx-auto px-6 pt-5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="font-display font-black text-lg tracking-tight">TakeMe</span>
+            <span className="ml-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 font-mono">
+              v1.0 · SK
+            </span>
           </div>
-          <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70">
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            {t("free.badge")}
-          </p>
+          <LanguageSwitcher />
+        </header>
 
-          {/* Live app demo — animated phone mockup */}
-          <motion.div
+        <div className="relative container mx-auto px-6 pt-14 md:pt-24 pb-20 md:pb-32 z-10">
+          {/* editorial meta row */}
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] font-mono text-muted-foreground/80 mb-8 md:mb-12">
+            <span>№ 001 — Ridesharing</span>
+            <span className="hidden sm:inline">48.148° N / 17.107° E</span>
+            <span>2026 —</span>
+          </div>
+
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-16 md:mt-20"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display font-black tracking-[-0.045em] leading-[0.86] text-[16vw] sm:text-[13vw] md:text-[10.5vw] lg:text-[168px] max-w-[8ch]"
           >
-            <PhoneDemoMockup />
+            Cestuj<br />
+            <span
+              className="italic font-serif font-normal"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(222 89% 55%), hsl(190 95% 60%))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              spolu.
+            </span>
+          </motion.h1>
+
+          {/* right column — running text + CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="mt-10 md:mt-14 grid md:grid-cols-12 gap-8 items-end"
+          >
+            <div className="md:col-span-7">
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
+                  ⚡ Live tracking
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
+                  🔒 Stripe payments
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
+                  🇸🇰 Made in Slovakia
+                </span>
+              </div>
+
+              <p className="text-lg md:text-xl text-foreground/80 max-w-xl leading-relaxed">
+                {t("hero.subtitle")}
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                <Button
+                  size="lg"
+                  onClick={() => navigate("/auth")}
+                  className="text-base px-8 rounded-full h-14 group bg-foreground text-background hover:bg-foreground/90 shadow-[0_10px_40px_-10px_hsl(var(--foreground)/0.5)]"
+                >
+                  {t("hero.cta_start")}
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate("/search")}
+                  className="text-base px-8 rounded-full h-14 border-foreground/20 bg-background/60 backdrop-blur hover:bg-background"
+                >
+                  {t("hero.cta_search")}
+                </Button>
+              </div>
+
+              <p className="mt-5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                {t("free.badge")}
+              </p>
+            </div>
+
+            {/* rotating disc badge */}
+            <div className="md:col-span-5 hidden md:flex justify-end">
+              <div className="relative w-40 h-40 lg:w-52 lg:h-52">
+                <div
+                  className="absolute inset-0 animate-[spin_18s_linear_infinite]"
+                  style={{
+                    WebkitMask:
+                      "radial-gradient(circle, transparent 55%, black 56%)",
+                    mask: "radial-gradient(circle, transparent 55%, black 56%)",
+                  }}
+                >
+                  <svg viewBox="0 0 200 200" className="w-full h-full">
+                    <defs>
+                      <path
+                        id="circle"
+                        d="M 100,100 m -80,0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0"
+                      />
+                    </defs>
+                    <text className="fill-foreground font-mono" style={{ fontSize: 13, letterSpacing: 6 }}>
+                      <textPath href="#circle">
+                        · SPOLUJAZDA · ŠETRI PENIAZE · CHRÁŇ PLANÉTU · SKUTOČNÍ ĽUDIA
+                      </textPath>
+                    </text>
+                  </svg>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-foreground text-background flex items-center justify-center">
+                    <ArrowRight className="w-6 h-6 -rotate-45" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
+        </div>
+
+        {/* Marquee ticker */}
+        <div className="relative border-y border-foreground/10 bg-foreground text-background overflow-hidden">
+          <div className="flex whitespace-nowrap animate-[marquee_38s_linear_infinite] py-4">
+            {Array.from({ length: 2 }).map((_, r) => (
+              <div key={r} className="flex items-center gap-10 pr-10 font-display text-2xl md:text-4xl font-black tracking-tight">
+                {[
+                  "Bratislava → Košice",
+                  "★",
+                  "Žilina → Prešov",
+                  "★",
+                  "Nitra → Trnava",
+                  "★",
+                  "Poprad → Bratislava",
+                  "★",
+                  "Banská Bystrica → Zvolen",
+                  "★",
+                  "Trenčín → Piešťany",
+                  "★",
+                ].map((s, i) => (
+                  <span key={`${r}-${i}`} className={s === "★" ? "text-[hsl(var(--primary-glow))]" : ""}>
+                    {s}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <main className="relative container mx-auto px-6 pt-24 md:pt-32 pb-24 max-w-3xl">
+        {/* Phone demo — restored below hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-4 flex justify-center"
+        >
+          <PhoneDemoMockup />
         </motion.div>
+
 
         {/* Early adopter appeal */}
         <motion.section
