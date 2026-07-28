@@ -65,6 +65,10 @@ function passwordStrength(pwd: string): { score: number; label: string; color: s
   const hint = validatePasswordStrict(pwd);
   const labels = ['Veľmi slabé', 'Slabé', 'Stredné', 'Dobré', 'Silné', 'Veľmi silné'];
   const colors = ['bg-destructive', 'bg-destructive', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
+  // Ak heslo nespĺňa striktné pravidlá, nesmie sa tváriť ako silné
+  if (hint) {
+    return { score: 1, label: labels[1], color: colors[1], hint };
+  }
   return { score, label: labels[score], color: colors[score], hint };
 }
 
