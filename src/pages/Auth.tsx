@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,8 @@ import AuthOnboardingSteps from '@/components/AuthOnboardingSteps';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+
+const HCAPTCHA_SITE_KEY = '635cb8c2-054a-4882-9748-64663074cbf0';
 
 // Striktný RFC-lite email regex
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -88,6 +91,8 @@ const Auth: React.FC = () => {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha | null>(null);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -159,7 +164,32 @@ const Auth: React.FC = () => {
           setLoading(false);
           return;
         }
-        
+        if (!captchaToken) {
+          toast({
+            title: "Overenie CAPTCHA",
+            description: "Prosím potvrď, že nie si robot.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Server-side hCaptcha verification
+        const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-captcha', {
+          body: { token: captchaToken },
+        });
+        if (verifyError || !verifyData?.success) {
+          toast({
+            title: "CAPTCHA zlyhala",
+            description: "Overenie sa nepodarilo. Skús to znova.",
+            variant: "destructive"
+          });
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signUp(email.trim().toLowerCase(), password, fullName.trim());
         if (error) {
           toast({
@@ -169,6 +199,8 @@ const Auth: React.FC = () => {
               : error.message,
             variant: "destructive"
           });
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
         } else {
           toast({
             title: "Skontroluj svoj email 📧",
@@ -178,6 +210,8 @@ const Auth: React.FC = () => {
           setIsLogin(true);
           setPassword('');
           setConfirmPassword('');
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
         }
       }
 
@@ -457,6 +491,19 @@ const Auth: React.FC = () => {
                   </label>
                 </div>
               )}
+
+              {!isLogin && (
+                <div className="flex justify-center">
+                  <HCaptcha
+                    ref={captchaRef}
+                    sitekey={HCAPTCHA_SITE_KEY}
+                    onVerify={(token) => setCaptchaToken(token)}
+                    onExpire={() => setCaptchaToken(null)}
+                    onError={() => setCaptchaToken(null)}
+                  />
+                </div>
+              )}
+
 
               <Button
                 type="submit" 
