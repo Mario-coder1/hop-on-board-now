@@ -492,6 +492,19 @@ const Auth: React.FC = () => {
                 </div>
               )}
 
+              {!isLogin && (
+                <div className="flex justify-center">
+                  <HCaptcha
+                    ref={captchaRef}
+                    sitekey={HCAPTCHA_SITE_KEY}
+                    onVerify={(token) => setCaptchaToken(token)}
+                    onExpire={() => setCaptchaToken(null)}
+                    onError={() => setCaptchaToken(null)}
+                  />
+                </div>
+              )}
+
+
               <Button
                 type="submit" 
                 variant="hero" 
