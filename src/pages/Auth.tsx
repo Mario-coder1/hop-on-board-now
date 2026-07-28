@@ -164,7 +164,32 @@ const Auth: React.FC = () => {
           setLoading(false);
           return;
         }
-        
+        if (!captchaToken) {
+          toast({
+            title: "Overenie CAPTCHA",
+            description: "Prosím potvrď, že nie si robot.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Server-side hCaptcha verification
+        const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-captcha', {
+          body: { token: captchaToken },
+        });
+        if (verifyError || !verifyData?.success) {
+          toast({
+            title: "CAPTCHA zlyhala",
+            description: "Overenie sa nepodarilo. Skús to znova.",
+            variant: "destructive"
+          });
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signUp(email.trim().toLowerCase(), password, fullName.trim());
         if (error) {
           toast({
@@ -174,6 +199,8 @@ const Auth: React.FC = () => {
               : error.message,
             variant: "destructive"
           });
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
         } else {
           toast({
             title: "Skontroluj svoj email 📧",
@@ -183,6 +210,8 @@ const Auth: React.FC = () => {
           setIsLogin(true);
           setPassword('');
           setConfirmPassword('');
+          captchaRef.current?.resetCaptcha();
+          setCaptchaToken(null);
         }
       }
 
