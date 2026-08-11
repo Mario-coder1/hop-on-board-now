@@ -125,7 +125,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
                 className="w-full"
               >
                 <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`}
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
