@@ -33,6 +33,8 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import ShareRideButton from '@/components/ShareRideButton';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 import { CancellationDialog } from '@/components/CancellationDialog';
