@@ -52,17 +52,18 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
       ? `${Number(pricePerSeat).toFixed(2)} € / miesto`
       : null;
 
-  const message = [
+  // Text bez odkazu — pre nativne zdieľanie (Messenger si odkaz vezme z `url`)
+  const messageNoUrl = [
     `🚗 Ponúkam spolujazdu: ${origin} → ${destination}`,
     when ? `📅 ${when}` : null,
     priceText ? `💰 ${priceText}` : null,
     seats ? `👥 Voľné miesta: ${seats}` : null,
-    '',
-    `Pripoj sa jedným klikom: ${url}`,
     '#TakeMe #spolujazda',
   ]
     .filter(Boolean)
     .join('\n');
+
+  const message = `${messageNoUrl}\n\nPripoj sa jedným klikom: ${url}`;
 
   const copy = async (text: string, what: string) => {
     try {
@@ -79,7 +80,11 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
     e.stopPropagation();
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Spolujazda ${origin} → ${destination}`, text: message });
+        await navigator.share({
+          title: `Spolujazda ${origin} → ${destination}`,
+          text: messageNoUrl,
+          url,
+        });
         return;
       } catch {
         // user cancelled or unsupported — fall back to dialog
@@ -87,6 +92,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
     }
     setOpen(true);
   };
+
 
   return (
     <>
