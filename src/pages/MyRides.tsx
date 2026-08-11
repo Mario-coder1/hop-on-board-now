@@ -251,7 +251,19 @@ const MyRides = () => {
                           </span>
                         )}
                       </div>
-                      <div onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <ShareRideButton
+                          rideId={ride.id}
+                          origin={ride.origin_address}
+                          destination={ride.destination_address}
+                          departureTime={ride.departure_time}
+                          pricePerSeat={ride.price_per_seat}
+                          seats={ride.available_seats}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        />
+
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" aria-label="Otvoriť ponuku akcií pre jazdu" className="h-8 w-8 -mr-2">
