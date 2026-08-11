@@ -79,7 +79,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
     e.stopPropagation();
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Spolujazda ${origin} → ${destination}`, text: message, url });
+        await navigator.share({ title: `Spolujazda ${origin} → ${destination}`, text: message });
         return;
       } catch {
         // user cancelled or unsupported — fall back to dialog
@@ -125,7 +125,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
                 className="w-full"
               >
                 <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`}
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
