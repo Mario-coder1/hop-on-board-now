@@ -79,7 +79,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
     e.stopPropagation();
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Spolujazda ${origin} → ${destination}`, text: message, url });
+        await navigator.share({ title: `Spolujazda ${origin} → ${destination}`, text: message });
         return;
       } catch {
         // user cancelled or unsupported — fall back to dialog
