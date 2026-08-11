@@ -33,6 +33,8 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import ShareRideButton from '@/components/ShareRideButton';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 import { CancellationDialog } from '@/components/CancellationDialog';
@@ -688,12 +690,22 @@ const RideDetail = () => {
             <section className="lg:col-span-2 space-y-6">
               {/* Route */}
               <article className="p-6 rounded-2xl bg-card border border-border">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between gap-2 mb-4">
                   <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
                     <Users className="w-4 h-4 text-muted-foreground" />
                     <span>{ride.available_seats} voľných miest</span>
                   </div>
+                  <ShareRideButton
+                    rideId={ride.id}
+                    origin={ride.origin_address}
+                    destination={ride.destination_address}
+                    departureTime={ride.departure_time}
+                    pricePerSeat={ride.price_per_seat}
+                    seats={ride.available_seats}
+                    className="rounded-full"
+                  />
                 </div>
+
 
                 <div className="flex items-start gap-4 mb-6">
                   <div className="flex flex-col items-center">
