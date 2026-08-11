@@ -18,6 +18,8 @@ import { formatDbDate } from '@/lib/datetime';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import SEO from '@/components/SEO';
+import ShareRideButton from '@/components/ShareRideButton';
+
 
 interface Ride {
   id: string;
