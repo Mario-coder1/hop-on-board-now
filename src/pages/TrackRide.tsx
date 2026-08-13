@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
+import { canPassengerCancel } from '@/lib/refundRules';
 import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
