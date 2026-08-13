@@ -23,7 +23,7 @@ import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const lastUpdated = "15. 7. 2026";
+  const lastUpdated = "13. 8. 2026";
 
   return (
     <div className="min-h-screen bg-background">
