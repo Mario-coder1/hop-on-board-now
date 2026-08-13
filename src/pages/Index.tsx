@@ -171,9 +171,6 @@ const Index = () => {
                 <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
                   🔒 {t("hero.badge_stripe_payments")}
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-foreground/20 bg-background/60 backdrop-blur">
-                  🇸🇰 {t("hero.badge_made_in_slovakia")}
-                </span>
               </div>
 
               <p className="text-lg md:text-xl text-foreground/80 max-w-xl leading-relaxed">
