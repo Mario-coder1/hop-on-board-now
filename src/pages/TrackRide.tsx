@@ -14,6 +14,9 @@ import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { parseRoutePolyline } from '@/lib/routeProximity';
+import { CancellationDialog } from '@/components/CancellationDialog';
+import { sendPushNotification } from '@/hooks/usePushNotifications';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface DriverInfo {
   id: string;
