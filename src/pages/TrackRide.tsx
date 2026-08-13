@@ -141,12 +141,10 @@ const TrackRide: React.FC = () => {
     setLoading(false);
   };
 
-  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.5)
-  const CANCELLABLE = ['pending', 'accepted', 'driver_arrived'];
-
+  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.1a / 2.5)
   const handleCancelRequest = async (reason: string) => {
     if (!rideRequest || !profile) return;
-    if (!CANCELLABLE.includes(rideRequest.status)) {
+    if (!canPassengerCancel(rideRequest.status)) {
       toast({
         title: 'Zrušenie už nie je možné',
         description: 'Jazda už začala (boli ste vyzdvihnutý), podľa VOP čl. 2.5 nárok na refundáciu nevzniká.',
