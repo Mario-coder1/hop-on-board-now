@@ -64,6 +64,7 @@ const TrackRide: React.FC = () => {
   const [qrOpen, setQrOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const previousStatus = useRef<string | null>(null);
 
   const fetchRideRequest = async () => {
     if (!requestId) return;
