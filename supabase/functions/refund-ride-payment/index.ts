@@ -160,10 +160,6 @@ Deno.serve(async (req) => {
     }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
-    return new Response(JSON.stringify({ success: true, refund_id: refund.id }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   } catch (e) {
     console.error("refund error", e);
     return new Response(JSON.stringify({ error: (e as Error).message }), {
