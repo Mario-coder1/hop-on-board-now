@@ -158,6 +158,18 @@ const TermsOfService = () => {
                 právo na odstúpenie od zmluvy podľa § 7 ods. 1 uvedeného zákona. Právo na refundáciu podľa článkov
                 2.1–2.7 tým nie je dotknuté.
               </p>
+              <p>
+                <strong className="text-foreground">2.10. Výplata vodičovi len po overení PIN kódu.</strong> Platba za
+                jazdu sa vodičovi uvoľní <strong className="text-foreground">výhradne vtedy</strong>, ak bol
+                spolujazdec skutočne vyzdvihnutý, t. j. ak spolujazdec pri nástupe do vozidla poskytol vodičovi svoj{" "}
+                <strong className="text-foreground">PIN kód</strong> a vodič ho v aplikácii úspešne overil. Bez
+                overeného PIN kódu nemá vodič nárok na výplatu, a to ani v prípade, že jazdu v aplikácii označí ako
+                ukončenú. Takéto žiadosti sa automaticky zrušia a spolujazdcovi sa{" "}
+                <strong className="text-foreground">refunduje 100 %</strong> uhradenej sumy. Účelové označovanie jázd
+                ako dokončených bez vyzdvihnutia spolujazdca sa považuje za porušenie týchto VOP a môže viesť k
+                zablokovaniu účtu.
+              </p>
+
             </div>
           </section>
 
