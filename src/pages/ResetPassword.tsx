@@ -9,6 +9,32 @@ import { useToast } from '@/hooks/use-toast';
 import { Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import SEO from '@/components/SEO';
 
+function validatePasswordStrict(pwd: string): string | null {
+  if (pwd.length < 8) return 'Heslo musí mať aspoň 8 znakov.';
+  if (!/[a-z]/.test(pwd)) return 'Heslo musí obsahovať aspoň jedno malé písmeno.';
+  if (!/[A-Z]/.test(pwd)) return 'Heslo musí obsahovať aspoň jedno veľké písmeno.';
+  if (!/[0-9]/.test(pwd)) return 'Heslo musí obsahovať aspoň jednu číslicu.';
+  if (/^(password|heslo|12345678|qwerty|11111111|abcdefgh)/i.test(pwd)) return 'Heslo je príliš slabé.';
+  return null;
+}
+
+function passwordStrength(pwd: string): { score: number; label: string; color: string; hint: string | null } {
+  if (!pwd) return { score: 0, label: '', color: '', hint: null };
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (pwd.length >= 12) score++;
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+  const hint = validatePasswordStrict(pwd);
+  const labels = ['Veľmi slabé', 'Slabé', 'Stredné', 'Dobré', 'Silné', 'Veľmi silné'];
+  const colors = ['bg-destructive', 'bg-destructive', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'];
+  if (hint) {
+    return { score: 1, label: labels[1], color: colors[1], hint };
+  }
+  return { score, label: labels[score], color: colors[score], hint };
+}
+
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,10 +61,13 @@ const ResetPassword: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const strength = passwordStrength(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: 'Heslo je krátke', description: 'Minimálne 6 znakov.', variant: 'destructive' });
+    const pwdError = validatePasswordStrict(password);
+    if (pwdError) {
+      toast({ title: 'Heslo nie je dostatočne silné', description: pwdError, variant: 'destructive' });
       return;
     }
     if (password !== confirmPassword) {
@@ -97,6 +126,24 @@ const ResetPassword: React.FC = () => {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {password.length > 0 && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(strength.score / 5) * 100}%` }}
+                    transition={{ duration: 0.25 }}
+                    className={`h-full ${strength.color}`}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {strength.label ? `Sila hesla: ${strength.label}` : 'Zadaj heslo'}
+                  </span>
+                  {strength.hint && <span className="text-destructive">{strength.hint}</span>}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
