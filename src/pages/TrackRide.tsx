@@ -527,7 +527,7 @@ const TrackRide: React.FC = () => {
             )}
 
             {/* Zrušenie rezervácie — len pred vyzdvihnutím (VOP čl. 2.1) */}
-            {CANCELLABLE.includes(rideRequest.status) && (
+            {canPassengerCancel(rideRequest.status) && (
               <div className="mt-6 pt-6 border-t border-border">
                 <Button
                   variant="outline"
