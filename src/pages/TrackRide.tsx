@@ -607,6 +607,14 @@ const TrackRide: React.FC = () => {
         </motion.div>
       </div>
 
+      <CancellationDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        onConfirm={handleCancelRequest}
+        loading={cancelling}
+        type="request"
+      />
+
       {/* Rating Dialog */}
       {driver && (
         <RatingDialog
