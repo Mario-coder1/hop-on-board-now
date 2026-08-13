@@ -198,7 +198,9 @@ const TrackRide: React.FC = () => {
 
     toast({
       title: 'Rezervácia zrušená',
-      description: 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
+      description: rideRequest.status === 'driver_arrived'
+        ? 'Vodič už bol na mieste — vráti sa ti 50 % ceny (5–10 pracovných dní), zvyšok patrí vodičovi ako kompenzácia.'
+        : 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
     });
     setCancelOpen(false);
     setCancelling(false);
