@@ -57,11 +57,13 @@ Deno.serve(async (req) => {
     });
 
     // VOP čl. 2.5 — po vyzdvihnutí je jazda poskytnutá, refundáciu môže riešiť len admin (reklamácia, čl. 2.7)
-    if (["picked_up", "completed"].includes(String(rr.status)) && isAdmin !== true) {
+    if (isRefundBlocked(String(rr.status), isAdmin === true)) {
       return new Response(JSON.stringify({ error: "Jazda už bola poskytnutá — refundácia nie je možná (VOP čl. 2.5). Reklamáciu pošlite na support@takeme.sk." }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+
 
 
     if (rr.payment_status !== "paid") {
