@@ -525,6 +525,27 @@ const TrackRide: React.FC = () => {
               </motion.div>
             )}
 
+            {/* Zrušenie rezervácie — len pred vyzdvihnutím (VOP čl. 2.1) */}
+            {CANCELLABLE.includes(rideRequest.status) && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => setCancelOpen(true)}
+                >
+                  <XCircle className="w-4 h-4" />
+                  Zrušiť rezerváciu
+                </Button>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Zrušiť môžeš kedykoľvek pred vyzdvihnutím — platba ti bude vrátená v plnej výške.
+                  Po nastúpení do vozidla už zrušenie ani refundácia nie sú možné (
+                  <Link to="/obchodne-podmienky" className="underline">VOP čl. 2</Link>).
+                </p>
+              </div>
+            )}
+
+
+
 
             {rideRequest.status === 'picked_up' && (
               <div className="mt-6 pt-6 border-t border-border">
