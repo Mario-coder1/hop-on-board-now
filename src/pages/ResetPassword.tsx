@@ -126,6 +126,24 @@ const ResetPassword: React.FC = () => {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {password.length > 0 && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(strength.score / 5) * 100}%` }}
+                    transition={{ duration: 0.25 }}
+                    className={`h-full ${strength.color}`}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {strength.label ? `Sila hesla: ${strength.label}` : 'Zadaj heslo'}
+                  </span>
+                  {strength.hint && <span className="text-destructive">{strength.hint}</span>}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
