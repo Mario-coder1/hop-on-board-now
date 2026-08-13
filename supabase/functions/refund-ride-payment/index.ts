@@ -78,18 +78,35 @@ Deno.serve(async (req) => {
       });
     }
 
+    // VOP čl. 2.3 — zrušenie pasažierom po tom, čo vodič už prišiel na miesto:
+    // refunduje sa len časť, zvyšok patrí vodičovi ako kompenzácia za zbytočnú cestu.
+    const isPassengerCanceller = rr.passenger_id === profile.id;
+    const lateCancel = isPassengerCanceller && String(rr.status) === "driver_arrived";
+
+    let refundPercent = 100;
+    if (lateCancel) {
+      const { data: setting } = await supabase
+        .from("platform_settings").select("value").eq("key", "late_cancel_refund_percent").maybeSingle();
+      const pct = Number(setting?.value);
+      refundPercent = Number.isFinite(pct) && pct >= 0 && pct <= 100 ? pct : 50;
+    }
+
+    const amountPaid = Number(rr.amount_paid ?? 0);
+    const refundAmount = Math.round(amountPaid * refundPercent) / 100;
+    const compensation = Math.round((amountPaid - refundAmount) * 100) / 100;
+
     const stripe = createStripeClient(env);
+    const refundMetadata = {
+      request_id: String(request_id),
+      cancelled_by: isPassengerCanceller ? "passenger" : (driverId === profile.id ? "driver" : "admin"),
+      refund_percent: String(refundPercent),
+      ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
+    };
+
     const refund = await stripe.refunds.create({
       payment_intent: rr.stripe_payment_intent_id,
-      ...(cancellationReason
-        ? {
-            metadata: {
-              cancellation_reason: cancellationReason,
-              request_id: String(request_id),
-              cancelled_by: rr.passenger_id === profile.id ? "passenger" : (driverId === profile.id ? "driver" : "admin"),
-            },
-          }
-        : {}),
+      ...(refundPercent < 100 ? { amount: Math.round(refundAmount * 100) } : {}),
+      metadata: refundMetadata,
     });
 
     if (cancellationReason) {
@@ -102,14 +119,45 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Kompenzácia vodičovi pri neskorom zrušení
+    if (compensation > 0 && driverId) {
+      try {
+        let { data: wallet } = await supabase
+          .from("wallets").select("id, balance").eq("profile_id", driverId).maybeSingle();
+        if (!wallet) {
+          const { data: created } = await supabase
+            .from("wallets").insert({ profile_id: driverId }).select("id, balance").single();
+          wallet = created;
+        }
+        if (wallet) {
+          await supabase.from("wallets")
+            .update({ balance: Number(wallet.balance ?? 0) + compensation }).eq("id", wallet.id);
+          await supabase.from("transactions").insert({
+            wallet_id: wallet.id,
+            type: "cancellation_fee",
+            amount: compensation,
+            description: "Kompenzácia za neskoré zrušenie pasažierom (vodič už bol na mieste)",
+          });
+        }
+      } catch (e) {
+        console.error("compensation error", e);
+      }
+    }
+
     await supabase.from("ride_requests").update({
-      payment_status: "refunded",
+      payment_status: refundPercent < 100 ? "partially_refunded" : "refunded",
       stripe_refund_id: refund.id,
       refunded_at: new Date().toISOString(),
       ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
     }).eq("id", request_id);
 
-    return new Response(JSON.stringify({ success: true, refund_id: refund.id }), {
+    return new Response(JSON.stringify({
+      success: true,
+      refund_id: refund.id,
+      refund_percent: refundPercent,
+      refunded_amount: refundAmount,
+      driver_compensation: compensation,
+    }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

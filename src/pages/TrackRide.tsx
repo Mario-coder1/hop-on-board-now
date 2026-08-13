@@ -198,7 +198,9 @@ const TrackRide: React.FC = () => {
 
     toast({
       title: 'Rezervácia zrušená',
-      description: 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
+      description: rideRequest.status === 'driver_arrived'
+        ? 'Vodič už bol na mieste — vráti sa ti 50 % ceny (5–10 pracovných dní), zvyšok patrí vodičovi ako kompenzácia.'
+        : 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
     });
     setCancelOpen(false);
     setCancelling(false);
@@ -537,9 +539,20 @@ const TrackRide: React.FC = () => {
                   Zrušiť rezerváciu
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  Zrušiť môžeš kedykoľvek pred vyzdvihnutím — platba ti bude vrátená v plnej výške.
-                  Po nastúpení do vozidla už zrušenie ani refundácia nie sú možné (
-                  <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                  {rideRequest.status === 'driver_arrived' ? (
+                    <>
+                      Vodič už prišiel na miesto — pri zrušení sa ti vráti <strong>50 % ceny</strong>,
+                      druhá polovica patrí vodičovi ako kompenzácia za cestu (
+                      <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                    </>
+                  ) : (
+                    <>
+                      Zrušiť môžeš kedykoľvek pred príchodom vodiča — platba ti bude vrátená v plnej výške.
+                      Ak zrušíš až keď vodič čaká na mieste, vráti sa 50 % ceny. Po nastúpení do vozidla už
+                      zrušenie ani refundácia nie sú možné (
+                      <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                    </>
+                  )}
                 </p>
               </div>
             )}
