@@ -1,6 +1,8 @@
 // Refund a ride payment. Called when driver rejects, or passenger/driver cancels.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient, corsHeaders } from "../_shared/stripe.ts";
+import { type CancelledBy, isRefundBlocked, resolveRefundPercent, splitRefund } from "../_shared/refundRules.ts";
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -55,11 +57,13 @@ Deno.serve(async (req) => {
     });
 
     // VOP čl. 2.5 — po vyzdvihnutí je jazda poskytnutá, refundáciu môže riešiť len admin (reklamácia, čl. 2.7)
-    if (["picked_up", "completed"].includes(String(rr.status)) && isAdmin !== true) {
+    if (isRefundBlocked(String(rr.status), isAdmin === true)) {
       return new Response(JSON.stringify({ error: "Jazda už bola poskytnutá — refundácia nie je možná (VOP čl. 2.5). Reklamáciu pošlite na support@takeme.sk." }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+
 
 
     if (rr.payment_status !== "paid") {
@@ -78,27 +82,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    // VOP čl. 2.3 — zrušenie pasažierom po tom, čo vodič už prišiel na miesto:
+    // VOP čl. 2.1a — zrušenie pasažierom po tom, čo vodič už prišiel na miesto:
     // refunduje sa len časť, zvyšok patrí vodičovi ako kompenzácia za zbytočnú cestu.
     const isPassengerCanceller = rr.passenger_id === profile.id;
-    const lateCancel = isPassengerCanceller && String(rr.status) === "driver_arrived";
+    const cancelledBy: CancelledBy = isPassengerCanceller
+      ? "passenger"
+      : (driverId === profile.id ? "driver" : "admin");
 
-    let refundPercent = 100;
-    if (lateCancel) {
-      const { data: setting } = await supabase
-        .from("platform_settings").select("value").eq("key", "late_cancel_refund_percent").maybeSingle();
-      const pct = Number(setting?.value);
-      refundPercent = Number.isFinite(pct) && pct >= 0 && pct <= 100 ? pct : 50;
-    }
+    const { data: setting } = await supabase
+      .from("platform_settings").select("value").eq("key", "late_cancel_refund_percent").maybeSingle();
+
+    const refundPercent = resolveRefundPercent({
+      status: String(rr.status),
+      cancelledBy,
+      lateCancelPercentSetting: setting?.value,
+    });
 
     const amountPaid = Number(rr.amount_paid ?? 0);
-    const refundAmount = Math.round(amountPaid * refundPercent) / 100;
-    const compensation = Math.round((amountPaid - refundAmount) * 100) / 100;
+    const { refundAmount, compensation } = splitRefund(amountPaid, refundPercent);
+
 
     const stripe = createStripeClient(env);
     const refundMetadata = {
       request_id: String(request_id),
-      cancelled_by: isPassengerCanceller ? "passenger" : (driverId === profile.id ? "driver" : "admin"),
+      cancelled_by: cancelledBy,
       refund_percent: String(refundPercent),
       ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
     };

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import LiveTrackingMap from '@/components/LiveTrackingMap';
 import Navigation from '@/components/Navigation';
 import { ReportDialog } from '@/components/ReportDialog';
+import { canPassengerCancel } from '@/lib/refundRules';
 import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
@@ -141,12 +142,10 @@ const TrackRide: React.FC = () => {
     setLoading(false);
   };
 
-  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.5)
-  const CANCELLABLE = ['pending', 'accepted', 'driver_arrived'];
-
+  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.1a / 2.5)
   const handleCancelRequest = async (reason: string) => {
     if (!rideRequest || !profile) return;
-    if (!CANCELLABLE.includes(rideRequest.status)) {
+    if (!canPassengerCancel(rideRequest.status)) {
       toast({
         title: 'Zrušenie už nie je možné',
         description: 'Jazda už začala (boli ste vyzdvihnutý), podľa VOP čl. 2.5 nárok na refundáciu nevzniká.',
@@ -528,7 +527,7 @@ const TrackRide: React.FC = () => {
             )}
 
             {/* Zrušenie rezervácie — len pred vyzdvihnutím (VOP čl. 2.1) */}
-            {CANCELLABLE.includes(rideRequest.status) && (
+            {canPassengerCancel(rideRequest.status) && (
               <div className="mt-6 pt-6 border-t border-border">
                 <Button
                   variant="outline"
