@@ -62,7 +62,8 @@ const TrackRide: React.FC = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
-  const previousStatus = useRef<string | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchRideRequest = async () => {
     if (!requestId) return;
