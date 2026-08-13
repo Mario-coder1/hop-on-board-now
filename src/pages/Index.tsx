@@ -141,7 +141,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 }}
-              className="mt-6 text-lg text-muted-foreground max-w-md leading-relaxed"
+              className="mt-5 sm:mt-6 text-base sm:text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 leading-relaxed"
             >
               {t("hero.subtitle")}
             </motion.p>
@@ -150,12 +150,12 @@ const Index = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-8 flex flex-col sm:flex-row gap-3"
+              className="mt-7 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start"
             >
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="text-base px-8 rounded-full h-14 group"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-13 sm:h-14 group"
               >
                 {t("hero.cta_start")}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/search")}
-                className="text-base px-8 rounded-full h-14"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-13 sm:h-14"
               >
                 {t("hero.cta_search")}
               </Button>
@@ -174,7 +174,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground"
+              className="mt-6 flex flex-wrap justify-center lg:justify-start items-center gap-x-4 sm:gap-x-5 gap-y-2 text-xs text-muted-foreground"
             >
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
