@@ -6,13 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, ArrowRight } from 'lucide-react';
+import { Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [ready, setReady] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -77,15 +79,23 @@ const ResetPassword: React.FC = () => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-11 h-12"
+                className="pl-11 pr-11 h-12"
                 required
                 minLength={6}
                 disabled={!ready}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Skryť heslo' : 'Zobraziť heslo'}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
@@ -95,15 +105,23 @@ const ResetPassword: React.FC = () => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 id="confirm"
-                type="password"
+                type={showConfirm ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-11 h-12"
+                className="pl-11 pr-11 h-12"
                 required
                 minLength={6}
                 disabled={!ready}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                aria-label={showConfirm ? 'Skryť heslo' : 'Zobraziť heslo'}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
