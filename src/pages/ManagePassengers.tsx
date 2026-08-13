@@ -267,9 +267,8 @@ const ManagePassengers = () => {
     if (!ride) return;
     setEndingRide(true);
     try {
-      const active = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
-      const verified = active.filter(p => !!p.pin_verified_at);
-      const notPickedUp = active.filter(p => !p.pin_verified_at);
+      const { toComplete: verified, toRefund: notPickedUp } = partitionOnRideEnd(passengers);
+
 
       await supabase.from('rides').update({ status: 'completed' }).eq('id', ride.id);
 
