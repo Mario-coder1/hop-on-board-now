@@ -14,6 +14,9 @@ import { RatingDialog } from '@/components/RatingDialog';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { parseRoutePolyline } from '@/lib/routeProximity';
+import { CancellationDialog } from '@/components/CancellationDialog';
+import { sendPushNotification } from '@/hooks/usePushNotifications';
+import { getStripeEnvironment } from '@/lib/stripe';
 
 interface DriverInfo {
   id: string;
@@ -44,6 +47,7 @@ interface RideRequest {
     departure_time: string;
     driver_id: string;
     route_polyline: string | null;
+    available_seats: number;
   };
 }
 
@@ -58,6 +62,8 @@ const TrackRide: React.FC = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const previousStatus = useRef<string | null>(null);
 
   const fetchRideRequest = async () => {
@@ -83,7 +89,8 @@ const TrackRide: React.FC = () => {
           destination_address,
           departure_time,
           driver_id,
-          route_polyline
+          route_polyline,
+          available_seats
         )
       `)
       .eq('id', requestId)
@@ -132,6 +139,70 @@ const TrackRide: React.FC = () => {
     }
     
     setLoading(false);
+  };
+
+  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.5)
+  const CANCELLABLE = ['pending', 'accepted', 'driver_arrived'];
+
+  const handleCancelRequest = async (reason: string) => {
+    if (!rideRequest || !profile) return;
+    if (!CANCELLABLE.includes(rideRequest.status)) {
+      toast({
+        title: 'Zrušenie už nie je možné',
+        description: 'Jazda už začala (boli ste vyzdvihnutý), podľa VOP čl. 2.5 nárok na refundáciu nevzniká.',
+        variant: 'destructive',
+      });
+      setCancelOpen(false);
+      return;
+    }
+
+    setCancelling(true);
+    const wasAccepted = rideRequest.status === 'accepted' || rideRequest.status === 'driver_arrived';
+
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ status: 'cancelled', cancellation_reason: reason, cancelled_at: new Date().toISOString() })
+      .eq('id', rideRequest.id);
+
+    if (error) {
+      toast({ title: 'Chyba', description: 'Nepodarilo sa zrušiť rezerváciu.', variant: 'destructive' });
+      setCancelling(false);
+      return;
+    }
+
+    if (wasAccepted) {
+      await supabase
+        .from('rides')
+        .update({ available_seats: (rideRequest.ride.available_seats ?? 0) + 1 })
+        .eq('id', rideRequest.ride.id);
+    }
+
+    // Plná refundácia cez Stripe (VOP čl. 2.1)
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: rideRequest.id, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
+    }
+
+    try {
+      await sendPushNotification(
+        rideRequest.ride.driver_id,
+        '❌ Zrušená rezervácia',
+        `${profile.full_name || 'Pasažier'} zrušil rezerváciu. Dôvod: ${reason}`
+      );
+    } catch (e) {
+      console.error('push error', e);
+    }
+
+    toast({
+      title: 'Rezervácia zrušená',
+      description: 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
+    });
+    setCancelOpen(false);
+    setCancelling(false);
+    void fetchRideRequest();
   };
 
   // Check if user already rated this ride
@@ -454,6 +525,27 @@ const TrackRide: React.FC = () => {
               </motion.div>
             )}
 
+            {/* Zrušenie rezervácie — len pred vyzdvihnutím (VOP čl. 2.1) */}
+            {CANCELLABLE.includes(rideRequest.status) && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => setCancelOpen(true)}
+                >
+                  <XCircle className="w-4 h-4" />
+                  Zrušiť rezerváciu
+                </Button>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Zrušiť môžeš kedykoľvek pred vyzdvihnutím — platba ti bude vrátená v plnej výške.
+                  Po nastúpení do vozidla už zrušenie ani refundácia nie sú možné (
+                  <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                </p>
+              </div>
+            )}
+
+
+
 
             {rideRequest.status === 'picked_up' && (
               <div className="mt-6 pt-6 border-t border-border">
@@ -514,6 +606,14 @@ const TrackRide: React.FC = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      <CancellationDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        onConfirm={handleCancelRequest}
+        loading={cancelling}
+        type="request"
+      />
 
       {/* Rating Dialog */}
       {driver && (

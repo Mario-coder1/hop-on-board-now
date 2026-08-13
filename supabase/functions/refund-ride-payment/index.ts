@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
 
     const { data: rr } = await supabase
       .from("ride_requests")
-      .select("id, passenger_id, payment_status, stripe_payment_intent_id, amount_paid, payout_released_at, ride:rides(driver_id)")
+      .select("id, passenger_id, status, payment_status, stripe_payment_intent_id, amount_paid, payout_released_at, ride:rides(driver_id)")
       .eq("id", request_id).single();
     if (!rr) return new Response(JSON.stringify({ error: "Request not found" }), {
       status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -52,6 +52,14 @@ Deno.serve(async (req) => {
     if (!allowed) return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
+    // VOP čl. 2.5 — po vyzdvihnutí je jazda poskytnutá, refundáciu môže riešiť len admin (reklamácia, čl. 2.7)
+    if (["picked_up", "completed"].includes(String(rr.status)) && isAdmin !== true) {
+      return new Response(JSON.stringify({ error: "Jazda už bola poskytnutá — refundácia nie je možná (VOP čl. 2.5). Reklamáciu pošlite na support@takeme.sk." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     if (rr.payment_status !== "paid") {
       return new Response(JSON.stringify({ error: "Nie je čo refundovať" }), {
