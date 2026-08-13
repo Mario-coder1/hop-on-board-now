@@ -61,10 +61,13 @@ const ResetPassword: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const strength = passwordStrength(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: 'Heslo je krátke', description: 'Minimálne 6 znakov.', variant: 'destructive' });
+    const pwdError = validatePasswordStrict(password);
+    if (pwdError) {
+      toast({ title: 'Heslo nie je dostatočne silné', description: pwdError, variant: 'destructive' });
       return;
     }
     if (password !== confirmPassword) {
