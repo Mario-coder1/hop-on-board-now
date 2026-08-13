@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
     const stripe = createStripeClient(env);
     const refundMetadata = {
       request_id: String(request_id),
-      cancelled_by: isPassengerCanceller ? "passenger" : (driverId === profile.id ? "driver" : "admin"),
+      cancelled_by: cancelledBy,
       refund_percent: String(refundPercent),
       ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
     };
