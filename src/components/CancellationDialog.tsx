@@ -47,17 +47,14 @@ export const CancellationDialog = ({
 
   const reasons = type === 'ride' ? RIDE_REASONS : REQUEST_REASONS;
   const isOther = selectedReason === 'Iný dôvod';
-  const detailRequired = type === 'request';
   const detail = customReason.trim();
   const finalReason = isOther
     ? detail
     : detail
       ? `${selectedReason} — ${detail}`
       : selectedReason;
-  const canConfirm =
-    !!selectedReason &&
-    (isOther || !detailRequired ? detail.length >= 5 : detail.length >= 5) &&
-    finalReason.trim().length > 0;
+  const canConfirm = !!selectedReason && detail.length >= 5;
+
 
   const handleConfirm = () => {
     if (canConfirm) {
