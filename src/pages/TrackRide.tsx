@@ -89,7 +89,8 @@ const TrackRide: React.FC = () => {
           destination_address,
           departure_time,
           driver_id,
-          route_polyline
+          route_polyline,
+          available_seats
         )
       `)
       .eq('id', requestId)
