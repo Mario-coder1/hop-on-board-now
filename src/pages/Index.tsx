@@ -101,26 +101,26 @@ const Index = () => {
       <InstallBanner />
 
       {/* ============ HEADER ============ */}
-      <header className="container mx-auto px-6 pt-5 pb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
+      <header className="container mx-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </span>
-          <span className="font-display font-black text-lg tracking-tight">TakeMe</span>
+          <span className="font-display font-black text-lg tracking-tight truncate">TakeMe</span>
         </div>
         <LanguageSwitcher />
       </header>
 
       {/* ============ HERO ============ */}
-      <section className="container mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          <div>
+      <section className="container mx-auto px-4 sm:px-6 pt-6 sm:pt-10 md:pt-16 pb-12 sm:pb-16 md:pb-24">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-8 items-center">
+          <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display font-black tracking-[-0.04em] leading-[0.9] text-5xl sm:text-6xl lg:text-7xl"
+              className="font-display font-black tracking-[-0.04em] leading-[0.95] sm:leading-[0.9] text-[2.6rem] xs:text-5xl sm:text-6xl lg:text-7xl"
             >
               Cestuj{" "}
               <span
@@ -141,7 +141,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 }}
-              className="mt-6 text-lg text-muted-foreground max-w-md leading-relaxed"
+              className="mt-5 sm:mt-6 text-base sm:text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 leading-relaxed"
             >
               {t("hero.subtitle")}
             </motion.p>
@@ -150,12 +150,12 @@ const Index = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-8 flex flex-col sm:flex-row gap-3"
+              className="mt-7 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start"
             >
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="text-base px-8 rounded-full h-14 group"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-12 sm:h-14 group"
               >
                 {t("hero.cta_start")}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/search")}
-                className="text-base px-8 rounded-full h-14"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-12 sm:h-14"
               >
                 {t("hero.cta_search")}
               </Button>
@@ -174,7 +174,7 @@ const Index = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground"
+              className="mt-6 flex flex-wrap justify-center lg:justify-start items-center gap-x-4 sm:gap-x-5 gap-y-2 text-xs text-muted-foreground"
             >
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
@@ -202,7 +202,7 @@ const Index = () => {
         </div>
       </section>
 
-      <main className="container mx-auto px-6 pb-24 max-w-3xl">
+      <main className="container mx-auto px-4 sm:px-6 pb-20 sm:pb-24 max-w-3xl">
         {/* How it works */}
         <motion.section
           initial="hidden"
@@ -254,7 +254,7 @@ const Index = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
           <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
             {t("why.title")}
@@ -287,7 +287,7 @@ const Index = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
           <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-8">
             {t("faq.title")}
@@ -338,9 +338,9 @@ const Index = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
-          <div className="p-8 md:p-10 rounded-3xl border border-border/50 bg-primary/5 text-center">
+          <div className="p-6 sm:p-8 md:p-10 rounded-3xl border border-border/50 bg-primary/5 text-center">
             <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">
               {t("cta.ready.title")}
             </h2>
@@ -351,7 +351,7 @@ const Index = () => {
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="text-base px-7 rounded-full h-12 group"
+                className="w-full sm:w-auto text-base px-7 rounded-full h-12 group"
               >
                 {t("cta.ready.button")}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
@@ -360,7 +360,7 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/install")}
-                className="text-base px-7 rounded-full h-12"
+                className="w-full sm:w-auto text-base px-7 rounded-full h-12"
               >
                 <Smartphone className="w-4 h-4 mr-1.5" />
                 {t("download.cta")}
@@ -375,7 +375,7 @@ const Index = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mt-20"
+          className="mt-14 sm:mt-20"
         >
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
