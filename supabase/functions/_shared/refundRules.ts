@@ -30,6 +30,7 @@ export function isLateCancellation(status: string, cancelledBy: CancelledBy): bo
 }
 
 export function normalizeLateCancelPercent(value: unknown): number {
+  if (value === null || value === undefined || value === "") return DEFAULT_LATE_CANCEL_REFUND_PERCENT;
   const pct = Number(value);
   return Number.isFinite(pct) && pct >= 0 && pct <= 100 ? pct : DEFAULT_LATE_CANCEL_REFUND_PERCENT;
 }
