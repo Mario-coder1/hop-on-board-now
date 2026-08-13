@@ -7,7 +7,8 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: corsHeaders });
 
   try {
-    const { request_id, environment } = await req.json();
+    const { request_id, environment, reason } = await req.json();
+    const cancellationReason = typeof reason === "string" ? reason.trim().slice(0, 500) : "";
     if (!request_id) return new Response(JSON.stringify({ error: "Missing request_id" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -80,12 +81,32 @@ Deno.serve(async (req) => {
     const stripe = createStripeClient(env);
     const refund = await stripe.refunds.create({
       payment_intent: rr.stripe_payment_intent_id,
+      ...(cancellationReason
+        ? {
+            metadata: {
+              cancellation_reason: cancellationReason,
+              request_id: String(request_id),
+              cancelled_by: rr.passenger_id === profile.id ? "passenger" : (driverId === profile.id ? "driver" : "admin"),
+            },
+          }
+        : {}),
     });
+
+    if (cancellationReason) {
+      try {
+        await stripe.paymentIntents.update(rr.stripe_payment_intent_id, {
+          metadata: { cancellation_reason: cancellationReason },
+        });
+      } catch (e) {
+        console.error("pi metadata update failed", e);
+      }
+    }
 
     await supabase.from("ride_requests").update({
       payment_status: "refunded",
       stripe_refund_id: refund.id,
       refunded_at: new Date().toISOString(),
+      ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
     }).eq("id", request_id);
 
     return new Response(JSON.stringify({ success: true, refund_id: refund.id }), {

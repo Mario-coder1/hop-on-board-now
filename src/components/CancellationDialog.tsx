@@ -47,10 +47,17 @@ export const CancellationDialog = ({
 
   const reasons = type === 'ride' ? RIDE_REASONS : REQUEST_REASONS;
   const isOther = selectedReason === 'Iný dôvod';
-  const finalReason = isOther ? customReason : selectedReason;
+  const detail = customReason.trim();
+  const finalReason = isOther
+    ? detail
+    : detail
+      ? `${selectedReason} — ${detail}`
+      : selectedReason;
+  const canConfirm = !!selectedReason && detail.length >= 5;
+
 
   const handleConfirm = () => {
-    if (finalReason.trim()) {
+    if (canConfirm) {
       onConfirm(finalReason.trim());
       setSelectedReason('');
       setCustomReason('');
@@ -73,7 +80,8 @@ export const CancellationDialog = ({
             {type === 'ride' ? 'Zrušiť jazdu' : 'Zrušiť rezerváciu'}
           </DialogTitle>
           <DialogDescription>
-            Vyberte dôvod zrušenia. Táto informácia pomôže zlepšiť službu.
+            Vyberte dôvod zrušenia a stručne ho popíšte. Dôvod je povinný a bude uložený
+            k tejto rezervácii (aj v poznámke k refundácii).
           </DialogDescription>
         </DialogHeader>
 
@@ -87,19 +95,23 @@ export const CancellationDialog = ({
             ))}
           </RadioGroup>
 
-          {isOther && (
-            <div className="space-y-2">
-              <Label htmlFor="custom-reason">Uveďte dôvod</Label>
-              <Textarea
-                id="custom-reason"
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Napíšte váš dôvod..."
-                className="resize-none"
-                rows={3}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="custom-reason">
+              {isOther ? 'Uveďte dôvod' : 'Popis dôvodu'} <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="custom-reason"
+              value={customReason}
+              onChange={(e) => setCustomReason(e.target.value)}
+              placeholder="Napíšte váš dôvod (min. 5 znakov)..."
+              className="resize-none"
+              rows={3}
+              maxLength={500}
+            />
+            {detail.length > 0 && detail.length < 5 && (
+              <p className="text-xs text-destructive">Dôvod musí mať aspoň 5 znakov.</p>
+            )}
+          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
@@ -109,7 +121,7 @@ export const CancellationDialog = ({
           <Button 
             variant="destructive" 
             onClick={handleConfirm}
-            disabled={loading || !finalReason.trim()}
+            disabled={loading || !canConfirm}
           >
             {loading ? 'Ruším...' : 'Potvrdiť zrušenie'}
           </Button>

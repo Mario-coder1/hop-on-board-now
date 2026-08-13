@@ -180,7 +180,7 @@ const TrackRide: React.FC = () => {
     // Plná refundácia cez Stripe (VOP čl. 2.1)
     try {
       await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: rideRequest.id, environment: getStripeEnvironment() },
+        body: { request_id: rideRequest.id, environment: getStripeEnvironment(), reason },
       });
     } catch (e) {
       console.error('refund error', e);
