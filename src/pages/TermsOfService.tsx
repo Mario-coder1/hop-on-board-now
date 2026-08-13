@@ -99,6 +99,16 @@ const TermsOfService = () => {
                 uhradenej sumy.
               </p>
               <p>
+                <strong className="text-foreground">2.1a. Zrušenie po príchode vodiča (storno poplatok 50 %).</strong>{" "}
+                Ak vodič už dorazil na dohodnuté miesto vyzdvihnutia a označil svoj príchod v aplikácii (stav{" "}
+                <em>driver_arrived</em>) a spolujazdec následne rezerváciu zruší, spolujazdcovi sa refunduje len{" "}
+                <strong className="text-foreground">50 % uhradenej sumy</strong>. Zvyšných 50 % prislúcha vodičovi ako{" "}
+                <strong className="text-foreground">storno poplatok</strong> (kompenzácia za cestu a čakanie).
+                Konkrétnu výšku refundácie môže prevádzkovateľ upraviť v nastaveniach platformy; aktuálna hodnota je
+                spolujazdcovi zobrazená v aplikácii pred potvrdením zrušenia. Pri zrušení je povinné uviesť dôvod.
+              </p>
+
+              <p>
                 <strong className="text-foreground">2.2. Zrušenie zo strany vodiča.</strong> Ak vodič zamietne žiadosť,
                 zruší jazdu, alebo sa nedostaví, spolujazdec má nárok na{" "}
                 <strong className="text-foreground">plnú refundáciu (100 %)</strong> vrátane provízie platformy.
