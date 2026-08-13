@@ -47,6 +47,7 @@ interface RideRequest {
     departure_time: string;
     driver_id: string;
     route_polyline: string | null;
+    available_seats: number;
   };
 }
 
