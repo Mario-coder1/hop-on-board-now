@@ -141,6 +141,70 @@ const TrackRide: React.FC = () => {
     setLoading(false);
   };
 
+  // Zrušenie rezervácie spolujazdcom — povolené len pred vyzdvihnutím (VOP čl. 2.1 / 2.5)
+  const CANCELLABLE = ['pending', 'accepted', 'driver_arrived'];
+
+  const handleCancelRequest = async (reason: string) => {
+    if (!rideRequest || !profile) return;
+    if (!CANCELLABLE.includes(rideRequest.status)) {
+      toast({
+        title: 'Zrušenie už nie je možné',
+        description: 'Jazda už začala (boli ste vyzdvihnutý), podľa VOP čl. 2.5 nárok na refundáciu nevzniká.',
+        variant: 'destructive',
+      });
+      setCancelOpen(false);
+      return;
+    }
+
+    setCancelling(true);
+    const wasAccepted = rideRequest.status === 'accepted' || rideRequest.status === 'driver_arrived';
+
+    const { error } = await supabase
+      .from('ride_requests')
+      .update({ status: 'cancelled', cancellation_reason: reason, cancelled_at: new Date().toISOString() })
+      .eq('id', rideRequest.id);
+
+    if (error) {
+      toast({ title: 'Chyba', description: 'Nepodarilo sa zrušiť rezerváciu.', variant: 'destructive' });
+      setCancelling(false);
+      return;
+    }
+
+    if (wasAccepted) {
+      await supabase
+        .from('rides')
+        .update({ available_seats: (rideRequest.ride.available_seats ?? 0) + 1 })
+        .eq('id', rideRequest.ride.id);
+    }
+
+    // Plná refundácia cez Stripe (VOP čl. 2.1)
+    try {
+      await supabase.functions.invoke('refund-ride-payment', {
+        body: { request_id: rideRequest.id, environment: getStripeEnvironment() },
+      });
+    } catch (e) {
+      console.error('refund error', e);
+    }
+
+    try {
+      await sendPushNotification(
+        rideRequest.ride.driver_id,
+        '❌ Zrušená rezervácia',
+        `${profile.full_name || 'Pasažier'} zrušil rezerváciu. Dôvod: ${reason}`
+      );
+    } catch (e) {
+      console.error('push error', e);
+    }
+
+    toast({
+      title: 'Rezervácia zrušená',
+      description: 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
+    });
+    setCancelOpen(false);
+    setCancelling(false);
+    void fetchRideRequest();
+  };
+
   // Check if user already rated this ride
   const checkExistingRating = async () => {
     if (!requestId || !profile) return;
