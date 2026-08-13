@@ -82,22 +82,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    // VOP čl. 2.3 — zrušenie pasažierom po tom, čo vodič už prišiel na miesto:
+    // VOP čl. 2.1a — zrušenie pasažierom po tom, čo vodič už prišiel na miesto:
     // refunduje sa len časť, zvyšok patrí vodičovi ako kompenzácia za zbytočnú cestu.
     const isPassengerCanceller = rr.passenger_id === profile.id;
-    const lateCancel = isPassengerCanceller && String(rr.status) === "driver_arrived";
+    const cancelledBy: CancelledBy = isPassengerCanceller
+      ? "passenger"
+      : (driverId === profile.id ? "driver" : "admin");
 
-    let refundPercent = 100;
-    if (lateCancel) {
-      const { data: setting } = await supabase
-        .from("platform_settings").select("value").eq("key", "late_cancel_refund_percent").maybeSingle();
-      const pct = Number(setting?.value);
-      refundPercent = Number.isFinite(pct) && pct >= 0 && pct <= 100 ? pct : 50;
-    }
+    const { data: setting } = await supabase
+      .from("platform_settings").select("value").eq("key", "late_cancel_refund_percent").maybeSingle();
+
+    const refundPercent = resolveRefundPercent({
+      status: String(rr.status),
+      cancelledBy,
+      lateCancelPercentSetting: setting?.value,
+    });
 
     const amountPaid = Number(rr.amount_paid ?? 0);
-    const refundAmount = Math.round(amountPaid * refundPercent) / 100;
-    const compensation = Math.round((amountPaid - refundAmount) * 100) / 100;
+    const { refundAmount, compensation } = splitRefund(amountPaid, refundPercent);
+
 
     const stripe = createStripeClient(env);
     const refundMetadata = {
