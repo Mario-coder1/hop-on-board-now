@@ -351,7 +351,7 @@ const Index = () => {
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="text-base px-7 rounded-full h-12 group"
+                className="w-full sm:w-auto text-base px-7 rounded-full h-12 group"
               >
                 {t("cta.ready.button")}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
@@ -360,7 +360,7 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/install")}
-                className="text-base px-7 rounded-full h-12"
+                className="w-full sm:w-auto text-base px-7 rounded-full h-12"
               >
                 <Smartphone className="w-4 h-4 mr-1.5" />
                 {t("download.cta")}
