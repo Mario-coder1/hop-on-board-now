@@ -8,13 +8,6 @@ import path from "node:path";
  */
 const migrationsDir = path.resolve(__dirname, "../../supabase/migrations");
 
-function allMigrationsSql(): string {
-  return readdirSync(migrationsDir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort()
-    .map((f) => readFileSync(path.join(migrationsDir, f), "utf8"))
-    .join("\n");
-}
 
 /** Naposledy definovaná verzia danej DB funkcie. */
 function latestFunctionDefinition(name: string): string {
