@@ -261,15 +261,47 @@ const ManagePassengers = () => {
   };
 
   // End the whole ride (driver finishes everything)
+  // Anti-fraud: money is released only for passengers whose pickup was verified by PIN.
+  // Passengers that were never picked up are cancelled and fully refunded.
   const handleEndRide = async () => {
     if (!ride) return;
     setEndingRide(true);
     try {
+      const active = passengers.filter(p => ['accepted', 'driver_arrived', 'picked_up'].includes(p.status));
+      const verified = active.filter(p => !!p.pin_verified_at);
+      const notPickedUp = active.filter(p => !p.pin_verified_at);
+
       await supabase.from('rides').update({ status: 'completed' }).eq('id', ride.id);
-      await supabase.from('ride_requests').update({ status: 'completed' })
-        .eq('ride_id', ride.id).in('status', ['accepted', 'driver_arrived', 'picked_up']);
+
+      if (verified.length > 0) {
+        await supabase.from('ride_requests').update({ status: 'completed' })
+          .in('id', verified.map(p => p.id));
+      }
+
+      for (const p of notPickedUp) {
+        await supabase.from('ride_requests').update({
+          status: 'cancelled',
+          cancellation_reason: 'Pasažier nebol vyzdvihnutý (PIN nebol overený) — automatická refundácia',
+          cancelled_at: new Date().toISOString(),
+        }).eq('id', p.id);
+        try {
+          await supabase.functions.invoke('refund-ride-payment', {
+            body: {
+              request_id: p.id,
+              environment: getStripeEnvironment(),
+              reason: 'Pasažier nebol vyzdvihnutý — PIN nebol overený',
+            },
+          });
+        } catch (e) { console.error('refund', e); }
+      }
+
       stopTracking();
-      toast({ title: '🏁 Jazda ukončená', description: 'Všetci pasažieri boli upozornení.' });
+      toast({
+        title: '🏁 Jazda ukončená',
+        description: notPickedUp.length > 0
+          ? `${verified.length} pasažierov dokončených. ${notPickedUp.length} bez overeného PIN — platba im bola vrátená.`
+          : 'Všetci pasažieri boli upozornení.',
+      });
       navigate('/driver');
     } catch (e: any) {
       toast({ title: 'Chyba', description: e?.message || 'Nepodarilo sa ukončiť.', variant: 'destructive' });
