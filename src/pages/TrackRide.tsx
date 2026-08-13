@@ -539,7 +539,7 @@ const TrackRide: React.FC = () => {
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   Zrušiť môžeš kedykoľvek pred vyzdvihnutím — platba ti bude vrátená v plnej výške.
                   Po nastúpení do vozidla už zrušenie ani refundácia nie sú možné (
-                  <Link to="/obchodne-podmienky" className="underline">VOP čl. 2</Link>).
+                  <Link to="/terms" className="underline">VOP čl. 2</Link>).
                 </p>
               </div>
             )}
