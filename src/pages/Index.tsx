@@ -155,7 +155,7 @@ const Index = () => {
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="w-full sm:w-auto text-base px-8 rounded-full h-13 sm:h-14 group"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-12 sm:h-14 group"
               >
                 {t("hero.cta_start")}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/search")}
-                className="w-full sm:w-auto text-base px-8 rounded-full h-13 sm:h-14"
+                className="w-full sm:w-auto text-base px-8 rounded-full h-12 sm:h-14"
               >
                 {t("hero.cta_search")}
               </Button>
