@@ -101,26 +101,26 @@ const Index = () => {
       <InstallBanner />
 
       {/* ============ HEADER ============ */}
-      <header className="container mx-auto px-6 pt-5 pb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
+      <header className="container mx-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </span>
-          <span className="font-display font-black text-lg tracking-tight">TakeMe</span>
+          <span className="font-display font-black text-lg tracking-tight truncate">TakeMe</span>
         </div>
         <LanguageSwitcher />
       </header>
 
       {/* ============ HERO ============ */}
-      <section className="container mx-auto px-6 pt-10 md:pt-16 pb-16 md:pb-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          <div>
+      <section className="container mx-auto px-4 sm:px-6 pt-6 sm:pt-10 md:pt-16 pb-12 sm:pb-16 md:pb-24">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-8 items-center">
+          <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display font-black tracking-[-0.04em] leading-[0.9] text-5xl sm:text-6xl lg:text-7xl"
+              className="font-display font-black tracking-[-0.04em] leading-[0.95] sm:leading-[0.9] text-[2.6rem] xs:text-5xl sm:text-6xl lg:text-7xl"
             >
               Cestuj{" "}
               <span

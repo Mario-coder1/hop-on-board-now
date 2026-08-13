@@ -43,7 +43,7 @@ export default function PhoneDemoMockup() {
       />
 
       {/* Phone frame */}
-      <div className="relative w-[260px] h-[540px] rounded-[44px] bg-neutral-900 p-[10px] shadow-2xl ring-1 ring-black/10">
+      <div className="relative w-[220px] h-[458px] xs:w-[240px] xs:h-[500px] sm:w-[260px] sm:h-[540px] rounded-[40px] sm:rounded-[44px] bg-neutral-900 p-[8px] sm:p-[10px] shadow-2xl ring-1 ring-black/10">
         {/* Notch */}
         <div className="absolute left-1/2 -translate-x-1/2 top-[14px] w-24 h-6 bg-neutral-900 rounded-full z-20" />
         {/* Screen */}
