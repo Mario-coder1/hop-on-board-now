@@ -43,10 +43,16 @@ describe("DB trigger release_ride_payment_to_driver (VOP 2.10)", () => {
 });
 
 describe("nastavenie storno poplatku (VOP 2.1a)", () => {
-  it("late_cancel_refund_percent je v platform_settings", () => {
-    expect(allMigrationsSql()).toContain("late_cancel_refund_percent");
+  it("refund edge funkcia číta late_cancel_refund_percent z nastavení platformy", () => {
+    const fn = readFileSync(
+      path.resolve(__dirname, "../../supabase/functions/refund-ride-payment/index.ts"),
+      "utf8",
+    );
+    expect(fn).toContain("late_cancel_refund_percent");
+    expect(fn).toContain("resolveRefundPercent");
   });
 });
+
 
 describe("VOP dokument", () => {
   const terms = readFileSync(path.resolve(__dirname, "../pages/TermsOfService.tsx"), "utf8");
