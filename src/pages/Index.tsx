@@ -202,7 +202,7 @@ const Index = () => {
         </div>
       </section>
 
-      <main className="container mx-auto px-6 pb-24 max-w-3xl">
+      <main className="container mx-auto px-4 sm:px-6 pb-20 sm:pb-24 max-w-3xl">
         {/* How it works */}
         <motion.section
           initial="hidden"
@@ -254,7 +254,7 @@ const Index = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
           <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-10">
             {t("why.title")}
@@ -287,7 +287,7 @@ const Index = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
           <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground text-center mb-8">
             {t("faq.title")}
@@ -338,9 +338,9 @@ const Index = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mt-24 md:mt-28"
+          className="mt-16 sm:mt-24 md:mt-28"
         >
-          <div className="p-8 md:p-10 rounded-3xl border border-border/50 bg-primary/5 text-center">
+          <div className="p-6 sm:p-8 md:p-10 rounded-3xl border border-border/50 bg-primary/5 text-center">
             <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">
               {t("cta.ready.title")}
             </h2>
@@ -375,7 +375,7 @@ const Index = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mt-20"
+          className="mt-14 sm:mt-20"
         >
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
