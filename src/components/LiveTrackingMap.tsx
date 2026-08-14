@@ -17,45 +17,184 @@ interface LiveTrackingMapProps {
   className?: string;
 }
 
-// Linear interpolation between two coords over `duration` ms for smoother marker movement
-const useSmoothedLocation = (
-  raw: { lat: number; lng: number; heading: number | null; speed: number | null; updated_at: string } | null,
-  duration = 1200
-) => {
-  const [smooth, setSmooth] = useState(raw);
-  const fromRef = useRef(raw);
-  const startRef = useRef<number>(0);
-  const rafRef = useRef<number | null>(null);
+type RawLoc = { lat: number; lng: number; heading: number | null; speed: number | null; updated_at: string };
 
+const EARTH_M_PER_DEG = 111320;
+
+const metersBetween = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const dx = (b.lat - a.lat) * EARTH_M_PER_DEG;
+  const dy = (b.lng - a.lng) * EARTH_M_PER_DEG * Math.cos((a.lat * Math.PI) / 180);
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+// Shortest-path angle interpolation (handles the 359° → 1° wrap)
+const lerpAngle = (from: number, to: number, k: number) => {
+  let diff = ((to - from + 540) % 360) - 180;
+  return (from + diff * k + 360) % 360;
+};
+
+const bearing = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const φ1 = (a.lat * Math.PI) / 180;
+  const φ2 = (b.lat * Math.PI) / 180;
+  const Δλ = ((b.lng - a.lng) * Math.PI) / 180;
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+};
+
+// Snap a point onto the nearest segment of the planned/live route so the marker
+// glides along the road instead of drifting beside it (GPS noise correction).
+const snapToRoute = (
+  p: { lat: number; lng: number },
+  route: Array<[number, number]> | null,
+  maxDistM = 45
+): { lat: number; lng: number } => {
+  if (!route || route.length < 2) return p;
+  const cosLat = Math.cos((p.lat * Math.PI) / 180);
+  const px = p.lng * cosLat;
+  const py = p.lat;
+  let best = { d2: Infinity, lat: p.lat, lng: p.lng };
+  for (let i = 1; i < route.length; i++) {
+    const ax = route[i - 1][0] * cosLat;
+    const ay = route[i - 1][1];
+    const bx = route[i][0] * cosLat;
+    const by = route[i][1];
+    const vx = bx - ax;
+    const vy = by - ay;
+    const len2 = vx * vx + vy * vy;
+    if (len2 === 0) continue;
+    let t = ((px - ax) * vx + (py - ay) * vy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    const cx = ax + vx * t;
+    const cy = ay + vy * t;
+    const d2 = (px - cx) ** 2 + (py - cy) ** 2;
+    if (d2 < best.d2) best = { d2, lat: cy, lng: cx / cosLat };
+  }
+  const distM = Math.sqrt(best.d2) * EARTH_M_PER_DEG;
+  return distM <= maxDistM ? { lat: best.lat, lng: best.lng } : p;
+};
+
+/**
+ * Smooth playback of sparse live positions.
+ * - Buffers incoming fixes and animates through them at the measured update rate
+ *   (so a 2 s broadcast interval is played back over ~2 s instead of jumping).
+ * - Eases each segment and interpolates heading along the shortest arc.
+ * - Snaps positions to the route polyline to kill lateral GPS jitter.
+ * - Teleports instantly on large jumps (tunnel exit, app resume, reconnect).
+ */
+const useSmoothedLocation = (
+  raw: RawLoc | null,
+  route: Array<[number, number]> | null
+) => {
+  const [smooth, setSmooth] = useState<RawLoc | null>(raw);
+  const queueRef = useRef<Array<RawLoc & { durationMs: number }>>([]);
+  const currentRef = useRef<RawLoc | null>(null);
+  const segRef = useRef<{ from: RawLoc; to: RawLoc; start: number; duration: number } | null>(null);
+  const lastArrivalRef = useRef<number>(0);
+  const rafRef = useRef<number | null>(null);
+  const routeRef = useRef(route);
+  routeRef.current = route;
+
+  // Enqueue every new fix
   useEffect(() => {
-    if (!raw) { setSmooth(null); return; }
-    const from = fromRef.current ?? raw;
-    if (from.lat === raw.lat && from.lng === raw.lng) {
-      // No movement, just propagate metadata (speed/heading/updated_at)
-      setSmooth(raw);
-      fromRef.current = raw;
+    if (!raw) {
+      queueRef.current = [];
+      segRef.current = null;
+      currentRef.current = null;
+      setSmooth(null);
       return;
     }
-    startRef.current = performance.now();
-    const animate = (t: number) => {
-      const k = Math.min(1, (t - startRef.current) / duration);
-      const ease = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      setSmooth({
-        lat: from.lat + (raw.lat - from.lat) * ease,
-        lng: from.lng + (raw.lng - from.lng) * ease,
-        heading: raw.heading,
-        speed: raw.speed,
-        updated_at: raw.updated_at,
-      });
-      if (k < 1) rafRef.current = requestAnimationFrame(animate);
-      else fromRef.current = raw;
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+
+    const snapped = snapToRoute({ lat: raw.lat, lng: raw.lng }, routeRef.current);
+    const next: RawLoc = { ...raw, lat: snapped.lat, lng: snapped.lng };
+
+    const now = performance.now();
+    const gap = lastArrivalRef.current ? now - lastArrivalRef.current : 2000;
+    lastArrivalRef.current = now;
+    // Play back slightly slower than the arrival rate so we never run dry mid-segment
+    const durationMs = Math.min(6000, Math.max(600, gap * 1.1));
+
+    const prev = queueRef.current.length
+      ? queueRef.current[queueRef.current.length - 1]
+      : currentRef.current;
+
+    if (!prev) {
+      currentRef.current = next;
+      setSmooth(next);
+      return;
+    }
+
+    const dist = metersBetween(prev, next);
+    // Ignore sub-3 m jitter (but keep metadata fresh)
+    if (dist < 3) {
+      currentRef.current = { ...(currentRef.current ?? next), heading: next.heading, speed: next.speed, updated_at: next.updated_at };
+      setSmooth((s) => (s ? { ...s, heading: next.heading ?? s.heading, speed: next.speed, updated_at: next.updated_at } : next));
+      return;
+    }
+    // Large jump → hard reset instead of a long slide across the map
+    if (dist > 1500) {
+      queueRef.current = [];
+      segRef.current = null;
+      currentRef.current = next;
+      setSmooth(next);
+      return;
+    }
+
+    queueRef.current.push({ ...next, durationMs });
+    if (queueRef.current.length > 6) queueRef.current.splice(0, queueRef.current.length - 6);
   }, [raw?.lat, raw?.lng, raw?.updated_at]);
+
+  // Single animation loop
+  useEffect(() => {
+    const step = (t: number) => {
+      let seg = segRef.current;
+
+      if (!seg) {
+        const nextTarget = queueRef.current.shift();
+        if (nextTarget && currentRef.current) {
+          seg = {
+            from: currentRef.current,
+            to: nextTarget,
+            start: t,
+            duration: nextTarget.durationMs,
+          };
+          segRef.current = seg;
+        }
+      }
+
+      if (seg) {
+        const k = Math.min(1, (t - seg.start) / seg.duration);
+        // easeInOutSine — gentler than cubic, avoids the "stop-and-go" feel
+        const ease = 0.5 - Math.cos(Math.PI * k) / 2;
+        const lat = seg.from.lat + (seg.to.lat - seg.from.lat) * ease;
+        const lng = seg.from.lng + (seg.to.lng - seg.from.lng) * ease;
+        const targetHeading =
+          seg.to.heading ?? bearing(seg.from, seg.to);
+        const fromHeading = seg.from.heading ?? targetHeading;
+        setSmooth({
+          lat,
+          lng,
+          heading: lerpAngle(fromHeading, targetHeading, ease),
+          speed: seg.to.speed ?? seg.from.speed,
+          updated_at: seg.to.updated_at,
+        });
+        if (k >= 1) {
+          currentRef.current = { ...seg.to, heading: targetHeading };
+          segRef.current = null;
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return smooth;
 };
+
 
 const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   driverProfileId,
