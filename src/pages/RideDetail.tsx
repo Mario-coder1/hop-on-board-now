@@ -141,6 +141,8 @@ const RideDetail = () => {
   const [cancelling, setCancelling] = useState(false);
 
   const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+
   const [stops, setStops] = useState<RideStop[]>([]);
 
   const [pickup, setPickup] = useState<{ address: string; lat: number; lng: number }>({
@@ -238,9 +240,15 @@ const RideDetail = () => {
       )
       .on(
         'postgres_changes',
+        { event: '*', schema: 'public', table: 'ride_requests', filter: `ride_id=eq.${id}` },
+        () => { void fetchAcceptedPassengers(); }
+      )
+      .on(
+        'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` },
         () => { void fetchRide(); }
       )
+
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [id, profile?.id]);
@@ -431,6 +439,7 @@ const RideDetail = () => {
       .select(
         `
           id,
+          status,
           pickup_address,
           pickup_lat,
           pickup_lng,
@@ -438,12 +447,15 @@ const RideDetail = () => {
         `
       )
       .eq('ride_id', id)
-      .in('status', ['accepted', 'picked_up']);
+      .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (data) {
-      setAcceptedPassengers(data as unknown as AcceptedPassenger[]);
+      const rows = data as unknown as (AcceptedPassenger & { status: string })[];
+      setAcceptedPassengers(rows.filter((r) => r.status !== 'pending'));
+      setPendingCount(rows.filter((r) => r.status === 'pending').length);
     }
   };
+
 
   const fetchStops = async () => {
     if (!id) return;
@@ -859,6 +871,48 @@ const RideDetail = () => {
                   </div>
                 </article>
               )}
+
+              {/* Driver panel — pasažieri a správa jazdy */}
+              {isDriver && (
+                <article className="p-6 rounded-2xl bg-card border border-border">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display font-semibold">Pasažieri</h2>
+                    <div className="flex items-center gap-1.5 text-sm font-medium bg-muted px-3 py-1.5 rounded-full">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      <span>{acceptedPassengers.length} / {ride.available_seats + acceptedPassengers.length}</span>
+                    </div>
+                  </div>
+
+                  {pendingCount > 0 && (
+                    <div className="mb-3 p-3 rounded-xl bg-primary/10 text-primary text-sm font-medium">
+                      {pendingCount} nová žiadosť{pendingCount > 1 ? 'i' : ''} čaká na schválenie
+                    </div>
+                  )}
+
+                  {acceptedPassengers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Zatiaľ žiadni schválení pasažieri.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 mb-4">
+                      {acceptedPassengers.map((p) => (
+                        <div key={p.id} className="flex items-start gap-2 p-3 rounded-xl bg-muted/50">
+                          <Users className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">{p.passenger?.full_name ?? 'Pasažier'}</p>
+                            <p className="text-xs text-muted-foreground truncate">{p.pickup_address}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <Button className="w-full" onClick={() => navigate(`/manage-passengers/${ride.id}`)}>
+                    Spravovať jazdu a pasažierov
+                  </Button>
+                </article>
+              )}
+
 
               {/* Request */}
               {!isDriver && profile && (
