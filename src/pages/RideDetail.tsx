@@ -141,6 +141,8 @@ const RideDetail = () => {
   const [cancelling, setCancelling] = useState(false);
 
   const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+
   const [stops, setStops] = useState<RideStop[]>([]);
 
   const [pickup, setPickup] = useState<{ address: string; lat: number; lng: number }>({
