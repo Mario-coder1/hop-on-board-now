@@ -240,9 +240,15 @@ const RideDetail = () => {
       )
       .on(
         'postgres_changes',
+        { event: '*', schema: 'public', table: 'ride_requests', filter: `ride_id=eq.${id}` },
+        () => { void fetchAcceptedPassengers(); }
+      )
+      .on(
+        'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` },
         () => { void fetchRide(); }
       )
+
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [id, profile?.id]);
