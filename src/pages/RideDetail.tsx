@@ -352,11 +352,15 @@ const RideDetail = () => {
       return;
     }
 
+    // Zrušené / odmietnuté / dokončené žiadosti neblokujú nové pripojenie
     const { data } = await supabase
       .from('ride_requests')
-      .select('id, status')
+      .select('id, status, created_at')
       .eq('ride_id', id)
       .eq('passenger_id', profile.id)
+      .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     setHasRequested(!!data);
