@@ -431,6 +431,7 @@ const RideDetail = () => {
       .select(
         `
           id,
+          status,
           pickup_address,
           pickup_lat,
           pickup_lng,
@@ -438,12 +439,15 @@ const RideDetail = () => {
         `
       )
       .eq('ride_id', id)
-      .in('status', ['accepted', 'picked_up']);
+      .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up']);
 
     if (data) {
-      setAcceptedPassengers(data as unknown as AcceptedPassenger[]);
+      const rows = data as unknown as (AcceptedPassenger & { status: string })[];
+      setAcceptedPassengers(rows.filter((r) => r.status !== 'pending'));
+      setPendingCount(rows.filter((r) => r.status === 'pending').length);
     }
   };
+
 
   const fetchStops = async () => {
     if (!id) return;
