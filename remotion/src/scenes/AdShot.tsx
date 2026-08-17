@@ -160,7 +160,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
       <div
         style={{
           position: "absolute",
-          bottom: -60,
+          bottom: -80,
           left: "50%",
           marginLeft: -330,
           transform: `translateY(${shotY + float}px) scale(${shotScale}) rotate(${tilt}deg)`,
@@ -171,7 +171,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
           style={{
             position: "relative",
             width: 660,
-            height: 1000,
+            height: 1300,
             borderRadius: 56,
             overflow: "hidden",
             background: "#F6F8FC",
