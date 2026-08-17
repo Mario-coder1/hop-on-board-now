@@ -27,7 +27,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
   const shotY = interpolate(enter, [0, 1], [140, 0]);
   const shotScale = interpolate(enter, [0, 1], [0.9, 1]);
   const float = Math.sin(frame / 24) * 10;
-  const tilt = align === "left" ? -4 : 4;
+  const tilt = align === "left" ? -3 : 3;
 
   const w1 = spring({ frame: frame - 4, fps, config: { damping: 14, stiffness: 140 } });
   const w2 = spring({ frame: frame - 11, fps, config: { damping: 14, stiffness: 140 } });
@@ -50,7 +50,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
       <div
         style={{
           position: "absolute",
-          top: 150,
+          top: 120,
           left: align === "left" ? 80 : undefined,
           right: align === "right" ? 80 : undefined,
           textAlign: align,
@@ -113,7 +113,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
         <div style={{ overflow: "hidden" }}>
           <div
             style={{
-              fontSize: 118,
+              fontSize: 96,
               fontWeight: 800,
               lineHeight: 1,
               letterSpacing: -4,
@@ -127,7 +127,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
         <div style={{ overflow: "hidden", marginTop: 4 }}>
           <div
             style={{
-              fontSize: 118,
+              fontSize: 96,
               fontWeight: 800,
               lineHeight: 1.05,
               letterSpacing: -4,
@@ -141,9 +141,9 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
 
         <div
           style={{
-            marginTop: 26,
-            maxWidth: 640,
-            fontSize: 34,
+            marginTop: 22,
+            maxWidth: 620,
+            fontSize: 30,
             fontWeight: 600,
             lineHeight: 1.35,
             color: "rgba(255,255,255,0.72)",
@@ -160,9 +160,9 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
       <div
         style={{
           position: "absolute",
-          bottom: -120,
-          left: align === "left" ? undefined : -60,
-          right: align === "left" ? -60 : undefined,
+          bottom: -170,
+          left: align === "left" ? undefined : -40,
+          right: align === "left" ? -40 : undefined,
           transform: `translateY(${shotY + float}px) scale(${shotScale}) rotate(${tilt}deg)`,
           filter: "drop-shadow(0 60px 120px rgba(0,0,0,0.65))",
         }}
@@ -170,7 +170,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
         <Img
           src={staticFile(src)}
           style={{
-            width: 760,
+            width: 700,
             display: "block",
             borderRadius: 64,
           }}
