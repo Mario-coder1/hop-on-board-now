@@ -156,26 +156,59 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
         </div>
       </div>
 
-      {/* Real app screenshot */}
+      {/* Real app screen — cropped into a clean rounded device window */}
       <div
         style={{
           position: "absolute",
-          bottom: -170,
-          left: align === "left" ? undefined : -40,
-          right: align === "left" ? -40 : undefined,
+          bottom: -60,
+          left: "50%",
+          marginLeft: -330,
           transform: `translateY(${shotY + float}px) scale(${shotScale}) rotate(${tilt}deg)`,
-          filter: "drop-shadow(0 60px 120px rgba(0,0,0,0.65))",
+          filter: "drop-shadow(0 50px 110px rgba(2,10,25,0.7))",
         }}
       >
-        <Img
-          src={staticFile(src)}
+        <div
           style={{
-            width: 700,
-            display: "block",
-            borderRadius: 64,
+            position: "relative",
+            width: 660,
+            height: 1000,
+            borderRadius: 56,
+            overflow: "hidden",
+            background: "#F6F8FC",
+            border: "2px solid rgba(255,255,255,0.14)",
           }}
-        />
+        >
+          <Img
+            src={staticFile(src)}
+            style={{
+              position: "absolute",
+              width: 740,
+              left: -40,
+              top: -31,
+              display: "block",
+            }}
+          />
+          {/* bottom fade so the crop dissolves into the background */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(to bottom, rgba(7,16,31,0) 68%, rgba(7,16,31,0.85) 100%)",
+            }}
+          />
+          {/* glass sheen */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(115deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 38%)",
+            }}
+          />
+        </div>
       </div>
+
     </AbsoluteFill>
   );
 };
