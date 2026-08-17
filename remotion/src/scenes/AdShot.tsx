@@ -182,9 +182,9 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
             src={staticFile(src)}
             style={{
               position: "absolute",
-              width: 756,
-              left: -48,
-              top: -48,
+              width: 777,
+              left: -58,
+              top: -121,
               display: "block",
             }}
           />
