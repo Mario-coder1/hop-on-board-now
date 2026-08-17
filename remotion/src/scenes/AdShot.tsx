@@ -182,9 +182,9 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
             src={staticFile(src)}
             style={{
               position: "absolute",
-              width: 740,
-              left: -40,
-              top: -31,
+              width: 756,
+              left: -48,
+              top: -48,
               display: "block",
             }}
           />
@@ -194,7 +194,7 @@ export const AdShot: React.FC<Props> = ({ src, step, line1, line2, note, align, 
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(to bottom, rgba(7,16,31,0) 68%, rgba(7,16,31,0.85) 100%)",
+                "linear-gradient(to bottom, rgba(7,16,31,0) 84%, rgba(7,16,31,0.85) 100%)",
             }}
           />
           {/* glass sheen */}
