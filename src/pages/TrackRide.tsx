@@ -542,15 +542,13 @@ const TrackRide: React.FC = () => {
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   {rideRequest.status === 'driver_arrived' ? (
                     <>
-                      Vodič už prišiel na miesto — pri zrušení sa ti vráti <strong>50 % ceny</strong>,
-                      druhá polovica patrí vodičovi ako kompenzácia za cestu (
-                      <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                      Vodič už prišiel na miesto. Keďže platby cez appku nie sú aktívne, dohodni si prípadnú
+                      kompenzáciu priamo s vodičom (<Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   ) : (
                     <>
-                      Zrušiť môžeš kedykoľvek pred príchodom vodiča — platba ti bude vrátená v plnej výške.
-                      Ak zrušíš až keď vodič čaká na mieste, vráti sa 50 % ceny. Po nastúpení do vozidla už
-                      zrušenie ani refundácia nie sú možné (
+                      Zrušiť môžeš kedykoľvek pred príchodom vodiča. Keďže platby cez appku nie sú aktívne,
+                      žiadna platba neprebehla. Po nastúpení do vozidla už zrušenie nie je možné (
                       <Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   )}
@@ -581,7 +579,7 @@ const TrackRide: React.FC = () => {
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     {rideRequest.status === 'cancelled'
-                      ? 'Táto rezervácia už nie je aktívna. Ak bola platba uhradená, peniaze ti budú vrátené.'
+                      ? 'Táto rezervácia už nie je aktívna. Keďže platby cez appku nie sú aktívne, žiadna platba neprebehla.'
                       : 'Vodič odmietol tvoju žiadosť. Skús inú jazdu.'}
                   </p>
                   <Link to="/passenger">

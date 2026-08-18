@@ -420,8 +420,8 @@ const RideDetail = () => {
     toast({
       title: 'Žiadosť zrušená',
       description: wasAccepted
-        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené. Platba bude vrátená.'
-        : 'Vaša žiadosť bola zrušená. Platba bude vrátená.',
+        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené.'
+        : 'Vaša žiadosť bola zrušená.',
     });
 
     setCancelOpen(false);

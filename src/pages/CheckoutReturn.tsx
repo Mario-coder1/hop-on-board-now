@@ -21,27 +21,17 @@ export default function CheckoutReturn() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="max-w-md w-full text-center space-y-4 p-8 rounded-2xl border bg-card">
-        {sessionId ? (
-          <>
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
-            <h1 className="text-2xl font-bold">Platba prijatá</h1>
-            <p className="text-muted-foreground">
-              Vaša rezervácia bola odoslaná vodičovi. O odpovedi vás budeme notifikovať.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Presmerovanie o {count}s...
-            </p>
-            <Button onClick={() => navigate("/passenger")} className="w-full">
-              Pokračovať
-            </Button>
-          </>
-        ) : (
-          <>
-            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mx-auto" />
-            <p>Neznáma platobná relácia.</p>
-            <Button variant="outline" onClick={() => navigate("/passenger")}>Späť</Button>
-          </>
-        )}
+        <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
+        <h1 className="text-2xl font-bold">Rezervácia prijatá</h1>
+        <p className="text-muted-foreground">
+          Vaša žiadosť bola odoslaná vodičovi. O odpovedi vás budeme notifikovať.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Presmerovanie o {count}s...
+        </p>
+        <Button onClick={() => navigate("/passenger")} className="w-full">
+          Pokračovať
+        </Button>
       </div>
     </div>
   );
