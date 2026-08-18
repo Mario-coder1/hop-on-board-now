@@ -17,7 +17,7 @@ import RideBadge from '@/components/RideBadge';
 import { parseRoutePolyline } from '@/lib/routeProximity';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 
 interface DriverInfo {
   id: string;
@@ -176,13 +176,15 @@ const TrackRide: React.FC = () => {
         .eq('id', rideRequest.ride.id);
     }
 
-    // Plná refundácia cez Stripe (VOP čl. 2.1)
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: rideRequest.id, environment: getStripeEnvironment(), reason },
-      });
-    } catch (e) {
-      console.error('refund error', e);
+    // Plná refundácia cez Stripe (VOP čl. 2.1) — len ak sú platby zapnuté
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: rideRequest.id, environment: getStripeEnvironment(), reason },
+        });
+      } catch (e) {
+        console.error('refund error', e);
+      }
     }
 
     try {
@@ -198,8 +200,8 @@ const TrackRide: React.FC = () => {
     toast({
       title: 'Rezervácia zrušená',
       description: rideRequest.status === 'driver_arrived'
-        ? 'Vodič už bol na mieste — vráti sa ti 50 % ceny (5–10 pracovných dní), zvyšok patrí vodičovi ako kompenzácia.'
-        : 'Platba ti bude vrátená v plnej výške na pôvodnú platobnú metódu (5–10 pracovných dní).',
+        ? 'Vodič už bol na mieste. Keďže platby cez appku nie sú aktívne, dohodni si kompenzáciu priamo s vodičom.'
+        : 'Rezervácia bola zrušená. Keďže platby cez appku nie sú aktívne, žiadna platba neprebehla.',
     });
     setCancelOpen(false);
     setCancelling(false);
@@ -540,15 +542,13 @@ const TrackRide: React.FC = () => {
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   {rideRequest.status === 'driver_arrived' ? (
                     <>
-                      Vodič už prišiel na miesto — pri zrušení sa ti vráti <strong>50 % ceny</strong>,
-                      druhá polovica patrí vodičovi ako kompenzácia za cestu (
-                      <Link to="/terms" className="underline">VOP čl. 2</Link>).
+                      Vodič už prišiel na miesto. Keďže platby cez appku nie sú aktívne, dohodni si prípadnú
+                      kompenzáciu priamo s vodičom (<Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   ) : (
                     <>
-                      Zrušiť môžeš kedykoľvek pred príchodom vodiča — platba ti bude vrátená v plnej výške.
-                      Ak zrušíš až keď vodič čaká na mieste, vráti sa 50 % ceny. Po nastúpení do vozidla už
-                      zrušenie ani refundácia nie sú možné (
+                      Zrušiť môžeš kedykoľvek pred príchodom vodiča. Keďže platby cez appku nie sú aktívne,
+                      žiadna platba neprebehla. Po nastúpení do vozidla už zrušenie nie je možné (
                       <Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   )}
@@ -579,7 +579,7 @@ const TrackRide: React.FC = () => {
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     {rideRequest.status === 'cancelled'
-                      ? 'Táto rezervácia už nie je aktívna. Ak bola platba uhradená, peniaze ti budú vrátené.'
+                      ? 'Táto rezervácia už nie je aktívna. Keďže platby cez appku nie sú aktívne, žiadna platba neprebehla.'
                       : 'Vodič odmietol tvoju žiadosť. Skús inú jazdu.'}
                   </p>
                   <Link to="/passenger">

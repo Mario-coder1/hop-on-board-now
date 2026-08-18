@@ -394,11 +394,11 @@ const passengerSteps: Step[] = [
     visual: { kind: 'image', src: p3Alert.url, alt: 'Karta Alerty na trasy' },
   },
   {
-    title: 'Pošli žiadosť a zaplať',
-    description: 'Uvidíš prehľadný rozpis: cena vodiča, poplatok platformy a poplatok za platbu kartou. Plať bezpečne cez Stripe — kartou, Apple Pay alebo Google Pay.',
+    title: 'Pošli žiadosť',
+    description: 'Uvidíš prehľadný rozpis ceny vodiča. Rezervácia prebehne priamo v aplikácii — vodičovi zaplatíš dohodnutú sumu pri nástupe alebo podľa vašej dohody.',
     icon: CreditCard,
     tag: 'Rezervácia',
-    visual: { kind: 'image', src: p4Checkout.url, alt: 'Rozpis ceny a tlačidlo Rezervovať a zaplatiť' },
+    visual: { kind: 'image', src: p4Checkout.url, alt: 'Rozpis ceny a tlačidlo Rezervovať' },
   },
   {
     title: 'Sleduj vodiča naživo',

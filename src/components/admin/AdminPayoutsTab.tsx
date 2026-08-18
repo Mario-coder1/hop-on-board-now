@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, CheckCircle, XCircle, Send, RotateCcw } from 'lucide-react';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 
 interface PayoutRow {
   id: string;
@@ -107,6 +107,10 @@ const AdminPayoutsTab = () => {
   };
 
   const handleRefund = async (requestId: string) => {
+    if (!isPaymentsEnabled()) {
+      toast({ title: 'Platby sú vypnuté', description: 'Refundácie nie sú dostupné, pretože platobná brána nie je zapnutá.' });
+      return;
+    }
     if (!confirm('Naozaj vrátiť platbu pasažierovi?')) return;
     setProcessing(requestId);
     const { data, error } = await supabase.functions.invoke('refund-ride-payment', {

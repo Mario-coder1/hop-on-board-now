@@ -184,10 +184,6 @@ const Index = () => {
                 <MapPin className="w-3.5 h-3.5" />
                 {t("hero.badge_live_tracking")}
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {t("hero.badge_stripe_payments")}
-              </span>
             </motion.div>
           </div>
 

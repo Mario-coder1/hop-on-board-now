@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
-import { getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { getStripe, getStripeEnvironment, isPaymentsEnabled } from "@/lib/stripe";
 import { supabase } from "@/integrations/supabase/client";
 
 interface RidePaymentCheckoutProps {
@@ -34,6 +34,10 @@ export function RidePaymentCheckout({
     }
     return data.clientSecret;
   }, [rideId, pickup, dropoff, message, returnUrl]);
+
+  if (!isPaymentsEnabled()) {
+    return null;
+  }
 
   return (
     <div id="ride-checkout">

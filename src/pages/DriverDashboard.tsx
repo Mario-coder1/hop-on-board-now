@@ -12,7 +12,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useGasStations } from '@/hooks/useGasStations';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 
 interface Ride {
   id: string;
@@ -108,7 +108,7 @@ const DriverDashboard: React.FC = () => {
         setRides(prev => prev.map(r => r.id === request.ride_id ? { ...r, available_seats: r.available_seats - 1 } : r));
       }
     }
-    if (action === 'rejected') {
+    if (action === 'rejected' && isPaymentsEnabled()) {
       // Auto-refund the passenger
       try {
         await supabase.functions.invoke('refund-ride-payment', {

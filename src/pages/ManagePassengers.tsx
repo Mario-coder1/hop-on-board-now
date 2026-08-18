@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Navigation as NavIcon, Phone, CheckCircle, MapPin, User, Bell, Radio, LogOut, Flag, KeyRound, Check, X, Users, MessageCircle, Loader2, ArrowRight, Target } from 'lucide-react';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -222,11 +222,13 @@ const ManagePassengers = () => {
   const handleRejectRequest = async (requestId: string, passengerName: string) => {
     const { error } = await supabase.from('ride_requests').update({ status: 'rejected' }).eq('id', requestId);
     if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: requestId, environment: getStripeEnvironment() },
-      });
-    } catch (e) { console.error('refund', e); }
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment() },
+        });
+      } catch (e) { console.error('refund', e); }
+    }
     toast({ title: 'Žiadosť odmietnutá', description: passengerName });
     fetchRideAndPassengers();
   };
@@ -243,12 +245,14 @@ const ManagePassengers = () => {
     if (ride) {
       await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
     }
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: requestId, environment: getStripeEnvironment() },
-      });
-    } catch (e) { console.error('refund', e); }
-    toast({ title: 'Pasažier zrušený', description: `${passengerName} bol odstránený a peniaze vrátené.` });
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment() },
+        });
+      } catch (e) { console.error('refund', e); }
+    }
+    toast({ title: 'Pasažier zrušený', description: `${passengerName} bol odstránený.` });
     fetchRideAndPassengers();
   };
 
@@ -284,15 +288,17 @@ const ManagePassengers = () => {
           cancellation_reason: 'Pasažier nebol vyzdvihnutý (PIN nebol overený) — automatická refundácia',
           cancelled_at: new Date().toISOString(),
         }).eq('id', p.id);
-        try {
-          await supabase.functions.invoke('refund-ride-payment', {
-            body: {
-              request_id: p.id,
-              environment: getStripeEnvironment(),
-              reason: 'Pasažier nebol vyzdvihnutý — PIN nebol overený',
-            },
-          });
-        } catch (e) { console.error('refund', e); }
+        if (isPaymentsEnabled()) {
+          try {
+            await supabase.functions.invoke('refund-ride-payment', {
+              body: {
+                request_id: p.id,
+                environment: getStripeEnvironment(),
+                reason: 'Pasažier nebol vyzdvihnutý — PIN nebol overený',
+              },
+            });
+          } catch (e) { console.error('refund', e); }
+        }
       }
 
       stopTracking();

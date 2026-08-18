@@ -35,11 +35,9 @@ import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
 import { computeRidePrice } from '@/lib/ridePricing';
 import { isPointNearRoute, parseRoutePolyline, type LngLat } from '@/lib/routeProximity';
@@ -132,7 +130,6 @@ const RideDetail = () => {
 
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState('');
-  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [hasRequested, setHasRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
@@ -399,12 +396,14 @@ const RideDetail = () => {
         .eq('id', ride.id);
     }
 
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: requestId, environment: getStripeEnvironment() },
-      });
-    } catch (e) {
-      console.error('refund error', e);
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment() },
+        });
+      } catch (e) {
+        console.error('refund error', e);
+      }
     }
 
     try {
@@ -421,8 +420,8 @@ const RideDetail = () => {
     toast({
       title: 'Žiadosť zrušená',
       description: wasAccepted
-        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené. Platba bude vrátená.'
-        : 'Vaša žiadosť bola zrušená. Platba bude vrátená.',
+        ? 'Vaša rezervácia bola zrušená a miesto bolo uvoľnené.'
+        : 'Vaša žiadosť bola zrušená.',
     });
 
     setCancelOpen(false);
@@ -539,7 +538,7 @@ const RideDetail = () => {
       });
       return;
     }
-    // Stripe zatiaľ nie je nakonfigurovaný — žiadosť odošleme priamo bez platby
+    // Platby sú vypnuté — žiadosť odošleme priamo bez platby
     setRequesting(true);
     try {
       const { error } = await supabase.from('ride_requests').insert({
@@ -557,7 +556,7 @@ const RideDetail = () => {
         price_per_seat_snapshot: Number(ride.price_per_seat),
       });
       if (error) throw error;
-      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie. Platba bude doplnená neskôr.' });
+      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie a schváli tvoju žiadosť.' });
     } catch (e: any) {
       toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
     } finally {
@@ -1031,18 +1030,22 @@ const RideDetail = () => {
                             <span className="text-muted-foreground">Cena vodiča</span>
                             <span className="tabular-nums">{priceEstimate.basePrice.toFixed(2)} €</span>
                           </div>
-                          <div className="flex justify-between items-baseline mt-1">
-                            <span className="text-muted-foreground">Poplatok platformy ({priceEstimate.commissionPercent}%)</span>
-                            <span className="tabular-nums">+{priceEstimate.commission.toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-baseline mt-1">
-                            <span className="text-muted-foreground">Poplatok za platbu kartou</span>
-                            <span className="tabular-nums">+{priceEstimate.stripeFee.toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
-                            <span className="font-semibold">Zaplatíte spolu</span>
-                            <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
-                          </div>
+                          {isPaymentsEnabled() && (
+                            <>
+                              <div className="flex justify-between items-baseline mt-1">
+                                <span className="text-muted-foreground">Poplatok platformy ({priceEstimate.commissionPercent}%)</span>
+                                <span className="tabular-nums">+{priceEstimate.commission.toFixed(2)} €</span>
+                              </div>
+                              <div className="flex justify-between items-baseline mt-1">
+                                <span className="text-muted-foreground">Poplatok za platbu kartou</span>
+                                <span className="tabular-nums">+{priceEstimate.stripeFee.toFixed(2)} €</span>
+                              </div>
+                              <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
+                                <span className="font-semibold">Zaplatíte spolu</span>
+                                <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
 
@@ -1098,8 +1101,8 @@ const RideDetail = () => {
                         {requesting
                           ? 'Odosielanie...'
                           : pickup.lat && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng)))
-                            ? `Rezervovať a zaplatiť ${priceEstimate?.amount?.toFixed(2)} €`
-                            : 'Rezervovať a zaplatiť'}
+                            ? `Rezervovať za ${priceEstimate?.basePrice?.toFixed(2)} €`
+                            : 'Rezervovať'}
                       </Button>
                     </>
                   )}
@@ -1118,23 +1121,6 @@ const RideDetail = () => {
           </div>
         </motion.div>
       </main>
-
-      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Zaplatiť rezerváciu ({(priceEstimate?.amount ?? Number(ride?.price_per_seat ?? 0)).toFixed(2)} €)</DialogTitle>
-          </DialogHeader>
-          {ride && pickup.lat !== 0 && (
-            <RidePaymentCheckout
-              rideId={ride.id}
-              pickup={pickup}
-              dropoff={dropoff.lat ? dropoff : {}}
-              message={message}
-              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
 
       <CancellationDialog
         open={cancelOpen}
