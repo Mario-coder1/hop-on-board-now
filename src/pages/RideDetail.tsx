@@ -538,7 +538,7 @@ const RideDetail = () => {
       });
       return;
     }
-    // Stripe zatiaľ nie je nakonfigurovaný — žiadosť odošleme priamo bez platby
+    // Platby sú vypnuté — žiadosť odošleme priamo bez platby
     setRequesting(true);
     try {
       const { error } = await supabase.from('ride_requests').insert({
@@ -556,7 +556,7 @@ const RideDetail = () => {
         price_per_seat_snapshot: Number(ride.price_per_seat),
       });
       if (error) throw error;
-      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie. Platba bude doplnená neskôr.' });
+      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie a schváli tvoju žiadosť.' });
     } catch (e: any) {
       toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
     } finally {
