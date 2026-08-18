@@ -3,7 +3,14 @@ import type { Stripe } from "@stripe/stripe-js";
 type StripeEnv = "sandbox" | "live";
 
 const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
-const environment: StripeEnv = clientToken?.startsWith("pk_test_") ? "sandbox" : "live";
+
+function paymentsEnvironment(): StripeEnv {
+  if (clientToken?.startsWith("pk_test_")) return "sandbox";
+  if (clientToken?.startsWith("pk_live_")) return "live";
+  throw new Error(
+    "Platby nie sú pre tento build nakonfigurované. Dokončite spustenie platieb naživo v projekte."
+  );
+}
 
 let stripePromise: Promise<Stripe | null> | null = null;
 
@@ -16,9 +23,9 @@ export function getStripe(): Promise<Stripe | null> {
 }
 
 export function getStripeEnvironment(): StripeEnv {
-  return environment;
+  return paymentsEnvironment();
 }
 
 export function isPaymentsTestMode(): boolean {
-  return environment === "sandbox";
+  return clientToken?.startsWith("pk_test_") ?? false;
 }
