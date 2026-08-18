@@ -154,13 +154,15 @@ const MyTrips = () => {
         .eq('id', cancellingTrip.ride_id);
     }
 
-    // Auto-refund the passenger if they paid
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: cancellingTrip.id, environment: getStripeEnvironment() },
-      });
-    } catch (e) {
-      console.error('refund error', e);
+    // Auto-refund the passenger if they paid — len ak sú platby zapnuté
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: cancellingTrip.id, environment: getStripeEnvironment() },
+        });
+      } catch (e) {
+        console.error('refund error', e);
+      }
     }
 
     // Send push notification to driver

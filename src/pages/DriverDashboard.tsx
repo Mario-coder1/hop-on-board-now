@@ -108,7 +108,7 @@ const DriverDashboard: React.FC = () => {
         setRides(prev => prev.map(r => r.id === request.ride_id ? { ...r, available_seats: r.available_seats - 1 } : r));
       }
     }
-    if (action === 'rejected') {
+    if (action === 'rejected' && isPaymentsEnabled()) {
       // Auto-refund the passenger
       try {
         await supabase.functions.invoke('refund-ride-payment', {

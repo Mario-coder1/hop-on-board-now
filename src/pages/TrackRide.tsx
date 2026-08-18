@@ -176,13 +176,15 @@ const TrackRide: React.FC = () => {
         .eq('id', rideRequest.ride.id);
     }
 
-    // Plná refundácia cez Stripe (VOP čl. 2.1)
-    try {
-      await supabase.functions.invoke('refund-ride-payment', {
-        body: { request_id: rideRequest.id, environment: getStripeEnvironment(), reason },
-      });
-    } catch (e) {
-      console.error('refund error', e);
+    // Plná refundácia cez Stripe (VOP čl. 2.1) — len ak sú platby zapnuté
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: rideRequest.id, environment: getStripeEnvironment(), reason },
+        });
+      } catch (e) {
+        console.error('refund error', e);
+      }
     }
 
     try {
