@@ -23,9 +23,9 @@ export function getStripe(): Promise<Stripe | null> {
 }
 
 export function getStripeEnvironment(): StripeEnv {
-  return environment;
+  return paymentsEnvironment();
 }
 
 export function isPaymentsTestMode(): boolean {
-  return environment === "sandbox";
+  return clientToken?.startsWith("pk_test_") ?? false;
 }
