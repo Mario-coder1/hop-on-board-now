@@ -15,7 +15,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
-import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
+
 import { WelcomeOnboardingDialog } from "./components/WelcomeOnboardingDialog";
 import { OnboardingTour } from "./components/OnboardingTour";
 import RequireFullNameDialog from "./components/RequireFullNameDialog";
@@ -90,7 +90,6 @@ const AppRoutes = () => {
   return (
     <>
       <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
-      <PaymentTestModeBanner />
       <NotificationListener />
       <ActiveRideFAB />
       <IOSInstallPrompt />
