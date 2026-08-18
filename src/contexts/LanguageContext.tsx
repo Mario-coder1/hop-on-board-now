@@ -16,7 +16,7 @@ const translations: Record<Lang, Dict> = {
     "hero.cta_start": "Začať teraz",
     "hero.cta_search": "Hľadať jazdy",
     "hero.badge_live_tracking": "Sledovanie naživo",
-    "hero.badge_stripe_payments": "Platby cez Stripe",
+    
     "hero.badge_made_in_slovakia": "Vyrobené na Slovensku",
     "feature.offer.title": "Ponúkni jazdu",
     "feature.offer.desc": "Zdieľaj cestu a ušetri na nákladoch",
@@ -100,7 +100,7 @@ const translations: Record<Lang, Dict> = {
     "hero.cta_start": "Začít nyní",
     "hero.cta_search": "Hledat jízdy",
     "hero.badge_live_tracking": "Živé sledování",
-    "hero.badge_stripe_payments": "Platby přes Stripe",
+    
     "hero.badge_made_in_slovakia": "Vyrobeno na Slovensku",
     "feature.offer.title": "Nabídni jízdu",
     "feature.offer.desc": "Sdílej cestu a ušetři na nákladech",
@@ -184,7 +184,7 @@ const translations: Record<Lang, Dict> = {
     "hero.cta_start": "Get started",
     "hero.cta_search": "Find rides",
     "hero.badge_live_tracking": "Live tracking",
-    "hero.badge_stripe_payments": "Stripe payments",
+    
     "hero.badge_made_in_slovakia": "Made in Slovakia",
     "feature.offer.title": "Offer a ride",
     "feature.offer.desc": "Share the trip and cut your costs",
@@ -268,7 +268,7 @@ const translations: Record<Lang, Dict> = {
     "hero.cta_start": "Zacznij teraz",
     "hero.cta_search": "Szukaj przejazdów",
     "hero.badge_live_tracking": "Śledzenie na żywo",
-    "hero.badge_stripe_payments": "Płatności Stripe",
+    
     "hero.badge_made_in_slovakia": "Wyprodukowano na Słowacji",
     "feature.offer.title": "Zaproponuj przejazd",
     "feature.offer.desc": "Dziel się trasą i obniż koszty",
