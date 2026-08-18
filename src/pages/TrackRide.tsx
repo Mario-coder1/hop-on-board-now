@@ -17,7 +17,7 @@ import RideBadge from '@/components/RideBadge';
 import { parseRoutePolyline } from '@/lib/routeProximity';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 
 interface DriverInfo {
   id: string;

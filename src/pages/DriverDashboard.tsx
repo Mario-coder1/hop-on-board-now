@@ -12,7 +12,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
 import { useGasStations } from '@/hooks/useGasStations';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 
 interface Ride {
   id: string;
