@@ -35,11 +35,9 @@ import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
-import { getStripeEnvironment } from '@/lib/stripe';
+import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
 import { computeRidePrice } from '@/lib/ridePricing';
 import { isPointNearRoute, parseRoutePolyline, type LngLat } from '@/lib/routeProximity';
