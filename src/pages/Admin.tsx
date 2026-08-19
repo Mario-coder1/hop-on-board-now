@@ -46,6 +46,8 @@ import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
 import AdminDisputes from '@/components/admin/AdminDisputes';
 import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
+import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
+
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
 
 import {
