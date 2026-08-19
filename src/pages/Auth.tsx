@@ -338,16 +338,47 @@ const Auth: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="glass-strong rounded-3xl p-8 shadow-glass-lg"
+            className="glass-strong rounded-3xl p-6 sm:p-8 shadow-glass-lg border border-border/60"
           >
-            <h2 className="font-display text-2xl font-bold mb-2">
-              {isLogin ? 'Vitajte späť' : 'Vytvorte si účet'}
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              {isLogin 
-                ? 'Prihláste sa a pokračujte v ceste' 
-                : 'Začnite zdieľať jazdy ešte dnes'}
-            </p>
+            {/* Segmented switcher */}
+            <div className="relative grid grid-cols-2 p-1 rounded-2xl bg-muted/60 mb-7">
+              <motion.div
+                className="absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-background shadow-sm"
+                animate={{ left: isLogin ? '0.25rem' : 'calc(50% + 0rem)' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+              />
+              <button
+                type="button"
+                onClick={() => setIsLogin(true)}
+                className={`relative z-10 h-10 rounded-xl text-sm font-semibold transition-colors ${isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Prihlásenie
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsLogin(false)}
+                className={`relative z-10 h-10 rounded-xl text-sm font-semibold transition-colors ${!isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Registrácia
+              </button>
+            </div>
+
+            <div className="mb-7">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  {isLogin ? <Lock className="w-5 h-5 text-primary" /> : <User className="w-5 h-5 text-primary" />}
+                </div>
+                <h2 className="font-display text-2xl font-bold leading-tight">
+                  {isLogin ? 'Vitajte späť' : 'Vytvorte si účet'}
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isLogin
+                  ? 'Prihláste sa a pokračujte v ceste.'
+                  : 'Zaregistrujte sa a začnite zdieľať jazdy ešte dnes.'}
+              </p>
+            </div>
+
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
