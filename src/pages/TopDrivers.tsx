@@ -7,6 +7,8 @@ import { Trophy, Star, Car, Route, Calendar, ThumbsUp, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { ReportDialog } from '@/components/ReportDialog';
+import { BlockUserDialog } from '@/components/BlockUserDialog';
 import {
   Dialog,
   DialogContent,
@@ -384,6 +386,25 @@ const TopDrivers: React.FC = () => {
                         </AnimatePresence>
                       </div>
                     )}
+                  </div>
+
+                  {/* Safety actions */}
+                  <Separator />
+                  <div>
+                    <h3 className="font-semibold mb-1">Bezpečnosť</h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Ak ti niečo nesedí, nahlás vodiča alebo si ho zablokuj. Dôvod si evidujeme.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <ReportDialog
+                        reportedUserId={selectedDriver.id}
+                        reportedUserName={selectedDriver.full_name}
+                      />
+                      <BlockUserDialog
+                        blockedUserId={selectedDriver.id}
+                        blockedUserName={selectedDriver.full_name}
+                      />
+                    </div>
                   </div>
                 </div>
               </ScrollArea>
