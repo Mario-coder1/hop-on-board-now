@@ -77,10 +77,16 @@ const ResetPassword: React.FC = () => {
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
+    const { logSecurityEvent } = await import('@/lib/securityLog');
+    void logSecurityEvent('password_changed', {
+      status: error ? 'failed' : 'success',
+      detail: error?.message ?? null,
+    });
     if (error) {
       toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
       return;
     }
+
     toast({ title: 'Heslo zmenené', description: 'Môžete pokračovať.' });
     navigate('/');
   };
