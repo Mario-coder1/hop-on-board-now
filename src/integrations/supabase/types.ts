@@ -1469,6 +1469,17 @@ export type Database = {
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
+      get_driver_profile_stats: { Args: { _driver_id: string }; Returns: Json }
+      get_driver_reviews: {
+        Args: { _driver_id: string }
+        Returns: {
+          comment: string
+          created_at: string
+          rater_avatar_url: string
+          rater_name: string
+          rating: number
+        }[]
+      }
       get_internal_push_secret: { Args: never; Returns: string }
       get_public_stats: {
         Args: never
