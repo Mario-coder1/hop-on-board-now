@@ -37,7 +37,7 @@ const TopDrivers: React.FC = () => {
       .gt('total_rides', 0)
       .order('rating', { ascending: false })
       .order('total_rides', { ascending: false })
-      .limit(5);
+      .limit(10);
 
     if (data) {
       setDrivers(data as TopDriver[]);
