@@ -188,6 +188,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     });
 
+    void logSecurityEvent("signup", {
+      status: error ? "failed" : "success",
+      email,
+      detail: error?.message ?? null,
+    });
+
     return { error };
   };
 
@@ -196,15 +202,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
     });
+    void logSecurityEvent(error ? "login_failed" : "login", {
+      status: error ? "failed" : "success",
+      email,
+      detail: error?.message ?? null,
+    });
     return { error };
   };
 
   const signOut = async () => {
+    await logSecurityEvent("logout");
     await supabase.auth.signOut();
     setProfile(null);
     setIsAdmin(false);
     bootstrappedUserIdRef.current = null;
   };
+
 
   const updateRole = async (role: "driver" | "passenger") => {
     if (!profile) throw new Error("Profil nie je načítaný.");
