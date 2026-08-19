@@ -7,6 +7,8 @@ import { Trophy, Star, Car, Route, Calendar, ThumbsUp, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
+import { ReportDialog } from '@/components/ReportDialog';
+import { BlockUserDialog } from '@/components/BlockUserDialog';
 import {
   Dialog,
   DialogContent,
