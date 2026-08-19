@@ -671,6 +671,13 @@ const Auth: React.FC = () => {
                 redirectTo: `${window.location.origin}/reset-password`,
               });
               setForgotLoading(false);
+              const { logSecurityEvent } = await import('@/lib/securityLog');
+              void logSecurityEvent('password_reset_requested', {
+                status: error ? 'failed' : 'success',
+                email: forgotEmail.trim(),
+                detail: error?.message ?? null,
+              });
+
               if (error) {
                 toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
               } else {

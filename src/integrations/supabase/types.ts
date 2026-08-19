@@ -1051,6 +1051,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_events: {
+        Row: {
+          created_at: string
+          detail: string | null
+          email: string | null
+          event_type: string
+          id: string
+          profile_id: string | null
+          status: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          email?: string | null
+          event_type: string
+          id?: string
+          profile_id?: string | null
+          status?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          email?: string | null
+          event_type?: string
+          id?: string
+          profile_id?: string | null
+          status?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -1416,6 +1452,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_security_events: {
+        Args: { _limit?: number }
+        Returns: {
+          created_at: string
+          detail: string
+          email: string
+          event_type: string
+          full_name: string
+          id: string
+          status: string
+          user_agent: string
+        }[]
+      }
       admin_visitor_stats: { Args: never; Returns: Json }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
@@ -1441,6 +1490,16 @@ export type Database = {
       is_university_member: {
         Args: { _university_id: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          _detail?: string
+          _email?: string
+          _event_type: string
+          _status?: string
+          _user_agent?: string
+        }
+        Returns: undefined
       }
       send_push_via_edge: {
         Args: {
