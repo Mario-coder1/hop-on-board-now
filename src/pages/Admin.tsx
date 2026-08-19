@@ -737,8 +737,10 @@ const Admin = () => {
           </div>
 
           <TabsContent value="audit" className="space-y-4">
+            <SecurityEventsLog />
             <SecurityAuditTab />
           </TabsContent>
+
 
           <TabsContent value="live" className="space-y-4">
             <LiveUpdatesStats />
