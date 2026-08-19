@@ -37,7 +37,7 @@ const TopDrivers: React.FC = () => {
       .gt('total_rides', 0)
       .order('rating', { ascending: false })
       .order('total_rides', { ascending: false })
-      .limit(5);
+      .limit(10);
 
     if (data) {
       setDrivers(data as TopDriver[]);
@@ -67,7 +67,7 @@ const TopDrivers: React.FC = () => {
     <div className="min-h-screen bg-background pb-24">
       <SEO
         title="TOP vodiči"
-        description="Najlepšie hodnotení vodiči TakeMe na Slovensku. Pozri si rebríček TOP 5 vodičov podľa hodnotení a počtu jázd."
+        description="Najlepšie hodnotení vodiči TakeMe na Slovensku. Pozri si rebríček TOP 10 vodičov podľa hodnotení a počtu jázd."
         path="/top-drivers"
       />
       <Navigation />
@@ -80,7 +80,7 @@ const TopDrivers: React.FC = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <Trophy className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">TOP 5 Vodičov</h1>
+          <h1 className="text-2xl font-bold">TOP 10 Vodičov</h1>
           <p className="text-muted-foreground mt-1">Najlepšie hodnotení vodiči</p>
         </motion.div>
 
