@@ -385,6 +385,25 @@ const TopDrivers: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Safety actions */}
+                  <Separator />
+                  <div>
+                    <h3 className="font-semibold mb-1">Bezpečnosť</h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Ak ti niečo nesedí, nahlás vodiča alebo si ho zablokuj. Dôvod si evidujeme.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <ReportDialog
+                        reportedUserId={selectedDriver.id}
+                        reportedUserName={selectedDriver.full_name}
+                      />
+                      <BlockUserDialog
+                        blockedUserId={selectedDriver.id}
+                        blockedUserName={selectedDriver.full_name}
+                      />
+                    </div>
+                  </div>
                 </div>
               </ScrollArea>
             </div>
