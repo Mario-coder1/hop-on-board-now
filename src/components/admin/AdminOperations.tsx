@@ -289,6 +289,136 @@ export default function AdminOperations() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!openRideId} onOpenChange={(o) => { if (!o) { setOpenRideId(null); setDetail(null); } }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Route className="w-4 h-4" /> Detail jazdy
+            </DialogTitle>
+          </DialogHeader>
+
+          {detailLoading && (
+            <div className="py-10 flex items-center justify-center text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" />
+            </div>
+          )}
+
+          {!detailLoading && detail?.ride && (
+            <ScrollArea className="max-h-[70vh] pr-3">
+              <div className="space-y-4">
+                <div className="rounded-xl border border-border/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold">{nameOf(detail.ride.driver_id)}</p>
+                    <Badge variant="outline" className={statusColors[detail.ride.status ?? ''] ?? ''}>
+                      {detail.ride.status ?? '—'}
+                    </Badge>
+                  </div>
+                  <div className="text-sm space-y-1">
+                    <p className="flex items-start gap-2">
+                      <MapPin className="w-3.5 h-3.5 mt-0.5 text-emerald-600 shrink-0" />
+                      {detail.ride.origin_address}
+                    </p>
+                    {detail.stops.map((s) => (
+                      <p key={s.id} className="flex items-start gap-2 text-muted-foreground pl-1">
+                        <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                        Zastávka {s.stop_order}: {s.address}
+                      </p>
+                    ))}
+                    <p className="flex items-start gap-2">
+                      <MapPin className="w-3.5 h-3.5 mt-0.5 text-destructive shrink-0" />
+                      {detail.ride.destination_address}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Odchod {formatDbDate(detail.ride.departure_time, 'd.M.yyyy HH:mm')} · {detail.ride.available_seats} miest · {detail.ride.price_per_seat} €/miesto
+                  </p>
+                  {detail.ride.cancellation_reason && (
+                    <p className="text-xs text-destructive">Dôvod zrušenia: {detail.ride.cancellation_reason}</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4" /> Žiadosti ({detail.requests.length})
+                  </p>
+                  {detail.requests.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Žiadne žiadosti.</p>
+                  )}
+                  <div className="space-y-2">
+                    {detail.requests.map((rq) => (
+                      <div key={rq.id} className="rounded-xl border border-border/60 p-3 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium">{nameOf(rq.passenger_id)}</p>
+                          <Badge variant="outline" className={statusColors[rq.status ?? ''] ?? ''}>
+                            {rq.status ?? '—'}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Vyzdvihnutie: {rq.pickup_address || '—'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Vystúpenie: {rq.dropoff_address || '—'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Platba: {rq.payment_status || '—'}
+                          {rq.amount_paid ? ` · ${rq.amount_paid} ${rq.currency ?? 'EUR'}` : ''}
+                          {rq.pin_verified_at ? ' · PIN overený' : ''}
+                        </p>
+                        {rq.cancellation_reason && (
+                          <p className="text-xs text-destructive">Dôvod zrušenia: {rq.cancellation_reason}</p>
+                        )}
+                        <div className="pt-1 space-y-0.5">
+                          {([
+                            ['Žiadosť vytvorená', rq.created_at],
+                            ['Vodič potvrdil', rq.driver_confirmed_at],
+                            ['Pasažier potvrdil', rq.passenger_confirmed_at],
+                            ['PIN overený', rq.pin_verified_at],
+                            ['Zaplatené', rq.paid_at],
+                            ['Vrátené', rq.refunded_at],
+                            ['Výplata vodičovi', rq.payout_released_at],
+                            ['Zrušené', rq.cancelled_at],
+                            ['Posledná zmena', rq.updated_at],
+                          ] as [string, string | null][])
+                            .filter(([, at]) => !!at)
+                            .map(([label, at]) => (
+                              <p key={label} className="text-[11px] text-muted-foreground flex items-center gap-2">
+                                <Clock className="w-3 h-3 shrink-0" />
+                                {label}: {formatDbDate(at, 'd.M.yyyy HH:mm:ss')}
+                              </p>
+                            ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold flex items-center gap-2 mb-2">
+                    <History className="w-4 h-4" /> História zmien jazdy
+                  </p>
+                  <div className="space-y-1">
+                    {([
+                      { at: detail.ride.created_at, label: 'Jazda vytvorená' },
+                      { at: detail.ride.departure_time, label: 'Plánovaný odchod' },
+                      { at: detail.ride.cancelled_at, label: 'Jazda zrušená' },
+                      { at: detail.ride.updated_at, label: 'Posledná aktualizácia' },
+                    ] as TimelineEvent[])
+                      .filter((e) => !!e.at)
+                      .sort((a, b) => (a.at < b.at ? -1 : 1))
+                      .map((e) => (
+                        <p key={e.label} className="text-xs text-muted-foreground flex items-center gap-2">
+                          <Clock className="w-3 h-3 shrink-0" />
+                          {e.label}: {formatDbDate(e.at, 'd.M.yyyy HH:mm:ss')}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
