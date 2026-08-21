@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { Label } from '@/components/ui/label';
-import { 
+import {
+  Activity,
   Shield, 
   Users, 
   AlertTriangle, 
@@ -46,6 +47,7 @@ import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
 import AdminDisputes from '@/components/admin/AdminDisputes';
 import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
+import AdminOperations from '@/components/admin/AdminOperations';
 import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
@@ -714,6 +716,7 @@ const Admin = () => {
           <div className="-mx-2 px-2 overflow-x-auto scrollbar-hide">
             <TabsList className="inline-flex h-auto w-auto gap-1.5 bg-muted/40 backdrop-blur-sm border border-border/50 rounded-full p-1.5 shadow-sm">
               {[
+                { v: 'ops', icon: Activity, label: 'Prehľad' },
                 { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
                 { v: 'users', icon: Users, label: 'Používatelia' },
                 { v: 'search', icon: Search, label: 'Vyhľadávanie' },
@@ -737,6 +740,11 @@ const Admin = () => {
               ))}
             </TabsList>
           </div>
+
+          <TabsContent value="ops" className="space-y-4">
+            <AdminOperations />
+          </TabsContent>
+
 
           <TabsContent value="audit" className="space-y-4">
             <SecurityEventsLog />
