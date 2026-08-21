@@ -61,6 +61,46 @@ export default function AdminOperations() {
   const [blocks, setBlocks] = useState<BlockRow[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [query, setQuery] = useState('');
+  const [openRideId, setOpenRideId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<RideDetailData | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const openDetail = useCallback(async (rideId: string) => {
+    setOpenRideId(rideId);
+    setDetail(null);
+    setDetailLoading(true);
+    const [rideRes, stopsRes, reqRes] = await Promise.all([
+      supabase.from('rides').select('*').eq('id', rideId).maybeSingle(),
+      supabase.from('ride_stops').select('id, stop_order, address').eq('ride_id', rideId).order('stop_order'),
+      supabase
+        .from('ride_requests')
+        .select('*')
+        .eq('ride_id', rideId)
+        .order('created_at', { ascending: true }),
+    ]);
+
+    const requests = (reqRes.data ?? []) as Record<string, any>[];
+    const missing = requests.map((r) => r.passenger_id as string).filter((id) => id && !names[id]);
+    if (missing.length) {
+      const { data } = await supabase.from('profiles').select('id, full_name').in('id', missing);
+      if (data?.length) {
+        setNames((prev) => {
+          const next = { ...prev };
+          (data as { id: string; full_name: string }[]).forEach((p) => {
+            next[p.id] = p.full_name;
+          });
+          return next;
+        });
+      }
+    }
+
+    setDetail({
+      ride: (rideRes.data as Record<string, any>) ?? null,
+      stops: (stopsRes.data ?? []) as RideDetailData['stops'],
+      requests,
+    });
+    setDetailLoading(false);
+  }, [names]);
 
   const load = useCallback(async () => {
     setLoading(true);
