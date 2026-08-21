@@ -714,6 +714,7 @@ const Admin = () => {
           <div className="-mx-2 px-2 overflow-x-auto scrollbar-hide">
             <TabsList className="inline-flex h-auto w-auto gap-1.5 bg-muted/40 backdrop-blur-sm border border-border/50 rounded-full p-1.5 shadow-sm">
               {[
+                { v: 'ops', icon: Activity, label: 'Prehľad' },
                 { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
                 { v: 'users', icon: Users, label: 'Používatelia' },
                 { v: 'search', icon: Search, label: 'Vyhľadávanie' },
