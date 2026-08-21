@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Activity, Ban, RefreshCw, XCircle, Clock, MapPin } from 'lucide-react';
-import { formatDateTime } from '@/lib/datetime';
+import { formatDbDate } from '@/lib/datetime';
 
 interface LiveRide {
   id: string;
@@ -174,7 +174,7 @@ export default function AdminOperations() {
                   </p>
                   <p className="text-xs text-muted-foreground flex items-center gap-2">
                     <Clock className="w-3 h-3" />
-                    {formatDateTime(r.departure_time)} · {nameOf(r.driver_id)} · {r.available_seats} miest
+                    {formatDbDate(r.departure_time)} · {nameOf(r.driver_id)} · {r.available_seats} miest
                   </p>
                 </div>
                 <Badge variant="outline" className={statusColors[r.status ?? ''] ?? ''}>
@@ -201,7 +201,7 @@ export default function AdminOperations() {
               <div key={c.id} className="rounded-xl border border-border/60 p-3">
                 <p className="text-sm font-medium">{nameOf(c.passenger_id)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {c.cancelled_at ? formatDateTime(c.cancelled_at) : '—'}
+                  {c.cancelled_at ? formatDbDate(c.cancelled_at) : '—'}
                 </p>
                 <p className="text-xs mt-1">{c.cancellation_reason || 'Bez dôvodu'}</p>
               </div>
@@ -224,7 +224,7 @@ export default function AdminOperations() {
                 <p className="text-sm font-medium">
                   {nameOf(b.blocker_id)} → {nameOf(b.blocked_user_id)}
                 </p>
-                <p className="text-xs text-muted-foreground">{formatDateTime(b.created_at)}</p>
+                <p className="text-xs text-muted-foreground">{formatDbDate(b.created_at)}</p>
                 <p className="text-xs mt-1">{b.reason || 'Bez dôvodu'}</p>
               </div>
             ))}
