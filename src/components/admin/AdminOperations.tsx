@@ -217,9 +217,11 @@ export default function AdminOperations() {
           )}
           <div className="space-y-2">
             {filtered.map((r) => (
-              <div
+              <button
                 key={r.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 p-3"
+                type="button"
+                onClick={() => void openDetail(r.id)}
+                className="w-full text-left flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 p-3 transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">
@@ -230,10 +232,13 @@ export default function AdminOperations() {
                     {formatDbDate(r.departure_time, 'd.M.yyyy HH:mm')} · {nameOf(r.driver_id)} · {r.available_seats} miest
                   </p>
                 </div>
-                <Badge variant="outline" className={statusColors[r.status ?? ''] ?? ''}>
-                  {r.status === 'in_progress' ? 'LIVE' : 'Aktívna'}
-                </Badge>
-              </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={statusColors[r.status ?? ''] ?? ''}>
+                    {r.status === 'in_progress' ? 'LIVE' : 'Aktívna'}
+                  </Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </button>
             ))}
           </div>
         </CardContent>
