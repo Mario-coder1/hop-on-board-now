@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { Label } from '@/components/ui/label';
-import { 
+import {
+  Activity,
   Shield, 
   Users, 
   AlertTriangle, 
@@ -52,7 +53,6 @@ import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
 
 import {
-  Activity,
   Dialog,
   DialogContent,
   DialogDescription,
