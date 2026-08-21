@@ -4,8 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Activity, Ban, RefreshCw, XCircle, Clock, MapPin } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Activity, Ban, RefreshCw, XCircle, Clock, MapPin, ChevronRight, Users, Route, History, Loader2 } from 'lucide-react';
 import { formatDbDate } from '@/lib/datetime';
+
+interface RideDetailData {
+  ride: Record<string, any> | null;
+  stops: { id: string; stop_order: number; address: string }[];
+  requests: Record<string, any>[];
+}
+
+interface TimelineEvent {
+  at: string;
+  label: string;
+}
 
 interface LiveRide {
   id: string;
