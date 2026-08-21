@@ -741,6 +741,11 @@ const Admin = () => {
             </TabsList>
           </div>
 
+          <TabsContent value="ops" className="space-y-4">
+            <AdminOperations />
+          </TabsContent>
+
+
           <TabsContent value="audit" className="space-y-4">
             <SecurityEventsLog />
             <SecurityAuditTab />
