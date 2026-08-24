@@ -50,6 +50,8 @@ const PublicChat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -57,6 +59,39 @@ const PublicChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Privátny bucket — pre každý obrázok si vyžiadame podpísanú URL
+  useEffect(() => {
+    const paths = Array.from(
+      new Set(
+        messages
+          .map((m) => m.image_url)
+          .filter((u): u is string => !!u)
+          .map((u) => (u.includes("/chat-images/") ? u.split("/chat-images/")[1].split("?")[0] : u)),
+      ),
+    ).filter((p) => !signedUrls[p]);
+
+    if (paths.length === 0) return;
+
+    (async () => {
+      const { data } = await supabase.storage.from("chat-images").createSignedUrls(paths, 3600);
+      if (!data) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        data.forEach((d, i) => {
+          if (d.signedUrl) next[paths[i]] = d.signedUrl;
+        });
+        return next;
+      });
+    })();
+  }, [messages, signedUrls]);
+
+  const resolveImage = (url: string | null) => {
+    if (!url) return undefined;
+    const path = url.includes("/chat-images/") ? url.split("/chat-images/")[1].split("?")[0] : url;
+    return signedUrls[path];
+  };
+
 
   useEffect(() => {
     fetchMessages();
@@ -190,12 +225,10 @@ const PublicChat = () => {
       throw uploadError;
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("chat-images").getPublicUrl(fileName);
-
-    return publicUrl;
+    // Bucket je privátny — ukladáme iba cestu, zobrazuje sa cez podpísanú URL
+    return fileName;
   };
+
 
   const addEmoji = (emoji: any) => {
     setNewMessage((prev) => prev + emoji.native);
@@ -414,16 +447,17 @@ const PublicChat = () => {
                             : "bg-card/80 backdrop-blur-sm text-card-foreground rounded-2xl rounded-tl-md"
                         }`}
                       >
-                        {msg.image_url && (
+                        {msg.image_url && resolveImage(msg.image_url) && (
                           <motion.img
-                            src={msg.image_url}
+                            src={resolveImage(msg.image_url)}
                             alt="Obrázok zdieľaný v chate"
                             className="max-w-full max-h-60 rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setFullscreenImage(msg.image_url)}
+                            onClick={() => setFullscreenImage(resolveImage(msg.image_url) ?? null)}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           />
                         )}
+
                         {msg.message && (
                           <p className="text-sm whitespace-pre-wrap break-words font-mono text-slate-900">
                             {msg.message}
