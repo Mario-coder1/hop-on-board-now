@@ -447,16 +447,17 @@ const PublicChat = () => {
                             : "bg-card/80 backdrop-blur-sm text-card-foreground rounded-2xl rounded-tl-md"
                         }`}
                       >
-                        {msg.image_url && (
+                        {msg.image_url && resolveImage(msg.image_url) && (
                           <motion.img
-                            src={msg.image_url}
+                            src={resolveImage(msg.image_url)}
                             alt="Obrázok zdieľaný v chate"
                             className="max-w-full max-h-60 rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setFullscreenImage(msg.image_url)}
+                            onClick={() => setFullscreenImage(resolveImage(msg.image_url) ?? null)}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           />
                         )}
+
                         {msg.message && (
                           <p className="text-sm whitespace-pre-wrap break-words font-mono text-slate-900">
                             {msg.message}
