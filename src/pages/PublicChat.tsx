@@ -50,6 +50,8 @@ const PublicChat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -57,6 +59,39 @@ const PublicChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Privátny bucket — pre každý obrázok si vyžiadame podpísanú URL
+  useEffect(() => {
+    const paths = Array.from(
+      new Set(
+        messages
+          .map((m) => m.image_url)
+          .filter((u): u is string => !!u)
+          .map((u) => (u.includes("/chat-images/") ? u.split("/chat-images/")[1].split("?")[0] : u)),
+      ),
+    ).filter((p) => !signedUrls[p]);
+
+    if (paths.length === 0) return;
+
+    (async () => {
+      const { data } = await supabase.storage.from("chat-images").createSignedUrls(paths, 3600);
+      if (!data) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        data.forEach((d, i) => {
+          if (d.signedUrl) next[paths[i]] = d.signedUrl;
+        });
+        return next;
+      });
+    })();
+  }, [messages, signedUrls]);
+
+  const resolveImage = (url: string | null) => {
+    if (!url) return undefined;
+    const path = url.includes("/chat-images/") ? url.split("/chat-images/")[1].split("?")[0] : url;
+    return signedUrls[path];
+  };
+
 
   useEffect(() => {
     fetchMessages();
