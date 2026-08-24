@@ -190,12 +190,10 @@ const PublicChat = () => {
       throw uploadError;
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("chat-images").getPublicUrl(fileName);
-
-    return publicUrl;
+    // Bucket je privátny — ukladáme iba cestu, zobrazuje sa cez podpísanú URL
+    return fileName;
   };
+
 
   const addEmoji = (emoji: any) => {
     setNewMessage((prev) => prev + emoji.native);
