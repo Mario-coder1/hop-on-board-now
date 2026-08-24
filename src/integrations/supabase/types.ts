@@ -254,6 +254,27 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views_daily: {
+        Row: {
+          day: string
+          path: string
+          views: number
+          visitors: number
+        }
+        Insert: {
+          day: string
+          path: string
+          views?: number
+          visitors?: number
+        }
+        Update: {
+          day?: string
+          path?: string
+          views?: number
+          visitors?: number
+        }
+        Relationships: []
+      }
       payout_requests: {
         Row: {
           admin_note: string | null
@@ -1565,6 +1586,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       send_push_via_edge: {
         Args: {
           _body: string
