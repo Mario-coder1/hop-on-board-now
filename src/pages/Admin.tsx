@@ -40,7 +40,8 @@ import {
   Wifi,
   Radio,
   Fuel,
-  ShieldCheck
+  ShieldCheck,
+  CreditCard
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
