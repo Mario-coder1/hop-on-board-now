@@ -1,91 +1,89 @@
 // Stripe webhook handler — on successful payment, creates the ride_request row
 // (which triggers existing notify_new_ride_request push to driver).
-import { createClient } from "npm:@supabase/supabase-js@2";
+// Every event (and every failure) is logged into public.payment_events so admins
+// can monitor and manually reprocess.
 import { type StripeEnv, verifyWebhook } from "../_shared/stripe.ts";
-
-let _supabase: ReturnType<typeof createClient> | null = null;
-function getSupabase() {
-  if (!_supabase) {
-    _supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-  }
-  return _supabase;
-}
-
-async function handleCheckoutCompleted(session: any) {
-  const meta = session.metadata || {};
-  if (meta.kind !== "ride_payment") {
-    console.log("Skipping non-ride payment, kind:", meta.kind);
-    return;
-  }
-
-  const supabase = getSupabase();
-
-  // Idempotency: skip if we already have a request for this session id
-  const { data: existing } = await supabase
-    .from("ride_requests")
-    .select("id")
-    .eq("stripe_session_id", session.id)
-    .maybeSingle();
-  if (existing) {
-    console.log("Already processed session", session.id);
-    return;
-  }
-
-  const amountPaid = (session.amount_total ?? 0) / 100;
-  const pi = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
-
-  const { error } = await supabase.from("ride_requests").insert({
-    ride_id: meta.ride_id,
-    passenger_id: meta.passenger_profile_id,
-    pickup_address: meta.pickup_address,
-    pickup_lat: Number(meta.pickup_lat),
-    pickup_lng: Number(meta.pickup_lng),
-    dropoff_address: meta.dropoff_address || null,
-    dropoff_lat: meta.dropoff_lat ? Number(meta.dropoff_lat) : null,
-    dropoff_lng: meta.dropoff_lng ? Number(meta.dropoff_lng) : null,
-    message: meta.message || null,
-    status: "pending",
-    payment_status: "paid",
-    stripe_session_id: session.id,
-    stripe_payment_intent_id: pi || null,
-    amount_paid: amountPaid,
-    price_per_seat_snapshot: meta.price_per_seat ? Number(meta.price_per_seat) : null,
-    currency: (session.currency || "eur").toLowerCase(),
-    paid_at: new Date().toISOString(),
-  });
-
-  if (error) {
-    console.error("Failed to insert ride_request after payment:", error);
-    throw error;
-  }
-  console.log("Created paid ride request for session", session.id);
-}
+import { logPaymentEvent, processCheckoutSession } from "../_shared/ridePayment.ts";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   const rawEnv = new URL(req.url).searchParams.get("env");
   if (rawEnv !== "sandbox" && rawEnv !== "live") {
+    await logPaymentEvent({
+      source: "payments-webhook",
+      event_type: "invalid_env",
+      status: "error",
+      error_message: `Neplatný parameter env: ${rawEnv ?? "chýba"}`,
+    });
     return new Response(JSON.stringify({ received: true, ignored: "invalid env" }), {
       status: 200, headers: { "Content-Type": "application/json" },
     });
   }
   const env: StripeEnv = rawEnv;
 
-  try {
-    const event = await verifyWebhook(req, env);
-    console.log("Webhook event:", event.type);
+  let event: { type: string; data: { object: any }; id?: string } | null = null;
 
-    switch (event.type) {
+  try {
+    event = await verifyWebhook(req, env) as any;
+    console.log("Webhook event:", event!.type);
+
+    switch (event!.type) {
       case "checkout.session.completed":
-      case "transaction.completed":
-        await handleCheckoutCompleted(event.data.object);
+      case "transaction.completed": {
+        const session = event!.data.object;
+        try {
+          const result = await processCheckoutSession(session);
+          await logPaymentEvent({
+            source: "payments-webhook",
+            event_type: event!.type,
+            environment: env,
+            status: result === "duplicate" ? "duplicate" : "success",
+            stripe_event_id: event!.id ?? null,
+            stripe_session_id: session?.id ?? null,
+            ride_id: session?.metadata?.ride_id ?? null,
+            profile_id: session?.metadata?.passenger_profile_id ?? null,
+            amount: (session?.amount_total ?? 0) / 100,
+            resolved_at: new Date().toISOString(),
+          });
+        } catch (e) {
+          await logPaymentEvent({
+            source: "payments-webhook",
+            event_type: event!.type,
+            environment: env,
+            status: "error",
+            stripe_event_id: event!.id ?? null,
+            stripe_session_id: session?.id ?? null,
+            ride_id: session?.metadata?.ride_id ?? null,
+            profile_id: session?.metadata?.passenger_profile_id ?? null,
+            amount: (session?.amount_total ?? 0) / 100,
+            error_message: (e as Error).message,
+            payload: session,
+          });
+          throw e;
+        }
         break;
+      }
+      case "checkout.session.expired":
+      case "payment_intent.payment_failed": {
+        const obj = event!.data.object;
+        await logPaymentEvent({
+          source: "payments-webhook",
+          event_type: event!.type,
+          environment: env,
+          status: "error",
+          stripe_event_id: event!.id ?? null,
+          stripe_session_id: obj?.id ?? null,
+          ride_id: obj?.metadata?.ride_id ?? null,
+          profile_id: obj?.metadata?.passenger_profile_id ?? null,
+          amount: (obj?.amount_total ?? obj?.amount ?? 0) / 100,
+          error_message: obj?.last_payment_error?.message || "Platba neprešla / session expirovala",
+          payload: obj,
+        });
+        break;
+      }
       default:
-        console.log("Unhandled:", event.type);
+        console.log("Unhandled:", event!.type);
     }
 
     return new Response(JSON.stringify({ received: true }), {
@@ -93,6 +91,15 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("Webhook error:", e);
+    if (!event) {
+      await logPaymentEvent({
+        source: "payments-webhook",
+        event_type: "verification_failed",
+        environment: env,
+        status: "error",
+        error_message: (e as Error).message,
+      });
+    }
     return new Response(`Webhook error: ${(e as Error).message}`, { status: 400 });
   }
 });

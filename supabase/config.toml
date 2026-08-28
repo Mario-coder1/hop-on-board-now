@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.refund-ride-payment]
 verify_jwt = false
+
+[functions.payments-admin]
+verify_jwt = false

@@ -275,6 +275,63 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_events: {
+        Row: {
+          amount: number | null
+          created_at: string
+          environment: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          last_retry_at: string | null
+          payload: Json | null
+          profile_id: string | null
+          resolved_at: string | null
+          retry_count: number
+          ride_id: string | null
+          source: string
+          status: string
+          stripe_event_id: string | null
+          stripe_session_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          environment?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          last_retry_at?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          retry_count?: number
+          ride_id?: string | null
+          source: string
+          status?: string
+          stripe_event_id?: string | null
+          stripe_session_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          environment?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          last_retry_at?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          retry_count?: number
+          ride_id?: string | null
+          source?: string
+          status?: string
+          stripe_event_id?: string | null
+          stripe_session_id?: string | null
+        }
+        Relationships: []
+      }
       payout_requests: {
         Row: {
           admin_note: string | null
@@ -1526,6 +1583,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_payment_event_stats: { Args: never; Returns: Json }
       admin_security_events: {
         Args: { _limit?: number }
         Returns: {
