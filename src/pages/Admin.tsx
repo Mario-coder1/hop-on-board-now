@@ -724,6 +724,7 @@ const Admin = () => {
                 { v: 'notifications', icon: Megaphone, label: 'Notifikácie' },
                 { v: 'visitors', icon: BarChart3, label: 'Návštevnosť' },
                 { v: 'payouts', icon: Wallet, label: 'Platby' },
+                { v: 'payment_events', icon: CreditCard, label: 'Chyby platieb' },
                 { v: 'settings', icon: Settings, label: 'Nastavenia' },
                 { v: 'gas_stations', icon: Fuel, label: 'Stanice' },
                 { v: 'disputes', icon: AlertTriangle, label: 'Reklamácie' },
@@ -761,6 +762,10 @@ const Admin = () => {
             <AdminDisputes />
           </TabsContent>
 
+
+          <TabsContent value="payment_events" className="space-y-4">
+            <AdminPaymentEvents />
+          </TabsContent>
 
           <TabsContent value="payouts" className="space-y-4">
             <AdminPayoutsTab />
