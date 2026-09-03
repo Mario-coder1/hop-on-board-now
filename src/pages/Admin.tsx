@@ -41,7 +41,8 @@ import {
   Radio,
   Fuel,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  FileSpreadsheet
 } from 'lucide-react';
 import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
@@ -50,6 +51,7 @@ import AdminDisputes from '@/components/admin/AdminDisputes';
 import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
 import AdminOperations from '@/components/admin/AdminOperations';
 import AdminPaymentEvents from '@/components/admin/AdminPaymentEvents';
+import AdminTaxExport from '@/components/admin/AdminTaxExport';
 import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
@@ -726,6 +728,7 @@ const Admin = () => {
                 { v: 'visitors', icon: BarChart3, label: 'Návštevnosť' },
                 { v: 'payouts', icon: Wallet, label: 'Platby' },
                 { v: 'payment_events', icon: CreditCard, label: 'Chyby platieb' },
+                { v: 'tax_export', icon: FileSpreadsheet, label: 'Daňový export' },
                 { v: 'settings', icon: Settings, label: 'Nastavenia' },
                 { v: 'gas_stations', icon: Fuel, label: 'Stanice' },
                 { v: 'disputes', icon: AlertTriangle, label: 'Reklamácie' },
@@ -766,6 +769,10 @@ const Admin = () => {
 
           <TabsContent value="payment_events" className="space-y-4">
             <AdminPaymentEvents />
+          </TabsContent>
+
+          <TabsContent value="tax_export" className="space-y-4">
+            <AdminTaxExport />
           </TabsContent>
 
           <TabsContent value="payouts" className="space-y-4">

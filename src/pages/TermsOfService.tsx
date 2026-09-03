@@ -232,8 +232,27 @@ const TermsOfService = () => {
                 <strong className="text-foreground">4.4.</strong> Vodič môže definovať maximálny okruh odchýlky (detour)
                 od trasy, v rámci ktorého je ochotný vyzdvihnúť alebo vysadiť spolujazdca.
               </p>
+              <p>
+                <strong className="text-foreground">4.5. Spolujazda, nie podnikanie v doprave.</strong> TakeMe je
+                platforma na <strong>spolujazdu so zdieľaním nákladov</strong>. Cena za miesto nesmie prevyšovať podiel
+                spolujazdca na skutočných nákladoch jazdy (palivo, mýto, parkovanie, opotrebenie). Vodič nesmie jazdami
+                dosahovať zisk. Ponúkanie jázd za účelom zárobku je považované za prepravu osôb za odplatu a je bez
+                príslušného oprávnenia zakázané.
+              </p>
+              <p>
+                <strong className="text-foreground">4.6. Dane a odvody.</strong> Vodič je nezávislá strana, ktorá si sama
+                zodpovedá za splnenie svojich daňových, odvodových a povoľovacích povinností vyplývajúcich z jej
+                používania platformy. TakeMe tieto povinnosti neoveruje, nespravuje a nezodpovedá za ne. TakeMe zdaňuje
+                výhradne vlastnú províziu za sprostredkovanie.
+              </p>
+              <p>
+                <strong className="text-foreground">4.7.</strong> Registráciou a používaním platformy vodič potvrdzuje
+                súhlas s týmito podmienkami vrátane bodov 4.5 a 4.6. Samostatné potvrdzovanie pri každej jednotlivej
+                jazde sa nevyžaduje.
+              </p>
             </div>
           </section>
+
 
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
