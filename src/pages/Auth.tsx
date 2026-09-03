@@ -540,6 +540,15 @@ const Auth: React.FC = () => {
               )}
 
               {!isLogin && (
+                <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                  TakeMe je platforma na spolujazdu so zdieľaním nákladov — nie taxislužba. Ako vodič potvrdzujete, že
+                  cena za miesto nepresahuje podiel na nákladoch jazdy a že za svoje daňové a odvodové povinnosti
+                  zodpovedáte sami (body 4.5 a 4.6 obchodných podmienok).
+                </p>
+              )}
+
+
+              {!isLogin && (
                 <div className="flex justify-center">
                   <HCaptcha
                     ref={captchaRef}
