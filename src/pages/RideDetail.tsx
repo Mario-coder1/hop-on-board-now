@@ -1101,7 +1101,7 @@ const RideDetail = () => {
                         {requesting
                           ? 'Odosielanie...'
                           : pickup.lat && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng)))
-                            ? `Rezervovať za ${priceEstimate?.basePrice?.toFixed(2)} €`
+                            ? `Rezervovať a zaplatiť ${priceEstimate?.amount?.toFixed(2)} €`
                             : 'Rezervovať'}
                       </Button>
                     </>
