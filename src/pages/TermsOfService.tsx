@@ -277,16 +277,18 @@ const TermsOfService = () => {
               <ul className="list-disc pl-6 space-y-1">
                 <li>je na trase alebo v jej dostatočnej blízkosti podľa nastaveného okruhu odchýlky vodiča;</li>
                 <li>je na jazde dostatočný počet voľných miest;</li>
-                <li>je schopný a ochotný zaplatiť dohodnutú cenu.</li>
+                <li>je schopný a ochotný zaplatiť vodičovi dohodnutú cenu jazdy v hotovosti.</li>
               </ul>
               <p>
-                <strong className="text-foreground">5.2.</strong> Platba sa uskutočňuje pri odoslaní žiadosti výhradne
-                cez platobnú bránu Stripe. Platba je držaná (authorized) do momentu dokončenia jazdy alebo jej zrušenia.
+                <strong className="text-foreground">5.2.</strong> Pri odoslaní žiadosti spolujazdec uhradí online cez
+                platobnú bránu Stripe <strong className="text-foreground">len rezervačný poplatok</strong> podľa kap.
+                6.2. <strong className="text-foreground">Cenu jazdy platí spolujazdec vodičovi v hotovosti</strong> pri
+                nastúpení do vozidla.
               </p>
               <p>
-                <strong className="text-foreground">5.3.</strong> Zrušenie a vrátenie prostriedkov sa riadi kapitolou 2
-                (Cancellation &amp; Refund Policy). Refundácie prebiehajú výlučne spätne cez Stripe na pôvodnú platobnú
-                metódu.
+                <strong className="text-foreground">5.3.</strong> Zrušenie a vrátenie rezervačného poplatku sa riadi
+                kapitolou 2 (Cancellation &amp; Refund Policy). Refundácie prebiehajú výlučne spätne cez Stripe na
+                pôvodnú platobnú metódu.
               </p>
               <p>
                 <strong className="text-foreground">5.4.</strong> Spolujazdec má právo hodnotiť vodiča a jazdu po jej
@@ -298,42 +300,55 @@ const TermsOfService = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6. Ceny, platby a výplaty vodičom</h2>
+              <h2 className="font-display text-2xl font-semibold">6. Ceny, platby v hotovosti a rezervačný poplatok</h2>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
                 <strong className="text-foreground">6.1.</strong> Cenu jazdy určuje výlučne vodič. Cena musí byť
                 primeraná a nesmie presahovať skutočné náklady na jazdu na osobu (spolujazda, nie komerčná preprava).
+                Cena sa <strong className="text-foreground">platí vodičovi v hotovosti</strong> priamo vo vozidle; ak
+                spolujazdec nastupuje alebo vystupuje mimo krajných bodov trasy, cena sa úmerne kráti podľa
+                prejdeného úseku a takáto suma je zobrazená v aplikácii.
               </p>
               <p>
-                <strong className="text-foreground">6.2.</strong> TakeMe si z každej úspešnej jazdy účtuje
-                sprostredkovateľskú províziu vo výške určenej v administrácii (aktuálne 10 %). Provízia sa strháva
-                automaticky pri zúčtovaní platby cez Stripe.
+                <strong className="text-foreground">6.2. Rezervačný poplatok.</strong> Za sprostredkovanie si TakeMe
+                účtuje jednorazový rezervačný poplatok, ktorý spolujazdec hradí online pri rezervácii. Jeho výška závisí
+                od dĺžky úseku, ktorý spolujazdec prejde:
+              </p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>do 20 km – <strong className="text-foreground">2 €</strong>;</li>
+                <li>nad 20 km do 50 km – <strong className="text-foreground">3 €</strong>;</li>
+                <li>nad 50 km do 100 km – <strong className="text-foreground">4 €</strong>;</li>
+                <li>nad 100 km – <strong className="text-foreground">5 €</strong>.</li>
+              </ul>
+              <p>
+                Presná výška poplatku je spolujazdcovi zobrazená pred potvrdením rezervácie. Prevádzkovateľ môže pásma a
+                sumy zmeniť; zmena sa vzťahuje len na rezervácie vytvorené po jej zverejnení.
               </p>
               <p>
-                <strong className="text-foreground">6.3.</strong> Spolujazdec platí cenu jazdy výhradne cez integrovanú
-                platobnú bránu <strong className="text-foreground">Stripe</strong>. TakeMe neukladá ani nemá prístup k
-                údajom platobnej karty a{" "}
+                <strong className="text-foreground">6.3.</strong> Rezervačný poplatok spolujazdec platí výhradne cez
+                integrovanú platobnú bránu <strong className="text-foreground">Stripe</strong>. TakeMe neukladá ani nemá
+                prístup k údajom platobnej karty a{" "}
                 <strong className="text-foreground">
                   neprevádzkuje žiadnu internú peňaženku ani úschovu peňazí používateľov
                 </strong>
                 .
               </p>
               <p>
-                <strong className="text-foreground">6.4.</strong> Vodičovi je časť z ceny jazdy po odpočítaní provízie
-                vyplatená prostredníctvom Stripe (bankovým prevodom / SEPA payoutom) po dokončení jazdy. Presný čas
-                pripísania závisí od banky vodiča a spracovania Stripe (typicky 1–7 pracovných dní).
+                <strong className="text-foreground">6.4. Žiadne výplaty vodičom.</strong> TakeMe nevypláca vodičom
+                žiadne prostriedky, keďže cenu jazdy dostáva vodič priamo od spolujazdca v hotovosti. Vodič je povinný
+                prijatú hotovosť riadne zdaniť a splniť súvisiace povinnosti (kap. 4.6).
               </p>
               <p>
-                <strong className="text-foreground">6.5.</strong> Pred prvou výplatou môže Stripe požadovať overenie
-                totožnosti vodiča (KYC) v súlade s AML povinnosťami. TakeMe do tohto procesu nezasahuje.
+                <strong className="text-foreground">6.5.</strong> Rezervačný poplatok je odplatou za sprostredkovanie a
+                je jediným príjmom platformy z jazdy. TakeMe zdaňuje výhradne tento poplatok.
               </p>
               <p>
-                <strong className="text-foreground">6.6.</strong> Všetky finančné toky medzi spolujazdcom a vodičom
-                prechádzajú cez Stripe. TakeMe nedrží ani nezadržiava finančné prostriedky používateľov na svojich
-                účtoch.
+                <strong className="text-foreground">6.6.</strong> TakeMe nie je účastníkom hotovostného vyrovnania medzi
+                spolujazdcom a vodičom, nedrží ani nezadržiava finančné prostriedky používateľov na svojich účtoch.
               </p>
             </div>
+
           </section>
 
           <section className="p-6 rounded-2xl bg-card border border-border">
