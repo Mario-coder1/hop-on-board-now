@@ -252,8 +252,10 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">4.6. Dane a odvody.</strong> Vodič je nezávislá strana, ktorá si sama
                 zodpovedá za splnenie svojich daňových, odvodových a povoľovacích povinností vyplývajúcich z jej
-                používania platformy. TakeMe tieto povinnosti neoveruje, nespravuje a nezodpovedá za ne. TakeMe zdaňuje
-                výhradne vlastnú províziu za sprostredkovanie.
+                používania platformy vrátane zdanenia hotovosti prijatej od spolujazdcov. TakeMe tieto povinnosti
+                neoveruje, nespravuje a nezodpovedá za ne. TakeMe zdaňuje výhradne vlastný rezervačný poplatok za
+                sprostredkovanie.
+
               </p>
               <p>
                 <strong className="text-foreground">4.7.</strong> Registráciou a používaním platformy vodič potvrdzuje
