@@ -1061,8 +1061,9 @@ const RideDetail = () => {
                                 Cena sa odvíja od miesta výstupenia. Vyberte kde chcete vystúpiť, aby sa zobrazila presná suma.
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                Ak pôjdete celú trasu až do cieľa, zaplatíte <span className="font-medium text-foreground">{Number(ride.price_per_seat).toFixed(2)} €</span>.
+                                Ak pôjdete celú trasu až do cieľa, vodičovi zaplatíte v hotovosti <span className="font-medium text-foreground">{Number(ride.price_per_seat).toFixed(2)} €</span>.
                               </p>
+
                             </div>
                           </div>
                         </div>
