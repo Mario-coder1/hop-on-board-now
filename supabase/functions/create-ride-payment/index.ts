@@ -134,27 +134,22 @@ Deno.serve(async (req) => {
       segmentM = dropoffPt ? haversine(pickup, dropoffPt) : totalM;
     }
 
-    // Fetch platform commission % and Stripe fees
-    const { data: settingsRows } = await supabase
-      .from("platform_settings").select("key, value")
-      .in("key", ["ride_commission_percent", "stripe_fee_percent", "stripe_fee_fixed_cents"]);
-    const settings = Object.fromEntries((settingsRows ?? []).map((r: any) => [r.key, Number(r.value)]));
-    const commissionPct = settings.ride_commission_percent ?? 10;
-    const stripePct = settings.stripe_fee_percent ?? 1.5;
-    const stripeFixedCents = settings.stripe_fee_fixed_cents ?? 25;
+    // Cestujúci platí online LEN rezervačný poplatok TakeMe podľa km pásma.
+    // Cenu jazdy platí vodičovi v hotovosti v aute (model BlaBlaCar).
+    const BOOKING_FEE_TIERS: { maxKm: number; fee: number }[] = [
+      { maxKm: 20, fee: 2 },
+      { maxKm: 50, fee: 3 },
+      { maxKm: 100, fee: 4 },
+      { maxKm: Number.POSITIVE_INFINITY, fee: 5 },
+    ];
+    const segmentKm = segmentM / 1000;
+    const bookingFee = (BOOKING_FEE_TIERS.find((t) => segmentKm <= t.maxKm) ?? BOOKING_FEE_TIERS[3]).fee;
 
     const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
     const fullPrice = Number(ride.price_per_seat);
     const proportional = hasDropoff;
-    const rawBase = proportional ? fullPrice * ratio : fullPrice;
-    const basePrice = Math.round(rawBase * 100) / 100;
-    const commission = Math.round(basePrice * commissionPct) / 100;
-    const subtotal = basePrice + commission;
-    const fixed = stripeFixedCents / 100;
-    const rawGross = (subtotal + fixed) / (1 - stripePct / 100);
-    let chargedAmount = Math.ceil(rawGross * 100) / 100;
-    if (chargedAmount < 0.5) chargedAmount = 0.5;
-    const stripeFee = Math.round((chargedAmount - subtotal) * 100) / 100;
+    const cashToDriver = Math.round((proportional ? fullPrice * ratio : fullPrice) * 100) / 100;
+    const chargedAmount = bookingFee;
     const amountCents = Math.round(chargedAmount * 100);
     if (!amountCents || amountCents < 50) {
       return new Response(JSON.stringify({ error: "Suma musí byť aspoň 0.50 €" }), {
@@ -168,9 +163,8 @@ Deno.serve(async (req) => {
         price_data: {
           currency: "eur",
           product_data: {
-            name: proportional && ratio < 1
-              ? `Jazda: ${ride.origin_address} → ${ride.destination_address} (${(segmentM / 1000).toFixed(1)} km z ${(totalM / 1000).toFixed(1)} km)`
-              : `Jazda: ${ride.origin_address} → ${ride.destination_address}`,
+            name: `Rezervačný poplatok TakeMe: ${ride.origin_address} → ${ride.destination_address} (${segmentKm.toFixed(1)} km)`,
+            description: `Cenu jazdy ${cashToDriver.toFixed(2)} € platíte vodičovi v hotovosti.`,
           },
           unit_amount: amountCents,
         },
@@ -181,7 +175,7 @@ Deno.serve(async (req) => {
       return_url,
       customer_email: userData.user.email,
       payment_intent_data: {
-        description: `Rezervácia jazdy`,
+        description: `Rezervačný poplatok za jazdu`,
         metadata: {
           ride_id, passenger_profile_id: profile.id,
         },
@@ -199,18 +193,15 @@ Deno.serve(async (req) => {
         dropoff_lng: dropoff_lng != null ? String(dropoff_lng) : "",
         message: (message || "").slice(0, 400),
         price_per_seat: String(ride.price_per_seat),
-        base_price: String(basePrice),
-        commission_amount: String(commission),
-        commission_percent: String(commissionPct),
-        stripe_fee: String(stripeFee),
-        stripe_fee_percent: String(stripePct),
-        stripe_fee_fixed_cents: String(stripeFixedCents),
+        cash_to_driver: String(cashToDriver),
+        booking_fee: String(bookingFee),
         charged_amount: String(chargedAmount),
-        segment_km: (segmentM / 1000).toFixed(3),
+        segment_km: segmentKm.toFixed(3),
         total_km: (totalM / 1000).toFixed(3),
         proportional: proportional ? "1" : "0",
       },
     });
+
 
     return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
