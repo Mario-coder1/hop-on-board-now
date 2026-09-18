@@ -156,6 +156,27 @@ const RideDetail = () => {
 
   const [driverContact, setDriverContact] = useState<DriverContact | null>(null);
 
+  // Firemný benefit (zamestnanecké jazdy hradené firmou)
+  const [benefit, setBenefit] = useState<{
+    member: boolean;
+    company_name?: string;
+    per_ride_limit?: number;
+    remaining_rides?: number;
+    remaining_amount?: number;
+    workdays_only?: boolean;
+  } | null>(null);
+
+  const loadBenefit = useCallback(async () => {
+    if (!profile?.id) return;
+    const { data } = await supabase.rpc('my_company_benefit');
+    setBenefit((data ?? { member: false }) as any);
+  }, [profile?.id]);
+
+  useEffect(() => {
+    void loadBenefit();
+  }, [loadBenefit]);
+
+
   const isDriver = useMemo(() => {
     if (!profile || !ride) return false;
     return profile.id === ride.driver_id;
