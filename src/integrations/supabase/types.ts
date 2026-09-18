@@ -67,6 +67,199 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          active: boolean
+          address: string | null
+          billing_email: string
+          created_at: string
+          email_domain: string
+          ico: string | null
+          id: string
+          monthly_amount_limit: number
+          monthly_ride_limit: number
+          name: string
+          note: string | null
+          per_ride_limit: number
+          updated_at: string
+          workdays_only: boolean
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          billing_email: string
+          created_at?: string
+          email_domain: string
+          ico?: string | null
+          id?: string
+          monthly_amount_limit?: number
+          monthly_ride_limit?: number
+          name: string
+          note?: string | null
+          per_ride_limit?: number
+          updated_at?: string
+          workdays_only?: boolean
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          billing_email?: string
+          created_at?: string
+          email_domain?: string
+          ico?: string | null
+          id?: string
+          monthly_amount_limit?: number
+          monthly_ride_limit?: number
+          name?: string
+          note?: string | null
+          per_ride_limit?: number
+          updated_at?: string
+          workdays_only?: boolean
+        }
+        Relationships: []
+      }
+      company_members: {
+        Row: {
+          active: boolean
+          company_id: string
+          id: string
+          invited_at: string
+          joined_at: string | null
+          profile_id: string | null
+          role: string
+          work_email: string
+        }
+        Insert: {
+          active?: boolean
+          company_id: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          profile_id?: string | null
+          role?: string
+          work_email: string
+        }
+        Update: {
+          active?: boolean
+          company_id?: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          profile_id?: string | null
+          role?: string
+          work_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_ride_charges: {
+        Row: {
+          booking_fee: number
+          cash_to_driver: number
+          company_id: string
+          created_at: string
+          destination_address: string | null
+          id: string
+          origin_address: string | null
+          period: string
+          profile_id: string
+          ride_id: string
+          ride_request_id: string
+          segment_km: number | null
+          status: string
+          work_email: string
+        }
+        Insert: {
+          booking_fee?: number
+          cash_to_driver?: number
+          company_id: string
+          created_at?: string
+          destination_address?: string | null
+          id?: string
+          origin_address?: string | null
+          period?: string
+          profile_id: string
+          ride_id: string
+          ride_request_id: string
+          segment_km?: number | null
+          status?: string
+          work_email: string
+        }
+        Update: {
+          booking_fee?: number
+          cash_to_driver?: number
+          company_id?: string
+          created_at?: string
+          destination_address?: string | null
+          id?: string
+          origin_address?: string | null
+          period?: string
+          profile_id?: string
+          ride_id?: string
+          ride_request_id?: string
+          segment_km?: number | null
+          status?: string
+          work_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_ride_charges_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ride_charges_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ride_charges_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ride_charges_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ride_charges_ride_request_id_fkey"
+            columns: ["ride_request_id"]
+            isOneToOne: true
+            referencedRelation: "ride_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_location_history: {
         Row: {
           heading: number | null
@@ -1583,6 +1776,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_list_companies: { Args: never; Returns: Json }
       admin_payment_event_stats: { Args: never; Returns: Json }
       admin_security_events: {
         Args: { _limit?: number }
@@ -1597,7 +1791,36 @@ export type Database = {
           user_agent: string
         }[]
       }
+      admin_set_company_hr: {
+        Args: { _company_id: string; _email: string }
+        Returns: Json
+      }
+      admin_upsert_company: {
+        Args: {
+          _active?: boolean
+          _address?: string
+          _billing_email: string
+          _company_id?: string
+          _email_domain: string
+          _ico?: string
+          _monthly_amount_limit?: number
+          _monthly_ride_limit?: number
+          _name: string
+          _per_ride_limit?: number
+          _workdays_only?: boolean
+        }
+        Returns: Json
+      }
       admin_visitor_stats: { Args: never; Returns: Json }
+      claim_company_ride: {
+        Args: {
+          _booking_fee: number
+          _cash_to_driver: number
+          _ride_request_id: string
+          _segment_km?: number
+        }
+        Returns: Json
+      }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
@@ -1629,11 +1852,31 @@ export type Database = {
         }
         Returns: boolean
       }
+      hr_company_overview: { Args: { _company_id: string }; Returns: Json }
+      hr_monthly_invoice: {
+        Args: { _company_id: string; _month: string }
+        Returns: Json
+      }
+      hr_register_emails: {
+        Args: { _company_id: string; _emails: string[] }
+        Returns: Json
+      }
+      hr_set_member_active: {
+        Args: { _active: boolean; _member_id: string }
+        Returns: Json
+      }
+      is_company_hr: { Args: { _company_id: string }; Returns: boolean }
+      is_company_member: { Args: { _company_id: string }; Returns: boolean }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
       is_university_member: {
         Args: { _university_id: string }
         Returns: boolean
       }
+      link_existing_profiles_for_company: {
+        Args: { _company_id: string }
+        Returns: undefined
+      }
+      link_my_company_memberships: { Args: never; Returns: number }
       log_security_event: {
         Args: {
           _detail?: string
@@ -1644,6 +1887,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_company_benefit: { Args: never; Returns: Json }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       send_push_via_edge: {
         Args: {

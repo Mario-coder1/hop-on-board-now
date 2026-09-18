@@ -52,6 +52,7 @@ const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 const CookieSettings = lazy(() => import("./pages/CookieSettings"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant"));
+const CompanyPortal = lazy(() => import("./pages/CompanyPortal"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +117,7 @@ const AppRoutes = () => {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
             <Route path="/ai-assistant" element={<ProtectedRoute><AiAssistant /></ProtectedRoute>} />
+            <Route path="/firma" element={<ProtectedRoute><CompanyPortal /></ProtectedRoute>} />
             <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
             <Route path="/komunity" element={<ProtectedRoute><Komunity /></ProtectedRoute>} />
             <Route path="/co2" element={<Co2Calculator />} />

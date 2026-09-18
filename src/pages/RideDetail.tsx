@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -155,6 +155,27 @@ const RideDetail = () => {
   const [gettingPickupLocation, setGettingPickupLocation] = useState(false);
 
   const [driverContact, setDriverContact] = useState<DriverContact | null>(null);
+
+  // Firemný benefit (zamestnanecké jazdy hradené firmou)
+  const [benefit, setBenefit] = useState<{
+    member: boolean;
+    company_name?: string;
+    per_ride_limit?: number;
+    remaining_rides?: number;
+    remaining_amount?: number;
+    workdays_only?: boolean;
+  } | null>(null);
+
+  const loadBenefit = useCallback(async () => {
+    if (!profile?.id) return;
+    const { data } = await supabase.rpc('my_company_benefit');
+    setBenefit((data ?? { member: false }) as any);
+  }, [profile?.id]);
+
+  useEffect(() => {
+    void loadBenefit();
+  }, [loadBenefit]);
+
 
   const isDriver = useMemo(() => {
     if (!profile || !ride) return false;
@@ -541,7 +562,7 @@ const RideDetail = () => {
     // Platby sú vypnuté — žiadosť odošleme priamo bez platby
     setRequesting(true);
     try {
-      const { error } = await supabase.from('ride_requests').insert({
+      const { data: inserted, error } = await supabase.from('ride_requests').insert({
         ride_id: ride.id,
         passenger_id: profile.id,
         pickup_address: pickup.address,
@@ -554,9 +575,28 @@ const RideDetail = () => {
         status: 'pending',
         payment_status: 'unpaid',
         price_per_seat_snapshot: Number(ride.price_per_seat),
-      });
+      }).select('id').single();
       if (error) throw error;
-      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie a schváli tvoju žiadosť.' });
+
+      // Firemný benefit: ak je cestujúci zamestnanec firmy, jazdu hradí zamestnávateľ
+      let companyCovered = false;
+      if (benefit?.member && inserted?.id) {
+        const { data: claim } = await supabase.rpc('claim_company_ride', {
+          _ride_request_id: inserted.id,
+          _cash_to_driver: Number(priceEstimate?.cashToDriver ?? 0),
+          _booking_fee: Number(priceEstimate?.bookingFee ?? 0),
+          _segment_km: priceEstimate?.segmentKm ?? null,
+        });
+        companyCovered = !!(claim as any)?.success;
+        await loadBenefit();
+      }
+
+      toast({
+        title: 'Žiadosť odoslaná',
+        description: companyCovered
+          ? `Jazdu hradí ${benefit?.company_name}. Vodič dostane upozornenie a schváli tvoju žiadosť.`
+          : 'Vodič dostane upozornenie a schváli tvoju žiadosť.',
+      });
     } catch (e: any) {
       toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
     } finally {
@@ -1030,6 +1070,13 @@ const RideDetail = () => {
                             <span className="text-muted-foreground">V hotovosti vodičovi</span>
                             <span className="tabular-nums">{priceEstimate.cashToDriver.toFixed(2)} €</span>
                           </div>
+                          {benefit?.member && (
+                            <div className="mt-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                              Táto jazda je zdarma — hradí ju {benefit.company_name}.
+                              {' '}Zostáva {benefit.remaining_rides} jázd a {Number(benefit.remaining_amount ?? 0).toFixed(2)} € na tento mesiac
+                              {benefit.workdays_only ? ', platí v pracovné dni' : ''}.
+                            </div>
+                          )}
                           {isPaymentsEnabled() && (
                             <>
                               <div className="flex justify-between items-baseline mt-1">
