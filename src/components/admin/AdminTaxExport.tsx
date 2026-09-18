@@ -68,7 +68,9 @@ const AdminTaxExport = () => {
 
   const sum = (fn: (r: Row) => number) => active.reduce((a, r) => a + fn(r), 0);
   const gross = sum((r) => Number(r.amount_paid || 0));
-  const commission = sum((r) => Number(r.commission_amount || 0));
+  // Celá online uhradená suma je rezervačný poplatok platformy (jazdu platí cestujúci vodičovi v hotovosti).
+  const commission = sum((r) => Number(r.commission_amount ?? r.amount_paid ?? 0));
+
   const driverShare = sum((r) => Number(r.driver_payout_amount || 0));
   const commissionVat = commission - commission / (1 + VAT_RATE);
   const commissionNet = commission - commissionVat;
