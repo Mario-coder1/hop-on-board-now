@@ -51,14 +51,30 @@ export function totalRouteM(route: LngLat[]): number {
   return distAtIdx(route, route.length - 1);
 }
 
+/**
+ * Rezervačný poplatok TakeMe podľa dĺžky úseku cestujúceho (VOP čl. 2).
+ * Cenu za jazdu platí cestujúci vodičovi v hotovosti v aute.
+ */
+export const BOOKING_FEE_TIERS: { maxKm: number; fee: number }[] = [
+  { maxKm: 20, fee: 2 },
+  { maxKm: 50, fee: 3 },
+  { maxKm: 100, fee: 4 },
+  { maxKm: Infinity, fee: 5 },
+];
+
+export function bookingFeeForKm(km: number): number {
+  const d = Number.isFinite(km) && km > 0 ? km : 0;
+  return (BOOKING_FEE_TIERS.find((t) => d <= t.maxKm) ?? BOOKING_FEE_TIERS[BOOKING_FEE_TIERS.length - 1]).fee;
+}
+
 export interface PriceBreakdown {
-  /** Base price kept by the driver (proportional to segment, EUR). */
+  /** Suma, ktorú cestujúci zaplatí vodičovi v hotovosti (EUR). */
+  cashToDriver: number;
+  /** Alias pre cashToDriver (kompatibilita). */
   basePrice: number;
-  /** Platform commission added on top (EUR). */
-  commission: number;
-  /** Stripe processing fee added on top (EUR). */
-  stripeFee: number;
-  /** Final amount the passenger pays = basePrice + commission + stripeFee (EUR). */
+  /** Rezervačný poplatok TakeMe hradený online (EUR). */
+  bookingFee: number;
+  /** Suma účtovaná online = rezervačný poplatok (EUR). */
   amount: number;
   /** Total ride distance in km. */
   totalKm: number;
@@ -68,18 +84,11 @@ export interface PriceBreakdown {
   ratio: number;
   /** True if proportional pricing was applied (dropoff provided). */
   proportional: boolean;
-  /** Platform commission percent used (e.g. 10). */
-  commissionPercent: number;
-  /** Stripe fee percent used (e.g. 1.5). */
-  stripeFeePercent: number;
-  /** Stripe fixed fee in cents (e.g. 25 = 0.25 €). */
-  stripeFeeFixedCents: number;
 }
 
 /**
- * Compute proportional price + platform commission + Stripe fee added ON TOP.
- * Driver receives basePrice; platform keeps commission; Stripe takes its fee.
- * Passenger pays everything. Stripe min 0.50 €.
+ * Vypočíta hotovosť pre vodiča (proporčne podľa úseku) a rezervačný
+ * poplatok TakeMe podľa km pásma. Online sa platí len poplatok.
  */
 export function computeRidePrice(args: {
   pricePerSeat: number;
@@ -88,17 +97,8 @@ export function computeRidePrice(args: {
   pickup: LngLat;
   dropoff?: LngLat | null;
   routePolyline?: string | null;
-  /** Platform commission percent (default 10). */
-  commissionPercent?: number;
-  /** Stripe variable fee percent (default 1.5). */
-  stripeFeePercent?: number;
-  /** Stripe fixed fee in cents (default 25 = 0.25 €). */
-  stripeFeeFixedCents?: number;
 }): PriceBreakdown {
   const { pricePerSeat, origin, destination, pickup, dropoff, routePolyline } = args;
-  const commissionPercent = args.commissionPercent ?? 10;
-  const stripeFeePercent = args.stripeFeePercent ?? 1.5;
-  const stripeFeeFixedCents = args.stripeFeeFixedCents ?? 25;
   const route = parseRoute(routePolyline);
 
   const totalM = route ? totalRouteM(route) : haversineM(origin, destination);
@@ -123,22 +123,19 @@ export function computeRidePrice(args: {
 
   const segmentKm = segmentM / 1000;
   const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
-  const rawBase = proportional ? pricePerSeat * ratio : pricePerSeat;
-  const basePrice = Math.round(rawBase * 100) / 100;
-  const commission = Math.round(basePrice * commissionPercent) / 100;
-  const subtotal = basePrice + commission;
-  const fixed = stripeFeeFixedCents / 100;
-  // Passenger pays gross = (subtotal + fixed) / (1 - pct/100)
-  // so after Stripe takes its cut, subtotal remains for driver + platform.
-  const rawGross = (subtotal + fixed) / (1 - stripeFeePercent / 100);
-  // Round UP to next cent so platform never loses money on rounding.
-  let amount = Math.ceil(rawGross * 100) / 100;
-  if (amount < 0.5) amount = 0.5;
-  const stripeFee = Math.round((amount - subtotal) * 100) / 100;
+  const rawCash = proportional ? pricePerSeat * ratio : pricePerSeat;
+  const cashToDriver = Math.round(rawCash * 100) / 100;
+  const bookingFee = bookingFeeForKm(segmentKm);
 
   return {
-    basePrice, commission, stripeFee, amount,
-    totalKm, segmentKm, ratio, proportional,
-    commissionPercent, stripeFeePercent, stripeFeeFixedCents,
+    cashToDriver,
+    basePrice: cashToDriver,
+    bookingFee,
+    amount: bookingFee,
+    totalKm,
+    segmentKm,
+    ratio,
+    proportional,
   };
 }
+
