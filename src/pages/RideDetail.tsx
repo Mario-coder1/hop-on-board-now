@@ -1027,27 +1027,30 @@ const RideDetail = () => {
                             </>
                           )}
                           <div className="flex justify-between items-baseline mt-1">
-                            <span className="text-muted-foreground">Cena vodiča</span>
-                            <span className="tabular-nums">{priceEstimate.basePrice.toFixed(2)} €</span>
+                            <span className="text-muted-foreground">V hotovosti vodičovi</span>
+                            <span className="tabular-nums">{priceEstimate.cashToDriver.toFixed(2)} €</span>
                           </div>
                           {isPaymentsEnabled() && (
                             <>
                               <div className="flex justify-between items-baseline mt-1">
-                                <span className="text-muted-foreground">Poplatok platformy ({priceEstimate.commissionPercent}%)</span>
-                                <span className="tabular-nums">+{priceEstimate.commission.toFixed(2)} €</span>
-                              </div>
-                              <div className="flex justify-between items-baseline mt-1">
-                                <span className="text-muted-foreground">Poplatok za platbu kartou</span>
-                                <span className="tabular-nums">+{priceEstimate.stripeFee.toFixed(2)} €</span>
+                                <span className="text-muted-foreground">
+                                  Rezervačný poplatok ({priceEstimate.segmentKm.toFixed(0)} km)
+                                </span>
+                                <span className="tabular-nums">{priceEstimate.bookingFee.toFixed(2)} €</span>
                               </div>
                               <div className="flex justify-between items-baseline mt-1 pt-2 border-t border-primary/20">
-                                <span className="font-semibold">Zaplatíte spolu</span>
+                                <span className="font-semibold">Zaplatíte teraz online</span>
                                 <span className="font-bold text-primary tabular-nums">{priceEstimate.amount.toFixed(2)} €</span>
                               </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Cenu jazdy {priceEstimate.cashToDriver.toFixed(2)} € zaplatíte vodičovi v hotovosti v aute.
+                                Ak vodič jazdu zruší alebo vás nenaberie, poplatok vám vrátime v plnej výške.
+                              </p>
                             </>
                           )}
                         </div>
                       )}
+
 
                       {pickup.lat && !dropoff.lat && (Number(pickup.lat) !== Number(ride.origin_lat) || Number(pickup.lng) !== Number(ride.origin_lng)) && (
                         <div className="mb-3 p-3 rounded-xl bg-muted border border-border text-sm">
@@ -1058,8 +1061,9 @@ const RideDetail = () => {
                                 Cena sa odvíja od miesta výstupenia. Vyberte kde chcete vystúpiť, aby sa zobrazila presná suma.
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                Ak pôjdete celú trasu až do cieľa, zaplatíte <span className="font-medium text-foreground">{Number(ride.price_per_seat).toFixed(2)} €</span>.
+                                Ak pôjdete celú trasu až do cieľa, vodičovi zaplatíte v hotovosti <span className="font-medium text-foreground">{Number(ride.price_per_seat).toFixed(2)} €</span>.
                               </p>
+
                             </div>
                           </div>
                         </div>
@@ -1101,8 +1105,9 @@ const RideDetail = () => {
                         {requesting
                           ? 'Odosielanie...'
                           : pickup.lat && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng)))
-                            ? `Rezervovať a zaplatiť ${priceEstimate?.amount?.toFixed(2)} €`
+                            ? `Rezervovať za ${priceEstimate?.bookingFee?.toFixed(2)} €`
                             : 'Rezervovať'}
+
                       </Button>
                     </>
                   )}

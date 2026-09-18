@@ -92,49 +92,58 @@ const TermsOfService = () => {
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
+                <strong className="text-foreground">2.0. Čo sa platí online a čo v hotovosti.</strong> Spolujazdec platí
+                online platformě TakeMe <strong className="text-foreground">výhradne rezervačný poplatok</strong>{" "}
+                (kap. 6.2). <strong className="text-foreground">Cenu jazdy platí spolujazdec priamo vodičovi v
+                hotovosti</strong> v jeho vozidle. Nižšie uvedené pravidlá zrušenia a refundácie sa preto vzťahujú
+                výhradne na rezervačný poplatok uhradený online; hotovostné vyrovnanie s vodičom TakeMe
+                nesprostredkúva.
+              </p>
+              <p>
                 <strong className="text-foreground">2.1. Zrušenie zo strany spolujazdca.</strong> Spolujazdec môže svoju
                 žiadosť / rezerváciu zrušiť kedykoľvek pred fyzickým vyzdvihnutím vodičom. Ak vodič žiadosť ešte
-                neschválil, alebo bola schválená a jazda sa ešte nezačala (stav <em>pending</em> alebo <em>accepted</em>
-                ), spolujazdec má nárok na <strong className="text-foreground">plnú refundáciu (100 %)</strong>{" "}
-                uhradenej sumy.
+                neschválil, alebo bola schválená a vodič ešte neoznámil príchod (stav <em>pending</em> alebo{" "}
+                <em>accepted</em>), spolujazdec má nárok na{" "}
+                <strong className="text-foreground">plnú refundáciu (100 %)</strong> rezervačného poplatku.
               </p>
               <p>
                 <strong className="text-foreground">2.1a. Zrušenie po príchode vodiča (storno poplatok 50 %).</strong>{" "}
                 Ak vodič už dorazil na dohodnuté miesto vyzdvihnutia a označil svoj príchod v aplikácii (stav{" "}
-                <em>driver_arrived</em>) a spolujazdec následne rezerváciu zruší, spolujazdcovi sa refunduje len{" "}
-                <strong className="text-foreground">50 % uhradenej sumy</strong>. Zvyšných 50 % prislúcha vodičovi ako{" "}
-                <strong className="text-foreground">storno poplatok</strong> (kompenzácia za cestu a čakanie).
-                Konkrétnu výšku refundácie môže prevádzkovateľ upraviť v nastaveniach platformy; aktuálna hodnota je
-                spolujazdcovi zobrazená v aplikácii pred potvrdením zrušenia. Pri zrušení je povinné uviesť dôvod.
+                <em>driver_arrived</em>) a spolujazdec následne rezerváciu zruší, refunduje sa mu len{" "}
+                <strong className="text-foreground">50 % rezervačného poplatku</strong>. Zvyšných 50 % predstavuje{" "}
+                <strong className="text-foreground">storno poplatok</strong> za už poskytnuté sprostredkovanie a
+                kompenzáciu vodičovi za cestu a čakanie. Konkrétnu výšku refundácie môže prevádzkovateľ upraviť v
+                nastaveniach platformy; aktuálna hodnota je spolujazdcovi zobrazená v aplikácii pred potvrdením
+                zrušenia. Pri zrušení je povinné uviesť dôvod.
               </p>
 
               <p>
                 <strong className="text-foreground">2.2. Zrušenie zo strany vodiča.</strong> Ak vodič zamietne žiadosť,
-                zruší jazdu, alebo sa nedostaví, spolujazdec má nárok na{" "}
-                <strong className="text-foreground">plnú refundáciu (100 %)</strong> vrátane provízie platformy.
+                zruší jazdu, nedostaví sa alebo spolujazdca nenaberie, spolujazdec má nárok na{" "}
+                <strong className="text-foreground">plnú refundáciu (100 %)</strong> rezervačného poplatku.
               </p>
               <p>
                 <strong className="text-foreground">2.3. Neuskutočnená jazda.</strong> Ak čas odchodu jazdy uplynul a
                 spolujazdec nebol vyzdvihnutý (žiadosť neprešla do stavu <em>picked_up</em>), platforma automaticky
-                iniciuje plnú refundáciu.
+                iniciuje plnú refundáciu rezervačného poplatku.
               </p>
               <p>
                 <strong className="text-foreground">2.4. No-show spolujazdca.</strong> Ak sa spolujazdec nedostaví na
                 dohodnuté miesto ani po primeranej čakacej dobe (min. 10 minút) a vodič odíde bez neho, jazda sa
                 považuje za neuskutočnenú zo strany spolujazdca. V takom prípade{" "}
-                <strong className="text-foreground">nárok na refundáciu nevzniká</strong> a suma prislúcha vodičovi ako
-                kompenzácia.
+                <strong className="text-foreground">nárok na refundáciu rezervačného poplatku nevzniká</strong>.
               </p>
               <p>
                 <strong className="text-foreground">2.5. Zrušenie počas jazdy / po vyzdvihnutí.</strong> Po tom, ako bol
-                spolujazdec vodičom označený ako vyzdvihnutý (<em>picked_up</em>), sa jazda považuje za poskytnutú a{" "}
-                <strong className="text-foreground">refundácia už nie je možná</strong>, s výnimkou preukázateľného
-                pochybenia vodiča (kap. 2.7).
+                spolujazdec vodičom označený ako vyzdvihnutý (<em>picked_up</em>), sa sprostredkovanie považuje za
+                poskytnuté a <strong className="text-foreground">refundácia už nie je možná</strong>, s výnimkou
+                preukázateľného pochybenia vodiča (kap. 2.7). Cenu jazdy si spolujazdec s vodičom vyrovná v hotovosti.
               </p>
               <p>
-                <strong className="text-foreground">2.6. Spôsob refundácie.</strong> Všetky refundácie prebiehajú
-                výhradne cez platobnú bránu <strong className="text-foreground">Stripe</strong> spätne na tú istú
-                platobnú kartu alebo platobnú metódu, ktorou bola platba uhradená. TakeMe{" "}
+                <strong className="text-foreground">2.6. Spôsob refundácie.</strong> Všetky refundácie rezervačného
+                poplatku prebiehajú výhradne cez platobnú bránu{" "}
+                <strong className="text-foreground">Stripe</strong> spätne na tú istú platobnú kartu alebo platobnú
+                metódu, ktorou bola platba uhradená. TakeMe{" "}
                 <strong className="text-foreground">neuchováva peniaze používateľov</strong> na žiadnych interných
                 účtoch a neposkytuje výplatu refundácie v hotovosti ani inou cestou.
               </p>
@@ -143,7 +152,8 @@ const TermsOfService = () => {
                 podľa dohody (napr. iná trasa, hrubé porušenie povinností vodiča, bezpečnostný incident), spolujazdec
                 môže do 14 dní od jazdy podať reklamáciu na{" "}
                 <strong className="text-foreground">support@takeme.sk</strong>. Prevádzkovateľ ju posúdi a v
-                odôvodnených prípadoch iniciuje čiastočnú alebo plnú refundáciu cez Stripe.
+                odôvodnených prípadoch iniciuje čiastočnú alebo plnú refundáciu rezervačného poplatku cez Stripe. Spory
+                o hotovostnú platbu za jazdu riešia vodič a spolujazdec medzi sebou.
               </p>
               <p>
                 <strong className="text-foreground">2.8. Lehota vrátenia.</strong> Stripe iniciuje refundáciu okamžite;
@@ -153,24 +163,24 @@ const TermsOfService = () => {
               </p>
               <p>
                 <strong className="text-foreground">2.9. Právo spotrebiteľa na odstúpenie od zmluvy.</strong> Vzhľadom
-                na to, že služba zdieľanej jazdy sa poskytuje v konkrétnom termíne (§ 7 ods. 6 písm. k) zákona č.
-                102/2014 Z. z.), spotrebiteľ výslovne súhlasí, že po začatí poskytovania služby v dohodnutom čase stráca
-                právo na odstúpenie od zmluvy podľa § 7 ods. 1 uvedeného zákona. Právo na refundáciu podľa článkov
-                2.1–2.7 tým nie je dotknuté.
+                na to, že služba sprostredkovania zdieľanej jazdy sa poskytuje v konkrétnom termíne (§ 7 ods. 6 písm. k)
+                zákona č. 102/2014 Z. z.), spotrebiteľ výslovne súhlasí, že po začatí poskytovania služby v dohodnutom
+                čase stráca právo na odstúpenie od zmluvy podľa § 7 ods. 1 uvedeného zákona. Právo na refundáciu podľa
+                článkov 2.1–2.7 tým nie je dotknuté.
               </p>
               <p>
-                <strong className="text-foreground">2.10. Výplata vodičovi len po overení PIN kódu.</strong> Platba za
-                jazdu sa vodičovi uvoľní <strong className="text-foreground">výhradne vtedy</strong>, ak bol
+                <strong className="text-foreground">2.10. Nárok platformy na poplatok len po overení PIN kódu.</strong>{" "}
+                Rezervačný poplatok patrí platforme <strong className="text-foreground">výhradne vtedy</strong>, ak bol
                 spolujazdec skutočne vyzdvihnutý, t. j. ak spolujazdec pri nástupe do vozidla poskytol vodičovi svoj{" "}
                 <strong className="text-foreground">PIN kód</strong> a vodič ho v aplikácii úspešne overil. Bez
-                overeného PIN kódu nemá vodič nárok na výplatu, a to ani v prípade, že jazdu v aplikácii označí ako
-                ukončenú. Takéto žiadosti sa automaticky zrušia a spolujazdcovi sa{" "}
-                <strong className="text-foreground">refunduje 100 %</strong> uhradenej sumy. Účelové označovanie jázd
-                ako dokončených bez vyzdvihnutia spolujazdca sa považuje za porušenie týchto VOP a môže viesť k
-                zablokovaniu účtu.
+                overeného PIN kódu sa žiadosť automaticky zruší a spolujazdcovi sa{" "}
+                <strong className="text-foreground">refunduje 100 %</strong> rezervačného poplatku, a to aj vtedy, ak
+                vodič jazdu v aplikácii označí ako ukončenú. Účelové označovanie jázd ako dokončených bez vyzdvihnutia
+                spolujazdca sa považuje za porušenie týchto VOP a môže viesť k zablokovaniu účtu.
               </p>
 
             </div>
+
           </section>
 
           <section className="p-6 rounded-2xl bg-card border border-border">
@@ -242,8 +252,10 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">4.6. Dane a odvody.</strong> Vodič je nezávislá strana, ktorá si sama
                 zodpovedá za splnenie svojich daňových, odvodových a povoľovacích povinností vyplývajúcich z jej
-                používania platformy. TakeMe tieto povinnosti neoveruje, nespravuje a nezodpovedá za ne. TakeMe zdaňuje
-                výhradne vlastnú províziu za sprostredkovanie.
+                používania platformy vrátane zdanenia hotovosti prijatej od spolujazdcov. TakeMe tieto povinnosti
+                neoveruje, nespravuje a nezodpovedá za ne. TakeMe zdaňuje výhradne vlastný rezervačný poplatok za
+                sprostredkovanie.
+
               </p>
               <p>
                 <strong className="text-foreground">4.7.</strong> Registráciou a používaním platformy vodič potvrdzuje
@@ -267,16 +279,18 @@ const TermsOfService = () => {
               <ul className="list-disc pl-6 space-y-1">
                 <li>je na trase alebo v jej dostatočnej blízkosti podľa nastaveného okruhu odchýlky vodiča;</li>
                 <li>je na jazde dostatočný počet voľných miest;</li>
-                <li>je schopný a ochotný zaplatiť dohodnutú cenu.</li>
+                <li>je schopný a ochotný zaplatiť vodičovi dohodnutú cenu jazdy v hotovosti.</li>
               </ul>
               <p>
-                <strong className="text-foreground">5.2.</strong> Platba sa uskutočňuje pri odoslaní žiadosti výhradne
-                cez platobnú bránu Stripe. Platba je držaná (authorized) do momentu dokončenia jazdy alebo jej zrušenia.
+                <strong className="text-foreground">5.2.</strong> Pri odoslaní žiadosti spolujazdec uhradí online cez
+                platobnú bránu Stripe <strong className="text-foreground">len rezervačný poplatok</strong> podľa kap.
+                6.2. <strong className="text-foreground">Cenu jazdy platí spolujazdec vodičovi v hotovosti</strong> pri
+                nastúpení do vozidla.
               </p>
               <p>
-                <strong className="text-foreground">5.3.</strong> Zrušenie a vrátenie prostriedkov sa riadi kapitolou 2
-                (Cancellation &amp; Refund Policy). Refundácie prebiehajú výlučne spätne cez Stripe na pôvodnú platobnú
-                metódu.
+                <strong className="text-foreground">5.3.</strong> Zrušenie a vrátenie rezervačného poplatku sa riadi
+                kapitolou 2 (Cancellation &amp; Refund Policy). Refundácie prebiehajú výlučne spätne cez Stripe na
+                pôvodnú platobnú metódu.
               </p>
               <p>
                 <strong className="text-foreground">5.4.</strong> Spolujazdec má právo hodnotiť vodiča a jazdu po jej
@@ -288,42 +302,55 @@ const TermsOfService = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6. Ceny, platby a výplaty vodičom</h2>
+              <h2 className="font-display text-2xl font-semibold">6. Ceny, platby v hotovosti a rezervačný poplatok</h2>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
                 <strong className="text-foreground">6.1.</strong> Cenu jazdy určuje výlučne vodič. Cena musí byť
                 primeraná a nesmie presahovať skutočné náklady na jazdu na osobu (spolujazda, nie komerčná preprava).
+                Cena sa <strong className="text-foreground">platí vodičovi v hotovosti</strong> priamo vo vozidle; ak
+                spolujazdec nastupuje alebo vystupuje mimo krajných bodov trasy, cena sa úmerne kráti podľa
+                prejdeného úseku a takáto suma je zobrazená v aplikácii.
               </p>
               <p>
-                <strong className="text-foreground">6.2.</strong> TakeMe si z každej úspešnej jazdy účtuje
-                sprostredkovateľskú províziu vo výške určenej v administrácii (aktuálne 10 %). Provízia sa strháva
-                automaticky pri zúčtovaní platby cez Stripe.
+                <strong className="text-foreground">6.2. Rezervačný poplatok.</strong> Za sprostredkovanie si TakeMe
+                účtuje jednorazový rezervačný poplatok, ktorý spolujazdec hradí online pri rezervácii. Jeho výška závisí
+                od dĺžky úseku, ktorý spolujazdec prejde:
+              </p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>do 20 km – <strong className="text-foreground">2 €</strong>;</li>
+                <li>nad 20 km do 50 km – <strong className="text-foreground">3 €</strong>;</li>
+                <li>nad 50 km do 100 km – <strong className="text-foreground">4 €</strong>;</li>
+                <li>nad 100 km – <strong className="text-foreground">5 €</strong>.</li>
+              </ul>
+              <p>
+                Presná výška poplatku je spolujazdcovi zobrazená pred potvrdením rezervácie. Prevádzkovateľ môže pásma a
+                sumy zmeniť; zmena sa vzťahuje len na rezervácie vytvorené po jej zverejnení.
               </p>
               <p>
-                <strong className="text-foreground">6.3.</strong> Spolujazdec platí cenu jazdy výhradne cez integrovanú
-                platobnú bránu <strong className="text-foreground">Stripe</strong>. TakeMe neukladá ani nemá prístup k
-                údajom platobnej karty a{" "}
+                <strong className="text-foreground">6.3.</strong> Rezervačný poplatok spolujazdec platí výhradne cez
+                integrovanú platobnú bránu <strong className="text-foreground">Stripe</strong>. TakeMe neukladá ani nemá
+                prístup k údajom platobnej karty a{" "}
                 <strong className="text-foreground">
                   neprevádzkuje žiadnu internú peňaženku ani úschovu peňazí používateľov
                 </strong>
                 .
               </p>
               <p>
-                <strong className="text-foreground">6.4.</strong> Vodičovi je časť z ceny jazdy po odpočítaní provízie
-                vyplatená prostredníctvom Stripe (bankovým prevodom / SEPA payoutom) po dokončení jazdy. Presný čas
-                pripísania závisí od banky vodiča a spracovania Stripe (typicky 1–7 pracovných dní).
+                <strong className="text-foreground">6.4. Žiadne výplaty vodičom.</strong> TakeMe nevypláca vodičom
+                žiadne prostriedky, keďže cenu jazdy dostáva vodič priamo od spolujazdca v hotovosti. Vodič je povinný
+                prijatú hotovosť riadne zdaniť a splniť súvisiace povinnosti (kap. 4.6).
               </p>
               <p>
-                <strong className="text-foreground">6.5.</strong> Pred prvou výplatou môže Stripe požadovať overenie
-                totožnosti vodiča (KYC) v súlade s AML povinnosťami. TakeMe do tohto procesu nezasahuje.
+                <strong className="text-foreground">6.5.</strong> Rezervačný poplatok je odplatou za sprostredkovanie a
+                je jediným príjmom platformy z jazdy. TakeMe zdaňuje výhradne tento poplatok.
               </p>
               <p>
-                <strong className="text-foreground">6.6.</strong> Všetky finančné toky medzi spolujazdcom a vodičom
-                prechádzajú cez Stripe. TakeMe nedrží ani nezadržiava finančné prostriedky používateľov na svojich
-                účtoch.
+                <strong className="text-foreground">6.6.</strong> TakeMe nie je účastníkom hotovostného vyrovnania medzi
+                spolujazdcom a vodičom, nedrží ani nezadržiava finančné prostriedky používateľov na svojich účtoch.
               </p>
             </div>
+
           </section>
 
           <section className="p-6 rounded-2xl bg-card border border-border">
@@ -510,9 +537,11 @@ const TermsOfService = () => {
                 Hodnotenia zostávajú zachované v anonymizovanej forme.
               </p>
               <p>
-                <strong className="text-foreground">13.3.</strong> Prípadné nevyplatené prostriedky vodiča sú pred
-                zrušením účtu vyplatené štandardným Stripe payoutom na jeho bankový účet.
+                <strong className="text-foreground">13.3.</strong> Platforma nedrží žiadne prostriedky vodiča, preto pri
+                zrušení účtu nedochádza k žiadnej výplate; hotovostné platby za jazdy prijíma vodič priamo od
+                spolujazdcov.
               </p>
+
             </div>
           </section>
 

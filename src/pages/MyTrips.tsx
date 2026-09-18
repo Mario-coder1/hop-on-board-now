@@ -434,6 +434,7 @@ const MyTrips = () => {
                                     issueDate: paidAt,
                                     paidAt,
                                     amount: Number(trip.amount_paid),
+                                    commissionRate: 1,
                                     currency: trip.currency || 'eur',
                                     passengerName: profile?.full_name || 'Pasažier',
                                     driverName: driverName,

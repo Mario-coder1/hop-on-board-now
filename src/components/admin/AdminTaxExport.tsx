@@ -68,7 +68,9 @@ const AdminTaxExport = () => {
 
   const sum = (fn: (r: Row) => number) => active.reduce((a, r) => a + fn(r), 0);
   const gross = sum((r) => Number(r.amount_paid || 0));
-  const commission = sum((r) => Number(r.commission_amount || 0));
+  // Celá online uhradená suma je rezervačný poplatok platformy (jazdu platí cestujúci vodičovi v hotovosti).
+  const commission = sum((r) => Number(r.commission_amount ?? r.amount_paid ?? 0));
+
   const driverShare = sum((r) => Number(r.driver_payout_amount || 0));
   const commissionVat = commission - commission / (1 + VAT_RATE);
   const commissionNet = commission - commissionVat;
@@ -95,7 +97,7 @@ const AdminTaxExport = () => {
       'refundovane',
     ];
     const lines = rows.map((r) => {
-      const c = Number(r.commission_amount || 0);
+      const c = Number(r.commission_amount ?? r.amount_paid ?? 0);
       const vat = c - c / (1 + VAT_RATE);
       return [
         r.id,
@@ -170,9 +172,9 @@ const AdminTaxExport = () => {
               { label: 'Platby (bez refundov)', value: String(active.length) },
               { label: 'Objem jázd (brutto)', value: eur(gross) },
               { label: 'Podiel vodičov', value: eur(driverShare) },
-              { label: 'Provízia TakeMe (brutto)', value: eur(commission) },
-              { label: `DPH ${Math.round(VAT_RATE * 100)} % z provízie`, value: eur(commissionVat) },
-              { label: 'Provízia bez DPH (základ dane)', value: eur(commissionNet) },
+              { label: 'Rezervačné poplatky (brutto)', value: eur(commission) },
+              { label: `DPH ${Math.round(VAT_RATE * 100)} % z poplatkov`, value: eur(commissionVat) },
+              { label: 'Poplatky bez DPH (základ dane)', value: eur(commissionNet) },
             ].map((s) => (
               <Card key={s.label}>
                 <CardContent className="p-4">
