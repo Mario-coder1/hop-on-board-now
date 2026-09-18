@@ -117,6 +117,7 @@ const AppRoutes = () => {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><PublicChat /></ProtectedRoute>} />
             <Route path="/ai-assistant" element={<ProtectedRoute><AiAssistant /></ProtectedRoute>} />
+            <Route path="/firma" element={<ProtectedRoute><CompanyPortal /></ProtectedRoute>} />
             <Route path="/top-drivers" element={<ProtectedRoute><TopDrivers /></ProtectedRoute>} />
             <Route path="/komunity" element={<ProtectedRoute><Komunity /></ProtectedRoute>} />
             <Route path="/co2" element={<Co2Calculator />} />
