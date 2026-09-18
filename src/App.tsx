@@ -52,6 +52,7 @@ const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
 const CookieSettings = lazy(() => import("./pages/CookieSettings"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant"));
+const CompanyPortal = lazy(() => import("./pages/CompanyPortal"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
