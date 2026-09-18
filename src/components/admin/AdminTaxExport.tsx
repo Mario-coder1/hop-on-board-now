@@ -172,9 +172,9 @@ const AdminTaxExport = () => {
               { label: 'Platby (bez refundov)', value: String(active.length) },
               { label: 'Objem jázd (brutto)', value: eur(gross) },
               { label: 'Podiel vodičov', value: eur(driverShare) },
-              { label: 'Provízia TakeMe (brutto)', value: eur(commission) },
-              { label: `DPH ${Math.round(VAT_RATE * 100)} % z provízie`, value: eur(commissionVat) },
-              { label: 'Provízia bez DPH (základ dane)', value: eur(commissionNet) },
+              { label: 'Rezervačné poplatky (brutto)', value: eur(commission) },
+              { label: `DPH ${Math.round(VAT_RATE * 100)} % z poplatkov`, value: eur(commissionVat) },
+              { label: 'Poplatky bez DPH (základ dane)', value: eur(commissionNet) },
             ].map((s) => (
               <Card key={s.label}>
                 <CardContent className="p-4">
