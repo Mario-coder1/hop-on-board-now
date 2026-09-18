@@ -97,7 +97,7 @@ const AdminTaxExport = () => {
       'refundovane',
     ];
     const lines = rows.map((r) => {
-      const c = Number(r.commission_amount || 0);
+      const c = Number(r.commission_amount ?? r.amount_paid ?? 0);
       const vat = c - c / (1 + VAT_RATE);
       return [
         r.id,
