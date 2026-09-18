@@ -537,9 +537,11 @@ const TermsOfService = () => {
                 Hodnotenia zostávajú zachované v anonymizovanej forme.
               </p>
               <p>
-                <strong className="text-foreground">13.3.</strong> Prípadné nevyplatené prostriedky vodiča sú pred
-                zrušením účtu vyplatené štandardným Stripe payoutom na jeho bankový účet.
+                <strong className="text-foreground">13.3.</strong> Platforma nedrží žiadne prostriedky vodiča, preto pri
+                zrušení účtu nedochádza k žiadnej výplate; hotovostné platby za jazdy prijíma vodič priamo od
+                spolujazdcov.
               </p>
+
             </div>
           </section>
 
