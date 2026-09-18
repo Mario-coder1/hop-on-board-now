@@ -1070,6 +1070,13 @@ const RideDetail = () => {
                             <span className="text-muted-foreground">V hotovosti vodičovi</span>
                             <span className="tabular-nums">{priceEstimate.cashToDriver.toFixed(2)} €</span>
                           </div>
+                          {benefit?.member && (
+                            <div className="mt-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                              Táto jazda je zdarma — hradí ju {benefit.company_name}.
+                              {' '}Zostáva {benefit.remaining_rides} jázd a {Number(benefit.remaining_amount ?? 0).toFixed(2)} € na tento mesiac
+                              {benefit.workdays_only ? ', platí v pracovné dni' : ''}.
+                            </div>
+                          )}
                           {isPaymentsEnabled() && (
                             <>
                               <div className="flex justify-between items-baseline mt-1">
