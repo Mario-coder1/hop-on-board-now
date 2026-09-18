@@ -541,7 +541,7 @@ const RideDetail = () => {
     // Platby sú vypnuté — žiadosť odošleme priamo bez platby
     setRequesting(true);
     try {
-      const { error } = await supabase.from('ride_requests').insert({
+      const { data: inserted, error } = await supabase.from('ride_requests').insert({
         ride_id: ride.id,
         passenger_id: profile.id,
         pickup_address: pickup.address,
@@ -554,9 +554,28 @@ const RideDetail = () => {
         status: 'pending',
         payment_status: 'unpaid',
         price_per_seat_snapshot: Number(ride.price_per_seat),
-      });
+      }).select('id').single();
       if (error) throw error;
-      toast({ title: 'Žiadosť odoslaná', description: 'Vodič dostane upozornenie a schváli tvoju žiadosť.' });
+
+      // Firemný benefit: ak je cestujúci zamestnanec firmy, jazdu hradí zamestnávateľ
+      let companyCovered = false;
+      if (benefit?.member && inserted?.id) {
+        const { data: claim } = await supabase.rpc('claim_company_ride', {
+          _ride_request_id: inserted.id,
+          _cash_to_driver: Number(priceEstimate?.cashToDriver ?? 0),
+          _booking_fee: Number(priceEstimate?.bookingFee ?? 0),
+          _segment_km: priceEstimate?.segmentKm ?? null,
+        });
+        companyCovered = !!(claim as any)?.success;
+        await loadBenefit();
+      }
+
+      toast({
+        title: 'Žiadosť odoslaná',
+        description: companyCovered
+          ? `Jazdu hradí ${benefit?.company_name}. Vodič dostane upozornenie a schváli tvoju žiadosť.`
+          : 'Vodič dostane upozornenie a schváli tvoju žiadosť.',
+      });
     } catch (e: any) {
       toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
     } finally {
