@@ -23,7 +23,7 @@ import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const lastUpdated = "13. 8. 2026";
+  const lastUpdated = "22. 9. 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -295,6 +295,26 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">5.4.</strong> Spolujazdec má právo hodnotiť vodiča a jazdu po jej
                 dokončení. Hodnotenia sú verejné a ovplyvňujú reputáciu vodiča na platforme.
+              </p>
+              <p>
+                <strong className="text-foreground">5.5. Nástup a výstup bez zdržovania premávky.</strong> Spolujazdec
+                je povinný byť na dohodnutom mieste nástupu <strong className="text-foreground">včas a pripravený
+                nastúpiť okamžite po príchode vozidla</strong>. Nástup aj výstup vykonáva rýchlo a ohľaduplne, aby
+                vozidlo{" "}<strong className="text-foreground">zbytočne nestálo a neobmedzovalo plynulosť a bezpečnosť
+                cestnej premávky</strong>. Zodpovedá preto za to, že:
+              </p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>si zvolí miesto nástupu/výstupu, kde je zastavenie bezpečné a prípustné (nie na križovatke, v
+                zákrute, na priechode pre chodcov alebo v zákaze zastavenia);</li>
+                <li>nastupuje a vystupuje iba vtedy, keď vodič zastavil a dal pokyn; batožinu a veci si pripraví vopred;</li>
+                <li>ak mešká alebo nemôže prísť, bezodkladne to oznámi vodičovi cez aplikáciu a prípadne rezerváciu zruší.</li>
+              </ul>
+              <p>
+                <strong className="text-foreground">5.6.</strong> Ak spolujazdec nie je na dohodnutom mieste nástupu do{" "}
+                <strong className="text-foreground">5 minút od oznámeného príchodu vodiča</strong> a neoznámi meškanie,
+                môže vodič pokračovať v jazde bez neho; ide o nevyužitie jazdy zo strany spolujazdca podľa kap. 2 a
+                rezervačný poplatok sa nevracia. Opakované meškanie alebo nebezpečné správanie pri nástupe môže viesť k
+                obmedzeniu účtu.
               </p>
             </div>
           </section>
