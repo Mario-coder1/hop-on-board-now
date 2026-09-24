@@ -23,7 +23,7 @@ import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const lastUpdated = "22. 9. 2026";
+  const lastUpdated = "24. 9. 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -334,18 +334,13 @@ const TermsOfService = () => {
               </p>
               <p>
                 <strong className="text-foreground">6.2. Rezervačný poplatok.</strong> Za sprostredkovanie si TakeMe
-                účtuje jednorazový rezervačný poplatok, ktorý spolujazdec hradí online pri rezervácii. Jeho výška závisí
-                od dĺžky úseku, ktorý spolujazdec prejde:
+                účtuje jednorazový rezervačný poplatok, ktorý spolujazdec hradí online pri rezervácii. Poplatok je{" "}
+                <strong className="text-foreground">15 % z ceny jazdy</strong> za úsek, ktorý spolujazdec reálne
+                prejde, vždy však <strong className="text-foreground">minimálne 1 €</strong>.
               </p>
-              <ul className="list-disc pl-6 space-y-1">
-                <li>do 20 km – <strong className="text-foreground">2 €</strong>;</li>
-                <li>nad 20 km do 50 km – <strong className="text-foreground">3 €</strong>;</li>
-                <li>nad 50 km do 100 km – <strong className="text-foreground">4 €</strong>;</li>
-                <li>nad 100 km – <strong className="text-foreground">5 €</strong>.</li>
-              </ul>
               <p>
-                Presná výška poplatku je spolujazdcovi zobrazená pred potvrdením rezervácie. Prevádzkovateľ môže pásma a
-                sumy zmeniť; zmena sa vzťahuje len na rezervácie vytvorené po jej zverejnení.
+                Presná výška poplatku je spolujazdcovi zobrazená pred potvrdením rezervácie. Prevádzkovateľ môže
+                percento a minimálnu sumu zmeniť; zmena sa vzťahuje len na rezervácie vytvorené po jej zverejnení.
               </p>
               <p>
                 <strong className="text-foreground">6.3.</strong> Rezervačný poplatok spolujazdec platí výhradne cez
