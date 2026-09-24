@@ -125,7 +125,8 @@ export function computeRidePrice(args: {
   const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
   const rawCash = proportional ? pricePerSeat * ratio : pricePerSeat;
   const cashToDriver = Math.round(rawCash * 100) / 100;
-  const bookingFee = bookingFeeForKm(segmentKm);
+  // Rezervačný poplatok = 15 % z ceny jazdy (úseku), minimálne 1 €.
+  const bookingFee = Math.max(1, Math.round(cashToDriver * 0.15 * 100) / 100);
 
   return {
     cashToDriver,
