@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         deleted: deletedRides?.length || 0,
+        auto_refunded: autoRefunded,
         timestamp: new Date().toISOString()
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
