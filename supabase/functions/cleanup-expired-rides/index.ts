@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { type StripeEnv, createStripeClient } from '../_shared/stripe.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,6 +26,44 @@ Deno.serve(async (req) => {
       })
     }
 
+    // VOP čl. 2.3 — automatická 100 % refundácia rezervačného poplatku, ak vodič
+    // pasažiera nevyzdvihol (jazda odišla pred 2 h a stav je stále pending/accepted).
+    let autoRefunded = 0
+    try {
+      const noShowCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      const { data: noShows } = await supabase
+        .from('ride_requests')
+        .select('id, stripe_payment_intent_id, stripe_session_id, ride:rides!inner(departure_time)')
+        .eq('payment_status', 'paid')
+        .in('status', ['pending', 'accepted'])
+        .is('refunded_at', null)
+        .not('stripe_payment_intent_id', 'is', null)
+        .lt('ride.departure_time', noShowCutoff)
+        .limit(100)
+      for (const rr of noShows ?? []) {
+        try {
+          const env: StripeEnv = String(rr.stripe_session_id ?? '').startsWith('cs_live_') ? 'live' : 'sandbox'
+          const stripe = createStripeClient(env)
+          const refund = await stripe.refunds.create({
+            payment_intent: rr.stripe_payment_intent_id!,
+            metadata: { request_id: rr.id, cancelled_by: 'system', reason: 'driver_no_show' },
+          })
+          await supabase.from('ride_requests').update({
+            status: 'cancelled',
+            payment_status: 'refunded',
+            stripe_refund_id: refund.id,
+            refunded_at: new Date().toISOString(),
+            cancellation_reason: 'Automatická refundácia — vodič vás nevyzdvihol (VOP čl. 2.3)',
+          }).eq('id', rr.id)
+          autoRefunded++
+        } catch (e) {
+          console.error('auto refund failed', rr.id, e)
+        }
+      }
+    } catch (e) {
+      console.error('no-show scan failed', e)
+    }
+
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
     const { data: deletedRides, error } = await supabase
@@ -45,6 +84,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         deleted: deletedRides?.length || 0,
+        auto_refunded: autoRefunded,
         timestamp: new Date().toISOString()
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
