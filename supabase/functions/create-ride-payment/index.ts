@@ -143,12 +143,14 @@ Deno.serve(async (req) => {
       { maxKm: Number.POSITIVE_INFINITY, fee: 5 },
     ];
     const segmentKm = segmentM / 1000;
-    const bookingFee = (BOOKING_FEE_TIERS.find((t) => segmentKm <= t.maxKm) ?? BOOKING_FEE_TIERS[3]).fee;
+    void BOOKING_FEE_TIERS;
 
     const ratio = totalM > 0 ? Math.min(1, Math.max(0, segmentM / totalM)) : 1;
     const fullPrice = Number(ride.price_per_seat);
     const proportional = hasDropoff;
     const cashToDriver = Math.round((proportional ? fullPrice * ratio : fullPrice) * 100) / 100;
+    // Rezervačný poplatok = 15 % z ceny jazdy (úseku podľa km), minimálne 1 €.
+    const bookingFee = Math.max(1, Math.round(cashToDriver * 0.15 * 100) / 100);
     const chargedAmount = bookingFee;
     const amountCents = Math.round(chargedAmount * 100);
     if (!amountCents || amountCents < 50) {
