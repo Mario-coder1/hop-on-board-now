@@ -1,7 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const DIDIT = 'https://verification.didit.me/v2'
+const DIDIT = 'https://verification.didit.me/v3'
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ workflow_id: workflowId, vendor_data: profile.id, callback: origin }),
       })
       const d = await r.json()
-      if (!r.ok) return json({ error: 'didit_error', detail: d }, 502)
+      if (!r.ok) { console.error('didit create failed', r.status, JSON.stringify(d)); return json({ error: 'didit_error', detail: d }, 502) }
       await admin.from('driver_verifications').upsert({
         profile_id: profile.id, session_id: d.session_id, status: 'in_progress', updated_at: new Date().toISOString(),
       })
