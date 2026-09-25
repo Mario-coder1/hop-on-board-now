@@ -18,6 +18,7 @@ import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
 import { parseRoutePolyline } from '@/lib/routeProximity';
 import { partitionOnRideEnd } from '@/lib/refundRules';
+import { computeRidePrice, type PriceBreakdown } from '@/lib/ridePricing';
 
 import { useGasStations } from '@/hooks/useGasStations';
 import {
@@ -45,6 +46,7 @@ interface AcceptedPassenger {
   pin_verified_at: string | null;
   driver_confirmed_at: string | null;
   passenger_confirmed_at: string | null;
+  price_per_seat_snapshot?: number | null;
   passenger: {
     id: string;
     full_name: string;
@@ -65,6 +67,7 @@ interface RideInfo {
   destination_lng: number;
   available_seats?: number;
   route_polyline?: string | null;
+  price_per_seat?: number | null;
 }
 
 const statusLabel = (s: string) =>
@@ -582,7 +585,7 @@ const ManagePassengers = () => {
 };
 
 // ====== Passenger card ======
-const PassengerCard = ({
+const PassengerCard = ({ cashToDriver,
   p, rideDest, isNext, distanceKm, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
 }: {
   p: AcceptedPassenger;
