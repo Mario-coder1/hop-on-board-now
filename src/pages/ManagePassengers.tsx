@@ -143,7 +143,7 @@ const ManagePassengers = () => {
       .from('ride_requests')
       .select(`
         id, passenger_id, status, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, message,
-        pin_verified_at, driver_confirmed_at, passenger_confirmed_at,
+        pin_verified_at, driver_confirmed_at, passenger_confirmed_at, price_per_seat_snapshot,
         passenger:profiles!ride_requests_passenger_id_fkey(id, full_name, phone, avatar_url, rating, total_rides)
       `)
       .eq('ride_id', rideId)
@@ -505,6 +505,18 @@ const ManagePassengers = () => {
               key={p.id}
               p={p}
               rideDest={ride ? { lat: ride.destination_lat, lng: ride.destination_lng, addr: ride.destination_address } : null}
+              cashToDriver={ride ? (() => {
+                const pps = Number(p.price_per_seat_snapshot ?? ride.price_per_seat ?? 0);
+                if (!pps) return null;
+                return computeRidePrice({
+                  pricePerSeat: pps,
+                  origin: [Number(ride.origin_lng), Number(ride.origin_lat)],
+                  destination: [Number(ride.destination_lng), Number(ride.destination_lat)],
+                  pickup: [Number(p.pickup_lng), Number(p.pickup_lat)],
+                  dropoff: p.dropoff_lat != null ? [Number(p.dropoff_lng), Number(p.dropoff_lat)] : null,
+                  routePolyline: ride.route_polyline,
+                });
+              })() : null}
               isNext={nextPassenger?.id === p.id}
               distanceKm={myPos ? distKm(myPos, targetFor(p)) : null}
               onAccept={() => handleAcceptRequest(p.id, p.passenger.full_name)}
@@ -577,6 +589,7 @@ const PassengerCard = ({
   rideDest: { lat: number; lng: number; addr: string } | null;
   isNext?: boolean;
   distanceKm?: number | null;
+  cashToDriver?: PriceBreakdown | null;
   onAccept: () => void; onReject: () => void;
   onArrived: () => void; onPin: () => void;
   onDropoff: () => void;
@@ -637,6 +650,15 @@ const PassengerCard = ({
           <MapPin className="w-3.5 h-3.5 text-accent mt-0.5 shrink-0" />
           <div className="min-w-0"><span className="font-medium">Výstup:</span> <span className="text-muted-foreground line-clamp-1">{p.dropoff_address || rideDest?.addr || 'Cieľ'}</span></div>
         </div>
+        {cashToDriver && (
+          <div className="mt-1.5 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5">
+            <span className="font-medium">💶 Zaplatí vám v hotovosti</span>
+            <span className="text-right">
+              <strong className="text-sm tabular-nums">{cashToDriver.cashToDriver.toFixed(2)} €</strong>
+              <span className="block text-[10px] text-muted-foreground">za {cashToDriver.segmentKm.toFixed(1)} km úsek</span>
+            </span>
+          </div>
+        )}
         {p.message && (
           <div className="mt-1.5 p-2 rounded-lg bg-muted text-[11px]">
             <MessageCircle className="w-3 h-3 inline mr-1" />{p.message}
