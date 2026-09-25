@@ -25,6 +25,15 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}))
     const action = body?.action
+    if (action === 'workflow_debug') {
+      const list = await fetch(`${DIDIT}/workflows/`, { headers: { 'x-api-key': apiKey } })
+      const ld = await list.json()
+      const items = Array.isArray(ld) ? ld : (ld.results || ld.workflows || [])
+      const wf = items.find((w: Record<string, unknown>) => w.workflow_id === workflowId || w.uuid === workflowId)
+      if (!wf) return json({ error: 'wf_not_found', list: ld }, 404)
+      const det = await fetch(`${DIDIT}/workflows/${wf.uuid}/`, { headers: { 'x-api-key': apiKey } })
+      return json(await det.json(), det.status)
+    }
     if (action !== 'start' && action !== 'check') return json({ error: 'invalid_action' }, 400)
 
     if (action === 'start') {
