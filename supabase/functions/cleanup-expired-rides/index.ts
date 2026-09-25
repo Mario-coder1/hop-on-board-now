@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        deleted: deletedRides?.length || 0,
+        deleted: deletedCount,
         auto_refunded: autoRefunded,
         timestamp: new Date().toISOString()
       }),
