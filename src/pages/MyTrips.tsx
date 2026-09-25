@@ -120,6 +120,30 @@ const MyTrips = () => {
     setLoading(false);
   };
 
+  const reportNoShow = async (trip: Trip) => {
+    if (!profile || !trip.ride) return;
+    if (!window.confirm('Potvrdzujete, že vás vodič nevyzdvihol? Nepravdivé nahlásenie môže viesť k zablokovaniu účtu.')) return;
+    const { data: existing } = await supabase
+      .from('reports').select('id').eq('reporter_id', profile.id).eq('reason', 'driver_no_show')
+      .ilike('description', `%request:${trip.id}%`).limit(1);
+    if (existing?.length) {
+      toast({ title: 'Už nahlásené', description: 'Nahlásenie posudzujeme.' });
+      return;
+    }
+    const { error } = await supabase.from('reports').insert({
+      reporter_id: profile.id,
+      reported_user_id: trip.ride.driver_id,
+      ride_id: trip.ride.id,
+      reason: 'driver_no_show',
+      description: `Vodič ma nevyzdvihol. request:${trip.id}`,
+    });
+    if (error) {
+      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Nahlásené', description: 'Po overení vám vrátime rezervačný poplatok.' });
+  };
+
   const handleCancelRequest = async (reason: string) => {
     if (!cancellingTrip || !profile) return;
     setCancelling(true);
