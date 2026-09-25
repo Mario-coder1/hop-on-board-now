@@ -62,6 +62,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Údaje o jazdách:</strong> miesto vyzdvihnutia a vystúpenia, čas, cena, počet miest, zastávky, žiadosti spolujazdcov, stav jazdy, dôvody zrušenia.</li>
                 <li><strong>Lokalizačné údaje:</strong> GPS poloha vodiča počas aktívnej jazdy (live tracking) a aktuálna poloha spolujazdca pri vyhľadávaní jazdy alebo voľbe miesta vyzdvihnutia. Poloha sa spracúva len keď je relevantná funkcia aktívna.</li>
                 <li><strong>Platobné údaje:</strong> história platieb, výplaty vodičom a provízie. Všetky platby prebiehajú výhradne cez platobnú bránu Stripe — TakeMe nezadržiava peniaze používateľov a nemá prístup k údajom platobnej karty.</li>
+                <li><strong>Overenie totožnosti vodiča (KYC):</strong> ak sa vodič dobrovoľne overí, poskytovateľ Didit spracúva fotografiu dokladu totožnosti, selfie a biometrickú kontrolu živosti (liveness) a zhody tváre. TakeMe od Didit uchováva len výsledok overenia (stav, dátum a identifikátor relácie), nie kópiu dokladu ani fotografie. Právny základ: váš výslovný súhlas (čl. 6 ods. 1 písm. a) a čl. 9 ods. 2 písm. a) GDPR) a oprávnený záujem na bezpečnosti spolujazdcov. Súhlas môžete kedykoľvek odvolať na support@takeme.sk.</li>
                 <li><strong>Komunikácia:</strong> správy vo verejnom chate, hodnotenia, hlásenia (reports), komunikácia s podporou.</li>
                 <li><strong>Technické údaje:</strong> IP adresa, typ zariadenia, prehliadač, identifikátor push notifikácií (push subscription), návštevy stránok (interná štatistika), logy chýb.</li>
                 <li><strong>Cookies a lokálne úložisko:</strong> session token autentifikácie, jazykové preferencie, stav onboardingu.</li>
@@ -101,6 +102,7 @@ const PrivacyPolicy = () => {
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Iným používateľom platformy:</strong> meno, fotka, hodnotenie, údaje o vozidle a približná poloha sú viditeľné pri ponuke jazdy. Telefónne číslo a presná ŠPZ sa zdieľajú až po potvrdení rezervácie medzi konkrétnym vodičom a spolujazdcom.</li>
                 <li><strong>Stripe Payments Europe, Ltd.</strong> (Írsko) — spracovanie platieb, ukladanie údajov o platobných kartách. Stripe je nezávislý prevádzkovateľ pre údaje o karte. Viac na <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline">stripe.com/privacy</a>.</li>
+                <li><strong>Didit Technologies, S.L.</strong> (Španielsko, EÚ) — sprostredkovateľ pre overenie totožnosti vodičov (doklad, selfie, biometrická kontrola). Údaje uchováva podľa svojich zásad. Viac na <a href="https://didit.me/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary underline">didit.me</a>.</li>
                 <li><strong>Supabase Inc.</strong> (hosting databázy, autentifikácie a serverovej logiky, EÚ región) — sprostredkovateľ.</li>
                 <li><strong>Mapbox</strong> — zobrazovanie máp a výpočet trás (anonymizované požiadavky).</li>
                 <li><strong>Google LLC</strong> — len ak používate prihlásenie cez Google.</li>

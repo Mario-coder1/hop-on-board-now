@@ -264,6 +264,15 @@ const TermsOfService = () => {
                 súhlas s týmito podmienkami vrátane bodov 4.5 a 4.6. Samostatné potvrdzovanie pri každej jednotlivej
                 jazde sa nevyžaduje.
               </p>
+              <p>
+                <strong className="text-foreground">4.8. Overenie totožnosti vodiča (KYC).</strong> Vodič môže
+                dobrovoľne overiť svoju totožnosť fotografiou dokladu totožnosti a selfie prostredníctvom externého
+                poskytovateľa <strong className="text-foreground">Didit</strong> (Didit Technologies, S.L., Španielsko).
+                Po úspešnom overení sa pri profile vodiča zobrazuje odznak „Overený vodič". Výsledok overenia
+                zaznamenáva výlučne systém a nie je možné ho meniť. TakeMe si vyhradzuje právo overenie vyžadovať, odznak
+                odobrať alebo obmedziť účet pri zistení nepravdivých či sfalšovaných údajov. Odznak potvrdzuje len
+                totožnosť, nie spôsobilosť vodiča, stav vozidla ani poistenie, za ktoré zodpovedá vodič podľa bodu 4.1.
+              </p>
             </div>
           </section>
 

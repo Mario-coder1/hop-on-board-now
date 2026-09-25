@@ -152,6 +152,7 @@ const GDPR = () => {
             </div>
             <div className="space-y-2 text-muted-foreground">
               <p>Platobné karty spracúva Stripe Payments Europe, Ltd. ako nezávislý prevádzkovateľ. TakeMe k číslam kariet nemá prístup. Doklady o platbách uchovávame v súlade so zákonom o účtovníctve (10 rokov).</p>
+              <p><strong>Overenie vodiča (KYC):</strong> dobrovoľné overenie totožnosti vodiča (doklad + selfie) vykonáva sprostredkovateľ Didit Technologies, S.L. (EÚ) na základe vášho výslovného súhlasu. TakeMe uchováva len výsledok overenia, nie doklad ani fotografie. Súhlas môžete odvolať a požiadať o výmaz na support@takeme.sk.</p>
             </div>
           </section>
 
