@@ -17,6 +17,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
+import { isPaymentsEnabled, getStripeEnvironment } from '@/lib/stripe';
 import SEO from '@/components/SEO';
 import ShareRideButton from '@/components/ShareRideButton';
 
@@ -124,28 +125,44 @@ const MyRides = () => {
       return;
     }
 
-    // Notify all accepted passengers
+    // All open requests: refund (driver cancel = 100 %), notify, cancel
     const { data: requests } = await supabase
       .from('ride_requests')
-      .select('passenger_id')
+      .select('id, passenger_id, payment_status')
       .eq('ride_id', cancellingRide.id)
-      .eq('status', 'accepted');
+      .in('status', ['pending', 'accepted', 'driver_arrived']);
 
-    if (requests) {
-      for (const req of requests) {
+    for (const req of requests ?? []) {
+      if (req.payment_status === 'paid' && isPaymentsEnabled()) {
         try {
-          await sendPushNotification(
-            req.passenger_id,
-            '❌ Jazda zrušená',
-            `Jazda ${cancellingRide.origin_address} → ${cancellingRide.destination_address} bola zrušená. Dôvod: ${reason}`
-          );
+          await supabase.functions.invoke('refund-ride-payment', {
+            body: { request_id: req.id, environment: getStripeEnvironment(), reason: `Vodič zrušil jazdu: ${reason}` },
+          });
         } catch (err) {
-          console.error('Error notifying passenger:', err);
+          console.error('refund error', err);
         }
       }
+      try {
+        await sendPushNotification(
+          req.passenger_id,
+          '❌ Jazda zrušená',
+          `Jazda ${cancellingRide.origin_address} → ${cancellingRide.destination_address} bola zrušená. Dôvod: ${reason}`
+        );
+      } catch (err) {
+        console.error('Error notifying passenger:', err);
+      }
+    }
+    if (requests?.length) {
+      await supabase
+        .from('ride_requests')
+        .update({ status: 'cancelled', cancellation_reason: `Vodič zrušil jazdu: ${reason}`, cancelled_at: new Date().toISOString() })
+        .in('id', requests.map(r => r.id));
     }
 
-    toast({ title: 'Jazda zrušená', description: 'Pasažieri boli upozornení.' });
+    // Remove the ride completely so nobody can join it anymore
+    await supabase.from('rides').delete().eq('id', cancellingRide.id);
+
+    toast({ title: 'Jazda zrušená a odstránená', description: 'Pasažieri boli upozornení, poplatky vrátené.' });
     setCancelDialogOpen(false);
     setCancellingRide(null);
     setCancelling(false);
