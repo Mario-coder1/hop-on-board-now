@@ -25,6 +25,15 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}))
     const action = body?.action
+    if (action === 'workflow_fix') {
+      const r = await fetch(`${DIDIT}/workflows/${workflowId}/`, {
+        method: 'PATCH',
+        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_desktop_allowed: true }),
+      })
+      const d = await r.json()
+      return json({ status: r.status, workflow_status: d?.status, is_desktop_allowed: d?.is_desktop_allowed, detail: r.ok ? undefined : d })
+    }
     if (action === 'workflow_debug') {
       const list = await fetch(`${DIDIT}/workflows/`, { headers: { 'x-api-key': apiKey } })
       const ld = await list.json()
