@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import VerifiedDriverBadge from '@/components/VerifiedDriverBadge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
