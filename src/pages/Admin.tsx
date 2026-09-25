@@ -49,6 +49,7 @@ import VisitorsStats from '@/components/admin/VisitorsStats';
 import AdminPayoutsTab from '@/components/admin/AdminPayoutsTab';
 import AdminGasStations from '@/components/admin/AdminGasStations';
 import AdminDisputes from '@/components/admin/AdminDisputes';
+import AdminNoShowReports from '@/components/admin/AdminNoShowReports';
 import { SecurityAuditTab } from '@/components/admin/SecurityAuditTab';
 import AdminOperations from '@/components/admin/AdminOperations';
 import AdminPaymentEvents from '@/components/admin/AdminPaymentEvents';
@@ -766,6 +767,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="disputes" className="space-y-4">
+            <AdminNoShowReports />
             <AdminDisputes />
           </TabsContent>
 

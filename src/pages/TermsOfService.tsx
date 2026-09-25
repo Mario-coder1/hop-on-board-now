@@ -123,9 +123,11 @@ const TermsOfService = () => {
                 <strong className="text-foreground">plnú refundáciu (100 %)</strong> rezervačného poplatku.
               </p>
               <p>
-                <strong className="text-foreground">2.3. Neuskutočnená jazda.</strong> Ak čas odchodu jazdy uplynul a
-                spolujazdec nebol vyzdvihnutý (žiadosť neprešla do stavu <em>picked_up</em>), platforma automaticky
-                iniciuje plnú refundáciu rezervačného poplatku.
+                <strong className="text-foreground">2.3. Neuskutočnená jazda.</strong> Ak vodič spolujazdca nevyzdvihol,
+                spolujazdec to musí nahlásiť v aplikácii (Moje cesty → „Vodič ma nevyzdvihol") najneskôr do 24 hodín od
+                času odchodu. Po overení nahlásenia platformou (vrátane nástupného kódu a polohových údajov) bude
+                rezervačný poplatok refundovaný v plnej výške. Bez nahlásenia sa refundácia neposkytuje. Nepravdivé
+                nahlásenie je porušením podmienok a môže viesť k zablokovaniu účtu.
               </p>
               <p>
                 <strong className="text-foreground">2.4. No-show spolujazdca.</strong> Ak sa spolujazdec nedostaví na
