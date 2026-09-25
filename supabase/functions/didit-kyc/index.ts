@@ -25,24 +25,6 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}))
     const action = body?.action
-    if (action === 'workflow_fix') {
-      const r = await fetch(`${DIDIT}/workflows/${workflowId}/`, {
-        method: 'PATCH',
-        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_desktop_allowed: true }),
-      })
-      const d = await r.json()
-      return json({ status: r.status, workflow_status: d?.status, is_desktop_allowed: d?.is_desktop_allowed, detail: r.ok ? undefined : d })
-    }
-    if (action === 'workflow_debug') {
-      const list = await fetch(`${DIDIT}/workflows/`, { headers: { 'x-api-key': apiKey } })
-      const ld = await list.json()
-      const items = Array.isArray(ld) ? ld : (ld.results || ld.workflows || [])
-      const wf = items.find((w: Record<string, unknown>) => w.workflow_id === workflowId || w.uuid === workflowId)
-      if (!wf) return json({ error: 'wf_not_found', list: ld }, 404)
-      const det = await fetch(`${DIDIT}/workflows/${wf.uuid}/`, { headers: { 'x-api-key': apiKey } })
-      return json(await det.json(), det.status)
-    }
     if (action !== 'start' && action !== 'check') return json({ error: 'invalid_action' }, 400)
 
     if (action === 'start') {
