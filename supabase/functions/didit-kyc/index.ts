@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       const r = await fetch(`${DIDIT}/session/`, {
         method: 'POST',
         headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workflow_id: workflowId, vendor_data: profile.id, callback: origin }),
+        body: JSON.stringify({ workflow_id: workflowId, vendor_data: profile.id, callback: origin, language: 'sk' }),
       })
       const d = await r.json()
       if (!r.ok) { console.error('didit create failed', r.status, JSON.stringify(d)); return json({ error: 'didit_error', detail: d }, 502) }
