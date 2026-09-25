@@ -15,6 +15,13 @@
       "when": 1789724204808,
       "tag": "0001_company_portal",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790317204101,
+      "tag": "0002_driver_kyc",
+      "breakpoints": true
     }
   ]
 }
