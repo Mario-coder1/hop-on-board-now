@@ -421,6 +421,20 @@ const MyTrips = () => {
                                 />
                               </>
                             )}
+                            {trip.payment_status === 'paid' && !trip.refunded_at && ride &&
+                              ['pending', 'accepted', 'driver_arrived'].includes(trip.status) &&
+                              Date.now() > new Date(ride.departure_time).getTime() &&
+                              Date.now() < new Date(ride.departure_time).getTime() + 24 * 3600 * 1000 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-1 h-8 px-2.5 rounded-full border-destructive/40 text-destructive"
+                                onClick={(e) => { e.stopPropagation(); reportNoShow(trip); }}
+                              >
+                                <AlertCircle className="w-3.5 h-3.5" />
+                                Vodič ma nevyzdvihol
+                              </Button>
+                            )}
                             {trip.payment_status === 'paid' && !trip.refunded_at && trip.amount_paid && trip.paid_at && ride && (
                               <Button
                                 size="sm"

@@ -26,51 +26,28 @@ Deno.serve(async (req) => {
       })
     }
 
-    // VOP čl. 2.3 — automatická 100 % refundácia rezervačného poplatku, ak vodič
-    // pasažiera nevyzdvihol (jazda odišla pred 2 h a stav je stále pending/accepted).
-    let autoRefunded = 0
-    try {
-      const noShowCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      const { data: noShows } = await supabase
-        .from('ride_requests')
-        .select('id, stripe_payment_intent_id, stripe_session_id, ride:rides!inner(departure_time)')
-        .eq('payment_status', 'paid')
-        .in('status', ['pending', 'accepted'])
-        .is('refunded_at', null)
-        .not('stripe_payment_intent_id', 'is', null)
-        .lt('ride.departure_time', noShowCutoff)
-        .limit(100)
-      for (const rr of noShows ?? []) {
-        try {
-          const env: StripeEnv = String(rr.stripe_session_id ?? '').startsWith('cs_live_') ? 'live' : 'sandbox'
-          const stripe = createStripeClient(env)
-          const refund = await stripe.refunds.create({
-            payment_intent: rr.stripe_payment_intent_id!,
-            metadata: { request_id: rr.id, cancelled_by: 'system', reason: 'driver_no_show' },
-          })
-          await supabase.from('ride_requests').update({
-            status: 'cancelled',
-            payment_status: 'refunded',
-            stripe_refund_id: refund.id,
-            refunded_at: new Date().toISOString(),
-            cancellation_reason: 'Automatická refundácia — vodič vás nevyzdvihol (VOP čl. 2.3)',
-          }).eq('id', rr.id)
-          autoRefunded++
-        } catch (e) {
-          console.error('auto refund failed', rr.id, e)
-        }
-      }
-    } catch (e) {
-      console.error('no-show scan failed', e)
-    }
+    // VOP čl. 2.3 — žiadna automatická refundácia. Refundácia len po nahlásení
+    // spolujazdca ("Vodič ma nevyzdvihol") a schválení adminom.
+    const autoRefunded = 0
 
-    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    // Jazdy s otvoreným nahlásením nemažeme, kým ho admin nevyrieši.
+    const { data: openReports } = await supabase
+      .from('reports')
+      .select('ride_id')
+      .eq('reason', 'driver_no_show')
+      .eq('status', 'pending')
+      .not('ride_id', 'is', null)
+    const keepIds = Array.from(new Set((openReports ?? []).map((r: any) => r.ride_id)))
 
-    const { data: deletedRides, error } = await supabase
+    // 48 h, aby mal spolujazdec 24 h na nahlásenie + rezerva
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000)
+
+    let delQuery = supabase
       .from('rides')
       .delete()
       .lt('departure_time', cutoff.toISOString())
-      .select('id')
+    if (keepIds.length) delQuery = delQuery.not('id', 'in', `(${keepIds.join(',')})`)
+    const { data: deletedRides, error } = await delQuery.select('id')
 
     if (error) {
       console.error('Error deleting expired rides:', error)
