@@ -293,6 +293,45 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_verifications: {
+        Row: {
+          profile_id: string
+          session_id: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          profile_id: string
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          profile_id?: string
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_verifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_verifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gas_stations: {
         Row: {
           active: boolean
@@ -1867,6 +1906,7 @@ export type Database = {
       }
       is_company_hr: { Args: { _company_id: string }; Returns: boolean }
       is_company_member: { Args: { _company_id: string }; Returns: boolean }
+      is_driver_verified: { Args: { _profile_id: string }; Returns: boolean }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
       is_university_member: {
         Args: { _university_id: string }
