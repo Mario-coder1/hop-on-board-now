@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DriverVerificationCard from '@/components/DriverVerificationCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -765,6 +766,8 @@ const Profile = () => {
             </div>
             <ChevronUp className="w-5 h-5 text-muted-foreground rotate-90" />
           </Link>
+
+          <DriverVerificationCard />
 
           {/* Firemné jazdy */}
           <Link
