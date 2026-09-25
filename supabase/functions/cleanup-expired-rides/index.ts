@@ -39,28 +39,47 @@ Deno.serve(async (req) => {
       .not('ride_id', 'is', null)
     const keepIds = Array.from(new Set((openReports ?? []).map((r: any) => r.ride_id)))
 
-    // 48 h, aby mal spolujazdec 24 h na nahlásenie + rezerva
+    // 48 h, aby mal spolujazdec 24 h na nahlásenie + rezerva.
+    // Mažeme po dávkach (1000 ks), aby pri veľkom objeme jázd mazanie nezaseklo databázu.
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000)
+    const BATCH = 1000
+    let deletedCount = 0
 
-    let delQuery = supabase
-      .from('rides')
-      .delete()
-      .lt('departure_time', cutoff.toISOString())
-    if (keepIds.length) delQuery = delQuery.not('id', 'in', `(${keepIds.join(',')})`)
-    const { data: deletedRides, error } = await delQuery.select('id')
+    for (let round = 0; round < 50; round++) {
+      let idQuery = supabase
+        .from('rides')
+        .select('id')
+        .lt('departure_time', cutoff.toISOString())
+        .limit(BATCH)
+      if (keepIds.length) idQuery = idQuery.not('id', 'in', `(${keepIds.join(',')})`)
+      const { data: batch, error: selErr } = await idQuery
 
-    if (error) {
-      console.error('Error deleting expired rides:', error)
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      if (selErr) {
+        console.error('Error selecting expired rides:', selErr)
+        return new Response(
+          JSON.stringify({ error: selErr.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      if (!batch || batch.length === 0) break
+
+      const ids = batch.map((r: any) => r.id)
+      const { error: delErr } = await supabase.from('rides').delete().in('id', ids)
+      if (delErr) {
+        console.error('Error deleting expired rides:', delErr)
+        return new Response(
+          JSON.stringify({ error: delErr.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      deletedCount += ids.length
+      if (batch.length < BATCH) break
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        deleted: deletedRides?.length || 0,
+        deleted: deletedCount,
         auto_refunded: autoRefunded,
         timestamp: new Date().toISOString()
       }),
