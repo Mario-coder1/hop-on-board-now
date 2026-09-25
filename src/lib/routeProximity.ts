@@ -57,6 +57,30 @@ export const closestPointOnRoute = (
  * Returns true if `point` lies within `maxDistanceM` meters of the route polyline.
  * Falls back to checking just origin↔destination straight line if no polyline.
  */
+/** Distance in meters from point to segment a–b (local equirectangular projection). */
+const pointToSegmentM = (p: LngLat, a: LngLat, b: LngLat): number => {
+  const kx = Math.cos(toRad(p[1])) * 111320;
+  const ky = 110540;
+  const ax = (a[0] - p[0]) * kx, ay = (a[1] - p[1]) * ky;
+  const bx = (b[0] - p[0]) * kx, by = (b[1] - p[1]) * ky;
+  const dx = bx - ax, dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  let t = len2 > 0 ? -(ax * dx + ay * dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t * dx, cy = ay + t * dy;
+  return Math.sqrt(cx * cx + cy * cy);
+};
+
+export const distanceToPolylineM = (point: LngLat, line: LngLat[]): number => {
+  if (line.length === 1) return haversineM(point, line[0]);
+  let min = Infinity;
+  for (let i = 1; i < line.length; i++) {
+    const d = pointToSegmentM(point, line[i - 1], line[i]);
+    if (d < min) min = d;
+  }
+  return min;
+};
+
 export const isPointNearRoute = (
   point: LngLat,
   route: LngLat[] | null,
@@ -65,14 +89,15 @@ export const isPointNearRoute = (
   maxDistanceM: number
 ): boolean => {
   if (route && route.length > 1) {
-    return closestPointOnRoute(point, route).distanceM <= maxDistanceM;
+    return distanceToPolylineM(point, route) <= maxDistanceM;
   }
-  // No polyline → coarse check against endpoints
-  const candidates: LngLat[] = [];
-  if (fallbackOrigin) candidates.push(fallbackOrigin);
-  if (fallbackDestination) candidates.push(fallbackDestination);
-  if (candidates.length === 0) return true; // can't determine — don't filter out
-  return candidates.some(c => haversineM(point, c) <= maxDistanceM);
+  // No polyline → check against straight line origin→destination
+  if (fallbackOrigin && fallbackDestination) {
+    return distanceToPolylineM(point, [fallbackOrigin, fallbackDestination]) <= maxDistanceM;
+  }
+  const c = fallbackOrigin || fallbackDestination;
+  if (!c) return true;
+  return haversineM(point, c) <= maxDistanceM;
 };
 
 /**
