@@ -15,6 +15,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
 import IOSInstallPrompt from "./components/IOSInstallPrompt";
+import LaunchSoonBanner from "./components/LaunchSoonBanner";
 
 import { WelcomeOnboardingDialog } from "./components/WelcomeOnboardingDialog";
 import { OnboardingTour } from "./components/OnboardingTour";
@@ -90,6 +91,7 @@ const NotificationListener = () => {
 const AppRoutes = () => {
   return (
     <>
+      <LaunchSoonBanner />
       <a href="#main-content" className="skip-to-content">Preskočiť na obsah</a>
       <NotificationListener />
       <ActiveRideFAB />
