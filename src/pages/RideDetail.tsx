@@ -37,6 +37,8 @@ import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
 
 import { CancellationDialog } from '@/components/CancellationDialog';
+import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
 import { useGasStations } from '@/hooks/useGasStations';
@@ -137,6 +139,7 @@ const RideDetail = () => {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const [acceptedPassengers, setAcceptedPassengers] = useState<AcceptedPassenger[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
@@ -560,7 +563,11 @@ const RideDetail = () => {
       });
       return;
     }
-    // Platby sú vypnuté — žiadosť odošleme priamo bez platby
+    // Platby zapnuté a nejde o firemnú jazdu → najprv zaplatiť rezervačný poplatok
+    if (isPaymentsEnabled() && !benefit?.member) {
+      setShowCheckout(true);
+      return;
+    }
     setRequesting(true);
     try {
       const { data: inserted, error } = await supabase.from('ride_requests').insert({
