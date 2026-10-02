@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
 
     const { data: rr } = await supabase
       .from("ride_requests")
-      .select("id, passenger_id, status, payment_status, stripe_payment_intent_id, amount_paid, payout_released_at, ride:rides(driver_id)")
+      .select("id, passenger_id, status, payment_status, payment_captured_at, stripe_payment_intent_id, amount_paid, payout_released_at, ride:rides(driver_id)")
       .eq("id", request_id).single();
     if (!rr) return new Response(JSON.stringify({ error: "Request not found" }), {
       status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -102,10 +102,10 @@ Deno.serve(async (req) => {
     const split = splitRefund(amountPaid, refundPercent);
     const compensation = split.compensation;
     // VOP 2.1b — len pri zrušení spolujazdcom sa odpočítajú náklady platby (Stripe ich nevracia)
-    const refundAmount = cancelledBy === "passenger"
+    let refundAmount = cancelledBy === "passenger"
       ? passengerRefundAfterFee(split.refundAmount, amountPaid)
       : split.refundAmount;
-    const isFull = refundAmount >= amountPaid;
+    let isFull = refundAmount >= amountPaid;
 
     if (refundAmount <= 0) {
       await supabase.from("ride_requests").update({
@@ -126,11 +126,29 @@ Deno.serve(async (req) => {
       ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
     };
 
-    const refund = await stripe.refunds.create({
-      payment_intent: rr.stripe_payment_intent_id,
-      ...(!isFull ? { amount: Math.round(refundAmount * 100) } : {}),
-      metadata: refundMetadata,
-    });
+    let refund: { id: string };
+    if (!rr.payment_captured_at) {
+      // Peniaze sú len zablokované — zrušením blokácie nevznikne poplatok Stripe,
+      // preto sa nič neodpočítava. Pri neskorom zrušení strhneme len kompenzáciu.
+      refundAmount = split.refundAmount;
+      isFull = refundAmount >= amountPaid;
+      const keep = Math.round((amountPaid - refundAmount) * 100);
+      if (keep > 0) {
+        const pi = await stripe.paymentIntents.capture(rr.stripe_payment_intent_id, {
+          amount_to_capture: keep, metadata: refundMetadata,
+        });
+        refund = { id: pi.id };
+      } else {
+        const pi = await stripe.paymentIntents.cancel(rr.stripe_payment_intent_id);
+        refund = { id: pi.id };
+      }
+    } else {
+      refund = await stripe.refunds.create({
+        payment_intent: rr.stripe_payment_intent_id,
+        ...(!isFull ? { amount: Math.round(refundAmount * 100) } : {}),
+        metadata: refundMetadata,
+      });
+    }
 
     if (cancellationReason) {
       try {

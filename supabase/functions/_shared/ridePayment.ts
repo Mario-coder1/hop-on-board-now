@@ -58,6 +58,8 @@ export async function processCheckoutSession(session: any): Promise<"created" | 
     price_per_seat_snapshot: meta.price_per_seat ? Number(meta.price_per_seat) : null,
     currency: (session.currency || "eur").toLowerCase(),
     paid_at: new Date().toISOString(),
+    // Pri blokácii (capture_method manual) je session.payment_status "unpaid".
+    payment_captured_at: session.payment_status === "paid" ? new Date().toISOString() : null,
   });
 
   if (error) throw new Error(error.message);
