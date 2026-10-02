@@ -1018,6 +1018,7 @@ export type Database = {
           paid_at: string | null
           passenger_confirmed_at: string | null
           passenger_id: string
+          payment_captured_at: string | null
           payment_status: string
           payout_released_at: string | null
           pickup_address: string
@@ -1053,6 +1054,7 @@ export type Database = {
           paid_at?: string | null
           passenger_confirmed_at?: string | null
           passenger_id: string
+          payment_captured_at?: string | null
           payment_status?: string
           payout_released_at?: string | null
           pickup_address: string
@@ -1088,6 +1090,7 @@ export type Database = {
           paid_at?: string | null
           passenger_confirmed_at?: string | null
           passenger_id?: string
+          payment_captured_at?: string | null
           payment_status?: string
           payout_released_at?: string | null
           pickup_address?: string
