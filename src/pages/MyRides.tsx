@@ -126,14 +126,18 @@ const MyRides = () => {
     }
 
     // All open requests: refund (driver cancel = 100 %), notify, cancel
-    const { data: requests } = await supabase
+    // Driver cancelled = passenger was never picked up → refund every paid booking
+    // that wasn't PIN-verified (incl. ones already marked cancelled but still paid).
+    const { data: allReqs } = await supabase
       .from('ride_requests')
-      .select('id, passenger_id, payment_status')
-      .eq('ride_id', cancellingRide.id)
-      .in('status', ['pending', 'accepted', 'driver_arrived']);
+      .select('id, passenger_id, payment_status, status, pin_verified_at')
+      .eq('ride_id', cancellingRide.id);
+    const requests = (allReqs ?? []).filter(r =>
+      ['pending', 'accepted', 'driver_arrived'].includes(r.status as string) ||
+      (r.status === 'cancelled' && r.payment_status === 'paid' && !r.pin_verified_at));
 
-    for (const req of requests ?? []) {
-      if (req.payment_status === 'paid' && isPaymentsEnabled()) {
+    for (const req of requests) {
+      if (req.payment_status === 'paid' && !req.pin_verified_at && isPaymentsEnabled()) {
         try {
           await supabase.functions.invoke('refund-ride-payment', {
             body: { request_id: req.id, environment: getStripeEnvironment(), reason: `Vodič zrušil jazdu: ${reason}` },
