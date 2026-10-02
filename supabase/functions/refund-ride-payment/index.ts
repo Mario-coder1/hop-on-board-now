@@ -1,7 +1,7 @@
 // Refund a ride payment. Called when driver rejects, or passenger/driver cancels.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient, corsHeaders } from "../_shared/stripe.ts";
-import { type CancelledBy, isRefundBlocked, resolveRefundPercent, splitRefund } from "../_shared/refundRules.ts";
+import { type CancelledBy, isRefundBlocked, passengerRefundAfterFee, resolveRefundPercent, splitRefund } from "../_shared/refundRules.ts";
 
 
 Deno.serve(async (req) => {
@@ -99,8 +99,24 @@ Deno.serve(async (req) => {
     });
 
     const amountPaid = Number(rr.amount_paid ?? 0);
-    const { refundAmount, compensation } = splitRefund(amountPaid, refundPercent);
+    const split = splitRefund(amountPaid, refundPercent);
+    const compensation = split.compensation;
+    // VOP 2.1b — pri zrušení spolujazdcom sa odpočítajú náklady platby (Stripe ich nevracia)
+    const refundAmount = cancelledBy === "passenger"
+      ? passengerRefundAfterFee(split.refundAmount, amountPaid)
+      : split.refundAmount;
+    const isFull = refundAmount >= amountPaid;
 
+    if (refundAmount <= 0) {
+      await supabase.from("ride_requests").update({
+        payment_status: "refunded",
+        refunded_at: new Date().toISOString(),
+        ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
+      }).eq("id", request_id);
+      return new Response(JSON.stringify({ success: true, refunded_amount: 0 }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const stripe = createStripeClient(env);
     const refundMetadata = {
@@ -112,7 +128,7 @@ Deno.serve(async (req) => {
 
     const refund = await stripe.refunds.create({
       payment_intent: rr.stripe_payment_intent_id,
-      ...(refundPercent < 100 ? { amount: Math.round(refundAmount * 100) } : {}),
+      ...(!isFull ? { amount: Math.round(refundAmount * 100) } : {}),
       metadata: refundMetadata,
     });
 

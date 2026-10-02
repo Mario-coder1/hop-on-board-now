@@ -55,6 +55,18 @@ export function splitRefund(amountPaid: number, refundPercent: number): {
   return { refundAmount, compensation };
 }
 
+/** VOP 2.1b — náklady platobnej brány (1,5 % + 0,25 €), ktoré Stripe pri refundácii nevracia. */
+export function processingFee(amountPaid: number): number {
+  const paid = Number.isFinite(Number(amountPaid)) ? Number(amountPaid) : 0;
+  if (paid <= 0) return 0;
+  return Math.min(paid, Math.round((paid * 0.015 + 0.25) * 100) / 100);
+}
+
+/** VOP 2.1b — pri zrušení spolujazdcom sa refundácia znižuje o náklady platby. */
+export function passengerRefundAfterFee(refundAmount: number, amountPaid: number): number {
+  return Math.max(0, Math.round((refundAmount - processingFee(amountPaid)) * 100) / 100);
+}
+
 /** VOP 2.10 — vodičovi sa vyplatí len ak bol PIN overený. */
 export function isPayoutEligible(request: { pin_verified_at?: string | null }): boolean {
   return !!request.pin_verified_at;
