@@ -1182,6 +1182,22 @@ const RideDetail = () => {
         </motion.div>
       </main>
 
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Zaplatiť rezervačný poplatok</DialogTitle>
+          </DialogHeader>
+          {showCheckout && ride && (
+            <RidePaymentCheckout
+              rideId={ride.id}
+              pickup={pickup}
+              dropoff={dropoff}
+              message={message}
+              returnUrl={`${window.location.origin}/ride/${ride.id}?checkout=success&session_id={CHECKOUT_SESSION_ID}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       <CancellationDialog
         open={cancelOpen}
         onOpenChange={setCancelOpen}
