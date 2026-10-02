@@ -125,7 +125,7 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">2.3. Neuskutočnená jazda.</strong> Ak vodič spolujazdca nevyzdvihol,
                 spolujazdec to musí nahlásiť v aplikácii (Moje cesty → „Vodič ma nevyzdvihol") najneskôr do 24 hodín od
-                času odchodu. Po overení nahlásenia platformou (vrátane nástupného kódu a polohových údajov) bude
+                času odchodu. Po overení nahlásenia platformou (vrátane kontroly, či bol zadaný nástupný kód) bude
                 rezervačný poplatok refundovaný v plnej výške. Bez nahlásenia sa refundácia neposkytuje. Nepravdivé
                 nahlásenie je porušením podmienok a môže viesť k zablokovaniu účtu.
               </p>
@@ -456,7 +456,7 @@ const TermsOfService = () => {
               </ul>
               <p>
                 <strong className="text-foreground">8.2.</strong> Porušenie týchto pravidiel môže viesť k okamžitému
-                zablokovaniu účtu, strate nároku na nevyplatené provízie a v prípade vážnych priestupkov aj k podaniu
+                zablokovaniu účtu, strate nároku na prípadné bonusy a v prípade vážnych priestupkov aj k podaniu
                 trestného oznámenia.
               </p>
             </div>
