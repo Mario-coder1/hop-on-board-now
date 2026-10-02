@@ -1,22 +1,19 @@
 project_id = "cufiyqtmfpwnogxtgrru"
 
-[functions.send-push-notification]
-verify_jwt = false
-
-[functions.internal-send-push]
-verify_jwt = false
-
-[functions.send-mass-push]
-verify_jwt = false
-
-[functions.create-ride-payment]
-verify_jwt = false
-
-[functions.payments-webhook]
-verify_jwt = false
-
-[functions.refund-ride-payment]
-verify_jwt = false
-
-[functions.payments-admin]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.create-ride-payment]
+    verify_jwt = false
+  [functions.internal-send-push]
+    verify_jwt = false
+  [functions.payments-admin]
+    verify_jwt = false
+  [functions.payments-webhook]
+    verify_jwt = false
+  [functions.refund-ride-payment]
+    verify_jwt = false
+  [functions.send-mass-push]
+    verify_jwt = false
+  [functions.send-push-notification]
+    verify_jwt = false
