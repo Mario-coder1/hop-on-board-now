@@ -23,7 +23,7 @@ import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const lastUpdated = "25. 9. 2026";
+  const lastUpdated = "2. 10. 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,7 +104,7 @@ const TermsOfService = () => {
                 žiadosť / rezerváciu zrušiť kedykoľvek pred fyzickým vyzdvihnutím vodičom. Ak vodič žiadosť ešte
                 neschválil, alebo bola schválená a vodič ešte neoznámil príchod (stav <em>pending</em> alebo{" "}
                 <em>accepted</em>), spolujazdec má nárok na{" "}
-                <strong className="text-foreground">plnú refundáciu (100 %)</strong> rezervačného poplatku.
+                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku po odpočítaní nákladov platby (bod 2.1b).
               </p>
               <p>
                 <strong className="text-foreground">2.1a. Zrušenie po príchode vodiča (storno poplatok 50 %).</strong>{" "}
@@ -125,13 +125,13 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">2.2. Zrušenie zo strany vodiča.</strong> Ak vodič zamietne žiadosť,
                 zruší jazdu, nedostaví sa alebo spolujazdca nenaberie, spolujazdec má nárok na{" "}
-                <strong className="text-foreground">plnú refundáciu (100 %)</strong> rezervačného poplatku.
+                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku po odpočítaní nákladov platby (bod 2.1b).
               </p>
               <p>
                 <strong className="text-foreground">2.3. Neuskutočnená jazda.</strong> Ak vodič spolujazdca nevyzdvihol,
                 spolujazdec to musí nahlásiť v aplikácii (Moje cesty → „Vodič ma nevyzdvihol") najneskôr do 24 hodín od
                 času odchodu. Po overení nahlásenia platformou (vrátane kontroly, či bol zadaný nástupný kód) bude
-                rezervačný poplatok refundovaný v plnej výške. Bez nahlásenia sa refundácia neposkytuje. Nepravdivé
+                rezervačný poplatok refundovaný v plnej výške po odpočítaní nákladov platby (bod 2.1b). Bez nahlásenia sa refundácia neposkytuje. Nepravdivé
                 nahlásenie je porušením podmienok a môže viesť k zablokovaniu účtu.
               </p>
               <p>
@@ -181,7 +181,7 @@ const TermsOfService = () => {
                 spolujazdec skutočne vyzdvihnutý, t. j. ak spolujazdec pri nástupe do vozidla poskytol vodičovi svoj{" "}
                 <strong className="text-foreground">PIN kód</strong> a vodič ho v aplikácii úspešne overil. Bez
                 overeného PIN kódu sa žiadosť automaticky zruší a spolujazdcovi sa{" "}
-                <strong className="text-foreground">refunduje 100 %</strong> rezervačného poplatku, a to aj vtedy, ak
+                <strong className="text-foreground">refunduje 100 %</strong> rezervačného poplatku po odpočítaní nákladov platby (bod 2.1b), a to aj vtedy, ak
                 vodič jazdu v aplikácii označí ako ukončenú. Účelové označovanie jázd ako dokončených bez vyzdvihnutia
                 spolujazdca sa považuje za porušenie týchto VOP a môže viesť k zablokovaniu účtu.
               </p>
@@ -427,7 +427,7 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">7.1.</strong> Vodič môže zrušiť ponuku jazdy alebo odmietnuť
                 konkrétneho spolujazdca. Pri zrušení sa voľné miesta vracajú do ponuky a všetci dotknutí spolujazdci sú
-                upozornení; ich platby sú plne refundované cez Stripe (kap. 2.2).
+                upozornení; ich platby sú refundované cez Stripe po odpočítaní nákladov platby (kap. 2.1b, 2.2).
               </p>
               <p>
                 <strong className="text-foreground">7.2.</strong> Pri zrušení je povinné uviesť dôvod. Opakované
@@ -435,7 +435,7 @@ const TermsOfService = () => {
               </p>
               <p>
                 <strong className="text-foreground">7.3.</strong> Ak vodič neschváli žiadnu žiadosť a čas jazdy uplynie,
-                platby všetkých žiadateľov sú automaticky refundované.
+                platby všetkých žiadateľov sú automaticky refundované po odpočítaní nákladov platby (bod 2.1b).
               </p>
             </div>
           </section>
