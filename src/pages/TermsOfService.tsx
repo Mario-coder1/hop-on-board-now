@@ -116,6 +116,12 @@ const TermsOfService = () => {
                 nastaveniach platformy; aktuálna hodnota je spolujazdcovi zobrazená v aplikácii pred potvrdením
                 zrušenia. Pri zrušení je povinné uviesť dôvod.
               </p>
+              <p>
+                <strong className="text-foreground">2.1b. Náklady platby pri zrušení spolujazdcom.</strong> Pri
+                zrušení rezervácie spolujazdcom (body 2.1 a 2.1a) sa refundovaná suma znižuje o náklady platobnej
+                brány (1,5 % z uhradenej sumy + 0,25 €), ktoré platobná brána pri vrátení platby nevracia. Pri
+                zrušení alebo nevyzdvihnutí zo strany vodiča (bod 2.2 a 2.3) sa vracia celá suma bez zrážky.
+              </p>
 
               <p>
                 <strong className="text-foreground">2.2. Zrušenie zo strany vodiča.</strong> Ak vodič zamietne žiadosť,
