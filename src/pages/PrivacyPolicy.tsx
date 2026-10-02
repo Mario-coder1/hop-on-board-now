@@ -61,7 +61,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Údaje o vozidle (vodiči):</strong> značka a model auta, farba, evidenčné číslo (ŠPZ), počet sedadiel.</li>
                 <li><strong>Údaje o jazdách:</strong> miesto vyzdvihnutia a vystúpenia, čas, cena, počet miest, zastávky, žiadosti spolujazdcov, stav jazdy, dôvody zrušenia.</li>
                 <li><strong>Lokalizačné údaje:</strong> GPS poloha vodiča počas aktívnej jazdy (live tracking) a aktuálna poloha spolujazdca pri vyhľadávaní jazdy alebo voľbe miesta vyzdvihnutia. Poloha sa spracúva len keď je relevantná funkcia aktívna.</li>
-                <li><strong>Platobné údaje:</strong> história platieb, výplaty vodičom a provízie. Všetky platby prebiehajú výhradne cez platobnú bránu Stripe — TakeMe nezadržiava peniaze používateľov a nemá prístup k údajom platobnej karty.</li>
+                <li><strong>Platobné údaje:</strong> história platieb rezervačných poplatkov a refundácií. Všetky platby prebiehajú výhradne cez platobnú bránu Stripe — TakeMe nezadržiava peniaze používateľov a nemá prístup k údajom platobnej karty.</li>
                 <li><strong>Overenie totožnosti vodiča (KYC):</strong> ak sa vodič dobrovoľne overí, poskytovateľ Didit spracúva fotografiu dokladu totožnosti, selfie a biometrickú kontrolu živosti (liveness) a zhody tváre. TakeMe od Didit uchováva len výsledok overenia (stav, dátum a identifikátor relácie), nie kópiu dokladu ani fotografie. Právny základ: váš výslovný súhlas (čl. 6 ods. 1 písm. a) a čl. 9 ods. 2 písm. a) GDPR) a oprávnený záujem na bezpečnosti spolujazdcov. Súhlas môžete kedykoľvek odvolať na support@takeme.sk.</li>
                 <li><strong>Komunikácia:</strong> správy vo verejnom chate, hodnotenia, hlásenia (reports), komunikácia s podporou.</li>
                 <li><strong>Technické údaje:</strong> IP adresa, typ zariadenia, prehliadač, identifikátor push notifikácií (push subscription), návštevy stránok (interná štatistika), logy chýb.</li>
@@ -78,7 +78,7 @@ const PrivacyPolicy = () => {
             <div className="space-y-3 text-muted-foreground">
               <p>Údaje spracúvame na nasledujúcich právnych základoch podľa čl. 6 GDPR:</p>
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-                <p><strong className="text-foreground">a) Plnenie zmluvy — čl. 6 ods. 1 písm. b):</strong> registrácia účtu, sprostredkovanie jazdy medzi vodičom a spolujazdcom, live tracking počas jazdy, spracovanie platby a vyplatenie odmeny vodičovi, hodnotenia, zákaznícka podpora.</p>
+                <p><strong className="text-foreground">a) Plnenie zmluvy — čl. 6 ods. 1 písm. b):</strong> registrácia účtu, sprostredkovanie jazdy medzi vodičom a spolujazdcom, live tracking počas jazdy, spracovanie platby rezervačného poplatku a refundácií, hodnotenia, zákaznícka podpora.</p>
               </div>
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <p><strong className="text-foreground">b) Zákonná povinnosť — čl. 6 ods. 1 písm. c):</strong> vedenie účtovných a daňových dokladov, plnenie povinností podľa AML, spolupráca s orgánmi verejnej moci.</p>
@@ -140,10 +140,10 @@ const PrivacyPolicy = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6. Platby a provízie</h2>
+              <h2 className="font-display text-2xl font-semibold">6. Platby a rezervačný poplatok</h2>
             </div>
             <div className="space-y-2 text-muted-foreground">
-              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe nezadržiava peniaze používateľov, neprevádzkuje žiadnu internú peňaženku a nemá prístup k údajom platobnej karty. Z každej úspešnej jazdy si platforma účtuje províziu (aktuálne 10 %), zvyšok je vyplatený vodičovi priamo cez Stripe. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
+              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe nezadržiava peniaze používateľov, neprevádzkuje žiadnu internú peňaženku a nemá prístup k údajom platobnej karty. Online sa platí iba rezervačný poplatok platformy (15 % z ceny jazdy za daný úsek, min. 1 €). Cenu jazdy platí spolujazdec vodičovi v hotovosti; TakeMe vodičom nič nevypláca. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
             </div>
           </section>
 
