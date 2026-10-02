@@ -15,7 +15,7 @@ const corsHeaders = {
 }
 
 // Configuration
-const SITE_NAME = "TakeMe Your Ride Companion"
+const SITE_NAME = "Takeme"
 const SENDER_DOMAIN = "notify.infotakeme.eu"
 const ROOT_DOMAIN = "infotakeme.eu"
 const FROM_DOMAIN = "infotakeme.eu"
