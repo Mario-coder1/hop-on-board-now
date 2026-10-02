@@ -119,7 +119,7 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">2.1b. Náklady platby.</strong> Pri
                 zrušení rezervácie spolujazdcom (body 2.1 a 2.1a) sa refundovaná suma znižuje o náklady platobnej
-                brány (1,5 % z uhradenej sumy + 0,25 €), ktoré platobná brána pri vrátení platby nevracia. Ak jazdu zruší vodič alebo spolujazdca nevyzdvihne (body 2.2, 2.3, 2.10), vracia sa celá suma bez zrážky.
+                brány (1,5 % z uhradenej sumy + 0,25 €), ktoré platobná brána pri vrátení platby nevracia. Ak jazdu zruší vodič alebo spolujazdca nevyzdvihne (body 2.2, 2.3, 2.10), vracia sa celá suma bez zrážky. Pri jazdách s odchodom do 6 dní sa rezervačný poplatok pri rezervácii na karte spolujazdca len zablokuje a strhne sa až po potvrdení nástupu nástupným kódom; ak jazda neprebehne, blokácia sa zruší bez akejkoľvek zrážky.
               </p>
 
               <p>

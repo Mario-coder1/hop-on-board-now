@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     }
 
     const { data: ride } = await supabase
-      .from("rides").select("id, price_per_seat, available_seats, status, origin_address, destination_address, driver_id, origin_lat, origin_lng, destination_lat, destination_lng, route_polyline")
+      .from("rides").select("id, price_per_seat, available_seats, status, departure_time, origin_address, destination_address, driver_id, origin_lat, origin_lng, destination_lat, destination_lng, route_polyline")
       .eq("id", ride_id).single();
     if (!ride) {
       return new Response(JSON.stringify({ error: "Ride not found" }), {
@@ -177,6 +177,10 @@ Deno.serve(async (req) => {
       return_url,
       customer_email: userData.user.email,
       payment_intent_data: {
+        // Blokácia na karte (strhne sa až po nástupe). Blokácia platí ~7 dní,
+        // preto len pre jazdy do 6 dní; vzdialenejšie sa strhnú hneď.
+        ...(new Date(ride.departure_time).getTime() - Date.now() < 6 * 24 * 3600 * 1000
+          ? { capture_method: "manual" as const } : {}),
         description: `Rezervačný poplatok za jazdu`,
         metadata: {
           ride_id, passenger_profile_id: profile.id,

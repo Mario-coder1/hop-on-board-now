@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { KeyRound, Loader2, ScanLine } from 'lucide-react';
 import QrScannerDialog from './QrScannerDialog';
+import { isPaymentsEnabled, getStripeEnvironment } from '@/lib/stripe';
 
 interface PinEntryDialogProps {
   open: boolean;
@@ -41,6 +42,11 @@ export const PinEntryDialog = ({ open, onOpenChange, requestId, passengerName, o
     const result = data as { success: boolean; error?: string } | null;
     if (result?.success) {
       toast({ title: '✅ PIN potvrdený', description: 'Nástup pasažiera bol potvrdený.' });
+      if (isPaymentsEnabled()) {
+        supabase.functions.invoke('capture-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment() },
+        }).catch((e) => console.error('capture error', e));
+      }
       setPin('');
       onOpenChange(false);
       onVerified();
