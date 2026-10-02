@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       : split.refundAmount;
     let isFull = refundAmount >= amountPaid;
 
-    if (refundAmount <= 0) {
+    if (refundAmount <= 0 && rr.payment_captured_at) {
       await supabase.from("ride_requests").update({
         payment_status: "refunded",
         refunded_at: new Date().toISOString(),
