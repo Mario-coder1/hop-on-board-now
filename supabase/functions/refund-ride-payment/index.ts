@@ -101,8 +101,10 @@ Deno.serve(async (req) => {
     const amountPaid = Number(rr.amount_paid ?? 0);
     const split = splitRefund(amountPaid, refundPercent);
     const compensation = split.compensation;
-    // VOP 2.1b — pri každej refundácii sa odpočítajú náklady platby (Stripe ich nevracia)
-    const refundAmount = passengerRefundAfterFee(split.refundAmount, amountPaid);
+    // VOP 2.1b — len pri zrušení spolujazdcom sa odpočítajú náklady platby (Stripe ich nevracia)
+    const refundAmount = cancelledBy === "passenger"
+      ? passengerRefundAfterFee(split.refundAmount, amountPaid)
+      : split.refundAmount;
     const isFull = refundAmount >= amountPaid;
 
     if (refundAmount <= 0) {
