@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
     }
 
     await supabase.from("ride_requests").update({
-      payment_status: refundPercent < 100 ? "partially_refunded" : "refunded",
+      payment_status: isFull ? "refunded" : "partially_refunded",
       stripe_refund_id: refund.id,
       refunded_at: new Date().toISOString(),
       ...(cancellationReason ? { cancellation_reason: cancellationReason } : {}),
