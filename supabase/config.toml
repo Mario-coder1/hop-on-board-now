@@ -17,3 +17,6 @@ project_id = "cufiyqtmfpwnogxtgrru"
     verify_jwt = false
   [functions.send-push-notification]
     verify_jwt = false
+
+[functions.capture-ride-payment]
+verify_jwt = false
