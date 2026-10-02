@@ -286,11 +286,7 @@ const ManagePassengers = () => {
       }
 
       for (const p of notPickedUp) {
-        await supabase.from('ride_requests').update({
-          status: 'cancelled',
-          cancellation_reason: 'Pasažier nebol vyzdvihnutý (PIN nebol overený) — automatická refundácia',
-          cancelled_at: new Date().toISOString(),
-        }).eq('id', p.id);
+        // Refund FIRST (function rejects already-cancelled requests), then cancel.
         if (isPaymentsEnabled()) {
           try {
             await supabase.functions.invoke('refund-ride-payment', {
@@ -302,6 +298,11 @@ const ManagePassengers = () => {
             });
           } catch (e) { console.error('refund', e); }
         }
+        await supabase.from('ride_requests').update({
+          status: 'cancelled',
+          cancellation_reason: 'Pasažier nebol vyzdvihnutý (PIN nebol overený) — automatická refundácia',
+          cancelled_at: new Date().toISOString(),
+        }).eq('id', p.id);
       }
 
       stopTracking();
