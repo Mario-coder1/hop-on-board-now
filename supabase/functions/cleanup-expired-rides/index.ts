@@ -39,9 +39,9 @@ Deno.serve(async (req) => {
       .not('ride_id', 'is', null)
     const keepIds = Array.from(new Set((openReports ?? []).map((r: any) => r.ride_id)))
 
-    // 48 h, aby mal spolujazdec 24 h na nahlásenie + rezerva.
+    // 24 h po odchode (jazdy s otvoreným nahlásením ostávajú).
     // Mažeme po dávkach (1000 ks), aby pri veľkom objeme jázd mazanie nezaseklo databázu.
-    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000)
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
     const BATCH = 1000
     let deletedCount = 0
 
