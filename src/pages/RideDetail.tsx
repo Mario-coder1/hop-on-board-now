@@ -972,7 +972,14 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {ride.available_seats <= 0 ? (
+                  {ride.status === 'active' && new Date(ride.departure_time).getTime() < Date.now() - 15 * 60 * 1000 ? (
+                    <div className="text-center py-6">
+                      <p className="font-medium text-muted-foreground">Jazda už skončila</p>
+                      <p className="text-sm text-muted-foreground">
+                        Táto jazda už odišla. Pozrite si nadchádzajúce jazdy vo vyhľadávaní.
+                      </p>
+                    </div>
+                  ) : ride.available_seats <= 0 ? (
                     <div className="text-center py-6">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-3">
                         <Users className="w-6 h-6 text-destructive" />
