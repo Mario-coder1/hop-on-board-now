@@ -150,13 +150,21 @@ const Map: React.FC<MapProps> = ({
     setMapReady(false);
     setMapUnavailable(false);
 
-    const instance = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/navigation-day-v1',
-      center: initialCenterRef.current,
-      zoom: zoom,
-      interactive: interactive,
-    });
+    let instance: mapboxgl.Map;
+    try {
+      instance = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/navigation-day-v1',
+        center: initialCenterRef.current,
+        zoom: zoom,
+        interactive: interactive,
+      });
+    } catch (err) {
+      // WebGL not available (old device, disabled GPU, low-power mode) — don't crash the page.
+      console.warn('Mapbox init failed:', err);
+      setMapUnavailable(true);
+      return;
+    }
     map.current = instance;
 
     instance.on('load', () => {
@@ -638,7 +646,7 @@ const Map: React.FC<MapProps> = ({
     <div className={`relative rounded-2xl overflow-hidden bg-muted ${className}`}>
       {/* Neutral loader while the interactive map boots. We intentionally do
           NOT show a static 2-pin preview — it was misleading (no route line). */}
-      {!preferStatic && !mapReady && (
+      {!preferStatic && !mapReady && !mapUnavailable && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -646,7 +654,7 @@ const Map: React.FC<MapProps> = ({
           </div>
         </div>
       )}
-      {preferStatic && (
+      {(preferStatic || mapUnavailable) && (
         <img
           src={staticMapUrl}
           alt="Mapa jázd"
