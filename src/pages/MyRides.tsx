@@ -272,7 +272,7 @@ const MyRides = () => {
                             toast({ title: 'Potvrdené', description: 'Jazda ostáva aktívna.' });
                             fetchRides();
                           }}>Áno, ide</Button>
-                          <Button size="sm" variant="outline" onClick={() => setCancellingRide(ride)}>Nie, zrušiť</Button>
+                          <Button size="sm" variant="outline" onClick={() => { setCancellingRide(ride); setCancelDialogOpen(true); }}>Nie, zrušiť</Button>
                         </div>
                       </div>
                     )}
