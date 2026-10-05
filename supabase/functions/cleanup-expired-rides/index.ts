@@ -30,6 +30,72 @@ Deno.serve(async (req) => {
     // spolujazdca ("Vodič ma nevyzdvihol") a schválení adminom.
     const autoRefunded = 0
 
+    // ---- Variant C: „Ide jazda?“ pre nespustené jazdy s cestujúcimi ----
+    const confirmStats = { asked: 0, reminded: 0, cancelled: 0 }
+    try {
+      const nowMs = Date.now()
+      const notify = async (profileId: string, title: string, message: string, rideId: string) => {
+        await supabase.from('notifications').insert({ profile_id: profileId, title, message })
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/internal-send-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-internal-secret': String(expected) },
+            body: JSON.stringify({ profile_id: profileId, title, body: message, data: { url: '/my-rides', ride_id: rideId }, tag: `ride-confirm-${rideId}` }),
+          })
+        } catch (_) { /* ignore */ }
+      }
+      const { data: due } = await supabase
+        .from('rides')
+        .select('id, driver_id, origin_address, destination_address, confirm_asked_at, confirm_reminded_at')
+        .eq('status', 'active')
+        .is('driver_confirmed_at', null)
+        .lte('departure_time', new Date(nowMs).toISOString())
+        .gte('departure_time', new Date(nowMs - 24 * 3600 * 1000).toISOString())
+        .limit(500)
+      for (const ride of due ?? []) {
+        const { data: reqs } = await supabase
+          .from('ride_requests')
+          .select('id, passenger_id, status, payment_status, payment_captured_at, pin_verified_at, stripe_payment_intent_id')
+          .eq('ride_id', ride.id)
+          .in('status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
+        const list = reqs ?? []
+        if (!list.length) continue // bez cestujúcich — len sa schová (filter 15 min)
+        if (list.some((r: any) => r.pin_verified_at || r.status === 'picked_up')) continue // nástupný kód = nikdy nerušiť
+        const route = `${ride.origin_address?.split(',')[0]} → ${ride.destination_address?.split(',')[0]}`
+        if (!ride.confirm_asked_at) {
+          await notify(ride.driver_id, 'Ide tvoja jazda?', `${route}: potvrď v Moje jazdy, že jazda ide. Bez odpovede ju o 1,5 h zrušíme.`, ride.id)
+          await supabase.from('rides').update({ confirm_asked_at: new Date().toISOString() }).eq('id', ride.id)
+          confirmStats.asked++
+        } else if (!ride.confirm_reminded_at && nowMs - new Date(ride.confirm_asked_at).getTime() >= 3600 * 1000) {
+          await notify(ride.driver_id, 'Posledná výzva: ide jazda?', `${route}: ak do 30 minút nepotvrdíš, jazda sa zruší a cestujúcim sa uvoľnia peniaze.`, ride.id)
+          await supabase.from('rides').update({ confirm_reminded_at: new Date().toISOString() }).eq('id', ride.id)
+          confirmStats.reminded++
+        } else if (ride.confirm_reminded_at && nowMs - new Date(ride.confirm_reminded_at).getTime() >= 30 * 60 * 1000) {
+          const reason = 'Vodič nepotvrdil, že jazda ide'
+          await supabase.from('rides').update({ status: 'cancelled', cancellation_reason: reason, cancelled_at: new Date().toISOString() }).eq('id', ride.id)
+          for (const r of list as any[]) {
+            if (r.payment_status === 'paid' && r.stripe_payment_intent_id) {
+              for (const env of ['live', 'sandbox'] as StripeEnv[]) {
+                try {
+                  const stripe = createStripeClient(env)
+                  if (r.payment_captured_at) await stripe.refunds.create({ payment_intent: r.stripe_payment_intent_id })
+                  else await stripe.paymentIntents.cancel(r.stripe_payment_intent_id)
+                  await supabase.from('ride_requests').update({ payment_status: 'refunded' }).eq('id', r.id)
+                  break
+                } catch (e) { console.error('release failed', env, r.id, (e as Error).message) }
+              }
+            }
+            await supabase.from('ride_requests').update({ status: 'cancelled', cancellation_reason: reason }).eq('id', r.id)
+            await notify(r.passenger_id, 'Jazda zrušená', `${route}: vodič nepotvrdil jazdu. Rezervačný poplatok ti uvoľníme/vrátime.`, ride.id)
+          }
+          await notify(ride.driver_id, 'Jazda zrušená', `${route}: zrušili sme ju, lebo si nepotvrdil, že ide.`, ride.id)
+          confirmStats.cancelled++
+        }
+      }
+    } catch (e) {
+      console.error('confirm flow error', e)
+    }
+
     // Jazdy s otvoreným nahlásením nemažeme, kým ho admin nevyrieši.
     const { data: openReports } = await supabase
       .from('reports')
@@ -81,6 +147,7 @@ Deno.serve(async (req) => {
         success: true,
         deleted: deletedCount,
         auto_refunded: autoRefunded,
+        confirm: confirmStats,
         timestamp: new Date().toISOString()
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
