@@ -332,6 +332,45 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          profile_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gas_stations: {
         Row: {
           active: boolean
