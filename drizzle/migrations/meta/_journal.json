@@ -43,6 +43,13 @@
       "when": 1791198122971,
       "tag": "0005_block_requests_on_departed_rides",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791198675404,
+      "tag": "0006_migration",
+      "breakpoints": true
     }
   ]
 }

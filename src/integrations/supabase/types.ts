@@ -1294,11 +1294,14 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
+          confirm_asked_at: string | null
+          confirm_reminded_at: string | null
           created_at: string
           departure_time: string
           destination_address: string
           destination_lat: number
           destination_lng: number
+          driver_confirmed_at: string | null
           driver_id: string
           food_allowed: boolean | null
           gas_station_id: string | null
@@ -1324,11 +1327,14 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          confirm_asked_at?: string | null
+          confirm_reminded_at?: string | null
           created_at?: string
           departure_time: string
           destination_address: string
           destination_lat: number
           destination_lng: number
+          driver_confirmed_at?: string | null
           driver_id: string
           food_allowed?: boolean | null
           gas_station_id?: string | null
@@ -1354,11 +1360,14 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          confirm_asked_at?: string | null
+          confirm_reminded_at?: string | null
           created_at?: string
           departure_time?: string
           destination_address?: string
           destination_lat?: number
           destination_lng?: number
+          driver_confirmed_at?: string | null
           driver_id?: string
           food_allowed?: boolean | null
           gas_station_id?: string | null
