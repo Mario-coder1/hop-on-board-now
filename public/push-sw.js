@@ -38,6 +38,7 @@ self.addEventListener('notificationclick', function(event) {
       .then(function(clientList) {
         for (const client of clientList) {
           if (client.url.includes(self.location.origin) && 'focus' in client) {
+            if ('navigate' in client) client.navigate(urlToOpen).catch(function() {});
             return client.focus();
           }
         }
