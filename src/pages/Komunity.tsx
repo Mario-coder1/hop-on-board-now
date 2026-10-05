@@ -62,6 +62,7 @@ const Komunity = () => {
         .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
         .or(orFilter)
         .in('status', ['active', 'in_progress'])
+      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .gte('departure_time', new Date().toISOString())
         .order('departure_time', { ascending: true })
         .limit(50);

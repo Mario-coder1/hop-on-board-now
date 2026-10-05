@@ -29,6 +29,7 @@ export default defineTool({
       .from("rides")
       .select("id, origin_address, destination_address, departure_time, price_per_seat, seats_available, status")
       .in("status", ["active", "in_progress"])
+      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .ilike("origin_address", `%${origin}%`)
       .ilike("destination_address", `%${destination}%`)
       .gt("seats_available", 0)

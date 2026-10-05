@@ -32,6 +32,7 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
         .from('rides')
         .select('destination_address')
         .in('status', ['active', 'in_progress'])
+      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .gt('available_seats', 0)
         .ilike('origin_address', `%${cityObj.name}%`);
       if (cancelled || !data) return;

@@ -108,7 +108,7 @@ var search_rides_default = defineTool3({
       return { content: [{ type: "text", text: "Nie ste prihl\xE1sen\xFD." }], isError: true };
     }
     const sb = supabaseForUser3(ctx);
-    let q = sb.from("rides").select("id, origin_address, destination_address, departure_time, price_per_seat, seats_available, status").in("status", ["active", "in_progress"]).ilike("origin_address", `%${origin}%`).ilike("destination_address", `%${destination}%`).gt("seats_available", 0).order("departure_time", { ascending: true }).limit(20);
+    let q = sb.from("rides").select("id, origin_address, destination_address, departure_time, price_per_seat, seats_available, status").in("status", ["active", "in_progress"]).or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1e3).toISOString()}`).ilike("origin_address", `%${origin}%`).ilike("destination_address", `%${destination}%`).gt("seats_available", 0).order("departure_time", { ascending: true }).limit(20);
     if (max_price) q = q.lte("price_per_seat", max_price);
     const { data, error } = await q;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
