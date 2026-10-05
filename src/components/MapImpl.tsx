@@ -150,13 +150,21 @@ const Map: React.FC<MapProps> = ({
     setMapReady(false);
     setMapUnavailable(false);
 
-    const instance = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/navigation-day-v1',
-      center: initialCenterRef.current,
-      zoom: zoom,
-      interactive: interactive,
-    });
+    let instance: mapboxgl.Map;
+    try {
+      instance = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/navigation-day-v1',
+        center: initialCenterRef.current,
+        zoom: zoom,
+        interactive: interactive,
+      });
+    } catch (err) {
+      // WebGL not available (old device, disabled GPU, low-power mode) — don't crash the page.
+      console.warn('Mapbox init failed:', err);
+      setMapUnavailable(true);
+      return;
+    }
     map.current = instance;
 
     instance.on('load', () => {
