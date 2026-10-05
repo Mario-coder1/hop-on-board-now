@@ -262,7 +262,7 @@ const MyRides = () => {
                     onClick={() => navigate(`/ride/${ride.id}`)}
                     className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
                   >
-                    {ride.status === 'active' && ride.confirm_asked_at && !ride.driver_confirmed_at && (
+                    {ride.status === 'active' && !ride.driver_confirmed_at && (ride.confirm_asked_at || new Date(String(ride.departure_time).replace(' ', 'T')).getTime() - Date.now() <= 15 * 60 * 1000) && (
                       <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30" onClick={(e) => e.stopPropagation()}>
                         <p className="text-sm font-semibold mb-2">Ide tvoja jazda?</p>
                         <p className="text-xs text-muted-foreground mb-3">Ak nepotvrdíš, jazda sa zruší a cestujúcim sa uvoľnia peniaze.</p>
