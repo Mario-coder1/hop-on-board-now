@@ -70,7 +70,9 @@ Deno.serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (ride.available_seats <= 0 || !["active", "in_progress"].includes(ride.status)) {
+    const departedLongAgo = ride.status === "active" &&
+      new Date(ride.departure_time).getTime() < Date.now() - 15 * 60 * 1000;
+    if (ride.available_seats <= 0 || !["active", "in_progress"].includes(ride.status) || departedLongAgo) {
       return new Response(JSON.stringify({ error: "Jazda nie je dostupná" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
