@@ -69,6 +69,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)
         `)
         .in('status', ['active', 'in_progress'])
+      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .gt('available_seats', 0)
         .ilike('origin_address', `%${fromName}%`)
         .ilike('destination_address', `%${toName}%`)
