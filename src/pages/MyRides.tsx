@@ -31,6 +31,8 @@ interface Ride {
   price_per_seat: number;
   status: string;
   requests_count: number;
+  confirm_asked_at?: string | null;
+  driver_confirmed_at?: string | null;
 }
 
 const MyRides = () => {
@@ -260,6 +262,20 @@ const MyRides = () => {
                     onClick={() => navigate(`/ride/${ride.id}`)}
                     className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
                   >
+                    {ride.status === 'active' && ride.confirm_asked_at && !ride.driver_confirmed_at && (
+                      <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-sm font-semibold mb-2">Ide tvoja jazda?</p>
+                        <p className="text-xs text-muted-foreground mb-3">Ak nepotvrdíš, jazda sa zruší a cestujúcim sa uvoľnia peniaze.</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={async () => {
+                            await supabase.from('rides').update({ driver_confirmed_at: new Date().toISOString() }).eq('id', ride.id);
+                            toast({ title: 'Potvrdené', description: 'Jazda ostáva aktívna.' });
+                            fetchRides();
+                          }}>Áno, ide</Button>
+                          <Button size="sm" variant="outline" onClick={() => setCancellingRide(ride)}>Nie, zrušiť</Button>
+                        </div>
+                      </div>
+                    )}
                     {/* Header row: date + status + menu */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">

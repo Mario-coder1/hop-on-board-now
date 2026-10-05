@@ -147,6 +147,7 @@ Deno.serve(async (req) => {
         success: true,
         deleted: deletedCount,
         auto_refunded: autoRefunded,
+        confirm: confirmStats,
         timestamp: new Date().toISOString()
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
