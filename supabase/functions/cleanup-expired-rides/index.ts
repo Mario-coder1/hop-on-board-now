@@ -46,10 +46,10 @@ Deno.serve(async (req) => {
       }
       const { data: due } = await supabase
         .from('rides')
-        .select('id, driver_id, origin_address, destination_address, confirm_asked_at, confirm_reminded_at')
+        .select('id, driver_id, origin_address, destination_address, departure_time, confirm_asked_at, confirm_reminded_at')
         .eq('status', 'active')
         .is('driver_confirmed_at', null)
-        .lte('departure_time', new Date(nowMs).toISOString())
+        .lte('departure_time', new Date(nowMs + 15 * 60 * 1000).toISOString())
         .gte('departure_time', new Date(nowMs - 24 * 3600 * 1000).toISOString())
         .limit(500)
       for (const ride of due ?? []) {
@@ -62,12 +62,13 @@ Deno.serve(async (req) => {
         if (!list.length) continue // bez cestujúcich — len sa schová (filter 15 min)
         if (list.some((r: any) => r.pin_verified_at || r.status === 'picked_up')) continue // nástupný kód = nikdy nerušiť
         const route = `${ride.origin_address?.split(',')[0]} → ${ride.destination_address?.split(',')[0]}`
+        const depMs = new Date(String(ride.departure_time).replace(' ', 'T')).getTime()
         if (!ride.confirm_asked_at) {
-          await notify(ride.driver_id, 'Ide tvoja jazda?', `${route}: potvrď v Moje jazdy, že jazda ide. Bez odpovede ju o 1,5 h zrušíme.`, ride.id)
+          await notify(ride.driver_id, 'Ide tvoja jazda?', `${route}: o chvíľu odchod. Klikni a potvrď, že jazda ide.`, ride.id)
           await supabase.from('rides').update({ confirm_asked_at: new Date().toISOString() }).eq('id', ride.id)
           confirmStats.asked++
-        } else if (!ride.confirm_reminded_at && nowMs - new Date(ride.confirm_asked_at).getTime() >= 3600 * 1000) {
-          await notify(ride.driver_id, 'Posledná výzva: ide jazda?', `${route}: ak do 30 minút nepotvrdíš, jazda sa zruší a cestujúcim sa uvoľnia peniaze.`, ride.id)
+        } else if (!ride.confirm_reminded_at && nowMs >= depMs + 15 * 60 * 1000) {
+          await notify(ride.driver_id, 'Posledná výzva: ide jazda?', `${route}: klikni a potvrď. Ak do 30 minút nepotvrdíš, jazda sa zruší a cestujúcim sa uvoľnia peniaze.`, ride.id)
           await supabase.from('rides').update({ confirm_reminded_at: new Date().toISOString() }).eq('id', ride.id)
           confirmStats.reminded++
         } else if (ride.confirm_reminded_at && nowMs - new Date(ride.confirm_reminded_at).getTime() >= 30 * 60 * 1000) {
