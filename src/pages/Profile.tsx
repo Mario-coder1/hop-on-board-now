@@ -825,6 +825,8 @@ const Profile = () => {
             </div>
           </div>
 
+          <FeedbackCard />
+
           {/* Danger Zone */}
           <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/20 mt-6">
             <h3 className="font-display font-semibold mb-4 flex items-center gap-2 text-destructive">
