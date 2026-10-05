@@ -55,6 +55,7 @@ import AdminOperations from '@/components/admin/AdminOperations';
 import AdminPaymentEvents from '@/components/admin/AdminPaymentEvents';
 import AdminTaxExport from '@/components/admin/AdminTaxExport';
 import AdminCompanies from '@/components/admin/AdminCompanies';
+import AdminFeedback from '@/components/admin/AdminFeedback';
 import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
@@ -725,6 +726,7 @@ const Admin = () => {
               {[
                 { v: 'ops', icon: Activity, label: 'Prehľad' },
                 { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
+                { v: 'feedback', icon: Megaphone, label: 'Názory' },
                 { v: 'users', icon: Users, label: 'Používatelia' },
                 { v: 'search', icon: Search, label: 'Vyhľadávanie' },
                 { v: 'notifications', icon: Megaphone, label: 'Notifikácie' },
@@ -753,6 +755,10 @@ const Admin = () => {
 
           <TabsContent value="ops" className="space-y-4">
             <AdminOperations />
+          </TabsContent>
+
+          <TabsContent value="feedback" className="space-y-4">
+            <AdminFeedback />
           </TabsContent>
 
 

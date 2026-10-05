@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import FeedbackCard from '@/components/FeedbackCard';
 import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DriverVerificationCard from '@/components/DriverVerificationCard';
@@ -824,6 +825,8 @@ const Profile = () => {
               </a>
             </div>
           </div>
+
+          <FeedbackCard />
 
           {/* Danger Zone */}
           <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/20 mt-6">

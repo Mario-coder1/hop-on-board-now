@@ -29,6 +29,13 @@
       "when": 1790931698161,
       "tag": "0003_ride_payment_authorization_hold",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791197151092,
+      "tag": "0004_feedback",
+      "breakpoints": true
     }
   ]
 }
