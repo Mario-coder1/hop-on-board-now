@@ -37,6 +37,15 @@ Deno.serve(async (req) => {
     const pi = await stripe.paymentIntents.retrieve(rr.stripe_payment_intent_id);
     if (pi.status === "requires_capture") await stripe.paymentIntents.capture(pi.id);
     await supabase.from("ride_requests").update({ payment_captured_at: new Date().toISOString() }).eq("id", request_id);
+    if (driverId) {
+      const amount = ((pi.amount_received || pi.amount || 0) / 100).toFixed(2);
+      const title = "Rezervačný poplatok strhnutý";
+      const message = `Nástup cestujúceho overený, poplatok ${amount} € bol strhnutý. Cenu úseku ti cestujúci zaplatí v hotovosti.`;
+      try {
+        await supabase.from("notifications").insert({ profile_id: driverId, title, message });
+        await supabase.rpc("send_push_via_edge", { _profile_id: driverId, _title: title, _body: message, _data: { request_id } });
+      } catch (err) { console.error("notify driver failed", err); }
+    }
     return json({ success: true });
   } catch (e) {
     console.error("capture error", e);
