@@ -972,7 +972,7 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {ride.status === 'active' && new Date(ride.departure_time).getTime() < Date.now() - 15 * 60 * 1000 ? (
+                  {ride.status === 'active' && new Date(String(ride.departure_time).replace(' ', 'T')).getTime() < Date.now() - 15 * 60 * 1000 ? (
                     <div className="text-center py-6">
                       <p className="font-medium text-muted-foreground">Jazda už skončila</p>
                       <p className="text-sm text-muted-foreground">
