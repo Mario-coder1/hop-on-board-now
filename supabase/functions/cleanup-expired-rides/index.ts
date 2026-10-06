@@ -91,6 +91,10 @@ Deno.serve(async (req) => {
           }
           await notify(ride.driver_id, 'Jazda zrušená', `${route}: zrušili sme ju, lebo si nepotvrdil, že ide.`, ride.id)
           confirmStats.cancelled++
+          await supabase.from('security_events').insert({
+            profile_id: ride.driver_id, event_type: 'ride_auto_cancelled', status: 'success',
+            detail: JSON.stringify({ ride_id: ride.id, route, departure_time: ride.departure_time, passengers: list.length }),
+          })
         }
       }
     } catch (e) {
