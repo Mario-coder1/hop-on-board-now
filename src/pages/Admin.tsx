@@ -56,6 +56,7 @@ import AdminPaymentEvents from '@/components/admin/AdminPaymentEvents';
 import AdminTaxExport from '@/components/admin/AdminTaxExport';
 import AdminCompanies from '@/components/admin/AdminCompanies';
 import AdminFeedback from '@/components/admin/AdminFeedback';
+import AdminAutoCancelled from '@/components/admin/AdminAutoCancelled';
 import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
@@ -726,6 +727,7 @@ const Admin = () => {
               {[
                 { v: 'ops', icon: Activity, label: 'Prehľad' },
                 { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
+                { v: 'auto_cancelled', icon: AlertTriangle, label: 'Auto-zrušené' },
                 { v: 'feedback', icon: Megaphone, label: 'Názory' },
                 { v: 'users', icon: Users, label: 'Používatelia' },
                 { v: 'search', icon: Search, label: 'Vyhľadávanie' },
@@ -755,6 +757,10 @@ const Admin = () => {
 
           <TabsContent value="ops" className="space-y-4">
             <AdminOperations />
+          </TabsContent>
+
+          <TabsContent value="auto_cancelled" className="space-y-4">
+            <AdminAutoCancelled />
           </TabsContent>
 
           <TabsContent value="feedback" className="space-y-4">
