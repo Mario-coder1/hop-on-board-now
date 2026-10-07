@@ -200,8 +200,8 @@ const TrackRide: React.FC = () => {
     toast({
       title: 'Rezervácia zrušená',
       description: rideRequest.status === 'driver_arrived'
-        ? 'Vodič už bol na mieste. Keďže platby cez appku nie sú aktívne, dohodni si kompenzáciu priamo s vodičom.'
-        : 'Rezervácia bola zrušená. Keďže platby cez appku nie sú aktívne, žiadna platba neprebehla.',
+        ? 'Rezervácia bola zrušená po príchode vodiča. Vrátenie rezervačného poplatku sa riadi VOP čl. 2.1a; poplatok patrí TakeMe, nie vodičovi.'
+        : 'Rezervácia bola zrušená. Pri zrušení vopred máš nárok na vrátenie celého rezervačného poplatku alebo uvoľnenie blokácie podľa VOP.',
     });
     setCancelOpen(false);
     setCancelling(false);
@@ -542,13 +542,13 @@ const TrackRide: React.FC = () => {
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   {rideRequest.status === 'driver_arrived' ? (
                     <>
-                      Vodič už prišiel na miesto. Keďže platby cez appku nie sú aktívne, dohodni si prípadnú
-                      kompenzáciu priamo s vodičom (<Link to="/terms" className="underline">VOP čl. 2</Link>).
+                      Vodič už prišiel na miesto. Pri zrušení sa podľa podmienok vracia 50 % rezervačného
+                      poplatku; zvyšok si ponecháva TakeMe za sprostredkovanie (<Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   ) : (
                     <>
-                      Zrušiť môžeš kedykoľvek pred príchodom vodiča. Keďže platby cez appku nie sú aktívne,
-                      žiadna platba neprebehla. Po nastúpení do vozidla už zrušenie nie je možné (
+                      Pri zrušení vopred sa vracia celý rezervačný poplatok alebo uvoľní blokácia na karte.
+                      Cenu úseku platíš vodičovi zvlášť v hotovosti. Po nastúpení už zrušenie nie je možné (
                       <Link to="/terms" className="underline">VOP čl. 2</Link>).
                     </>
                   )}

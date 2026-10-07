@@ -466,13 +466,13 @@ const MyTrips = () => {
                                 className="gap-1 h-8 px-2.5 rounded-full border-foreground/10"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const paidAt = new Date(trip.paid_at!);
+                                  if (!trip.paid_at) return;
+                                  const paidAt = new Date(trip.paid_at);
                                   downloadInvoice({
                                     invoiceNumber: buildInvoiceNumber(trip.id, paidAt),
                                     issueDate: paidAt,
                                     paidAt,
                                     amount: Number(trip.amount_paid),
-                                    commissionRate: 1,
                                     currency: trip.currency || 'eur',
                                     passengerName: profile?.full_name || 'Pasažier',
                                     driverName: driverName,

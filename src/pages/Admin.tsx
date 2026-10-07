@@ -733,7 +733,7 @@ const Admin = () => {
                 { v: 'search', icon: Search, label: 'Vyhľadávanie' },
                 { v: 'notifications', icon: Megaphone, label: 'Notifikácie' },
                 { v: 'visitors', icon: BarChart3, label: 'Návštevnosť' },
-                { v: 'payouts', icon: Wallet, label: 'Platby' },
+                { v: 'payouts', icon: CreditCard, label: 'Poplatky' },
                 { v: 'payment_events', icon: CreditCard, label: 'Chyby platieb' },
                 { v: 'tax_export', icon: FileSpreadsheet, label: 'Daňový export' },
                 { v: 'companies', icon: Building2, label: 'Firmy' },
@@ -1382,7 +1382,7 @@ const Admin = () => {
                     <TrendingUp className="w-10 h-10 text-green-500" />
                     <div>
                       <p className="text-2xl font-bold">{totalRevenue.toFixed(2)} €</p>
-                      <p className="text-muted-foreground text-sm">Celkové výnosy</p>
+                      <p className="text-muted-foreground text-sm">Historické výnosy (starý model)</p>
                     </div>
                   </div>
                 </CardContent>
@@ -1393,7 +1393,7 @@ const Admin = () => {
                     <Percent className="w-10 h-10 text-blue-500" />
                     <div>
                       <p className="text-2xl font-bold">{totalCommissions.toFixed(2)} €</p>
-                      <p className="text-muted-foreground text-sm">Z provízií</p>
+                      <p className="text-muted-foreground text-sm">Historické provízie</p>
                     </div>
                   </div>
                 </CardContent>
@@ -1404,91 +1404,26 @@ const Admin = () => {
                     <Wallet className="w-10 h-10 text-purple-500" />
                     <div>
                       <p className="text-2xl font-bold">{totalTopupFees.toFixed(2)} €</p>
-                      <p className="text-muted-foreground text-sm">Z poplatkov za dobíjanie</p>
+                      <p className="text-muted-foreground text-sm">Historické poplatky (starý model)</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Platform Settings */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Nastavenia provízií
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="commission">Provízna z jázd (%)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="commission"
-                        type="number"
-                        min="0"
-                        max="50"
-                        value={commissionPercentage}
-                        onChange={(e) => setCommissionPercentage(Number(e.target.value))}
-                      />
-                      <span className="text-muted-foreground">%</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Pri každej platbe za jazdu si platforma strhne {commissionPercentage}%
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="topup">Poplatok za dobíjanie (%)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="topup"
-                        type="number"
-                        min="0"
-                        max="20"
-                        value={topupFeePercentage}
-                        onChange={(e) => setTopupFeePercentage(Number(e.target.value))}
-                      />
-                      <span className="text-muted-foreground">%</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Pri dobíjaní kreditu sa účtuje {topupFeePercentage}% poplatok
-                    </p>
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleUpdateSettings}
-                  disabled={settingsLoading}
-                  className="w-full md:w-auto"
-                >
-                  {settingsLoading ? 'Ukladám...' : 'Uložiť nastavenia'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Example calculations */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Príklad výpočtu</CardTitle>
+                <CardTitle>Rezervačný poplatok TakeMe</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 bg-muted rounded-lg">
-                    <h4 className="font-medium mb-2">Jazda za 10€</h4>
-                    <ul className="space-y-1 text-sm">
-                      <li>Pasažier zaplatí: <strong>10.00€</strong></li>
-                      <li>Provízna platformy ({commissionPercentage}%): <strong>{(10 * commissionPercentage / 100).toFixed(2)}€</strong></li>
-                      <li>Vodič dostane: <strong>{(10 - 10 * commissionPercentage / 100).toFixed(2)}€</strong></li>
-                    </ul>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <h4 className="font-medium mb-2">Dobíjanie 50€</h4>
-                    <ul className="space-y-1 text-sm">
-                      <li>Používateľ zaplatí: <strong>{(50 + 50 * topupFeePercentage / 100).toFixed(2)}€</strong></li>
-                      <li>Poplatok ({topupFeePercentage}%): <strong>{(50 * topupFeePercentage / 100).toFixed(2)}€</strong></li>
-                      <li>Kredit na účte: <strong>50.00€</strong></li>
-                    </ul>
-                  </div>
+                <p className="text-sm text-muted-foreground">Online poplatok je 15 % z ceny úseku cestujúceho, minimálne 1 €. Celý poplatok patrí TakeMe; vodič dostane cenu úseku zvlášť v hotovosti.</p>
+                <div>
+                  <h4 className="font-medium mb-2">Príklad: úsek za 10 €</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>Vodič dostane v hotovosti: <strong>10,00 €</strong></li>
+                    <li>Rezervačný poplatok TakeMe online: <strong>1,50 €</strong></li>
+                    <li>Cestujúci zaplatí spolu: <strong>11,50 €</strong></li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
