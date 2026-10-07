@@ -542,9 +542,9 @@ const ManagePassengers = () => {
       >
         <Button
           onClick={() => setEndConfirmOpen(true)}
-          className="w-full gap-1.5 h-11 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-sm"
+          className="w-full gap-1.5 h-8 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs"
         >
-          <Flag className="w-4 h-4" /> Ukončiť jazdu
+          <Flag className="w-3.5 h-3.5" /> Ukončiť jazdu
         </Button>
       </div>
 
