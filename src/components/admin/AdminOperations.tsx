@@ -361,7 +361,7 @@ export default function AdminOperations() {
                           Vystúpenie: {rq.dropoff_address || '—'}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Platba: {rq.payment_status || '—'}
+                          Rezervačný poplatok TakeMe: {rq.payment_status || '—'}
                           {rq.amount_paid ? ` · ${rq.amount_paid} ${rq.currency ?? 'EUR'}` : ''}
                           {rq.pin_verified_at ? ' · PIN overený' : ''}
                         </p>
@@ -374,9 +374,9 @@ export default function AdminOperations() {
                             ['Vodič potvrdil', rq.driver_confirmed_at],
                             ['Pasažier potvrdil', rq.passenger_confirmed_at],
                             ['PIN overený', rq.pin_verified_at],
-                            ['Zaplatené', rq.paid_at],
+                            ['Rezervácia uhradená / blokácia vytvorená', rq.paid_at],
                             ['Vrátené', rq.refunded_at],
-                            ['Výplata vodičovi', rq.payout_released_at],
+                            ['Rezervačný poplatok strhnutý', rq.payment_captured_at],
                             ['Zrušené', rq.cancelled_at],
                             ['Posledná zmena', rq.updated_at],
                           ] as [string, string | null][])
