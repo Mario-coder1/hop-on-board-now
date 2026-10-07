@@ -95,15 +95,6 @@ const AdminPayoutsTab = () => {
       </Card>
 
     </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog(null)}>Zrušiť</Button>
-            <Button onClick={handleProcess} disabled={!!processing}>
-              {processing ? 'Spracovávam...' : 'Potvrdiť'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
   );
 };
 

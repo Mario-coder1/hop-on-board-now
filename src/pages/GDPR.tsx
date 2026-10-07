@@ -139,7 +139,7 @@ const GDPR = () => {
               <div className="mt-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
                 <p className="text-destructive flex items-center gap-2">
                   <AlertCircle className="w-5 h-5" />
-                  <strong>Upozornenie:</strong> Zmazanie účtu je nevratné. TakeMe nedrží žiadne prostriedky používateľov, preto pri zrušení účtu nedochádza k žiadnej výplate.
+                  <strong>Upozornenie:</strong> Zmazanie účtu je nevratné. TakeMe neprevádzkuje peňaženku ani nevypláca vodičov. Online rezervačný poplatok patrí platforme; cenu úseku platí spolujazdec vodičovi v hotovosti. Zmazanie účtu nemení nárok na vrátenie poplatku alebo uvoľnenie blokácie podľa obchodných podmienok.
                 </p>
               </div>
             </div>
