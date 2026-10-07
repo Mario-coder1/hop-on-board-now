@@ -161,6 +161,7 @@ const startWatch = (profileId: string): number => {
   lastSentLng = null;
 
   const channel = ensureBroadcastChannel(profileId);
+  requestWakeLock();
 
   return navigator.geolocation.watchPosition(
     async (position) => {
@@ -240,6 +241,28 @@ const startWatch = (profileId: string): number => {
   );
 };
 
+// Keep the driver's screen on while tracking so location keeps flowing
+let wakeLock: any = null;
+const requestWakeLock = async () => {
+  try {
+    const nav: any = navigator;
+    if (!nav.wakeLock || document.visibilityState !== 'visible') return;
+    if (wakeLock && !wakeLock.released) return;
+    wakeLock = await nav.wakeLock.request('screen');
+  } catch (e) {
+    console.warn('Wake lock unavailable:', e);
+  }
+};
+const releaseWakeLock = () => {
+  try { wakeLock?.release?.(); } catch {}
+  wakeLock = null;
+};
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (activeWatchId !== null && document.visibilityState === 'visible') requestWakeLock();
+  });
+}
+
 const stopWatch = () => {
   if (activeWatchId !== null) {
     navigator.geolocation.clearWatch(activeWatchId);
@@ -250,6 +273,7 @@ const stopWatch = () => {
     activeBroadcastChannel = null;
   }
   activeProfileId = null;
+  releaseWakeLock();
 };
 
 export const useLocationBroadcast = (profileId: string | null) => {
