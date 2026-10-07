@@ -23,7 +23,7 @@ import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const lastUpdated = "2. 10. 2026";
+  const lastUpdated = "7. 10. 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -396,7 +396,7 @@ const TermsOfService = () => {
               </p>
               <p>
                 <strong className="text-foreground">6a.2.</strong> Bonus je <strong>nepeňažná zľava</strong>{" "}
-                uplatniteľná výhradne na úhradu jazdy v aplikácii TakeMe. Bonus nie je možné vyplatiť v hotovosti,
+                uplatniteľná výhradne na rezervačný poplatok TakeMe, nie na hotovostnú cenu jazdy vodičovi. Bonus nie je možné vyplatiť v hotovosti,
                 previesť na bankový účet ani zameniť za peniaze.
               </p>
               <p>

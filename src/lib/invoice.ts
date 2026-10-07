@@ -28,14 +28,13 @@ export interface InvoiceData {
   invoiceNumber: string;
   issueDate: Date;
   paidAt: Date;
-  amount: number;            // celková zaplatená suma (brutto)
+  amount: number;            // online rezervačný poplatok TakeMe (brutto)
   currency: string;
   passengerName: string;
   driverName: string;
   origin: string;
   destination: string;
   rideDate: Date;
-  commissionRate?: number;   // default 0.10 (10 %)
 }
 
 export function buildInvoiceNumber(requestId: string, paidAt: Date): string {
@@ -60,10 +59,8 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 
 function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
   const total = r2(data.amount);
-  const commissionRate = data.commissionRate ?? 0.10;
-  const commissionGross = r2(total * commissionRate);
-  const driverShare = r2(total - commissionGross);
-  // Provízia je s DPH (B2C). Rozklad pre účely DPH evidencie:
+  const commissionGross = total;
+  // Celá online platba je poplatok TakeMe s DPH, nie cena jazdy vodičovi.
   const commissionBase = r2(commissionGross / (1 + VAT_RATE));
   const commissionVat = r2(commissionGross - commissionBase);
 
@@ -156,20 +153,6 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
               { text: 'POPIS', style: 'tableHead', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
               { text: 'SUMA', style: 'tableHead', alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 0, 0, 8] },
             ],
-            // Riadok 1 — preprava (vodič)
-            [
-              {
-                border: [false, false, false, true],
-                borderColor: [LINE, LINE, LINE, LINE],
-                margin: [0, 10, 0, 10],
-                stack: [
-                  { text: `Zdieľaná jazda — ${fmtDate(data.rideDate)}`, bold: true, fontSize: 11 },
-                  { text: `${data.origin}  →  ${data.destination}`, color: MUTED, margin: [0, 3, 0, 0] },
-                  { text: `Poskytovateľ prepravy: ${data.driverName} (nie je platca DPH)`, color: MUTED, margin: [0, 2, 0, 0] },
-                ],
-              },
-              { text: fmtMoney(driverShare, data.currency), alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
-            ],
             // Riadok 2 — provízia platformy
             [
               {
@@ -177,7 +160,9 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
                 borderColor: [LINE, LINE, LINE, LINE],
                 margin: [0, 10, 0, 10],
                 stack: [
-                  { text: 'Sprostredkovateľský poplatok TakeMe', bold: true, fontSize: 11 },
+                  { text: 'Rezervačný poplatok TakeMe za sprostredkovanie', bold: true, fontSize: 11 },
+                  { text: `${data.origin} → ${data.destination} · ${fmtDate(data.rideDate)}`, color: MUTED, margin: [0, 3, 0, 0] },
+                  { text: `Vodič: ${data.driverName}. Cena úseku sa platí vodičovi zvlášť v hotovosti a nie je súčasťou tohto dokladu.`, color: MUTED, margin: [0, 3, 0, 0] },
                   { text: `Základ ${fmtMoney(commissionBase, data.currency)} + DPH 23 % ${fmtMoney(commissionVat, data.currency)}`, color: MUTED, margin: [0, 3, 0, 0] },
                 ],
               },
@@ -203,7 +188,7 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
             margin: [16, 14, 16, 14],
             columns: [
               { stack: [
-                { text: 'CELKOM UHRADENÉ', style: 'label' },
+                { text: 'REZERVAČNÝ POPLATOK UHRADENÝ', style: 'label' },
                 { text: 'Online kartou cez Stripe', color: MUTED, fontSize: 9, margin: [0, 2, 0, 0] },
               ]},
               { width: 'auto', stack: [{ text: fmtMoney(total, data.currency), style: 'totalValue', alignment: 'right' }] },
@@ -226,11 +211,11 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
           },
           {
             text:
-              'Tento doklad slúži ako potvrdenie o úhrade za zdieľanú jazdu. ' +
+              'Tento doklad potvrdzuje výhradne úhradu rezervačného poplatku TakeMe. ' +
               `${ISSUER.name} vystupuje ako sprostredkovateľ medzi cestujúcim a vodičom. ` +
               'Predmetom plnenia spoločnosti je výlučne sprostredkovateľský poplatok, ' +
               `ktorý obsahuje DPH 23 % v zmysle zákona č. 222/2004 Z. z. o DPH (IČ DPH: ${ISSUER.icDph}). ` +
-              'Samotná preprava je službou vodiča, ktorý nie je platcom DPH. ' +
+              'Cenu úseku platí cestujúci vodičovi zvlášť v hotovosti; TakeMe vodičovi z online poplatku nič nevypláca. ' +
               'Pre fyzické osoby nie je zo zákona povinné vystavenie faktúry — tento doklad postačuje pre evidenciu a prípadnú reklamáciu.',
             style: 'footer',
           },

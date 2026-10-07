@@ -37,7 +37,7 @@ const AUDIT_ITEMS: AuditItem[] = [
 
   // Platby
   { category: "Platby", title: "Overovanie podpisu Stripe webhooku", description: "Funkcia verifyWebhook overuje HMAC-SHA256 podpis cez hlavičku Stripe-Signature.", status: "ok" },
-  { category: "Platby", title: "Výpočty cien na strane servera", description: "Suma, provízia a výplata sa počítajú v databázovom triggeri, nie na klientovi.", status: "ok" },
+  { category: "Platby", title: "Výpočty cien na strane servera", description: "Rezervačný poplatok TakeMe sa overuje a počíta na serveri; cenu úseku platí cestujúci vodičovi zvlášť v hotovosti.", status: "ok" },
   { category: "Platby", title: "PIN kódy generované na serveri", description: "Štvormiestny PIN vytvára DB trigger, overuje sa cez SECURITY DEFINER funkciu.", status: "ok" },
 
   // Push
@@ -55,7 +55,7 @@ const AUDIT_ITEMS: AuditItem[] = [
   // Hardening
   { category: "Hardening", title: "REVOKE EXECUTE od PUBLIC", description: "SECURITY DEFINER funkciám je odňaté právo EXECUTE od PUBLIC a anon.", status: "ok" },
   { category: "Hardening", title: "Storage buckety bez LIST politiky", description: "Buckety avatars a chat-images nemajú enumeration politiku, iba scoped SELECT.", status: "ok" },
-  { category: "Hardening", title: "Triggerové funkcie bez externého EXECUTE", description: "Notifikácie, výplaty a hodnotenia sa spúšťajú iba ako trigger pod vlastníkom.", status: "ok" },
+  { category: "Hardening", title: "Triggerové funkcie bez externého EXECUTE", description: "Notifikácie a hodnotenia sa spúšťajú iba ako trigger pod vlastníkom.", status: "ok" },
 
   // Odporúčania
   { category: "Odporúčania", title: "Rate limiting na edge funkciách", description: "Odporúčané: pridať throttling na login, send-university-code a mass-push proti brute-force útokom.", status: "warning" },
@@ -66,7 +66,7 @@ const AUDIT_ITEMS: AuditItem[] = [
   { category: "Odporúčania", title: "Pravidelná rotácia VAPID a Stripe kľúčov", description: "Odporúčané: rotovať každých 6 až 12 mesiacov.", status: "info" },
 
   // Platby cez Stripe
-  { category: "Platby", title: "Žiadna interná peňaženka", description: "Peniaze používateľov nezadržiavame. Platby aj výplaty vodičom idú výhradne cez Stripe.", status: "ok" },
+  { category: "Platby", title: "Žiadna interná peňaženka", description: "Online cez Stripe sa spracúva iba rezervačný poplatok TakeMe a jeho blokácia, strhnutie alebo refundácia. Vodič dostáva cenu úseku v hotovosti, nie výplatou od platformy.", status: "ok" },
 ];
 
 const STATUS_LABEL: Record<Severity, string> = {

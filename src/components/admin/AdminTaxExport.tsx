@@ -13,7 +13,6 @@ interface Row {
   id: string;
   amount_paid: number | null;
   commission_amount: number | null;
-  driver_payout_amount: number | null;
   currency: string | null;
   paid_at: string | null;
   refunded_at: string | null;
@@ -48,7 +47,7 @@ const AdminTaxExport = () => {
     const { data, error } = await supabase
       .from('ride_requests')
       .select(
-        'id, amount_paid, commission_amount, driver_payout_amount, currency, paid_at, refunded_at, stripe_payment_intent_id, passenger:profiles!ride_requests_passenger_id_fkey(full_name), ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address, departure_time, driver:profiles!rides_driver_id_fkey(full_name))'
+        'id, amount_paid, commission_amount, currency, paid_at, refunded_at, stripe_payment_intent_id, passenger:profiles!ride_requests_passenger_id_fkey(full_name), ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address, departure_time, driver:profiles!rides_driver_id_fkey(full_name))'
       )
       .not('paid_at', 'is', null)
       .gte('paid_at', from)
@@ -71,7 +70,6 @@ const AdminTaxExport = () => {
   // Celá online uhradená suma je rezervačný poplatok platformy (jazdu platí cestujúci vodičovi v hotovosti).
   const commission = sum((r) => Number(r.commission_amount ?? r.amount_paid ?? 0));
 
-  const driverShare = sum((r) => Number(r.driver_payout_amount || 0));
   const commissionVat = commission - commission / (1 + VAT_RATE);
   const commissionNet = commission - commissionVat;
 
@@ -91,7 +89,6 @@ const AdminTaxExport = () => {
       'provizia_brutto',
       'provizia_dph_23',
       'provizia_netto',
-      'podiel_vodica',
       'mena',
       'stripe_payment_intent',
       'refundovane',
@@ -111,7 +108,6 @@ const AdminTaxExport = () => {
         c.toFixed(2),
         vat.toFixed(2),
         (c - vat).toFixed(2),
-        Number(r.driver_payout_amount || 0).toFixed(2),
         (r.currency || 'EUR').toUpperCase(),
         r.stripe_payment_intent_id || '',
         r.refunded_at ? 'ano' : 'nie',
@@ -139,8 +135,8 @@ const AdminTaxExport = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Zdaňujeme len províziu TakeMe za sprostredkovanie. Podiel vodiča je jeho príjem a vodič si dane rieši sám.
-            Export slúži účtovníkovi ako podklad k DPH z provízií.
+            Celá online platba je rezervačný poplatok TakeMe za sprostredkovanie. Cenu úseku platí cestujúci vodičovi zvlášť v hotovosti; TakeMe vodičovi nič nevypláca.
+            Export zahŕňa iba poplatky platformy, nie hotovostné platby vodičom.
           </p>
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
@@ -170,8 +166,7 @@ const AdminTaxExport = () => {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { label: 'Platby (bez refundov)', value: String(active.length) },
-              { label: 'Objem jázd (brutto)', value: eur(gross) },
-              { label: 'Podiel vodičov', value: eur(driverShare) },
+              { label: 'Online poplatky (brutto)', value: eur(gross) },
               { label: 'Rezervačné poplatky (brutto)', value: eur(commission) },
               { label: `DPH ${Math.round(VAT_RATE * 100)} % z poplatkov`, value: eur(commissionVat) },
               { label: 'Poplatky bez DPH (základ dane)', value: eur(commissionNet) },

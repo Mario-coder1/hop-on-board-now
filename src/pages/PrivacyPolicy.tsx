@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-  const lastUpdated = '25. 9. 2026';
+  const lastUpdated = '7. 10. 2026';
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,7 +143,7 @@ const PrivacyPolicy = () => {
               <h2 className="font-display text-2xl font-semibold">6. Platby a rezervačný poplatok</h2>
             </div>
             <div className="space-y-2 text-muted-foreground">
-              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe nezadržiava peniaze používateľov, neprevádzkuje žiadnu internú peňaženku a nemá prístup k údajom platobnej karty. Online sa platí iba rezervačný poplatok platformy (15 % z ceny jazdy za daný úsek, min. 1 €). Cenu jazdy platí spolujazdec vodičovi v hotovosti; TakeMe vodičom nič nevypláca. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
+              <p>Platby spolujazdcov sú spracúvané výhradne prostredníctvom platobnej brány Stripe. TakeMe neprevádzkuje žiadnu internú peňaženku a nemá prístup k úplným údajom platobnej karty. Online sa platí iba rezervačný poplatok platformy (15 % z ceny jazdy za daný úsek, min. 1 €), ktorý patrí celý TakeMe za sprostredkovanie. Cenu úseku platí spolujazdec vodičovi zvlášť v hotovosti; TakeMe vodičom nič nevypláca. Pri odchode do 6 dní Stripe vytvorí blokáciu na karte a poplatok sa strhne po overení nástupného kódu. Pri skoršej rezervácii môže byť strhnutý hneď. Vrátenie poplatku alebo uvoľnenie blokácie sa riadi obchodnými podmienkami. Pre účely účtovníctva uchovávame doklady o platbách po dobu vyžadovanú zákonom (zvyčajne 10 rokov).</p>
             </div>
           </section>
 
