@@ -104,7 +104,7 @@ const TermsOfService = () => {
                 žiadosť / rezerváciu zrušiť kedykoľvek pred fyzickým vyzdvihnutím vodičom. Ak vodič žiadosť ešte
                 neschválil, alebo bola schválená a vodič ešte neoznámil príchod (stav <em>pending</em> alebo{" "}
                 <em>accepted</em>), spolujazdec má nárok na{" "}
-                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku po odpočítaní nákladov platby (bod 2.1b).
+                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku bez akejkoľvek zrážky.
               </p>
               <p>
                 <strong className="text-foreground">2.1a. Zrušenie po príchode vodiča (storno poplatok 50 %).</strong>{" "}
@@ -117,9 +117,7 @@ const TermsOfService = () => {
                 zrušenia. Pri zrušení je povinné uviesť dôvod.
               </p>
               <p>
-                <strong className="text-foreground">2.1b. Náklady platby.</strong> Pri
-                zrušení rezervácie spolujazdcom (body 2.1 a 2.1a) sa refundovaná suma znižuje o náklady platobnej
-                brány (1,5 % z uhradenej sumy + 0,25 €), ktoré platobná brána pri vrátení platby nevracia. Ak jazdu zruší vodič alebo spolujazdca nevyzdvihne (body 2.2, 2.3, 2.10), vracia sa celá suma bez zrážky. Pri jazdách s odchodom do 6 dní sa rezervačný poplatok pri rezervácii na karte spolujazdca len zablokuje a strhne sa až po potvrdení nástupu nástupným kódom; ak jazda neprebehne, blokácia sa zruší bez akejkoľvek zrážky.
+                <strong className="text-foreground">2.1b. Vrátenie bez zrážky.</strong> Pri zrušení rezervácie vopred spolujazdcom, pri odmietnutí žiadosti vodičom, pri zrušení jazdy vodičom alebo ak vodič spolujazdca nevyzdvihne (body 2.1, 2.2, 2.3, 2.10), vracia sa celý rezervačný poplatok bez akejkoľvek zrážky. Pri jazdách s odchodom do 6 dní sa rezervačný poplatok pri rezervácii na karte spolujazdca len zablokuje a strhne sa až po potvrdení nástupu nástupným kódom; ak jazda neprebehne, blokácia sa zruší a peniaze sa uvoľnia na účte spolujazdca (podľa banky zvyčajne do niekoľkých dní).
               </p>
 
               <p>
