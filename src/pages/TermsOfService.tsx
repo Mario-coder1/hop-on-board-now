@@ -111,8 +111,8 @@ const TermsOfService = () => {
                 Ak vodič už dorazil na dohodnuté miesto vyzdvihnutia a označil svoj príchod v aplikácii (stav{" "}
                 <em>driver_arrived</em>) a spolujazdec následne rezerváciu zruší, refunduje sa mu len{" "}
                 <strong className="text-foreground">50 % rezervačného poplatku</strong>. Zvyšných 50 % predstavuje{" "}
-                <strong className="text-foreground">storno poplatok</strong> za už poskytnuté sprostredkovanie a
-                kompenzáciu vodičovi za cestu a čakanie. Konkrétnu výšku refundácie môže prevádzkovateľ upraviť v
+                <strong className="text-foreground">storno poplatok</strong>, ktorý si ponecháva prevádzkovateľ TakeMe za už
+                poskytnuté sprostredkovanie (vodič z rezervačného poplatku nedostáva nič). Konkrétnu výšku refundácie môže prevádzkovateľ upraviť v
                 nastaveniach platformy; aktuálna hodnota je spolujazdcovi zobrazená v aplikácii pred potvrdením
                 zrušenia. Pri zrušení je povinné uviesť dôvod.
               </p>
