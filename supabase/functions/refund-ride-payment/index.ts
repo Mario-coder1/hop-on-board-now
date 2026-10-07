@@ -160,30 +160,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Kompenzácia vodičovi pri neskorom zrušení
-    if (compensation > 0 && driverId) {
-      try {
-        let { data: wallet } = await supabase
-          .from("wallets").select("id, balance").eq("profile_id", driverId).maybeSingle();
-        if (!wallet) {
-          const { data: created } = await supabase
-            .from("wallets").insert({ profile_id: driverId }).select("id, balance").single();
-          wallet = created;
-        }
-        if (wallet) {
-          await supabase.from("wallets")
-            .update({ balance: Number(wallet.balance ?? 0) + compensation }).eq("id", wallet.id);
-          await supabase.from("transactions").insert({
-            wallet_id: wallet.id,
-            type: "cancellation_fee",
-            amount: compensation,
-            description: "Kompenzácia za neskoré zrušenie pasažierom (vodič už bol na mieste)",
-          });
-        }
-      } catch (e) {
-        console.error("compensation error", e);
-      }
-    }
+    // Storno poplatok si ponecháva platforma (model BlaBlaCar) — vodičovi sa nič nepripisuje.
 
     await supabase.from("ride_requests").update({
       payment_status: isFull ? "refunded" : "partially_refunded",
