@@ -104,7 +104,7 @@ const TermsOfService = () => {
                 žiadosť / rezerváciu zrušiť kedykoľvek pred fyzickým vyzdvihnutím vodičom. Ak vodič žiadosť ešte
                 neschválil, alebo bola schválená a vodič ešte neoznámil príchod (stav <em>pending</em> alebo{" "}
                 <em>accepted</em>), spolujazdec má nárok na{" "}
-                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku po odpočítaní nákladov platby (bod 2.1b).
+                <strong className="text-foreground">refundáciu 100 %</strong> rezervačného poplatku bez akejkoľvek zrážky.
               </p>
               <p>
                 <strong className="text-foreground">2.1a. Zrušenie po príchode vodiča (storno poplatok 50 %).</strong>{" "}
