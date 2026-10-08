@@ -5,4 +5,4 @@
 
 # Driver languages on ride cards
 - [x] Show saved driver languages on passenger and search ride cards without hiding them on mobile.
-- [ ] Verify mobile rendering and current build signals.
+- [x] Verify both lists with an eight-language test ride at phone width, no horizontal overflow, and current build OK.
