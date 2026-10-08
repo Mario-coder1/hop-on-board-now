@@ -28,7 +28,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   isAdmin: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, spokenLanguages?: string[]) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateRole: (role: "driver" | "passenger") => Promise<void>;
@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, [bootstrapUser]);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, spokenLanguages: string[] = []) => {
     const redirectUrl = `${window.location.origin}/`;
     const { TERMS_VERSION, PRIVACY_VERSION } = await import("@/lib/legalVersions");
     const acceptedAt = new Date().toISOString();
@@ -182,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          spoken_languages: spokenLanguages,
           terms_version: TERMS_VERSION,
           terms_accepted_at: acceptedAt,
           privacy_version: PRIVACY_VERSION,

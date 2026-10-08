@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SpokenLanguagesPicker from '@/components/SpokenLanguagesPicker';
+import { detectSpokenLanguages, SPOKEN_LANGUAGES } from '@/lib/spokenLanguages';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
