@@ -15,6 +15,7 @@ import { formatDbDate } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import LocationSearchInput from '@/components/LocationSearchInput';
+import DriverSpokenLanguages from '@/components/DriverSpokenLanguages';
 
 interface ActiveRequest {
   id: string;
@@ -45,6 +46,7 @@ interface Ride {
     avatar_url: string | null;
     car_model: string | null;
     car_color: string | null;
+    spoken_languages: string[] | null;
   };
 }
 
@@ -93,7 +95,7 @@ const PassengerDashboard: React.FC = () => {
       .from('rides')
       .select(`
         *,
-        driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color)
+        driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color, spoken_languages)
       `)
       .in('status', ['active', 'in_progress'])
       .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
@@ -321,7 +323,8 @@ const PassengerDashboard: React.FC = () => {
                         <span className="tabular-nums">{selectedMapRide.driver?.rating?.toFixed(1) || '5.0'}</span>
                         {selectedMapRide.driver?.car_model && <span className="truncate">· {selectedMapRide.driver.car_model}</span>}
                       </p>
-                      <div className="text-xs space-y-1 mb-3">
+                       <DriverSpokenLanguages languages={selectedMapRide.driver?.spoken_languages} />
+                       <div className="text-xs space-y-1 mb-3">
                         <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Odkiaľ:</span><span className="truncate font-medium">{selectedMapRide.origin_address}</span></div>
                         <div className="flex gap-2"><span className="text-muted-foreground shrink-0">Kam:</span><span className="truncate font-medium">{selectedMapRide.destination_address}</span></div>
                       </div>
@@ -493,6 +496,7 @@ const PassengerDashboard: React.FC = () => {
                               </div>
                             </div>
                           </div>
+                          <DriverSpokenLanguages languages={ride.driver?.spoken_languages} />
                         </div>
                       </div>
                     </Link>

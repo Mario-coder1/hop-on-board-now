@@ -14,6 +14,7 @@ import Map from '@/components/Map';
 import SEO from '@/components/SEO';
 import RouteAlerts from '@/components/RouteAlerts';
 import LocationSearchInput from '@/components/LocationSearchInput';
+import DriverSpokenLanguages from '@/components/DriverSpokenLanguages';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
@@ -53,6 +54,7 @@ interface Ride {
     avatar_url: string | null;
     rating: number | null;
     total_rides: number | null;
+    spoken_languages: string[] | null;
   } | null;
   ride_stops: RideStop[];
 }
@@ -136,7 +138,7 @@ const SearchRides = () => {
       .from('rides')
       .select(`
         *,
-        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating, total_rides),
+        driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating, total_rides, spoken_languages),
         ride_stops(id, address, stop_order)
       `)
       .in('status', ['active', 'in_progress'])
@@ -848,6 +850,7 @@ const SearchRides = () => {
                               </Button>
                             </div>
                           </div>
+                          <DriverSpokenLanguages languages={ride.driver?.spoken_languages} />
                         </div>
                       </div>
                     </motion.div>
