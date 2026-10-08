@@ -691,6 +691,8 @@ const Profile = () => {
                   </Button>
                 )}
               </div>
+
+              <SpokenLanguagesField profileId={profile?.id} />
             </div>
           </div>
 
