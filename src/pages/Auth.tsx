@@ -87,6 +87,7 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [spokenLangs, setSpokenLangs] = useState<string[]>(() => detectSpokenLanguages());
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -194,7 +195,7 @@ const Auth: React.FC = () => {
           return;
         }
 
-        const { error } = await signUp(email.trim().toLowerCase(), password, fullName.trim());
+        const { error } = await signUp(email.trim().toLowerCase(), password, fullName.trim(), spokenLangs);
         if (error) {
           toast({
             title: "Chyba registrácie",
@@ -396,6 +397,14 @@ const Auth: React.FC = () => {
                       required={!isLogin}
                     />
                   </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label>Akými jazykmi komunikuješ?</Label>
+                  <SpokenLanguagesPicker value={spokenLangs} onChange={setSpokenLangs} />
+                  <p className="text-xs text-muted-foreground">Zistili sme podľa tvojho zariadenia — uprav podľa seba. Cestujúci to uvidia pri tvojich jazdách.</p>
                 </div>
               )}
 
