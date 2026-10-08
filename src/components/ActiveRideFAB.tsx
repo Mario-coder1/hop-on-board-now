@@ -52,6 +52,7 @@ const ActiveRideFAB: React.FC = () => {
       .select('id, destination_address')
       .eq('driver_id', profile.id)
       .in('status', ['active', 'in_progress'])
+      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .order('departure_time', { ascending: true })
       .limit(5);
 

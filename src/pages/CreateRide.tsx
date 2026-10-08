@@ -174,6 +174,7 @@ const CreateRide = () => {
         .select('id')
         .eq('driver_id', profile.id)
         .in('status', ['active', 'in_progress'])
+        .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .limit(1);
       if (existingError) {
         toast({ title: 'Chyba', description: existingError.message, variant: 'destructive' });
