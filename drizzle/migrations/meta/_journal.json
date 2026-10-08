@@ -50,6 +50,13 @@
       "when": 1791198675404,
       "tag": "0006_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791443498692,
+      "tag": "0007_driver_spoken_languages",
+      "breakpoints": true
     }
   ]
 }
