@@ -711,6 +711,7 @@ export type Database = {
           privacy_version: string | null
           rating: number | null
           selected_role: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages: string[]
           terms_accepted_at: string | null
           terms_version: string | null
           total_rides: number | null
@@ -740,6 +741,7 @@ export type Database = {
           privacy_version?: string | null
           rating?: number | null
           selected_role?: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages?: string[]
           terms_accepted_at?: string | null
           terms_version?: string | null
           total_rides?: number | null
@@ -769,6 +771,7 @@ export type Database = {
           privacy_version?: string | null
           rating?: number | null
           selected_role?: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages?: string[]
           terms_accepted_at?: string | null
           terms_version?: string | null
           total_rides?: number | null
@@ -1822,6 +1825,7 @@ export type Database = {
           id: string | null
           rating: number | null
           selected_role: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages: string[] | null
           total_rides: number | null
           user_id: string | null
         }
@@ -1836,6 +1840,7 @@ export type Database = {
           id?: string | null
           rating?: number | null
           selected_role?: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages?: string[] | null
           total_rides?: number | null
           user_id?: string | null
         }
@@ -1850,6 +1855,7 @@ export type Database = {
           id?: string | null
           rating?: number | null
           selected_role?: Database["public"]["Enums"]["user_role"] | null
+          spoken_languages?: string[] | null
           total_rides?: number | null
           user_id?: string | null
         }

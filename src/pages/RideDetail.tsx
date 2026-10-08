@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SPOKEN_LANGUAGES } from '@/lib/spokenLanguages';
 import VerifiedDriverBadge from '@/components/VerifiedDriverBadge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -104,6 +105,7 @@ interface RideDetailData {
     car_model: string | null;
     car_color: string | null;
     total_rides: number | null;
+    spoken_languages?: string[] | null;
   } | null;
 }
 
@@ -353,7 +355,8 @@ const RideDetail = () => {
             bio,
             car_model,
             car_color,
-            total_rides
+            total_rides,
+            spoken_languages
           )
         `
       )
@@ -869,6 +872,18 @@ const RideDetail = () => {
                 </div>
 
                 {ride.driver?.bio && <p className="text-sm text-muted-foreground mb-4">{ride.driver.bio}</p>}
+
+                {!!ride.driver?.spoken_languages?.length && (
+                  <div className="flex flex-wrap items-center gap-1.5 text-sm mb-3">
+                    <span className="text-muted-foreground">Hovorí:</span>
+                    {ride.driver.spoken_languages.map((c) => {
+                      const l = SPOKEN_LANGUAGES.find((x) => x.code === c);
+                      return l ? (
+                        <span key={c} className="px-2 py-0.5 rounded-full bg-muted text-xs">{l.flag} {l.label}</span>
+                      ) : null;
+                    })}
+                  </div>
+                )}
 
                 {ride.driver?.car_model && (
                   <div className="flex items-center gap-2 text-sm mb-2">
