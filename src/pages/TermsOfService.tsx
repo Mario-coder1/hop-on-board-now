@@ -136,8 +136,12 @@ const TermsOfService = () => {
                 <strong className="text-foreground">2.4. No-show spolujazdca.</strong> Ak sa spolujazdec nedostaví na
                 dohodnuté miesto ani po primeranej čakacej dobe (min. 10 minút) a vodič odíde bez neho, jazda sa
                 považuje za neuskutočnenú zo strany spolujazdca. V takom prípade{" "}
-                <strong className="text-foreground">nárok na refundáciu rezervačného poplatku nevzniká</strong>.
-              </p>
+                <strong className="text-foreground">nárok na refundáciu rezervačného poplatku nevzniká</strong> a
+                poplatok si ponecháva prevádzkovateľ TakeMe ako úhradu za sprostredkovanie (vodič z neho nedostáva
+                nič). Vodič toto vyriešenie označí v aplikácii po tom, čo potvrdil svoj príchod na miesto nástupu;
+                spolujazdec je o odobratí z jazdy upozornený. Pri jazdách s odchodom do 6 dní, kde bol poplatok len
+                zablokovaný, sa blokácia po no-show strhne.
+               </p>
               <p>
                 <strong className="text-foreground">2.5. Zrušenie počas jazdy / po vyzdvihnutí.</strong> Po tom, ako bol
                 spolujazdec vodičom označený ako vyzdvihnutý (<em>picked_up</em>), sa sprostredkovanie považuje za
