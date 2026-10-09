@@ -259,6 +259,29 @@ const ManagePassengers = () => {
     fetchRideAndPassengers();
   };
 
+  // Passenger did not show up at the pickup spot (driver already arrived)
+  const handleNoShow = async (requestId: string, passengerName: string) => {
+    if (!window.confirm(`${passengerName} sa nedostavil? Pasažier bude z jazdy odstránený.`)) return;
+    if (isPaymentsEnabled()) {
+      try {
+        await supabase.functions.invoke('refund-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment(), reason: 'Pasažier sa nedostavil na miesto nástupu' },
+        });
+      } catch (e) { console.error('refund', e); }
+    }
+    const { error } = await supabase.from('ride_requests').update({
+      status: 'cancelled',
+      cancellation_reason: 'Pasažier sa nedostavil na miesto nástupu',
+      cancelled_at: new Date().toISOString(),
+    }).eq('id', requestId);
+    if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
+    if (ride) {
+      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
+    }
+    toast({ title: 'Pasažier sa nedostavil', description: `${passengerName} bol odstránený z jazdy.` });
+    fetchRideAndPassengers();
+  };
+
   const openNavigation = (lat: number, lng: number) => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
@@ -511,6 +534,7 @@ const ManagePassengers = () => {
               onReject={() => handleRejectRequest(p.id, p.passenger.full_name)}
               onArrived={() => handleArrived(p.id, p.passenger.full_name)}
               onPin={() => setPinDialogFor(p)}
+              onNoShow={() => handleNoShow(p.id, p.passenger.full_name)}
               onDropoff={() => handleDropoff(p.id, p.passenger.full_name)}
               onNavigate={openNavigation}
             />
@@ -588,7 +612,7 @@ const ManagePassengers = () => {
 
 // ====== Passenger card ======
 const PassengerCard = ({ cashToDriver,
-  p, rideDest, isNext, distanceKm, onAccept, onReject, onArrived, onPin, onDropoff, onNavigate,
+  p, rideDest, isNext, distanceKm, onAccept, onReject, onArrived, onPin, onNoShow, onDropoff, onNavigate,
 }: {
   p: AcceptedPassenger;
   rideDest: { lat: number; lng: number; addr: string } | null;
@@ -596,7 +620,7 @@ const PassengerCard = ({ cashToDriver,
   distanceKm?: number | null;
   cashToDriver?: PriceBreakdown | null;
   onAccept: () => void; onReject: () => void;
-  onArrived: () => void; onPin: () => void;
+  onArrived: () => void; onPin: () => void; onNoShow: () => void;
   onDropoff: () => void;
   onNavigate: (lat: number, lng: number) => void;
 }) => {
@@ -732,6 +756,11 @@ const PassengerCard = ({ cashToDriver,
           </>
         )}
       </div>
+      {isArrived && (
+        <Button variant="outline" onClick={onNoShow} className="mt-1.5 h-8 w-full gap-1.5 text-xs border-destructive/40 text-destructive">
+          <X className="w-3.5 h-3.5" /> Nedostavil sa
+        </Button>
+      )}
     </div>
   );
 };
