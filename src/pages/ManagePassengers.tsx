@@ -261,11 +261,12 @@ const ManagePassengers = () => {
 
   // Passenger did not show up at the pickup spot (driver already arrived)
   const handleNoShow = async (requestId: string, passengerName: string) => {
-    if (!window.confirm(`${passengerName} sa nedostavil? Pasažier bude z jazdy odstránený.`)) return;
+    if (!window.confirm(`${passengerName} sa nedostavil? Pasažier bude z jazdy odstránený a rezervačný poplatok sa nevracia.`)) return;
     if (isPaymentsEnabled()) {
       try {
-        await supabase.functions.invoke('refund-ride-payment', {
-          body: { request_id: requestId, environment: getStripeEnvironment(), reason: 'Pasažier sa nedostavil na miesto nástupu' },
+        // No-show: the booking fee is kept by TakeMe (captured, not refunded)
+        await supabase.functions.invoke('capture-ride-payment', {
+          body: { request_id: requestId, environment: getStripeEnvironment(), no_show: true },
         });
       } catch (e) { console.error('refund', e); }
     }
