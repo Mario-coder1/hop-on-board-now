@@ -535,6 +535,23 @@ const ManagePassengers = () => {
         )}
       </div>
 
+      {/* Map — below the passenger list, above the end-ride button */}
+      <div className="px-3 pb-2 shrink-0">
+        <div className="h-[clamp(140px,22svh,240px)] rounded-2xl overflow-hidden border border-border shadow-card">
+          <Map
+            markers={[...markers, ...gasStations]}
+            plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
+            waypoints={ride ? [
+              { lat: Number(ride.origin_lat), lng: Number(ride.origin_lng) },
+              { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) },
+            ] : undefined}
+            showRoute
+            interactive
+            className="h-full w-full"
+          />
+        </div>
+      </div>
+
       {/* Bottom action bar is in normal layout flow, so it does not jump when mobile browser chrome changes height. */}
       <div
         className="shrink-0 border-t bg-background/95 backdrop-blur px-3 pt-2 md:pt-3 md:pb-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.08)]"
