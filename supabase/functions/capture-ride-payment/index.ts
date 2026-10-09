@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
-    const { request_id, environment } = await req.json();
+    const { request_id, environment, no_show } = await req.json();
+    const isNoShow = no_show === true;
     if (typeof request_id !== "string" || !/^[0-9a-f-]{36}$/i.test(request_id)) return json({ error: "Invalid request_id" }, 400);
     if (environment !== "sandbox" && environment !== "live") return json({ error: "Invalid environment" }, 400);
     const env: StripeEnv = environment;
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", u.user.id).single();
 
     const { data: rr } = await supabase.from("ride_requests")
-      .select("id, passenger_id, payment_status, payment_captured_at, pin_verified_at, stripe_payment_intent_id, ride:rides(driver_id)")
+      .select("id, passenger_id, status, payment_status, payment_captured_at, pin_verified_at, stripe_payment_intent_id, ride:rides(driver_id)")
       .eq("id", request_id).single();
     if (!rr) return json({ error: "Not found" }, 404);
     const driverId = (rr.ride as any)?.driver_id;
@@ -31,7 +32,11 @@ Deno.serve(async (req) => {
       return json({ error: "Forbidden" }, 403);
     }
     if (rr.payment_captured_at || rr.payment_status !== "paid" || !rr.stripe_payment_intent_id) return json({ success: true, skipped: true });
-    if (!rr.pin_verified_at) return json({ error: "Nástup ešte nebol overený" }, 400);
+    if (isNoShow) {
+      // Pasažier sa nedostavil: iba vodič, iba keď už bol na mieste. Poplatok si ponecháva TakeMe.
+      if (!profile || profile.id !== driverId) return json({ error: "Forbidden" }, 403);
+      if (rr.status !== "driver_arrived") return json({ error: "Vodič ešte nie je na mieste" }, 400);
+    } else if (!rr.pin_verified_at) return json({ error: "Nástup ešte nebol overený" }, 400);
 
     const stripe = createStripeClient(env);
     const pi = await stripe.paymentIntents.retrieve(rr.stripe_payment_intent_id);
@@ -40,7 +45,9 @@ Deno.serve(async (req) => {
     if (driverId) {
       const amount = ((pi.amount_received || pi.amount || 0) / 100).toFixed(2);
       const title = "Rezervačný poplatok strhnutý";
-      const message = `Nástup cestujúceho overený, poplatok ${amount} € bol strhnutý. Cenu úseku ti cestujúci zaplatí v hotovosti.`;
+      const message = isNoShow
+        ? `Cestujúci sa nedostavil, rezervačný poplatok ${amount} € si ponecháva TakeMe.`
+        : `Nástup cestujúceho overený, poplatok ${amount} € bol strhnutý. Cenu úseku ti cestujúci zaplatí v hotovosti.`;
       try {
         await supabase.from("notifications").insert({ profile_id: driverId, title, message });
         await supabase.rpc("send_push_via_edge", { _profile_id: driverId, _title: title, _body: message, _data: { request_id } });
