@@ -41,7 +41,6 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const rideUrl = `${window.location.origin}/ride/${rideId}`;
   const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`;
 
   const when = departureTime
