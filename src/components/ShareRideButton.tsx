@@ -41,7 +41,8 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const url = `${window.location.origin}/ride/${rideId}`;
+  const rideUrl = `${window.location.origin}/ride/${rideId}`;
+  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`;
 
   const when = departureTime
     ? `${formatDbDate(departureTime, 'd. MMMM', { locale: sk })} o ${formatDbDate(departureTime, 'HH:mm')}`
@@ -63,7 +64,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
     .filter(Boolean)
     .join('\n');
 
-  const message = `${messageNoUrl}\n\nPripoj sa jedným klikom: ${url}`;
+  const message = `${messageNoUrl}\n\nPripoj sa jedným klikom: ${shareUrl}`;
 
   const copy = async (text: string, what: string) => {
     try {
@@ -83,7 +84,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
         await navigator.share({
           title: `Spolujazda ${origin} → ${destination}`,
           text: messageNoUrl,
-          url,
+          url: shareUrl,
         });
         return;
       } catch {
@@ -120,7 +121,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
               {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
               Kopírovať text s odkazom
             </Button>
-            <Button variant="outline" onClick={() => copy(url, 'Odkaz')} className="w-full">
+            <Button variant="outline" onClick={() => copy(shareUrl, 'Odkaz')} className="w-full">
               <Copy className="w-4 h-4 mr-2" />
               Kopírovať len odkaz
             </Button>
@@ -131,7 +132,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
                 className="w-full"
               >
                 <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
