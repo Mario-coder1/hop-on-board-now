@@ -8,4 +8,4 @@
 - [x] Verify both lists with an eight-language test ride at phone width, no horizontal overflow, and current build OK.
 # Facebook náhľad zdieľanej jazdy
 - [x] Zobraziť vo Facebook skupine trasu, opis a obrázok pri zdieľanom odkaze jazdy.
-- [ ] Overiť verejný náhľad a presmerovanie na konkrétnu jazdu.
+- [x] Overiť verejný náhľad a presmerovanie na konkrétnu jazdu.
