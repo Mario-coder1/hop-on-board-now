@@ -15,7 +15,8 @@ const htmlResponse = (html: string, status = 200) => new Response(html, {
   status,
   headers: {
     'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'public, max-age=300, s-maxage=300',
+    'Cache-Control': 'no-store',
+    Vary: 'User-Agent',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'no-referrer',
   },
@@ -72,6 +73,12 @@ Deno.serve(async (req) => {
   const requestUrl = new URL(req.url)
   const rideId = requestUrl.searchParams.get('id') ?? ''
   if (!UUID_PATTERN.test(rideId)) return new Response('Invalid ride', { status: 400 })
+
+  const ua = req.headers.get('user-agent') ?? ''
+  const isCrawler = /facebookexternalhit|facebot|meta-externalagent|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|viber|skypeuripreview|pinterest|redditbot|googlebot|bingbot|embedly|applebot/i.test(ua)
+  if (!isCrawler) {
+    return new Response(null, { status: 302, headers: { Location: `${SITE_URL}/ride/${rideId}`, 'Cache-Control': 'no-store' } })
+  }
 
   const backendUrl = Deno.env.get('SUPABASE_URL')
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
