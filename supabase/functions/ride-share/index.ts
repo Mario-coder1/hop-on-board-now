@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
     .maybeSingle()
 
   const rideUrl = `${SITE_URL}/ride/${rideId}`
-  const shareUrl = `${requestUrl.origin}${requestUrl.pathname}?id=${encodeURIComponent(rideId)}`
+  const shareUrl = `${backendUrl}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`
 
   if (!ride) {
     return renderPage({
