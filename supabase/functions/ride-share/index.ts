@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const SITE_URL = 'https://www.takeme.sk'
-const SHARE_IMAGE = `${SITE_URL}/ride-share.png`
+const SHARE_IMAGE = `${SITE_URL}/og-image.png`
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const escapeHtml = (value: unknown) => String(value ?? '')
@@ -50,7 +50,7 @@ const renderPage = ({
     <meta property="og:image:secure_url" content="${SHARE_IMAGE}">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:height" content="640">
     <meta property="og:image:alt" content="TakeMe — slovenská spolujazda">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(title)}">
