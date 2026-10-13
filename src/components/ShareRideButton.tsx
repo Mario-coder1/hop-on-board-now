@@ -23,6 +23,7 @@ interface ShareRideButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   label?: string;
+  defaultOpen?: boolean;
 }
 
 const ShareRideButton: React.FC<ShareRideButtonProps> = ({
@@ -36,9 +37,10 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
   size = 'sm',
   className,
   label = 'Zdieľať',
+  defaultOpen = false,
 }) => {
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [copied, setCopied] = useState(false);
 
   const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`;

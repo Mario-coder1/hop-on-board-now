@@ -125,6 +125,7 @@ type DriverContact = {
 };
 
 const RideDetail = () => {
+  const isOwnRideShareIntent = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('share') === '1';
   const { id } = useParams();
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -769,6 +770,7 @@ const RideDetail = () => {
                     pricePerSeat={ride.price_per_seat}
                     seats={ride.available_seats}
                     className="rounded-full"
+                    defaultOpen={isOwnRideShareIntent}
                   />
                 </div>
 
