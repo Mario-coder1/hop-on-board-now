@@ -270,10 +270,10 @@ const CreateRide = () => {
 
       toast({
         title: 'Jazda vytvorená!',
-        description: 'Vaša jazda bola úspešne pridaná.',
+        description: 'Zdieľaj ju do Facebook skupiny a nájdi cestujúcich rýchlejšie.',
       });
       
-      navigate('/driver');
+      navigate(rideData?.id ? `/ride/${rideData.id}?share=1` : '/driver');
     } catch (error: unknown) {
       toast({
         title: 'Chyba',
