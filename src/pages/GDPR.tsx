@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 
 const GDPR = () => {
   const navigate = useNavigate();
-  const lastUpdated = '7. 10. 2026';
+  const lastUpdated = '13. 10. 2026';
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,6 +163,8 @@ const GDPR = () => {
             </div>
             <div className="space-y-2 text-muted-foreground">
               <p>GPS poloha vodiča je viditeľná spolujazdcom iba počas aktívnej jazdy. Sledovanie sa automaticky ukončí pri dokončení alebo zrušení jazdy. Presnú polohu uchovávame najviac 30 dní.</p>
+              <p>Polohu vodiča posielame iba vtedy, keď má aplikáciu TakeMe otvorenú; počas zdieľania polohy aplikácia ponechá obrazovku zapnutú. Keď je aplikácia zatvorená, poloha sa neposiela a spolujazdec vidí poslednú známu polohu.</p>
+              <p><strong>Firemný program:</strong> ak jazdíte ako zamestnanec v rámci firemného programu, zamestnávateľ dostáva prehľad vašich firemných jázd na účely fakturácie.</p>
             </div>
           </section>
 
