@@ -57,6 +57,13 @@
       "when": 1791443498692,
       "tag": "0007_driver_spoken_languages",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791869947925,
+      "tag": "0008_disable_cold_start_bonus",
+      "breakpoints": true
     }
   ]
 }
