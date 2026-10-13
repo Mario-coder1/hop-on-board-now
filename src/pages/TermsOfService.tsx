@@ -389,33 +389,21 @@ const TermsOfService = () => {
           <section className="p-6 rounded-2xl bg-card border border-border">
             <div className="flex items-center gap-3 mb-4">
               <Star className="w-6 h-6 text-primary" />
-              <h2 className="font-display text-2xl font-semibold">6a. Cold Start Bonus (registračný bonus)</h2>
+              <h2 className="font-display text-2xl font-semibold">6a. Akcie a firemný program</h2>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <p>
-                <strong className="text-foreground">6a.1.</strong> „Cold Start Bonus" je časovo obmedzený uvítací
-                program, v rámci ktorého môže nový overený používateľ získať zľavu / kredit uplatniteľný pri platbe cez
-                Stripe po splnení podmienok stanovených prevádzkovateľom (napr. dokončenie registrácie, overenie
-                e-mailu/telefónu, prvá jazda).
+                <strong className="text-foreground">6a.1.</strong> TakeMe v súčasnosti neprevádzkuje žiadny bonusový ani
+                kreditový program. Prípadné akcie a zľavy budú vopred zverejnené s vlastnými podmienkami a môžu sa
+                uplatniť výhradne na rezervačný poplatok TakeMe, nikdy nie na hotovostnú cenu jazdy vodičovi. Zľavu nie
+                je možné vyplatiť v hotovosti ani previesť na bankový účet.
               </p>
               <p>
-                <strong className="text-foreground">6a.2.</strong> Bonus je <strong>nepeňažná zľava</strong>{" "}
-                uplatniteľná výhradne na rezervačný poplatok TakeMe, nie na hotovostnú cenu jazdy vodičovi. Bonus nie je možné vyplatiť v hotovosti,
-                previesť na bankový účet ani zameniť za peniaze.
-              </p>
-              <p>
-                <strong className="text-foreground">6a.3.</strong> Bonus je neprenosný, viazaný na jeden účet a jednu
-                osobu. Vytváranie viacerých účtov, zneužívanie odporúčaní alebo iné obchádzanie pravidiel vedie k
-                okamžitému odobratiu bonusu a k zablokovaniu účtu.
-              </p>
-              <p>
-                <strong className="text-foreground">6a.4.</strong> Prevádzkovateľ si vyhradzuje právo program kedykoľvek
-                zmeniť, obmedziť alebo ukončiť, ako aj upraviť výšku a podmienky bonusu. Nevyužitý bonus môže expirovať
-                po dobe uvedenej pri jeho pripísaní.
-              </p>
-              <p>
-                <strong className="text-foreground">6a.5.</strong> Pri zrušení účtu alebo porušení VOP nárok na
-                nevyužitý bonus zaniká bez náhrady.
+                <strong className="text-foreground">6a.2. Firemný program.</strong> Zamestnávateľ môže s TakeMe uzavrieť
+                zmluvu, na základe ktorej jeho zamestnanci (overení pracovným e-mailom) rezervujú jazdy bez platby kartou
+                v rámci limitov určených zamestnávateľom (počet jázd, suma, pracovné dni). Zamestnávateľovi sa raz
+                mesačne vystaví podklad k faktúre so zoznamom jázd zamestnancov (meno, pracovný e-mail, trasa, dátum,
+                suma). Ostatné pravidlá týchto VOP platia rovnako.
               </p>
             </div>
           </section>
@@ -438,6 +426,18 @@ const TermsOfService = () => {
               <p>
                 <strong className="text-foreground">7.3.</strong> Ak vodič neschváli žiadnu žiadosť a čas jazdy uplynie,
                 platby všetkých žiadateľov sú automaticky refundované.
+              </p>
+              <p>
+                <strong className="text-foreground">7.4. Potvrdenie jazdy („Ide jazda?“).</strong> Ak má jazda
+                prihlásených spolujazdcov, vodič dostane približne 15 minút pred odchodom výzvu na potvrdenie, že jazda
+                prebehne, a 15 minút po čase odchodu poslednú výzvu. Ak vodič jazdu nepotvrdí, nespustí ju ani neoverí
+                nástupný kód žiadneho spolujazdca, jazda sa približne 1,5 hodiny po prvej výzve automaticky zruší a
+                spolujazdcom sa vráti celý rezervačný poplatok alebo uvoľní blokácia na karte. Opakované automatické
+                zrušenia môžu viesť k obmedzeniu účtu.
+              </p>
+              <p>
+                <strong className="text-foreground">7.5.</strong> Jazdu, ktorej čas odchodu uplynul pred viac ako 15
+                minútami a vodič ju nespustil, už nie je možné rezervovať. Spustené (LIVE) jazdy sa automaticky nerušia.
               </p>
             </div>
           </section>

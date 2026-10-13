@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
               <p>V aplikácii TakeMe (ďalej len „služba") spracúvame nasledujúce kategórie osobných údajov:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Registračné údaje:</strong> meno a priezvisko, e-mailová adresa, heslo (uložené v hashovanej forme), prípadne identifikátor Google účtu pri prihlásení cez Google.</li>
-                <li><strong>Profilové údaje:</strong> telefónne číslo, profilová fotografia, krátky popis profilu, jazyk, prípadné odznaky.</li>
+                <li><strong>Profilové údaje:</strong> telefónne číslo, profilová fotografia, krátky popis profilu, jazyk aplikácie, jazyky, ktorými komunikujete so spolujazdcami (zobrazujú sa pri vašich jazdách), prípadné odznaky.</li>
                 <li><strong>Údaje o vozidle (vodiči):</strong> značka a model auta, farba, evidenčné číslo (ŠPZ), počet sedadiel.</li>
                 <li><strong>Údaje o jazdách:</strong> miesto vyzdvihnutia a vystúpenia, čas, cena, počet miest, zastávky, žiadosti spolujazdcov, stav jazdy, dôvody zrušenia.</li>
                 <li><strong>Lokalizačné údaje:</strong> GPS poloha vodiča počas aktívnej jazdy (live tracking) a aktuálna poloha spolujazdca pri vyhľadávaní jazdy alebo voľbe miesta vyzdvihnutia. Poloha sa spracúva len keď je relevantná funkcia aktívna.</li>
@@ -101,6 +101,8 @@ const PrivacyPolicy = () => {
               <p>Vaše údaje sprístupňujeme len v nevyhnutnej miere:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Iným používateľom platformy:</strong> meno, fotka, hodnotenie, údaje o vozidle a približná poloha sú viditeľné pri ponuke jazdy. Telefónne číslo a presná ŠPZ sa zdieľajú až po potvrdení rezervácie medzi konkrétnym vodičom a spolujazdcom.</li>
+                <li><strong>Zamestnávateľovi</strong> — ak využívate firemný program, zamestnávateľ dostane zoznam vašich firemných jázd (meno, pracovný e-mail, trasa, dátum, suma) na účely fakturácie.</li>
+                <li><strong>Verejne cez zdieľaný odkaz:</strong> ak vodič zdieľa odkaz na jazdu, náhľad (napr. na Facebooku) zobrazí iba trasu, čas odchodu, cenu a počet voľných miest — bez mena a kontaktov.</li>
                 <li><strong>Stripe Payments Europe, Ltd.</strong> (Írsko) — spracovanie platieb, ukladanie údajov o platobných kartách. Stripe je nezávislý prevádzkovateľ pre údaje o karte. Viac na <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline">stripe.com/privacy</a>.</li>
                 <li><strong>Didit Technologies, S.L.</strong> (Španielsko, EÚ) — sprostredkovateľ pre overenie totožnosti vodičov (doklad, selfie, biometrická kontrola). Údaje uchováva podľa svojich zásad. Viac na <a href="https://didit.me/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary underline">didit.me</a>.</li>
                 <li><strong>Supabase Inc.</strong> (hosting databázy, autentifikácie a serverovej logiky, EÚ región) — sprostredkovateľ.</li>
@@ -173,7 +175,7 @@ const PrivacyPolicy = () => {
               <h2 className="font-display text-2xl font-semibold">9. Cookies a lokálne úložisko</h2>
             </div>
             <div className="space-y-2 text-muted-foreground">
-              <p>Používame výhradne <strong>technicky nevyhnutné</strong> cookies a lokálne úložisko (localStorage / IndexedDB) na fungovanie prihlásenia, jazykových preferencií, PWA inštalácie a uchovanie stavu aplikácie. Nepoužívame reklamné ani trackingové cookies tretích strán. Návštevnosť meriame interne, agregovane a bez profilovania.</p>
+              <p>Nevyhnutné cookies a lokálne úložisko (localStorage / IndexedDB) používame vždy — na prihlásenie, platby, jazykové preferencie, PWA inštaláciu a stav aplikácie. Analytické a marketingové cookies používame iba s vaším súhlasom, ktorý udelíte alebo odmietnete v lište pri prvej návšteve a kedykoľvek zmeníte v Nastaveniach cookies. Nepoužívame Google Analytics ani reklamné cookies tretích strán. Návštevnosť stránok meriame interne vo vlastnom systéme (navštívená stránka, anonymný identifikátor relácie, prehliadač); po 30 dňoch sa záznamy zlučujú do anonymných denných súhrnov.</p>
             </div>
           </section>
 
@@ -205,7 +207,8 @@ const PrivacyPolicy = () => {
                 <li><strong>Údaje o jazde:</strong> 24 hodín po čase odjazdu jazdu automaticky odstraňujeme; agregované štatistiky uchovávame anonymizovane.</li>
                 <li><strong>Platobné a účtovné doklady:</strong> 10 rokov (zákon o účtovníctve).</li>
                 <li><strong>Lokalizačné údaje:</strong> max. 30 dní, následne anonymizácia/výmaz.</li>
-                <li><strong>Logy a bezpečnostné záznamy:</strong> max. 12 mesiacov.</li>
+                <li><strong>Logy a bezpečnostné záznamy</strong> (prihlásenia, zmeny hesla, automatické zrušenia jázd): max. 12 mesiacov.</li>
+                <li><strong>Záznamy o jazde s otvoreným nahlásením alebo sporom:</strong> do vyriešenia sporu.</li>
                 <li><strong>Po zmazaní účtu</strong> osobné údaje vymažeme do 30 dní, okrem údajov, ktoré sme povinní uchovať zo zákona.</li>
               </ul>
             </div>
