@@ -10,7 +10,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 const SUGGESTIONS = [
   "Ako si vytvorím jazdu?",
   "Ako funguje platba?",
-  "Čo je Cold Start bonus?",
+  "Ako funguje nástupný kód?",
   "Ako zrušiť rezerváciu?",
 ];
 
