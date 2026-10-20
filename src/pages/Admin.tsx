@@ -127,6 +127,7 @@ const Admin = () => {
   const [onlineDialogOpen, setOnlineDialogOpen] = useState(false);
   
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [accountsCount, setAccountsCount] = useState(0);
   const [lastActiveMap, setLastActiveMap] = useState<Record<string, string>>({});
   const [reports, setReports] = useState<Report[]>([]);
   const [rideStats, setRideStats] = useState({ total: 0, active: 0, inProgress: 0, completed: 0 });
@@ -203,6 +204,7 @@ const Admin = () => {
           }
         });
         setLastActiveMap(map);
+        setAccountsCount(Array.isArray(activity) ? activity.length : 0);
       }
     }
     setLoadingData(false);
@@ -683,7 +685,7 @@ const Admin = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
           {[
-            { icon: Users, value: users.length, label: 'Používatelia', from: 'from-indigo-500/15', to: 'to-indigo-500/5', ring: 'ring-indigo-500/20', iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-500' },
+            { icon: Users, value: accountsCount || users.length, label: 'Používatelia', from: 'from-indigo-500/15', to: 'to-indigo-500/5', ring: 'ring-indigo-500/20', iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-500' },
             { icon: Wifi, value: onlineCount, label: 'Online teraz · klikni', from: 'from-emerald-500/15', to: 'to-emerald-500/5', ring: 'ring-emerald-500/20', iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-500', onClick: () => setOnlineDialogOpen(true), pulse: true },
             { icon: AlertTriangle, value: reports.filter(r => r.status === 'pending').length, label: 'Nahlásenia', from: 'from-amber-500/15', to: 'to-amber-500/5', ring: 'ring-amber-500/20', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500' },
             { icon: Ban, value: users.filter(u => u.banned).length, label: 'Zabanovaní', from: 'from-rose-500/15', to: 'to-rose-500/5', ring: 'ring-rose-500/20', iconBg: 'bg-rose-500/10', iconColor: 'text-rose-500' },
