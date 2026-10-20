@@ -9,3 +9,7 @@
 # Facebook náhľad zdieľanej jazdy
 - [x] Zobraziť vo Facebook skupine trasu, opis a obrázok pri zdieľanom odkaze jazdy.
 - [x] Overiť verejný náhľad a presmerovanie na konkrétnu jazdu.
+
+# Rozbeh TakeMe
+- [x] Overiť zapnuté upozornenia, návštevnosť a rezervácie.
+- [x] Pripraviť konkrétny 14-dňový postup a prirodzené texty na získanie prvých vodičov a cestujúcich.
