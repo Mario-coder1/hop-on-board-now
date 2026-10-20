@@ -11,5 +11,5 @@
 - [x] Overiť verejný náhľad a presmerovanie na konkrétnu jazdu.
 
 # Rozbeh TakeMe
-- [ ] Overiť zapnuté upozornenia, návštevnosť a rezervácie.
-- [ ] Pripraviť konkrétny 14-dňový postup a prirodzené texty na získanie prvých vodičov a cestujúcich.
+- [x] Overiť zapnuté upozornenia, návštevnosť a rezervácie.
+- [x] Pripraviť konkrétny 14-dňový postup a prirodzené texty na získanie prvých vodičov a cestujúcich.
