@@ -1995,6 +1995,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      send_ride_request_email_via_edge: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
       verify_ride_request_pin: {
         Args: { _pin: string; _request_id: string }
         Returns: Json
