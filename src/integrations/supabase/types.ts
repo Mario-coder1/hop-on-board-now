@@ -1961,6 +1961,19 @@ export type Database = {
         Returns: Json
       }
       admin_visitor_stats: { Args: never; Returns: Json }
+      book_company_ride: {
+        Args: {
+          _dropoff_address: string
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _message?: string
+          _pickup_address: string
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_id: string
+        }
+        Returns: string
+      }
       claim_company_ride: {
         Args: {
           _booking_fee: number
@@ -1972,6 +1985,10 @@ export type Database = {
       }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
+      company_distance_km: {
+        Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
+        Returns: number
+      }
       company_portal_state: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
       get_driver_profile_stats: { Args: { _driver_id: string }; Returns: Json }
