@@ -13,3 +13,8 @@
 # Rozbeh TakeMe
 - [x] Overiť zapnuté upozornenia, návštevnosť a rezervácie.
 - [x] Pripraviť konkrétny 14-dňový postup a prirodzené texty na získanie prvých vodičov a cestujúcich.
+
+# Firemný benefit cez pozvánku
+- [ ] Registrácia firmy a pozvánka pre ľubovoľný overený email, pripojenie/odpojenie firemného režimu.
+- [ ] HR iba súhrn jázd, odhad CO₂ a fakturačný podklad; oddelené cesty a bezpečná rezervácia v limitoch.
+- [ ] Overiť pravidlá, prihlásený postup a aktuálne zostavenie.

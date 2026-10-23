@@ -76,6 +76,7 @@ export type Database = {
           email_domain: string
           ico: string | null
           id: string
+          invite_token: string
           monthly_amount_limit: number
           monthly_ride_limit: number
           name: string
@@ -92,6 +93,7 @@ export type Database = {
           email_domain: string
           ico?: string | null
           id?: string
+          invite_token?: string
           monthly_amount_limit?: number
           monthly_ride_limit?: number
           name: string
@@ -108,6 +110,7 @@ export type Database = {
           email_domain?: string
           ico?: string | null
           id?: string
+          invite_token?: string
           monthly_amount_limit?: number
           monthly_ride_limit?: number
           name?: string
@@ -168,6 +171,46 @@ export type Database = {
             foreignKeyName: "company_members_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_modes: {
+        Row: {
+          company_id: string | null
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_modes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_modes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_modes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
             referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
@@ -1047,6 +1090,7 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           commission_amount: number | null
+          company_id: string | null
           created_at: string
           currency: string | null
           driver_confirmed_at: string | null
@@ -1083,6 +1127,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           commission_amount?: number | null
+          company_id?: string | null
           created_at?: string
           currency?: string | null
           driver_confirmed_at?: string | null
@@ -1119,6 +1164,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           commission_amount?: number | null
+          company_id?: string | null
           created_at?: string
           currency?: string | null
           driver_confirmed_at?: string | null
@@ -1151,6 +1197,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ride_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ride_requests_passenger_id_fkey"
             columns: ["passenger_id"]
@@ -1908,6 +1961,19 @@ export type Database = {
         Returns: Json
       }
       admin_visitor_stats: { Args: never; Returns: Json }
+      book_company_ride: {
+        Args: {
+          _dropoff_address: string
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _message?: string
+          _pickup_address: string
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_id: string
+        }
+        Returns: string
+      }
       claim_company_ride: {
         Args: {
           _booking_fee: number
@@ -1919,6 +1985,11 @@ export type Database = {
       }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
+      company_distance_km: {
+        Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
+        Returns: number
+      }
+      company_portal_state: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
       get_driver_profile_stats: { Args: { _driver_id: string }; Returns: Json }
       get_driver_reviews: {
@@ -1969,6 +2040,7 @@ export type Database = {
         Args: { _university_id: string }
         Returns: boolean
       }
+      join_company: { Args: { _token: string }; Returns: string }
       link_existing_profiles_for_company: {
         Args: { _company_id: string }
         Returns: undefined
@@ -1985,6 +2057,10 @@ export type Database = {
         Returns: undefined
       }
       my_company_benefit: { Args: never; Returns: Json }
+      register_company: {
+        Args: { _billing_email: string; _ico?: string; _name: string }
+        Returns: string
+      }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       send_push_via_edge: {
         Args: {
@@ -1999,6 +2075,7 @@ export type Database = {
         Args: { _request_id: string }
         Returns: undefined
       }
+      set_company_mode: { Args: { _company_id?: string }; Returns: undefined }
       verify_ride_request_pin: {
         Args: { _pin: string; _request_id: string }
         Returns: Json

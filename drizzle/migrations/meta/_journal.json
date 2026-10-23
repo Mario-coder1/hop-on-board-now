@@ -64,6 +64,20 @@
       "when": 1791869947925,
       "tag": "0008_disable_cold_start_bonus",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792735445074,
+      "tag": "0009_company_invitation_mode",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792735483107,
+      "tag": "0010_atomic_company_booking",
+      "breakpoints": true
     }
   ]
 }
