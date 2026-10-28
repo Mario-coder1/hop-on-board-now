@@ -1,4 +1,5 @@
 import React from 'react';
+import takemeLogo from '@/assets/takeme-logo.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, Search, PlusCircle, User, LogOut, Car, MapPin, Shield, Trophy, GraduationCap, Leaf, Users } from 'lucide-react';
@@ -60,9 +61,13 @@ const Navigation: React.FC = () => {
           <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo — gradient mark + wordmark */}
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] flex items-center justify-center transition-transform group-hover:rotate-3 group-hover:scale-105 shadow-cta">
-                <span className="text-primary-foreground text-[14px] font-bold tracking-tighter">T.</span>
-              </div>
+              <img
+                src={takemeLogo}
+                alt="TakeMe"
+                width={36}
+                height={36}
+                className="w-9 h-9 rounded-xl transition-transform group-hover:rotate-3 group-hover:scale-105 shadow-cta"
+              />
               <span className="text-[16px] font-bold tracking-tight">
                 take<span className="text-gradient-primary">me</span>
               </span>
