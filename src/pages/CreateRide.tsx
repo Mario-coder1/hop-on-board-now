@@ -241,6 +241,7 @@ const CreateRide = () => {
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
           gas_station_id: selectedGasStationId || null,
+          category: isAirportRide ? 'airport' : 'standard',
           ...preferences,
         })
         .select('id')

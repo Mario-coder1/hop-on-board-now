@@ -98,6 +98,7 @@ const PassengerDashboard: React.FC = () => {
         driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color, spoken_languages)
       `)
       .in('status', ['active', 'in_progress'])
+      .neq('category', 'airport')
       .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .gt('available_seats', 0)
       .order('departure_time', { ascending: true })

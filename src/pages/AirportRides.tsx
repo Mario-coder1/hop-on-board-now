@@ -21,8 +21,6 @@ export const AIRPORTS = [
   { id: 'kat', name: 'Katovice', keywords: ['pyrzowice', 'katowice airport'] },
 ] as const;
 
-const GENERIC = ['letisko', 'letiště', 'airport', 'flughafen', 'lotnisko', 'repülőtér'];
-
 interface Ride {
   id: string;
   origin_address: string;
@@ -46,10 +44,6 @@ const AirportRides = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const allKeys = Array.from(new Set([...GENERIC, ...AIRPORTS.flatMap((a) => a.keywords)]));
-      const orFilter = allKeys
-        .flatMap((k) => [`origin_address.ilike.%${k}%`, `destination_address.ilike.%${k}%`])
-        .join(',');
       const { data } = await supabase
         .from('rides')
         .select(`
@@ -60,7 +54,7 @@ const AirportRides = () => {
         .eq('status', 'active')
         .gte('departure_time', new Date(Date.now() - 15 * 60 * 1000).toISOString())
         .gt('available_seats', 0)
-        .or(orFilter)
+        .eq('category', 'airport')
         .order('departure_time', { ascending: true })
         .limit(50);
       if (!cancelled) {
@@ -117,7 +111,7 @@ const AirportRides = () => {
           </p>
           <div className="flex flex-wrap gap-2 mt-5">
             <Link to="/search"><Button className="rounded-full">Hľadať jazdu</Button></Link>
-            <Link to="/create-ride"><Button variant="outline" className="rounded-full">Idem na letisko – ponúknem miesto</Button></Link>
+            <Link to="/create-ride?category=airport"><Button variant="outline" className="rounded-full">Idem na letisko – ponúknem miesto</Button></Link>
           </div>
         </motion.div>
 
@@ -143,9 +137,9 @@ const AirportRides = () => {
               </div>
               <h3 className="text-base font-semibold mb-1">Zatiaľ žiadna jazda</h3>
               <p className="text-sm text-muted-foreground mb-5">
-                Ideš na letisko autom? Ponúkni voľné miesto. Ako cieľ zadaj letisko, napríklad „Letisko Viedeň Schwechat".
+                Ideš na letisko autom? Ponúkni voľné miesto. Jazda sa zobrazí len tu v kategórii Letiská.
               </p>
-              <Link to="/create-ride"><Button size="sm" className="rounded-full">Ponúknuť jazdu</Button></Link>
+              <Link to="/create-ride?category=airport"><Button size="sm" className="rounded-full">Ponúknuť jazdu</Button></Link>
             </div>
           ) : (
             <div className="space-y-3">
