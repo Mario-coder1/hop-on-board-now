@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { GraduationCap, MapPin, ShieldCheck, Mail, ArrowRight, Loader2, Calendar, Euro, Users } from 'lucide-react';
+import { GraduationCap, MapPin, ShieldCheck, Mail, ArrowRight, Loader2, Calendar, Euro, Users, Plane } from 'lucide-react';
 import NavigationBar from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
@@ -218,6 +218,30 @@ const Komunity = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Kategória: Letiská (otvorená pre všetkých) */}
+        <section className="mt-8">
+          <h2 className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-3">
+            Kategórie jázd
+          </h2>
+          <Link
+            to="/letisko"
+            className="p-4 rounded-2xl border border-primary/30 bg-primary/5 hover:border-primary/60 transition-colors flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+                <Plane className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm">Letiská</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Len spolujazdy na letisko a z letiska · Viedeň, Bratislava, Budapešť, Košice, Krakov, Praha, Katovice
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 flex-shrink-0" />
+          </Link>
+        </section>
 
         {/* My memberships */}
         {memberships.length > 0 && (
