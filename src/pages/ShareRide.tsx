@@ -38,16 +38,15 @@ const ShareRide = () => {
         setLoading(false);
         return;
       }
-      const { data } = await supabase
-        .from('rides')
-        .select(
-          `id, origin_address, destination_address, departure_time,
-           available_seats, price_per_seat, status,
-           driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)`
-        )
-        .eq('id', id)
-        .maybeSingle();
-      setRide((data as unknown as SharedRide) ?? null);
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ride-share?id=${encodeURIComponent(id)}&format=json`
+        );
+        const json = res.ok ? await res.json() : null;
+        setRide((json?.ride as SharedRide) ?? null);
+      } catch {
+        setRide(null);
+      }
       setLoading(false);
     };
     load();
