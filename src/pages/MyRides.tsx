@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Calendar, Users, MapPin, MoreHorizontal, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -174,6 +174,16 @@ const MyRides = () => {
     setCancelling(false);
     fetchRides();
   };
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const cancelId = searchParams.get('cancel');
+    if (!cancelId || rides.length === 0) return;
+    const r = rides.find((x) => x.id === cancelId);
+    if (r) { setCancellingRide(r); setCancelDialogOpen(true); }
+    searchParams.delete('cancel');
+    setSearchParams(searchParams, { replace: true });
+  }, [rides, searchParams, setSearchParams]);
 
   const filteredRides = rides.filter(ride => {
     if (filter === 'all') return ride.status !== 'cancelled';

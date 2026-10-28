@@ -972,6 +972,15 @@ const RideDetail = () => {
                   <Button className="w-full" onClick={() => navigate(`/manage-passengers/${ride.id}`)}>
                     Spravovať jazdu a pasažierov
                   </Button>
+                  {ride.status === 'active' && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2 text-destructive border-destructive/40 hover:bg-destructive/10"
+                      onClick={() => navigate(`/my-rides?cancel=${ride.id}`)}
+                    >
+                      Zrušiť jazdu
+                    </Button>
+                  )}
                 </article>
               )}
 

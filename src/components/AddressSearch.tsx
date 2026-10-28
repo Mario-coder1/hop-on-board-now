@@ -50,16 +50,19 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   }, []);
 
   const searchAddress = async (searchQuery: string) => {
+    // Airports first only when the user explicitly types "letisko"/"airport";
+    // otherwise a plain city (e.g. "Bratislava") stays a city and airports come after.
+    const wantsAirport = /letis|airport|flughafen|lotnisk/i.test(searchQuery);
     const presetHits: Suggestion[] = airportPresets && searchQuery.trim().length >= 2
-      ? matchAirportPresets(searchQuery).slice(0, 5).map((a) => ({
+      ? matchAirportPresets(searchQuery).slice(0, wantsAirport ? 5 : 2).map((a) => ({
           id: `airport-${a.id}`,
           place_name: `✈️ ${a.label}`,
           center: [a.lng, a.lat] as [number, number],
         }))
       : [];
     if (searchQuery.length < 3) {
-      setSuggestions(presetHits);
-      setShowSuggestions(presetHits.length > 0);
+      setSuggestions(wantsAirport ? presetHits : []);
+      setShowSuggestions(wantsAirport && presetHits.length > 0);
       return;
     }
 
@@ -112,7 +115,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
         }
       }
 
-      setSuggestions([...presetHits, ...features].slice(0, 10));
+      setSuggestions((wantsAirport ? [...presetHits, ...features] : [...features, ...presetHits]).slice(0, 10));
       setShowSuggestions(true);
     } catch (error) {
       console.error('Geocoding error:', error);
