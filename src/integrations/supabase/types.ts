@@ -1350,6 +1350,7 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
+          category: string
           confirm_asked_at: string | null
           confirm_reminded_at: string | null
           created_at: string
@@ -1383,6 +1384,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          category?: string
           confirm_asked_at?: string | null
           confirm_reminded_at?: string | null
           created_at?: string
@@ -1416,6 +1418,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          category?: string
           confirm_asked_at?: string | null
           confirm_reminded_at?: string | null
           created_at?: string

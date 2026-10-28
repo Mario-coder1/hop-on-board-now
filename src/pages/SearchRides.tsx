@@ -142,6 +142,7 @@ const SearchRides = () => {
         ride_stops(id, address, stop_order)
       `)
       .in('status', ['active', 'in_progress'])
+      .neq('category', 'airport')
       .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .order('departure_time', { ascending: true });
 

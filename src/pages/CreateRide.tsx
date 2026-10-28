@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat,
@@ -37,6 +37,8 @@ const WEEKDAYS = [
 const CreateRide = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [routeSearchParams] = useSearchParams();
+  const isAirportRide = routeSearchParams.get('category') === 'airport';
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,8 @@ const CreateRide = () => {
   });
 
   // Recurring
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurringRaw, setIsRecurring] = useState(false);
+  const isRecurring = isRecurringRaw && !isAirportRide;
   const [recurringTime, setRecurringTime] = useState('07:00');
   const [recurringDays, setRecurringDays] = useState<number[]>([1, 2, 3, 4, 5]);
 
@@ -241,6 +244,7 @@ const CreateRide = () => {
           route_polyline: routePolyline,
           university_id: selectedUniversityId || null,
           gas_station_id: selectedGasStationId || null,
+          category: isAirportRide ? 'airport' : 'standard',
           ...preferences,
         })
         .select('id')
@@ -362,7 +366,16 @@ const CreateRide = () => {
           </Button>
 
           <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
-            <h1 className="font-display text-3xl font-bold">Vytvor novú jazdu</h1>
+            <div>
+              <h1 className="font-display text-3xl font-bold">
+                {isAirportRide ? 'Jazda na letisko' : 'Vytvor novú jazdu'}
+              </h1>
+              {isAirportRide && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  ✈️ Zobrazí sa len v kategórii Letiská, nie medzi bežnými jazdami.
+                </p>
+              )}
+            </div>
             <VoiceRideButton
               onApply={(patch) => {
                 if (patch.origin) setOrigin(patch.origin);
