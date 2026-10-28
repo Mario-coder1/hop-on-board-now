@@ -5,7 +5,6 @@ import { MapPin, Calendar, Users, ArrowRight, LogIn, UserPlus, Star } from 'luci
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDbDate } from '@/lib/datetime';
 import { sk } from 'date-fns/locale';
