@@ -67,7 +67,8 @@ const CreateRide = () => {
   });
 
   // Recurring
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurringRaw, setIsRecurring] = useState(false);
+  const isRecurring = isRecurringRaw && !isAirportRide;
   const [recurringTime, setRecurringTime] = useState('07:00');
   const [recurringDays, setRecurringDays] = useState<number[]>([1, 2, 3, 4, 5]);
 
