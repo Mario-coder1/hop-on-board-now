@@ -701,7 +701,7 @@ const Auth: React.FC = () => {
               if (error) {
                 toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
               } else {
-                toast({ title: 'Email odoslaný', description: 'Skontrolujte si schránku.' });
+                toast({ title: 'Žiadosť prijatá', description: 'Ak je tento e-mail zaregistrovaný v TakeMe, príde vám odkaz na obnovu hesla. Skontrolujte aj spam a správnosť adresy.' });
                 setForgotOpen(false);
               }
             }}
