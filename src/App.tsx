@@ -30,6 +30,7 @@ const PassengerDashboard = lazy(() => import("./pages/PassengerDashboard"));
 const CreateRide = lazy(() => import("./pages/CreateRide"));
 const SearchRides = lazy(() => import("./pages/SearchRides"));
 const RideDetail = lazy(() => import("./pages/RideDetail"));
+const ShareRide = lazy(() => import("./pages/ShareRide"));
 const MyRides = lazy(() => import("./pages/MyRides"));
 const MyTrips = lazy(() => import("./pages/MyTrips"));
 const Profile = lazy(() => import("./pages/Profile"));
