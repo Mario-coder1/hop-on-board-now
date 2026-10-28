@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, MapPin } from 'lucide-react';
+import { ArrowRight, MapPin, Plane } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import SEO from '@/components/SEO';
 import { CITIES } from '@/data/cities';
@@ -48,6 +48,15 @@ const RidesIndex = () => {
             Prezri si populárne smery, alebo si vyber konkrétne mesto a nájdi všetky odjazdy. Spolujazda lacno, rýchlo a so živým sledovaním vodiča.
           </p>
         </motion.div>
+
+        <Link to="/letisko" className="block mb-8">
+          <div className="card-mono hover:border-foreground/40 transition-all p-4 flex items-center justify-between gap-2 group">
+            <div className="flex items-center gap-2 font-semibold text-sm">
+              <Plane className="w-4 h-4" /> Spolujazda na letisko – Viedeň, Bratislava, Budapešť…
+            </div>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </Link>
 
         <section className="mb-10">
           <h2 className="text-xl font-bold tracking-tight mb-4">Najobľúbenejšie trasy</h2>
