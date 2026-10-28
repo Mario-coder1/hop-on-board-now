@@ -165,13 +165,13 @@ const ShareRide = () => {
                   Na rezerváciu miesta sa prihlás alebo si vytvor účet zadarmo — trvá to menej než minútu.
                 </p>
                 <Button asChild className="w-full" size="lg">
-                  <Link to="/auth">
+                  <Link to={`/auth?next=${encodeURIComponent(`/ride/${ride.id}`)}`}>
                     <UserPlus className="w-4 h-4 mr-2" />
                     Vytvoriť účet zadarmo
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full">
-                  <Link to="/auth">
+                  <Link to={`/auth?next=${encodeURIComponent(`/ride/${ride.id}`)}`}>
                     <LogIn className="w-4 h-4 mr-2" />
                     Už mám účet — prihlásiť sa
                   </Link>
