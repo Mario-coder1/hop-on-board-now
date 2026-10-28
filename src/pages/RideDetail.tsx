@@ -841,8 +841,6 @@ const RideDetail = () => {
                 )}
               </article>
 
-              {/* Map with route */}
-              <Map markers={[...markers, ...gasStations]} waypoints={waypoints} showRoute className="h-[400px]" />
             </section>
 
             {/* Sidebar */}
@@ -1202,6 +1200,11 @@ const RideDetail = () => {
                 </article>
               )}
             </aside>
+
+            {/* Mapa s trasou — na samom konci, pod dôležitými informáciami */}
+            <div className="lg:col-span-3">
+              <Map markers={[...markers, ...gasStations]} waypoints={waypoints} showRoute className="h-[400px]" />
+            </div>
           </div>
         </motion.div>
       </main>
