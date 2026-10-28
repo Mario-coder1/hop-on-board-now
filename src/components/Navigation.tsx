@@ -179,6 +179,12 @@ const Navigation: React.FC = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link to="/letisko" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
+                      <Plane className="w-4 h-4" />
+                      Jazdy na letisko
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/co2" className="flex items-center gap-2 cursor-pointer rounded-lg text-sm">
                       <Leaf className="w-4 h-4" />
                       CO₂ kalkulačka
