@@ -43,7 +43,8 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
   const [open, setOpen] = useState(defaultOpen);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${window.location.origin}/j/${rideId}`;
+  // Vždy odkazujeme na verejnú doménu — v náhľade by inak odkaz obsahoval adresu náhľadu.
+  const shareUrl = `https://www.takeme.sk/j/${rideId}`;
 
   const when = departureTime
     ? `${formatDbDate(departureTime, 'd. MMMM', { locale: sk })} o ${formatDbDate(departureTime, 'HH:mm')}`
