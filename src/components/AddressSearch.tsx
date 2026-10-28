@@ -136,10 +136,11 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   };
 
   const handleSelect = (suggestion: Suggestion) => {
-    setQuery(suggestion.place_name);
+    const name = suggestion.place_name.replace(/^✈️ /, '');
+    setQuery(name);
     setSuggestions([]);
     setShowSuggestions(false);
-    onSelect(suggestion.place_name, suggestion.center[1], suggestion.center[0]);
+    onSelect(name, suggestion.center[1], suggestion.center[0]);
   };
 
   const handleClear = () => {

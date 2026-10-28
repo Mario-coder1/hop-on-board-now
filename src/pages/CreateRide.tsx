@@ -403,7 +403,8 @@ const CreateRide = () => {
                       <AddressSearch
                         value={origin.address}
                         onSelect={(address, lat, lng) => setOrigin({ address, lat, lng })}
-                        placeholder="Vaša aktuálna poloha"
+                        placeholder={isAirportRide ? 'Odkiaľ alebo letisko (napr. Letisko Ostrava)' : 'Vaša aktuálna poloha'}
+                        airportPresets={isAirportRide}
                         className="flex-1"
                       />
                       <Button
@@ -431,7 +432,8 @@ const CreateRide = () => {
                     <AddressSearch
                       value={destination.address}
                       onSelect={(address, lat, lng) => setDestination({ address, lat, lng })}
-                      placeholder="Kam idete? Zadajte adresu..."
+                      placeholder={isAirportRide ? 'Napr. Letisko Ostrava, Letisko Viedeň…' : 'Kam idete? Zadajte adresu...'}
+                      airportPresets={isAirportRide}
                     />
                     {destination.lat > 0 && (
                       <p className="text-xs text-muted-foreground mt-1">
