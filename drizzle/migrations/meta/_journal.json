@@ -78,6 +78,13 @@
       "when": 1792735483107,
       "tag": "0010_atomic_company_booking",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793190085626,
+      "tag": "0011_rides_category",
+      "breakpoints": true
     }
   ]
 }
