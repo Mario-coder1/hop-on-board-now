@@ -63,6 +63,7 @@ console.log(`Generating sitemaps for ${BASE_URL} (lastmod: ${LASTMOD})...\n`);
 const coreEntries: SitemapEntry[] = [
   { path: "/", changefreq: "daily", priority: "1.0" },
   { path: "/jazdy", changefreq: "daily", priority: "0.95" },
+  { path: "/letisko", changefreq: "daily", priority: "0.9" },
   { path: "/install", changefreq: "monthly", priority: "0.8" },
   { path: "/co2", changefreq: "monthly", priority: "0.4" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
