@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { matchAirportPresets } from '@/lib/airports';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
@@ -10,6 +11,7 @@ interface AddressSearchProps {
   onSelect: (address: string, lat: number, lng: number) => void;
   placeholder?: string;
   className?: string;
+  airportPresets?: boolean;
 }
 
 interface Suggestion {
@@ -22,7 +24,8 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   value,
   onSelect,
   placeholder = 'Hľadať adresu...',
-  className = ''
+  className = '',
+  airportPresets = false,
 }) => {
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -47,8 +50,16 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   }, []);
 
   const searchAddress = async (searchQuery: string) => {
+    const presetHits: Suggestion[] = airportPresets && searchQuery.trim().length >= 2
+      ? matchAirportPresets(searchQuery).slice(0, 5).map((a) => ({
+          id: `airport-${a.id}`,
+          place_name: `✈️ ${a.label}`,
+          center: [a.lng, a.lat] as [number, number],
+        }))
+      : [];
     if (searchQuery.length < 3) {
-      setSuggestions([]);
+      setSuggestions(presetHits);
+      setShowSuggestions(presetHits.length > 0);
       return;
     }
 
@@ -101,7 +112,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
         }
       }
 
-      setSuggestions(features);
+      setSuggestions([...presetHits, ...features].slice(0, 10));
       setShowSuggestions(true);
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -125,10 +136,11 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
   };
 
   const handleSelect = (suggestion: Suggestion) => {
-    setQuery(suggestion.place_name);
+    const name = suggestion.place_name.replace(/^✈️ /, '');
+    setQuery(name);
     setSuggestions([]);
     setShowSuggestions(false);
-    onSelect(suggestion.place_name, suggestion.center[1], suggestion.center[0]);
+    onSelect(name, suggestion.center[1], suggestion.center[0]);
   };
 
   const handleClear = () => {

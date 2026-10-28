@@ -18,7 +18,12 @@ export const AIRPORTS = [
   { id: 'kse', name: 'Košice', keywords: ['letisko košice', 'košice airport', 'kosice airport'] },
   { id: 'krk', name: 'Krakov', keywords: ['kraków airport', 'balice', 'lotnisko', 'letisko krakov'] },
   { id: 'prg', name: 'Praha', keywords: ['letiště', 'václava havla', 'prague airport', 'letisko praha'] },
-  { id: 'kat', name: 'Katovice', keywords: ['pyrzowice', 'katowice airport'] },
+  { id: 'kat', name: 'Katovice', keywords: ['pyrzowice', 'katowice airport', 'letisko katovice'] },
+  { id: 'osr', name: 'Ostrava', keywords: ['mošnov', 'letisko ostrava', 'ostrava airport', 'letiště ostrava'] },
+  { id: 'brq', name: 'Brno', keywords: ['tuřany', 'letisko brno', 'brno airport', 'letiště brno'] },
+  { id: 'tat', name: 'Poprad-Tatry', keywords: ['letisko poprad', 'poprad-tatry', 'poprad airport'] },
+  { id: 'waw', name: 'Varšava', keywords: ['letisko varšava', 'chopin', 'warsaw airport'] },
+  { id: 'muc', name: 'Mníchov', keywords: ['letisko mníchov', 'munich airport', 'flughafen münchen'] },
 ] as const;
 
 interface Ride {
