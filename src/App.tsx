@@ -110,6 +110,7 @@ const AppRoutes = () => {
             <Route path="/create-ride" element={<ProtectedRoute><CreateRide /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute><SearchRides /></ProtectedRoute>} />
             <Route path="/ride/:id" element={<ProtectedRoute><RideDetail /></ProtectedRoute>} />
+            <Route path="/j/:id" element={<ShareRide />} />
             <Route path="/my-rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
             <Route path="/my-trips" element={<ProtectedRoute><MyTrips /></ProtectedRoute>} />
             <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />
