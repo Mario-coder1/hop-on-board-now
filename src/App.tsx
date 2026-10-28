@@ -30,6 +30,7 @@ const PassengerDashboard = lazy(() => import("./pages/PassengerDashboard"));
 const CreateRide = lazy(() => import("./pages/CreateRide"));
 const SearchRides = lazy(() => import("./pages/SearchRides"));
 const RideDetail = lazy(() => import("./pages/RideDetail"));
+const ShareRide = lazy(() => import("./pages/ShareRide"));
 const MyRides = lazy(() => import("./pages/MyRides"));
 const MyTrips = lazy(() => import("./pages/MyTrips"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -110,6 +111,7 @@ const AppRoutes = () => {
             <Route path="/create-ride" element={<ProtectedRoute><CreateRide /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute><SearchRides /></ProtectedRoute>} />
             <Route path="/ride/:id" element={<ProtectedRoute><RideDetail /></ProtectedRoute>} />
+            <Route path="/j/:id" element={<ShareRide />} />
             <Route path="/my-rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
             <Route path="/my-trips" element={<ProtectedRoute><MyTrips /></ProtectedRoute>} />
             <Route path="/track/:requestId" element={<ProtectedRoute><TrackRide /></ProtectedRoute>} />

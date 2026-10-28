@@ -43,7 +43,7 @@ const ShareRideButton: React.FC<ShareRideButtonProps> = ({
   const [open, setOpen] = useState(defaultOpen);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`;
+  const shareUrl = `${window.location.origin}/j/${rideId}`;
 
   const when = departureTime
     ? `${formatDbDate(departureTime, 'd. MMMM', { locale: sk })} o ${formatDbDate(departureTime, 'HH:mm')}`

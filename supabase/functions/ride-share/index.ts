@@ -74,24 +74,42 @@ Deno.serve(async (req) => {
   const rideId = requestUrl.searchParams.get('id') ?? ''
   if (!UUID_PATTERN.test(rideId)) return new Response('Invalid ride', { status: 400 })
 
-  const ua = req.headers.get('user-agent') ?? ''
-  const isCrawler = /facebookexternalhit|facebot|meta-externalagent|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|viber|skypeuripreview|pinterest|redditbot|googlebot|bingbot|embedly|applebot/i.test(ua)
-  if (!isCrawler) {
-    return new Response(null, { status: 302, headers: { Location: `${SITE_URL}/ride/${rideId}`, 'Cache-Control': 'no-store' } })
-  }
-
   const backendUrl = Deno.env.get('SUPABASE_URL')
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   if (!backendUrl || !serviceKey) return new Response('Unavailable', { status: 503 })
 
   const admin = createClient(backendUrl, serviceKey)
+
+  // JSON režim pre verejnú stránku /j/:id (anonymní návštevníci nemajú RLS prístup k rides)
+  if (requestUrl.searchParams.get('format') === 'json') {
+    const { data: ride } = await admin
+      .from('rides')
+      .select('id,origin_address,destination_address,departure_time,available_seats,price_per_seat,status,driver:public_profiles!rides_driver_id_fkey(full_name,rating,avatar_url,total_rides)')
+      .eq('id', rideId)
+      .maybeSingle()
+    return new Response(JSON.stringify({ ride: ride ?? null }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
+  }
+
+  const ua = req.headers.get('user-agent') ?? ''
+  const isCrawler = /facebookexternalhit|facebot|meta-externalagent|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|viber|skypeuripreview|pinterest|redditbot|googlebot|bingbot|embedly|applebot/i.test(ua)
+  if (!isCrawler) {
+    return new Response(null, { status: 302, headers: { Location: `${SITE_URL}/j/${rideId}`, 'Cache-Control': 'no-store' } })
+  }
+
   const { data: ride } = await admin
     .from('rides')
     .select('origin_address,destination_address,departure_time,available_seats,price_per_seat')
     .eq('id', rideId)
     .maybeSingle()
 
-  const rideUrl = `${SITE_URL}/ride/${rideId}`
+  const rideUrl = `${SITE_URL}/j/${rideId}`
   const shareUrl = `${backendUrl}/functions/v1/ride-share?id=${encodeURIComponent(rideId)}`
 
   if (!ride) {
