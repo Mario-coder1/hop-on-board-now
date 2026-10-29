@@ -6,8 +6,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+
+async function requireUser(req: Request): Promise<boolean> {
+  const h = req.headers.get("Authorization") ?? "";
+  const token = h.replace("Bearer ", "");
+  if (!token) return false;
+  const r = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/user`, {
+    headers: { Authorization: `Bearer ${token}`, apikey: Deno.env.get("SUPABASE_ANON_KEY") ?? "" },
+  });
+  return r.ok;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (!(await requireUser(req))) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
 
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");

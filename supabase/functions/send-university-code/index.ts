@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = (100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000)).toString();
     const codeHash = await sha256(code + ':' + email);
 
     // Invalidate previous unconsumed codes

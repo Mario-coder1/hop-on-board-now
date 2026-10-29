@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { useRef, useState } from "react";
 import { Mic, Loader2, Square, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ export default function VoiceRideButton({ onApply }: Props) {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse-ride`;
       const res = await fetch(url, {
         method: "POST",
-        headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
         body: fd,
       });
       const json = await res.json();

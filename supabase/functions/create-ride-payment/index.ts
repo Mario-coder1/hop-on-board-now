@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     }
 
     const { data: ride } = await supabase
-      .from("rides").select("id, price_per_seat, available_seats, status, departure_time, origin_address, destination_address, driver_id, origin_lat, origin_lng, destination_lat, destination_lng, route_polyline")
+      .from("rides").select("id, price_per_seat, available_seats, status, departure_time, origin_address, destination_address, driver_id, origin_lat, origin_lng, destination_lat, destination_lng, route_polyline, university_id")
       .eq("id", ride_id).single();
     if (!ride) {
       return new Response(JSON.stringify({ error: "Ride not found" }), {
@@ -69,6 +69,15 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Nemôžete rezervovať vlastnú jazdu" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+    if (ride.university_id) {
+      const { data: mem } = await supabase.from("university_memberships")
+        .select("id").eq("profile_id", profile.id).eq("university_id", ride.university_id).maybeSingle();
+      if (!mem) {
+        return new Response(JSON.stringify({ error: "Jazda nie je dostupná" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
     const departedLongAgo = ride.status === "active" &&
       new Date(ride.departure_time).getTime() < Date.now() - 15 * 60 * 1000;
