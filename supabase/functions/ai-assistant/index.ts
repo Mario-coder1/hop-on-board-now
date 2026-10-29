@@ -13,8 +13,22 @@ Pomáhaš používateľom s otázkami o appke: ako vytvoriť jazdu, ako si rezer
 Odpovedaj stručne, po slovensky, ľudsky. Ak niečo nevieš, odporuč kontaktovať podporu cez WhatsApp alebo email support@takeme.sk.
 Neposkytuj právne rady – pri právnych otázkach odkáž na VOP a GDPR v profile.`;
 
+
+async function requireUser(req: Request): Promise<boolean> {
+  const h = req.headers.get("Authorization") ?? "";
+  const token = h.replace("Bearer ", "");
+  if (!token) return false;
+  const r = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/user`, {
+    headers: { Authorization: `Bearer ${token}`, apikey: Deno.env.get("SUPABASE_ANON_KEY") ?? "" },
+  });
+  return r.ok;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (!(await requireUser(req))) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
 
   try {
     const { messages } = await req.json();
@@ -22,7 +36,7 @@ Deno.serve(async (req) => {
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
     // Optimalizácia tokenov: pošli len posledných 8 správ z histórie
-    const trimmed = Array.isArray(messages) ? messages.slice(-8) : [];
+    const trimmed = Array.isArray(messages) ? messages.slice(-8).filter((m: any) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string").map((m: any) => ({ role: m.role, content: m.content.slice(0, 4000) })) : [];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

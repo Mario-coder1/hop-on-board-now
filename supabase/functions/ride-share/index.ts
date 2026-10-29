@@ -86,6 +86,7 @@ Deno.serve(async (req) => {
       .from('rides')
       .select('id,origin_address,destination_address,departure_time,available_seats,price_per_seat,status,driver:public_profiles!rides_driver_id_fkey(full_name,rating,avatar_url,total_rides)')
       .eq('id', rideId)
+      .is('university_id', null)
       .maybeSingle()
     return new Response(JSON.stringify({ ride: ride ?? null }), {
       status: 200,
@@ -107,6 +108,7 @@ Deno.serve(async (req) => {
     .from('rides')
     .select('origin_address,destination_address,departure_time,available_seats,price_per_seat')
     .eq('id', rideId)
+    .is('university_id', null)
     .maybeSingle()
 
   const rideUrl = `${SITE_URL}/j/${rideId}`

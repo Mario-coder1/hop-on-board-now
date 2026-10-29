@@ -85,6 +85,13 @@
       "when": 1793190085626,
       "tag": "0011_rides_category",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793258126738,
+      "tag": "0012_migration",
+      "breakpoints": true
     }
   ]
 }
