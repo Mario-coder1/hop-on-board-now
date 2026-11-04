@@ -195,7 +195,7 @@ export default function CompanyPortal() {
             <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5" /> Firemný portál</CardTitle>
             <CardDescription>
               Váš účet nie je prepojený so žiadnou firmou. Ak ste zamestnanec, prihláste sa emailom, ktorý vaše HR
-              zaregistrovalo. Chcete firemné jazdy pre svoju firmu? Napíšte nám na support@takeme.sk.
+              zaregistrovalo. Chcete firemné jazdy pre svoju firmu? Napíšte nám na support@takeme.sk alebo volajte +421 948 884 480.
             </CardDescription>
           </CardHeader>
           <CardContent>
