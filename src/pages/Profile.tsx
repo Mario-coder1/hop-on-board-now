@@ -724,7 +724,7 @@ const Profile = () => {
               Máte otázky alebo potrebujete pomoc? Kontaktujte nás cez WhatsApp.
             </p>
             <a
-              href="https://wa.me/message/RVYLKZFAFEYVP1"
+              href="https://wa.me/421948884480"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors font-medium"
