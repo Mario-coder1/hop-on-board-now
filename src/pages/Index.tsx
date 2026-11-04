@@ -82,6 +82,7 @@ const Index = () => {
               name: 'takeme.sk',
               url: 'https://www.takeme.sk/',
               email: 'support@takeme.sk',
+              telephone: '+421948884480',
               logo: 'https://www.takeme.sk/pwa-512x512.png',
             },
             description: 'Hľadáte lacný odvoz? TakeMe.sk je slovenská platforma na ridesharing a spolujazdu. Cestujte ekologicky, nájdite vodiča a zdieľajte náklady na palivo.',
