@@ -732,6 +732,13 @@ const Profile = () => {
               <MessageCircle className="w-5 h-5" />
               Napísať na WhatsApp
             </a>
+            <a
+              href="tel:+421948884480"
+              className="mt-3 flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            >
+              <Phone className="w-4 h-4" />
+              Zavolať: +421 948 884 480
+            </a>
           </div>
 
           {/* AI Assistant */}
