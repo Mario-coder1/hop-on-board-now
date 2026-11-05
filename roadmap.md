@@ -20,5 +20,5 @@
 - [ ] Overiť pravidlá, prihlásený postup a aktuálne zostavenie.
 
 # Prehľad hľadaní a rezervácií
-- [ ] Pridať meranie hľadaní a prázdnych výsledkov bez presných polôh.
-- [ ] Pridať administrátorský súhrn a overiť prihlásené zobrazenie.
+- [x] Pridať meranie hľadaní a prázdnych výsledkov bez presných polôh.
+- [x] Pridať administrátorský súhrn a overiť prihlásené zobrazenie; 4 testy prešli, skúšobné hľadanie sa zobrazilo a mobil nemá vodorovné pretečenie.
