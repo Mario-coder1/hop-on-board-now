@@ -1001,11 +1001,11 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {ride.status === 'active' && new Date(String(ride.departure_time).replace(' ', 'T')).getTime() < Date.now() - 15 * 60 * 1000 ? (
+                  {ride.status !== 'active' && ride.status !== 'in_progress' ? (
                     <div className="text-center py-6">
-                      <p className="font-medium text-muted-foreground">Vodič zatiaľ nespustil jazdu LIVE</p>
+                      <p className="font-medium text-muted-foreground">{ride.status === 'cancelled' ? 'Jazda bola zrušená' : 'Jazda už skončila'}</p>
                       <p className="text-sm text-muted-foreground">
-                        Plánovaný odchod bol pred viac ako 15 minútami. Kým vodič nespustí jazdu LIVE, novú žiadosť nemôže odoslať nikto. To neznamená, že jazda skončila alebo že vás vodič už prešiel.
+                        K tejto jazde sa už nedá pripojiť. Vyhľadajte inú dostupnú jazdu.
                       </p>
                     </div>
                   ) : ride.available_seats <= 0 ? (

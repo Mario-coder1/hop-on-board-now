@@ -3,6 +3,7 @@
 // -> on transaction.completed the webhook inserts the ride_request row.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient, corsHeaders } from "../_shared/stripe.ts";
+import { isRideOpenForBooking } from "../_shared/rideBooking.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -79,9 +80,7 @@ Deno.serve(async (req) => {
         });
       }
     }
-    const departedLongAgo = ride.status === "active" &&
-      new Date(ride.departure_time).getTime() < Date.now() - 15 * 60 * 1000;
-    if (ride.available_seats <= 0 || !["active", "in_progress"].includes(ride.status) || departedLongAgo) {
+    if (!isRideOpenForBooking(ride)) {
       return new Response(JSON.stringify({ error: "Jazda nie je dostupná" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

@@ -28,3 +28,6 @@
 
 # Poloha pri pripojení po odchode
 - [x] Vysvetliť blokovanie nových žiadostí bez LIVE bez tvrdenia, že jazda skončila; zobraziť dostupnú poslednú polohu s časom, inak oznámiť nedostupnosť. Prihlásený detail reálnej jazdy overený, 4 testy prešli a zostavenie je bez chýb.
+
+# Pripojenie bez LIVE
+- [x] Odstrániť časové blokovanie z formulára, platobnej funkcie a bežnej aj firemnej rezervácie; ponechať ochranu ukončených a zrušených jázd aj dostupných miest. Deväť testov prešlo.
