@@ -57,6 +57,7 @@ import AdminTaxExport from '@/components/admin/AdminTaxExport';
 import AdminCompanies from '@/components/admin/AdminCompanies';
 import AdminFeedback from '@/components/admin/AdminFeedback';
 import AdminAutoCancelled from '@/components/admin/AdminAutoCancelled';
+import AdminSearchOverview from '@/components/admin/AdminSearchOverview';
 import { SecurityEventsLog } from '@/components/admin/SecurityEventsLog';
 
 import LiveUpdatesStats from '@/components/admin/LiveUpdatesStats';
@@ -728,6 +729,7 @@ const Admin = () => {
             <TabsList className="inline-flex h-auto w-auto gap-1.5 bg-muted/40 backdrop-blur-sm border border-border/50 rounded-full p-1.5 shadow-sm">
               {[
                 { v: 'ops', icon: Activity, label: 'Prehľad' },
+                { v: 'search_overview', icon: TrendingUp, label: 'Hľadania a rezervácie' },
                 { v: 'reports', icon: AlertTriangle, label: 'Nahlásenia' },
                 { v: 'auto_cancelled', icon: AlertTriangle, label: 'Auto-zrušené' },
                 { v: 'feedback', icon: Megaphone, label: 'Názory' },
@@ -759,6 +761,10 @@ const Admin = () => {
 
           <TabsContent value="ops" className="space-y-4">
             <AdminOperations />
+          </TabsContent>
+
+          <TabsContent value="search_overview" className="space-y-4">
+            <AdminSearchOverview />
           </TabsContent>
 
           <TabsContent value="auto_cancelled" className="space-y-4">
