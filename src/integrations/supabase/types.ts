@@ -2063,6 +2063,10 @@ export type Database = {
       is_company_hr: { Args: { _company_id: string }; Returns: boolean }
       is_company_member: { Args: { _company_id: string }; Returns: boolean }
       is_driver_verified: { Args: { _profile_id: string }; Returns: boolean }
+      is_pickup_passed: {
+        Args: { _pickup_lat: number; _pickup_lng: number; _ride_id: string }
+        Returns: boolean
+      }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
       is_university_member: {
         Args: { _university_id: string }
@@ -2094,6 +2098,13 @@ export type Database = {
         Returns: string
       }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
+      route_position_m: {
+        Args: { _lat: number; _lng: number; _route: Json }
+        Returns: {
+          distance_m: number
+          progress_m: number
+        }[]
+      }
       send_push_via_edge: {
         Args: {
           _body: string
