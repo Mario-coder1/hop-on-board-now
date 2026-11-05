@@ -24,4 +24,4 @@
 - [x] Pridať administrátorský súhrn a overiť prihlásené zobrazenie; 4 testy prešli, skúšobné hľadanie sa zobrazilo a mobil nemá vodorovné pretečenie.
 
 # Viditeľnosť aktívnych jázd
-- [ ] Odstrániť časové skrývanie aktívnych jázd zo zoznamov a overiť Pavlovu jazdu.
+- [x] Odstrániť časové skrývanie aktívnych jázd zo zoznamov; Pavlova jazda je viditeľná v prihlásenom vyhľadávaní, 4 testy prešli. Rezervačné a automatické ukončovacie pravidlá zostali bez zmeny.
