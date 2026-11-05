@@ -18,3 +18,7 @@
 - [ ] Registrácia firmy a pozvánka pre ľubovoľný overený email, pripojenie/odpojenie firemného režimu.
 - [ ] HR iba súhrn jázd, odhad CO₂ a fakturačný podklad; oddelené cesty a bezpečná rezervácia v limitoch.
 - [ ] Overiť pravidlá, prihlásený postup a aktuálne zostavenie.
+
+# Prehľad hľadaní a rezervácií
+- [x] Pridať meranie hľadaní a prázdnych výsledkov bez presných polôh.
+- [x] Pridať administrátorský súhrn a overiť prihlásené zobrazenie; 4 testy prešli, skúšobné hľadanie sa zobrazilo a mobil nemá vodorovné pretečenie.

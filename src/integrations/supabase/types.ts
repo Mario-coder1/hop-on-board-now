@@ -1227,6 +1227,30 @@ export type Database = {
           },
         ]
       }
+      ride_search_events: {
+        Row: {
+          created_at: string
+          id: string
+          result_count: number
+          session_id: string
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          result_count: number
+          session_id: string
+          source: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          result_count?: number
+          session_id?: string
+          source?: string
+        }
+        Relationships: []
+      }
       ride_stops: {
         Row: {
           address: string
@@ -1930,6 +1954,7 @@ export type Database = {
       }
       admin_list_companies: { Args: never; Returns: Json }
       admin_payment_event_stats: { Args: never; Returns: Json }
+      admin_search_overview: { Args: { p_days?: number }; Returns: Json }
       admin_security_events: {
         Args: { _limit?: number }
         Returns: {
@@ -2060,6 +2085,10 @@ export type Database = {
         Returns: undefined
       }
       my_company_benefit: { Args: never; Returns: Json }
+      record_ride_search: {
+        Args: { p_results: number; p_session: string; p_source: string }
+        Returns: undefined
+      }
       register_company: {
         Args: { _billing_email: string; _ico?: string; _name: string }
         Returns: string

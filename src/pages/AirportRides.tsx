@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+import { useSearchMetrics } from '@/hooks/useSearchMetrics';
 
 export const AIRPORTS = [
   { id: 'vie', name: 'Viedeň (Schwechat)', keywords: ['schwechat', 'flughafen wien', 'vienna airport', 'letisko viedeň', 'letisko vieden'] },
@@ -44,12 +45,13 @@ const matchesAirport = (text: string, keywords: readonly string[]) => {
 const AirportRides = () => {
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchReady, setSearchReady] = useState(false);
   const [selected, setSelected] = useState<string>('all');
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('rides')
         .select(`
           id, origin_address, destination_address, departure_time,
@@ -63,6 +65,7 @@ const AirportRides = () => {
         .order('departure_time', { ascending: true })
         .limit(50);
       if (!cancelled) {
+        setSearchReady(!error);
         setRides((data as unknown as Ride[]) || []);
         setLoading(false);
       }
@@ -76,6 +79,8 @@ const AirportRides = () => {
     if (!a) return rides;
     return rides.filter((r) => matchesAirport(`${r.origin_address} ${r.destination_address}`, a.keywords));
   }, [rides, selected]);
+
+  useSearchMetrics('airport', selected, selected !== 'all', searchReady && !loading, visible.length);
 
   const faq = [
     { q: 'Ako nájdem spolujazdu na letisko?', a: 'Vyber letisko nižšie a pozri si jazdy, ktoré tam idú alebo odtiaľ prichádzajú. Klikni na jazdu a pošli vodičovi žiadosť.' },

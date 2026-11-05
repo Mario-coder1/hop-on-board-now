@@ -21,6 +21,7 @@ import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchMetrics } from '@/hooks/useSearchMetrics';
 import {
   parseRoutePolyline,
   isPointNearRoute,
@@ -64,6 +65,7 @@ const SearchRides = () => {
   const { toast } = useToast();
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchReady, setSearchReady] = useState(false);
   const [searchOrigin, setSearchOrigin] = useState('');
   const [searchDestination, setSearchDestination] = useState('');
   const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
@@ -148,12 +150,14 @@ const SearchRides = () => {
 
     if (error) {
       console.error('[SearchRides] fetchRides error:', error);
+      setSearchReady(false);
       setRides([]);
       setLoading(false);
       return;
     }
 
     setRides((data as unknown as Ride[]) ?? []);
+    setSearchReady(true);
     setLoading(false);
   };
 
@@ -346,6 +350,8 @@ const SearchRides = () => {
     (minRating ? 1 : 0) +
     (liveOnly ? 1 : 0) +
     (nearMeEnabled && myLocation ? 1 : 0);
+
+  useSearchMetrics('search', JSON.stringify([searchOrigin, searchDestination, dateFrom, timeFrom, dateTo, timeTo, maxPrice, minSeats, minRating, liveOnly, nearMeEnabled, nearMeRadiusKm]), activeFilterCount > 0, searchReady && !loading, filteredRides.length);
 
   const clearFilters = () => {
     setSearchOrigin('');
