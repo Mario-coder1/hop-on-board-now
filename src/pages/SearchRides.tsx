@@ -22,6 +22,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
+import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
 import {
   parseRoutePolyline,
   isPointNearRoute,
@@ -143,9 +144,8 @@ const SearchRides = () => {
         driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating, total_rides, spoken_languages),
         ride_stops(id, address, stop_order)
       `)
-      .in('status', ['active', 'in_progress'])
+      .in('status', DISCOVERABLE_RIDE_STATUSES)
       .neq('category', 'airport')
-      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .order('departure_time', { ascending: true });
 
     if (error) {
