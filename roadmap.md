@@ -25,3 +25,6 @@
 
 # Viditeľnosť aktívnych jázd
 - [x] Odstrániť časové skrývanie aktívnych jázd zo zoznamov; Pavlova jazda je viditeľná v prihlásenom vyhľadávaní, 4 testy prešli. Rezervačné a automatické ukončovacie pravidlá zostali bez zmeny.
+
+# Poloha pri pripojení po odchode
+- [x] Vysvetliť blokovanie nových žiadostí bez LIVE bez tvrdenia, že jazda skončila; zobraziť dostupnú poslednú polohu s časom, inak oznámiť nedostupnosť. Prihlásený detail reálnej jazdy overený, 4 testy prešli a zostavenie je bez chýb.
