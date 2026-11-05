@@ -37,6 +37,7 @@ import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
 import DriverLastKnownLocation from '@/components/DriverLastKnownLocation';
+import { usePickupPassed } from '@/hooks/usePickupPassed';
 
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
@@ -161,6 +162,7 @@ const RideDetail = () => {
     lng: 0,
   });
   const [gettingPickupLocation, setGettingPickupLocation] = useState(false);
+  const pickupProgress = usePickupPassed(ride?.id, ride?.driver_id ?? null, pickup.lat, pickup.lng);
 
   const [driverContact, setDriverContact] = useState<DriverContact | null>(null);
 
@@ -569,6 +571,15 @@ const RideDetail = () => {
       return;
     }
     // Platby zapnuté a nejde o firemnú jazdu → najprv zaplatiť rezervačný poplatok
+    const { data: passed, error: progressError } = await supabase.rpc('is_pickup_passed', {
+      _ride_id: ride.id, _pickup_lat: pickup.lat, _pickup_lng: pickup.lng,
+    });
+    if (progressError || passed) {
+      toast({ title: 'Nástup nie je dostupný', description: passed
+        ? 'Vodič podľa poslednej uloženej polohy už prešiel vaše miesto nastúpenia. Vyberte miesto ďalej po trase.'
+        : 'Nepodarilo sa overiť miesto nastúpenia. Skúste to znova.', variant: 'destructive' });
+      return;
+    }
     if (isPaymentsEnabled() && !benefit?.member) {
       setShowCheckout(true);
       return;
@@ -1187,6 +1198,7 @@ const RideDetail = () => {
                         onClick={handleRequest}
                         disabled={
                           requesting ||
+                          pickupProgress.passed || pickupProgress.checking || pickupProgress.failed ||
                           ride.available_seats <= 0 ||
                           !pickup.lat ||
                           !routeCheck.pickupOk ||
@@ -1200,6 +1212,8 @@ const RideDetail = () => {
                             : 'Rezervovať'}
 
                       </Button>
+                      {pickupProgress.passed && <p className="mt-2 text-sm text-destructive" role="alert">Vodič podľa poslednej uloženej polohy už prešiel vaše miesto nastúpenia. Vyberte miesto ďalej po trase.</p>}
+                      {pickupProgress.failed && <p className="mt-2 text-sm text-destructive" role="alert">Miesto nastúpenia sa nepodarilo overiť. Skúste ho vybrať znova.</p>}
                     </>
                   )}
                 </article>

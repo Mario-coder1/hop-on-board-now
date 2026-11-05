@@ -1,0 +1,2 @@
+GRANT EXECUTE ON FUNCTION public.route_position_m(jsonb,numeric,numeric) TO anon,authenticated;
+COMMENT ON FUNCTION public.route_position_m(jsonb,numeric,numeric) IS 'Pure immutable geometry calculation on caller-supplied coordinates; reads no stored GPS or ride data.';

@@ -31,3 +31,8 @@
 
 # Pripojenie bez LIVE
 - [x] Odstrániť časové blokovanie z formulára, platobnej funkcie a bežnej aj firemnej rezervácie; ponechať ochranu ukončených a zrušených jázd aj dostupných miest. Deväť testov prešlo.
+
+# Posledná obec a prejdený nástup
+- [x] Zobraziť iba obec/mesto s časom uloženej polohy aj po zatvorení appky.
+- [x] Zablokovať už prejdený nástup pred platbou aj pri odoslaní rezervácie bez požiadavky LIVE; pri posune počas platby uvoľniť blokáciu alebo refundovať poplatok.
+- [x] Overiť geometriu proti skutočnému serveru a prihlásený formulár s vybraným nástupom. Skutočný pohyb vodiča a platba/refundácia kartou neboli vykonané.
