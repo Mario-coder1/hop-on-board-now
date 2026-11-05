@@ -11,6 +11,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { CITIES, getCity, distanceKm, formatDuration, estimatedDurationMin } from '@/data/cities';
 import type { CityVariant } from '@/data/seoVariants';
+import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
 
 interface CityRidesProps {
   variantOverride?: CityVariant;
@@ -31,9 +32,8 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
       const { data } = await supabase
         .from('rides')
         .select('destination_address')
-        .in('status', ['active', 'in_progress'])
+        .in('status', DISCOVERABLE_RIDE_STATUSES)
         .neq('category', 'airport')
-      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .gt('available_seats', 0)
         .ilike('origin_address', `%${cityObj.name}%`);
       if (cancelled || !data) return;

@@ -16,6 +16,7 @@ import {
 } from '@/data/cities';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
+import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
 
 interface Ride {
   id: string;
@@ -68,9 +69,8 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
           available_seats, price_per_seat, status,
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)
         `)
-        .in('status', ['active', 'in_progress'])
+        .in('status', DISCOVERABLE_RIDE_STATUSES)
         .neq('category', 'airport')
-      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .gt('available_seats', 0)
         .ilike('origin_address', `%${fromName}%`)
         .ilike('destination_address', `%${toName}%`)

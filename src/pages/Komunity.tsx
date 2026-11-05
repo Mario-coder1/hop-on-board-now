@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUniversities, useMyMemberships, type University } from '@/hooks/useUniversities';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
+import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
 
 interface UniversityRide {
   id: string;
@@ -61,9 +62,7 @@ const Komunity = () => {
         .from('rides')
         .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
         .or(orFilter)
-        .in('status', ['active', 'in_progress'])
-      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
-        .gte('departure_time', new Date().toISOString())
+        .in('status', DISCOVERABLE_RIDE_STATUSES)
         .order('departure_time', { ascending: true })
         .limit(50);
 

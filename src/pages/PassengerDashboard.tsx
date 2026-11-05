@@ -17,6 +17,7 @@ import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import LocationSearchInput from '@/components/LocationSearchInput';
 import DriverSpokenLanguages from '@/components/DriverSpokenLanguages';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
+import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
 
 interface ActiveRequest {
   id: string;
@@ -99,9 +100,8 @@ const PassengerDashboard: React.FC = () => {
         *,
         driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color, spoken_languages)
       `)
-      .in('status', ['active', 'in_progress'])
+      .in('status', DISCOVERABLE_RIDE_STATUSES)
       .neq('category', 'airport')
-      .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
       .gt('available_seats', 0)
       .order('departure_time', { ascending: true })
       .limit(20);
