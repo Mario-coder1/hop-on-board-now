@@ -87,6 +87,16 @@ Deno.serve(async (req) => {
     }
 
     // Already requested?
+    const { data: pickupPassed, error: progressError } = await supabase.rpc('is_pickup_passed', {
+      _ride_id: ride_id, _pickup_lat: Number(pickup_lat), _pickup_lng: Number(pickup_lng),
+    });
+    if (progressError) throw new Error('Nepodarilo sa overiť miesto nastúpenia');
+    if (pickupPassed) {
+      return new Response(JSON.stringify({ error: 'Vodič podľa poslednej uloženej polohy už prešiel vaše miesto nastúpenia. Vyberte miesto ďalej po trase.' }), {
+        status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { data: existing } = await supabase
       .from("ride_requests").select("id, payment_status, status")
       .eq("ride_id", ride_id).eq("passenger_id", profile.id).maybeSingle();

@@ -1212,6 +1212,8 @@ const RideDetail = () => {
                             : 'Rezervovať'}
 
                       </Button>
+                      {pickupProgress.passed && <p className="mt-2 text-sm text-destructive" role="alert">Vodič podľa poslednej uloženej polohy už prešiel vaše miesto nastúpenia. Vyberte miesto ďalej po trase.</p>}
+                      {pickupProgress.failed && <p className="mt-2 text-sm text-destructive" role="alert">Miesto nastúpenia sa nepodarilo overiť. Skúste ho vybrať znova.</p>}
                     </>
                   )}
                 </article>
