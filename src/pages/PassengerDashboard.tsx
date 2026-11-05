@@ -16,6 +16,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import LocationSearchInput from '@/components/LocationSearchInput';
 import DriverSpokenLanguages from '@/components/DriverSpokenLanguages';
+import { useSearchMetrics } from '@/hooks/useSearchMetrics';
 
 interface ActiveRequest {
   id: string;
@@ -57,6 +58,7 @@ const PassengerDashboard: React.FC = () => {
   const [searchFrom, setSearchFrom] = useState('');
   const [searchTo, setSearchTo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchReady, setSearchReady] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
   const [selectedMapRideId, setSelectedMapRideId] = useState<string | null>(null);
@@ -104,6 +106,7 @@ const PassengerDashboard: React.FC = () => {
       .order('departure_time', { ascending: true })
       .limit(20);
     if (!error && data) setRides(data as unknown as Ride[]);
+    setSearchReady(!error);
     setLoading(false);
   };
 
@@ -112,6 +115,8 @@ const PassengerDashboard: React.FC = () => {
     const matchesTo = !searchTo || ride.destination_address.toLowerCase().includes(searchTo.toLowerCase());
     return matchesFrom && matchesTo;
   });
+
+  useSearchMetrics('passenger', JSON.stringify([searchFrom, searchTo]), Boolean(searchFrom.trim() || searchTo.trim()), searchReady && !loading, filteredRides.length);
 
   // Live driver tracking
   const liveDriverIds = useMemo(

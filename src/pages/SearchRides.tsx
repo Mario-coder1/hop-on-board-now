@@ -351,8 +351,9 @@ const SearchRides = () => {
     (liveOnly ? 1 : 0) +
     (nearMeEnabled && myLocation ? 1 : 0);
 
+  useSearchMetrics('search', JSON.stringify([searchOrigin, searchDestination, dateFrom, timeFrom, dateTo, timeTo, maxPrice, minSeats, minRating, liveOnly, nearMeEnabled, nearMeRadiusKm]), activeFilterCount > 0, searchReady && !loading, filteredRides.length);
+
   const clearFilters = () => {
- 
     setSearchOrigin('');
     setSearchDestination('');
     setDateFrom('');
