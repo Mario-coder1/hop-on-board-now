@@ -30,7 +30,7 @@ export default function DriverLastKnownLocation({ driverId }: { driverId: string
       <Locate className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="min-w-0">
         {valid && !error ? <>
-          <p className="font-medium text-foreground">Posledná známa poloha vodiča: {place || `${location.lat.toFixed(3)}, ${location.lng.toFixed(3)}`}</p>
+          <p className="font-medium text-foreground">{place ? `Posledná známa poloha vodiča: ${place}` : 'Poloha vodiča je uložená; názov obce zatiaľ nie je dostupný.'}</p>
           {timestamp && <p className="text-xs">Aktualizované {formatDbDate(timestamp.toISOString(), 'd. M. HH:mm')}. Poloha je približná a vodič už môže byť ďalej.</p>}
         </> : <p>{isLoading ? 'Zisťujem polohu vodiča…' : 'Poloha vodiča nie je dostupná. Bez zdieľanej polohy nevieme, kde sa práve nachádza.'}</p>}
       </div>
