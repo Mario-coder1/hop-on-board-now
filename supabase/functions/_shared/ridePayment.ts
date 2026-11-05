@@ -1,6 +1,7 @@
 // Shared logic: create the ride_request row from a paid Stripe checkout session.
 // Used by payments-webhook and by admin manual reprocessing.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { createStripeClient } from './stripe.ts';
 
 export function serviceClient() {
   return createClient(
@@ -62,6 +63,21 @@ export async function processCheckoutSession(session: any): Promise<"created" | 
     payment_captured_at: session.payment_status === "paid" ? new Date().toISOString() : null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.message.includes('Vodič podľa poslednej uloženej polohy') && pi) {
+      const stripe = createStripeClient(session.livemode ? 'live' : 'sandbox');
+      const intent = await stripe.paymentIntents.retrieve(pi);
+      if (intent.status === 'requires_capture') {
+        await stripe.paymentIntents.cancel(pi, {}, { idempotencyKey: `passed-pickup-cancel-${session.id}` });
+      } else if (intent.status === 'succeeded') {
+        await stripe.refunds.create({ payment_intent: pi }, { idempotencyKey: `passed-pickup-refund-${session.id}` });
+      }
+      await logPaymentEvent({ source: 'passed-pickup-guard', event_type: 'booking_unavailable_fee_returned',
+        environment: session.livemode ? 'live' : 'sandbox', status: 'success', stripe_session_id: session.id,
+        ride_id: meta.ride_id, profile_id: meta.passenger_profile_id, amount: amountPaid,
+        resolved_at: new Date().toISOString() });
+    }
+    throw new Error(error.message);
+  }
   return "created";
 }

@@ -7,3 +7,4 @@
 - Search metrics use consent-gated, debounced shared tracking with anonymous session UUIDs and result counts only; admin aggregates require server-verified roles and reservation totals remain separate from search conversions.
 - Ride-detail location previews reuse useDriverTracking and label positions with their recorded time; unavailable or old GPS must never imply a current position or alter booking safeguards.
 - Booking eligibility must stay consistent in the ride detail, payment function and database guards: active/in-progress rides do not require LIVE activation or a future departure time; all other safeguards remain independent.
+- Passed-pickup eligibility is authoritative in a database RPC/insert trigger using segment projection of persisted post-departure GPS; check before checkout and return the fee idempotently if the driver passes during payment.
