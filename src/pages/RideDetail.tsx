@@ -36,6 +36,7 @@ import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
+import DriverLastKnownLocation from '@/components/DriverLastKnownLocation';
 
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
@@ -873,6 +874,10 @@ const RideDetail = () => {
 
                 {ride.driver?.bio && <p className="text-sm text-muted-foreground mb-4">{ride.driver.bio}</p>}
 
+                {!isDriver && (ride.status === 'active' || ride.status === 'in_progress') && (
+                  <DriverLastKnownLocation key={ride.driver_id} driverId={ride.driver_id} />
+                )}
+
                 {!!ride.driver?.spoken_languages?.length && (
                   <div className="flex flex-wrap items-center gap-1.5 text-sm mb-3">
                     <span className="text-muted-foreground">Hovorí:</span>
@@ -998,9 +1003,9 @@ const RideDetail = () => {
 
                   {ride.status === 'active' && new Date(String(ride.departure_time).replace(' ', 'T')).getTime() < Date.now() - 15 * 60 * 1000 ? (
                     <div className="text-center py-6">
-                      <p className="font-medium text-muted-foreground">Jazda už skončila</p>
+                      <p className="font-medium text-muted-foreground">Vodič zatiaľ nespustil jazdu LIVE</p>
                       <p className="text-sm text-muted-foreground">
-                        Táto jazda už odišla. Pozrite si nadchádzajúce jazdy vo vyhľadávaní.
+                        Plánovaný odchod bol pred viac ako 15 minútami. Kým vodič nespustí jazdu LIVE, novú žiadosť nemôže odoslať nikto. To neznamená, že jazda skončila alebo že vás vodič už prešiel.
                       </p>
                     </div>
                   ) : ride.available_seats <= 0 ? (
