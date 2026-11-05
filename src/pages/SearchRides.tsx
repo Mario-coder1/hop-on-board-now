@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Calendar, Users, ArrowRight, Filter, Radio, X, Clock, Euro, Star, ArrowUpDown, Locate, Loader2 } from 'lucide-react';
@@ -212,6 +212,33 @@ const SearchRides = () => {
       supabase.removeChannel(channel);
     };
   }, [liveDriverIds.join(',')]);
+
+  // Reverse-geocode each live driver's position into a town name (cached by ~1 km grid)
+  const [livePlaceNames, setLivePlaceNames] = useState<Record<string, string>>({});
+  const placeCacheRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    const token = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
+    Object.entries(liveLocations).forEach(async ([driverId, loc]) => {
+      const key = `${loc.lat.toFixed(2)},${loc.lng.toFixed(2)}`;
+      const cached = placeCacheRef.current[key];
+      if (cached !== undefined) {
+        setLivePlaceNames(prev => (prev[driverId] === cached ? prev : { ...prev, [driverId]: cached }));
+        return;
+      }
+      placeCacheRef.current[key] = '';
+      try {
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${loc.lng},${loc.lat}.json?types=place,locality&language=sk&limit=1&access_token=${token}`
+        );
+        const data = await res.json();
+        const name = data?.features?.[0]?.text || '';
+        placeCacheRef.current[key] = name;
+        if (name) setLivePlaceNames(prev => ({ ...prev, [driverId]: name }));
+      } catch {
+        delete placeCacheRef.current[key];
+      }
+    });
+  }, [liveLocations]);
 
   // Combine date+time inputs into Date or null
   const fromDate = useMemo(() => {
@@ -750,6 +777,13 @@ const SearchRides = () => {
                               <span className="text-sm text-muted-foreground font-semibold">€</span>
                             </div>
                           </div>
+
+                          {isLive && livePlaceNames[ride.driver_id] && (
+                            <div className="mb-3 flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+                              <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>Vodič je práve teraz: {livePlaceNames[ride.driver_id]}</span>
+                            </div>
+                          )}
 
                           {/* Proximity warnings — shown only when "near me" annotator is enabled */}
                           {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
