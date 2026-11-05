@@ -22,3 +22,6 @@
 # Prehľad hľadaní a rezervácií
 - [x] Pridať meranie hľadaní a prázdnych výsledkov bez presných polôh.
 - [x] Pridať administrátorský súhrn a overiť prihlásené zobrazenie; 4 testy prešli, skúšobné hľadanie sa zobrazilo a mobil nemá vodorovné pretečenie.
+
+# Viditeľnosť aktívnych jázd
+- [ ] Odstrániť časové skrývanie aktívnych jázd zo zoznamov a overiť Pavlovu jazdu.
