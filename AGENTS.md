@@ -5,3 +5,4 @@
 - Use the shared DriverSpokenLanguages display and spoken-language catalog on discovery cards so saved driver languages render consistently across screen sizes.
 - Route shared ride links through the public `ride-share` Edge Function so social crawlers receive server-rendered route metadata while browsers continue to the protected ride page.
 - Search metrics use consent-gated, debounced shared tracking with anonymous session UUIDs and result counts only; admin aggregates require server-verified roles and reservation totals remain separate from search conversions.
+- Ride-detail location previews reuse useDriverTracking and label positions with their recorded time; unavailable or old GPS must never imply a current position or alter booking safeguards.
