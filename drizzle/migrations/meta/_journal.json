@@ -120,6 +120,13 @@
       "when": 1793869550395,
       "tag": "0016_grant_pure_route_projection",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793950309428,
+      "tag": "0017_ride_luggage_capacity",
+      "breakpoints": true
     }
   ]
 }
