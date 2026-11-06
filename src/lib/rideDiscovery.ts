@@ -1,21 +1,17 @@
 // After departure (+15 min) a ride is joinable only while the driver is active in the app or moving; hard cap 12 h.
 export const DISCOVERABLE_RIDE_STATUSES: ('active' | 'in_progress' | 'completed' | 'cancelled')[] = ['active', 'in_progress'];
-export const ACTIVE_GRACE_HOURS = 3;
 export const LIVE_GRACE_HOURS = 12;
 
 export function isRideJoinable(ride: { status: string | null; departure_time: string }, now = new Date()): boolean {
   const dep = new Date(ride.departure_time).getTime();
   const age = (now.getTime() - dep) / 3600000;
-  if (ride.status === 'active') return age <= ACTIVE_GRACE_HOURS;
-  if (ride.status === 'in_progress') return age <= LIVE_GRACE_HOURS;
+  if (ride.status === 'active' || ride.status === 'in_progress') return age <= LIVE_GRACE_HOURS;
   return false;
 }
 
 /** PostgREST .or() filter that hides rides which surely ended. */
 export function joinableRidesFilter(now = new Date()): string {
-  const a = new Date(now.getTime() - ACTIVE_GRACE_HOURS * 3600000).toISOString();
   const l = new Date(now.getTime() - LIVE_GRACE_HOURS * 3600000).toISOString();
-  void a;
   return `and(status.in.(active,in_progress),departure_time.gte.${l})`;
 }
 
