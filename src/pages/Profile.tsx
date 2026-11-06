@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import SpokenLanguagesField from '@/components/SpokenLanguagesField';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { notificationLink } from '@/lib/notificationLink';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import FeedbackCard from '@/components/FeedbackCard';
 import InviteFriendCard from '@/components/InviteFriendCard';
@@ -52,6 +54,29 @@ const Profile = () => {
   const { profile, refreshProfile, updateRole, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const notificationId = searchParams.get('notification');
+  const [openedNotification, setOpenedNotification] = useState<Notification | null>(null);
+  const [notificationDetailLoading, setNotificationDetailLoading] = useState(false);
+
+  useEffect(() => {
+    if (!profile || !notificationId) return;
+    let cancelled = false;
+    setNotificationsOpen(true);
+    setOpenedNotification(null);
+    setNotificationDetailLoading(true);
+    const load = async () => {
+      const { data, error } = await supabase.from('notifications').select('*')
+        .eq('id', notificationId)
+        .or(`profile_id.eq.${profile.id},is_global.eq.true`)
+        .maybeSingle();
+      if (cancelled) return;
+      setOpenedNotification(error ? null : data);
+      setNotificationDetailLoading(false);
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [profile?.id, notificationId]);
 
   const [loading, setLoading] = useState(false);
   const [roleLoading, setRoleLoading] = useState(false);
@@ -372,6 +397,23 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-32 md:pb-8 overflow-x-hidden">
       <Navigation />
+      <Dialog open={Boolean(notificationId)} onOpenChange={(open) => {
+        if (!open) {
+          const next = new URLSearchParams(searchParams);
+          next.delete('notification');
+          setSearchParams(next, { replace: true });
+        }
+      }}>
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg max-h-[85dvh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="break-words pr-6">{openedNotification?.title || 'Upozornenie'}</DialogTitle>
+            <DialogDescription>
+              {openedNotification ? new Date(openedNotification.created_at).toLocaleString('sk-SK') : notificationDetailLoading ? 'Načítavam…' : 'Toto upozornenie už nie je dostupné.'}
+            </DialogDescription>
+          </DialogHeader>
+          {openedNotification && <p className="whitespace-pre-wrap break-words text-sm">{openedNotification.message}</p>}
+        </DialogContent>
+      </Dialog>
       
       <div className="container mx-auto px-4 py-8">
         <motion.div
@@ -616,6 +658,9 @@ const Profile = () => {
                                 minute: '2-digit'
                               })}
                             </p>
+                            <Button variant="link" size="sm" className="px-0" onClick={() => navigate(notificationLink(notification.id))}>
+                              Otvoriť správu
+                            </Button>
                           </div>
                           {!notification.is_read && (
                             <Button

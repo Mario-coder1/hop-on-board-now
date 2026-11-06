@@ -1,4 +1,5 @@
 # Project rules
+- Broadcast pushes carry the persisted notification ID and a same-origin profile deep link; load the targeted notification independently of the recent list so older messages remain readable under existing access policies.
 - Use the shared rideDiscovery helpers for passenger listings and booking: a ride is joinable until departure plus estimated road travel time, afterwards only after the driver confirms it is still going (server RPC is_ride_joinable), consistently in lists, ride detail, payment function and the insert trigger.
 - Keep payment administration focused on platform reservation fees and card authorization/capture/refund states, never driver payouts; drivers collect their fares separately and historical payout fields do not represent current payments.
 - Preserve backend payment and refund behavior when updating public payment copy; wording changes must not alter money movement or historical records.
