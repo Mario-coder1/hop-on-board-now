@@ -121,6 +121,31 @@ const CreateRide = () => {
     return () => { cancelled = true; };
   }, [returnRideId, profile?.id, navigate, toast]);
 
+  const wishId = routeSearchParams.get('wish');
+  useEffect(() => {
+    if (!wishId || returnRideId) return;
+    let cancelled = false;
+    const geocode = async (q: string) => {
+      try {
+        const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${MAPBOX_TOKEN}&language=sk&country=sk,cz,pl,at,hu&limit=1`);
+        const f = (await res.json()).features?.[0];
+        return f ? { address: f.place_name as string, lat: f.center[1] as number, lng: f.center[0] as number } : null;
+      } catch { return null; }
+    };
+    (async () => {
+      const { data: w } = await supabase.from('ride_wishes').select('*').eq('id', wishId).maybeSingle();
+      if (!w || cancelled) return;
+      const [o, d] = await Promise.all([geocode(w.origin_text), geocode(w.destination_text)]);
+      if (cancelled) return;
+      if (o) setOrigin(o);
+      if (d) setDestination(d);
+      setSeats(Math.max(1, w.seats));
+      setDepartureTime(`${w.travel_date}T08:00`);
+      toast({ title: 'Jazda predvyplnená', description: `${w.origin_text} → ${w.destination_text}. Skontroluj čas a cenu.` });
+    })();
+    return () => { cancelled = true; };
+  }, [wishId, returnRideId, toast]);
+
   useEffect(() => {
     const fetchStations = async () => {
       const { data } = await supabase.from('gas_stations').select('id, name, address, lat, lng, discount_note').eq('active', true).order('name');
@@ -135,7 +160,7 @@ const CreateRide = () => {
 
   // Auto-detect location on mount
   useEffect(() => {
-    if (!returnRideId) getCurrentLocation();
+    if (!returnRideId && !routeSearchParams.get('wish')) getCurrentLocation();
   }, [returnRideId]);
 
   const getCurrentLocation = () => {
@@ -321,6 +346,10 @@ const CreateRide = () => {
         if (stopsError) {
           console.error('Error inserting stops:', stopsError);
         }
+      }
+
+      if (wishId && rideData?.id) {
+        await supabase.rpc('offer_ride_for_wish', { _wish_id: wishId, _ride_id: rideData.id });
       }
 
       toast({

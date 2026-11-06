@@ -162,6 +162,13 @@
       "when": 1793951553323,
       "tag": "0022_ride_joinable_until_arrival_still_going",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793962762262,
+      "tag": "0023_offer_ride_for_wish",
+      "breakpoints": true
     }
   ]
 }

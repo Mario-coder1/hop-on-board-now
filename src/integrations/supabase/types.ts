@@ -2233,6 +2233,10 @@ export type Database = {
       }
       my_booking_credits: { Args: never; Returns: Json }
       my_company_benefit: { Args: never; Returns: Json }
+      offer_ride_for_wish: {
+        Args: { _ride_id: string; _wish_id: string }
+        Returns: undefined
+      }
       record_ride_search: {
         Args: { p_results: number; p_session: string; p_source: string }
         Returns: undefined

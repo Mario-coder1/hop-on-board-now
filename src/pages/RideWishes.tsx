@@ -106,7 +106,7 @@ export default function RideWishes() {
                   <Button variant="ghost" size="icon" aria-label="Zmazať" onClick={() => remove(w.id)}><Trash2 className="w-4 h-4" /></Button>
                 ) : (
                   <Button asChild size="sm" variant="outline" className="shrink-0">
-                    <Link to="/create-ride"><Car className="w-4 h-4 mr-1" />Ponúknuť jazdu</Link>
+                    <Link to={`/create-ride?wish=${w.id}`}><Car className="w-4 h-4 mr-1" />Ponúknuť jazdu</Link>
                   </Button>
                 )}
               </CardContent>
