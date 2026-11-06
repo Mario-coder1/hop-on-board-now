@@ -148,6 +148,13 @@
       "when": 1793951245520,
       "tag": "0020_ride_joinable_driver_activity",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793951266173,
+      "tag": "0021_free_booking_uses_driver_activity",
+      "breakpoints": true
     }
   ]
 }
