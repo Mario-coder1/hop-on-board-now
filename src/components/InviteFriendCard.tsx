@@ -27,7 +27,7 @@ export default function InviteFriendCard() {
   };
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center gap-2 font-semibold"><Gift className="w-5 h-5 text-primary" /> Pozvi kamaráta</div>
         <p className="text-sm text-muted-foreground">

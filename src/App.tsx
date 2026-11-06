@@ -11,6 +11,7 @@ import { useRideNotifications } from "@/hooks/useRideNotifications";
 import { useNotificationAlert } from "@/hooks/useNotificationAlert";
 import { useAutoSubscribePush } from "@/hooks/useAutoSubscribePush";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
+import { useReferralCapture } from "@/hooks/useReferralCapture";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import ActiveRideFAB from "./components/ActiveRideFAB";
@@ -48,6 +49,7 @@ const TopDrivers = lazy(() => import("./pages/TopDrivers"));
 const Komunity = lazy(() => import("./pages/Komunity"));
 const RidesIndex = lazy(() => import("./pages/RidesIndex"));
 const AirportRides = lazy(() => import("./pages/AirportRides"));
+const RideWishes = lazy(() => import("./pages/RideWishes"));
 const CityOrPairRoute = lazy(() => import("./pages/CityOrPairRoute"));
 const Co2Calculator = lazy(() => import("./pages/Co2Calculator"));
 const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
@@ -86,6 +88,7 @@ const NotificationListener = () => {
   useNotificationAlert();
   useAutoSubscribePush();
   usePageViewTracking();
+  useReferralCapture();
   return null;
 };
 
@@ -127,6 +130,7 @@ const AppRoutes = () => {
             <Route path="/install" element={<Install />} />
             <Route path="/jazdy" element={<RidesIndex />} />
             <Route path="/letisko" element={<AirportRides />} />
+            <Route path="/hladam-odvoz" element={<ProtectedRoute><RideWishes /></ProtectedRoute>} />
             <Route path="/jazdy/:slug" element={<CityOrPairRoute />} />
             <Route path="/jazdy/:slug/:variant" element={<CityOrPairRoute />} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />

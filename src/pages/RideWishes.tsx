@@ -72,7 +72,7 @@ export default function RideWishes() {
           <p className="text-muted-foreground text-sm mt-1">Nenašiel si jazdu? Napíš, kam ideš. Vodiči na trase dostanú upozornenie.</p>
         </div>
 
-        <Card className="glass-card">
+        <Card>
           <CardContent className="p-5">
             <form onSubmit={submit} className="space-y-3">
               <div className="grid sm:grid-cols-2 gap-3">
@@ -92,7 +92,7 @@ export default function RideWishes() {
           <h2 className="font-semibold">Ľudia hľadajú odvoz</h2>
           {wishes.length === 0 && <p className="text-sm text-muted-foreground">Zatiaľ nikto. Buď prvý.</p>}
           {wishes.map((w) => (
-            <Card key={w.id} className="glass-card">
+            <Card key={w.id}>
               <CardContent className="p-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="font-medium break-words">{w.origin_text} → {w.destination_text}</div>

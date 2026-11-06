@@ -190,6 +190,15 @@ const RideDetail = () => {
     void loadBenefit();
   }, [loadBenefit]);
 
+  // Prvá rezervácia zdarma / odmena za pozvanie
+  const [freeCredits, setFreeCredits] = useState(0);
+  const loadCredits = useCallback(async () => {
+    if (!profile?.id) return;
+    const { data } = await supabase.rpc('my_booking_credits');
+    setFreeCredits(Number((data as any)?.free_credits ?? 0));
+  }, [profile?.id]);
+  useEffect(() => { void loadCredits(); }, [loadCredits]);
+
 
   const isDriver = useMemo(() => {
     if (!profile || !ride) return false;
@@ -584,6 +593,25 @@ const RideDetail = () => {
       toast({ title: 'Nástup nie je dostupný', description: passed
         ? 'Vodič podľa poslednej uloženej polohy už prešiel vaše miesto nastúpenia. Vyberte miesto ďalej po trase.'
         : 'Nepodarilo sa overiť miesto nastúpenia. Skúste to znova.', variant: 'destructive' });
+      return;
+    }
+    if (!benefit?.member && freeCredits > 0) {
+      setRequesting(true);
+      try {
+        const { error } = await supabase.rpc('book_free_ride', {
+          _ride_id: ride.id, _pickup_address: pickup.address, _pickup_lat: pickup.lat, _pickup_lng: pickup.lng,
+          _dropoff_address: dropoff.address || '', _dropoff_lat: dropoff.lat ?? null, _dropoff_lng: dropoff.lng ?? null,
+          _message: bookingMessage || null,
+        } as any);
+        if (error) throw error;
+        toast({ title: 'Žiadosť odoslaná', description: 'Rezervácia je zdarma. Vodič dostane upozornenie a schváli tvoju žiadosť.' });
+        await loadCredits();
+        window.location.reload();
+      } catch (e: any) {
+        toast({ title: 'Chyba', description: e.message || 'Nepodarilo sa odoslať žiadosť.', variant: 'destructive' });
+      } finally {
+        setRequesting(false);
+      }
       return;
     }
     if (isPaymentsEnabled() && !benefit?.member) {
@@ -1164,7 +1192,12 @@ const RideDetail = () => {
                               {benefit.workdays_only ? ', platí v pracovné dni' : ''}.
                             </div>
                           )}
-                          {isPaymentsEnabled() && (
+                          {!benefit?.member && freeCredits > 0 && (
+                            <div className="mt-2 rounded-xl bg-primary/10 border border-primary/20 p-3 text-xs">
+                              🎁 Táto rezervácia je zdarma — rezervačný poplatok neplatíš. Ďalšie rezervácie sú už spoplatnené.
+                            </div>
+                          )}
+                          {isPaymentsEnabled() && !(freeCredits > 0 && !benefit?.member) && (
                             <>
                               <div className="flex justify-between items-baseline mt-1">
                                 <span className="text-muted-foreground">
