@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { notificationLink } from '@/lib/notificationLink';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
@@ -594,16 +595,19 @@ const Admin = () => {
     setMassNotificationLoading(true);
     try {
       // Create a global notification
-      const { error } = await supabase
+      const { data: notification, error } = await supabase
         .from('notifications')
         .insert({
           title: massNotificationTitle,
           message: massNotificationMessage,
           is_global: true,
           profile_id: null
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
+      if (!notification) throw new Error('Nepodarilo sa uložiť upozornenie.');
 
       // Send push notifications to all users via server-side edge function.
       // This is reliable and works even after admin closes the tab.
@@ -611,7 +615,7 @@ const Admin = () => {
         body: {
           title: massNotificationTitle,
           body: massNotificationMessage,
-          data: { type: 'mass_notification' },
+          data: { type: 'mass_notification', notification_id: notification.id, url: notificationLink(notification.id) },
           tag: 'takeme-mass-notification',
         },
       });

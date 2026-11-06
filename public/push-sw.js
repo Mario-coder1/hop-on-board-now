@@ -31,15 +31,20 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/';
+  const target = new URL(event.notification.data?.url || '/', self.location.origin);
+  const urlToOpen = target.origin === self.location.origin ? target.href : self.location.origin + '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(function(clientList) {
+      .then(async function(clientList) {
         for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            if ('navigate' in client) client.navigate(urlToOpen).catch(function() {});
-            return client.focus();
+          if (new URL(client.url).origin === self.location.origin && 'focus' in client && 'navigate' in client) {
+            try {
+              const navigated = await client.navigate(urlToOpen);
+              return (navigated || client).focus();
+            } catch (error) {
+              // Try another window, or open a fresh one if navigation failed.
+            }
           }
         }
         if (clients.openWindow) {
