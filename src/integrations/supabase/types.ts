@@ -1509,6 +1509,9 @@ export type Database = {
           route_polyline: string | null
           smoking_allowed: boolean | null
           status: Database["public"]["Enums"]["ride_status"] | null
+          still_going_asked_at: string | null
+          still_going_declined_at: string | null
+          still_going_until: string | null
           template_id: string | null
           university_id: string | null
           updated_at: string
@@ -1544,6 +1547,9 @@ export type Database = {
           route_polyline?: string | null
           smoking_allowed?: boolean | null
           status?: Database["public"]["Enums"]["ride_status"] | null
+          still_going_asked_at?: string | null
+          still_going_declined_at?: string | null
+          still_going_until?: string | null
           template_id?: string | null
           university_id?: string | null
           updated_at?: string
@@ -1579,6 +1585,9 @@ export type Database = {
           route_polyline?: string | null
           smoking_allowed?: boolean | null
           status?: Database["public"]["Enums"]["ride_status"] | null
+          still_going_asked_at?: string | null
+          still_going_declined_at?: string | null
+          still_going_until?: string | null
           template_id?: string | null
           university_id?: string | null
           updated_at?: string
@@ -2102,6 +2111,11 @@ export type Database = {
         Returns: Json
       }
       admin_visitor_stats: { Args: never; Returns: Json }
+      answer_ride_still_going: {
+        Args: { _going: boolean; _ride_id: string }
+        Returns: undefined
+      }
+      ask_rides_still_going: { Args: never; Returns: number }
       book_company_ride: {
         Args: {
           _dropoff_address: string
@@ -2227,6 +2241,7 @@ export type Database = {
         Args: { _billing_email: string; _ico?: string; _name: string }
         Returns: string
       }
+      ride_est_duration: { Args: { _ride_id: string }; Returns: string }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       route_position_m: {
         Args: { _lat: number; _lng: number; _route: Json }
