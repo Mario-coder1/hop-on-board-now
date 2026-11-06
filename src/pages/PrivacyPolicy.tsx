@@ -166,6 +166,7 @@ const PrivacyPolicy = () => {
             </div>
             <div className="space-y-2 text-muted-foreground">
               <p>Správy a obrázky vo verejnom chate sú viditeľné všetkým prihláseným používateľom. Nezdieľajte tam citlivé osobné údaje. Obsah, ktorý porušuje pravidlá, môžeme moderovať alebo odstrániť. Hodnotenia a recenzie zostávajú zobrazené aj po zrušení účtu v anonymizovanej forme z dôvodu transparentnosti.</p>
+              <p>Požiadavky „Hľadám odvoz“ (odkiaľ, kam, dátum, počet miest, poznámka) vidia všetci prihlásení používatelia. Vodičom s podobnou trasou pošleme upozornenie a keď vám vodič ponúkne jazdu, pošleme vám notifikáciu s jeho menom a trasou. Právnym základom je plnenie zmluvy (čl. 6 ods. 1 písm. b GDPR). Požiadavku môžete kedykoľvek zmazať; po dátume cesty sa už nezobrazuje.</p>
             </div>
           </section>
 
