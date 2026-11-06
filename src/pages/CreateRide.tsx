@@ -160,7 +160,7 @@ const CreateRide = () => {
 
   // Auto-detect location on mount
   useEffect(() => {
-    if (!returnRideId) getCurrentLocation();
+    if (!returnRideId && !routeSearchParams.get('wish')) getCurrentLocation();
   }, [returnRideId]);
 
   const getCurrentLocation = () => {
