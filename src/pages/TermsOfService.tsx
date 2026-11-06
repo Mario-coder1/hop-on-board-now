@@ -405,6 +405,16 @@ const TermsOfService = () => {
                 mesačne vystaví podklad k faktúre so zoznamom jázd zamestnancov (meno, pracovný e-mail, trasa, dátum,
                 suma). Ostatné pravidlá týchto VOP platia rovnako.
               </p>
+              <p>
+                <strong className="text-foreground">6a.3. Hľadám odvoz.</strong> Spolujazdec môže zverejniť požiadavku na
+                odvoz (odkiaľ, kam, dátum, počet miest, poznámka). Požiadavka nie je objednávka prepravy ani záväzok
+                žiadnej strany. Ak vodič na požiadavku reaguje ponukou jazdy, ide o jeho vlastnú jazdu, ktorú plánoval
+                a uskutoční z vlastného dôvodu aj vtedy, ak si ju spolujazdec, ktorý požiadavku zverejnil, nerezervuje
+                alebo rezerváciu zruší. Vodič nesmie jazdu vytvoriť výlučne na prepravu za odplatu ani požadovať viac
+                ako podiel na nákladoch cesty. Jazda je dostupná všetkým používateľom a rezervácia, rezervačný poplatok,
+                storno a ostatné pravidlá týchto VOP platia rovnako ako pri každej inej jazde. TakeMe nezaručuje, že na
+                požiadavku niekto odpovie.
+              </p>
             </div>
           </section>
 
