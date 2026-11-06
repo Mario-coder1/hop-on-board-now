@@ -179,12 +179,12 @@ const SearchRides = () => {
     const loadLocations = async () => {
       const { data } = await supabase
         .from('user_locations')
-        .select('profile_id, lat, lng')
+        .select('profile_id, lat, lng, updated_at')
         .in('profile_id', liveDriverIds);
       if (cancelled || !data) return;
-      const map: Record<string, { lat: number; lng: number }> = {};
+      const map: Record<string, { lat: number; lng: number; updated_at?: string }> = {};
       data.forEach((row: any) => {
-        map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng) };
+        map[row.profile_id] = { lat: Number(row.lat), lng: Number(row.lng), updated_at: row.updated_at };
       });
       setLiveLocations(map);
     };
@@ -201,7 +201,7 @@ const SearchRides = () => {
           if (!liveDriverIds.includes(row.profile_id)) return;
           setLiveLocations(prev => ({
             ...prev,
-            [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng) },
+            [row.profile_id]: { lat: Number(row.lat), lng: Number(row.lng), updated_at: row.updated_at },
           }));
         }
       )
@@ -778,12 +778,28 @@ const SearchRides = () => {
                             </div>
                           </div>
 
-                          {isLive && livePlaceNames[ride.driver_id] && (
-                            <div className="mb-3 flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
-                              <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                              <span>Vodič je práve teraz: {livePlaceNames[ride.driver_id]}</span>
-                            </div>
-                          )}
+                          {(() => {
+                            const place = livePlaceNames[ride.driver_id];
+                            const loc = liveLocations[ride.driver_id];
+                            if (!place || !loc?.updated_at) return null;
+                            const at = new Date(loc.updated_at.endsWith('Z') || loc.updated_at.includes('+') ? loc.updated_at : `${loc.updated_at}Z`);
+                            const dep = new Date(ride.departure_time);
+                            // Only positions recorded during this ride (after departure) count.
+                            if (Number.isNaN(at.getTime()) || at.getTime() < dep.getTime() - 15 * 60000) return null;
+                            const fresh = isLive && Date.now() - at.getTime() < 5 * 60000;
+                            const time = at.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' });
+                            return fresh ? (
+                              <div className="mb-3 flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+                                <Radio className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                <span>Vodič je práve teraz: {place}</span>
+                              </div>
+                            ) : (
+                              <div className="mb-3 flex items-start gap-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                <span>Vodič už prešiel: {place} (o {time}) — miesta pred touto obcou už nestihne.</span>
+                              </div>
+                            );
+                          })()}
 
                           {/* Proximity warnings — shown only when "near me" annotator is enabled */}
                           {nearMeEnabled && myLocation && (ride._driverPassed || ride._nearMe === false) && (
