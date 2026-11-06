@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUniversities, useMyMemberships, type University } from '@/hooks/useUniversities';
 import { format } from 'date-fns';
 import { sk } from 'date-fns/locale';
-import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
 
 interface UniversityRide {
   id: string;
@@ -63,6 +63,7 @@ const Komunity = () => {
         .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
         .or(orFilter)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
+        .or(joinableRidesFilter())
         .order('departure_time', { ascending: true })
         .limit(50);
 

@@ -16,7 +16,7 @@ import {
 } from '@/data/cities';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
-import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
 
 interface Ride {
   id: string;
@@ -70,6 +70,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)
         `)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
+        .or(joinableRidesFilter())
         .neq('category', 'airport')
         .gt('available_seats', 0)
         .ilike('origin_address', `%${fromName}%`)
