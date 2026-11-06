@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
+  Repeat,
   Calendar,
   Car,
   Loader2,
@@ -1046,6 +1047,14 @@ const RideDetail = () => {
 
                   <Button className="w-full" onClick={() => navigate(`/manage-passengers/${ride.id}`)}>
                     Spravovať jazdu a pasažierov
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2 gap-2 whitespace-normal h-auto min-h-10 py-2"
+                    onClick={() => navigate(`/create-ride?returnRide=${ride.id}`)}
+                  >
+                    <Repeat className="w-4 h-4 shrink-0" />
+                    Vytvoriť spiatočnú jazdu
                   </Button>
                   {ride.status === 'active' && (
                     <Button

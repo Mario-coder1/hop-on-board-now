@@ -22,6 +22,7 @@ import { useMyMemberships } from '@/hooks/useUniversities';
 import { GraduationCap } from 'lucide-react';
 import SEO from '@/components/SEO';
 import VoiceRideButton from '@/components/VoiceRideButton';
+import { makeReturnRideDraft } from '@/lib/returnRide';
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaWtveGQiLCJhIjoiY21qYjVkajVyMGRhaTNlc2QzbnpqY3p0eiJ9.P4mbLpcwyogmes1wzFsl8g';
 
 const WEEKDAYS = [
@@ -38,7 +39,10 @@ const CreateRide = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [routeSearchParams] = useSearchParams();
-  const isAirportRide = routeSearchParams.get('category') === 'airport';
+  const returnRideId = routeSearchParams.get('returnRide');
+  const [sourceRide, setSourceRide] = useState<{ id: string; departure_time: string; category: string } | null>(null);
+  const [loadingReturn, setLoadingReturn] = useState(Boolean(returnRideId));
+  const isAirportRide = sourceRide?.category === 'airport' || routeSearchParams.get('category') === 'airport';
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);
@@ -82,6 +86,42 @@ const CreateRide = () => {
   const [selectedGasStationId, setSelectedGasStationId] = useState<string>('');
 
   useEffect(() => {
+    if (!returnRideId || !profile?.id) return;
+    let cancelled = false;
+    setLoadingReturn(true);
+    const loadReturn = async () => {
+      const [rideResult, stopsResult] = await Promise.all([
+        supabase.from('rides').select('*').eq('id', returnRideId).eq('driver_id', profile.id).single(),
+        supabase.from('ride_stops').select('id, address, lat, lng, stop_order').eq('ride_id', returnRideId),
+      ]);
+      if (cancelled) return;
+      if (rideResult.error || !rideResult.data || stopsResult.error) {
+        toast({ title: 'Spiatočná jazda nie je dostupná', description: 'Nepodarilo sa načítať tvoju pôvodnú jazdu.', variant: 'destructive' });
+        navigate('/my-rides', { replace: true });
+        return;
+      }
+      const draft = makeReturnRideDraft(rideResult.data, stopsResult.data ?? []);
+      setOrigin(draft.origin);
+      setDestination(draft.destination);
+      setStops(draft.stops);
+      setSeats(draft.seats);
+      setPrice(draft.price);
+      setMaxDetourKm(draft.maxDetourKm);
+      setLuggageCapacity(draft.luggageCapacity);
+      setSelectedUniversityId(draft.universityId);
+      setSelectedGasStationId(draft.gasStationId);
+      setPreferences(draft.preferences);
+      setSourceRide(rideResult.data);
+      setDepartureTime('');
+      setRoutePolyline(null);
+      setSelectedRouteCoords(null);
+      setLoadingReturn(false);
+    };
+    void loadReturn();
+    return () => { cancelled = true; };
+  }, [returnRideId, profile?.id, navigate, toast]);
+
+  useEffect(() => {
     const fetchStations = async () => {
       const { data } = await supabase.from('gas_stations').select('id, name, address, lat, lng, discount_note').eq('active', true).order('name');
       if (data) setGasStations(data);
@@ -95,8 +135,8 @@ const CreateRide = () => {
 
   // Auto-detect location on mount
   useEffect(() => {
-    getCurrentLocation();
-  }, []);
+    if (!returnRideId) getCurrentLocation();
+  }, [returnRideId]);
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -144,6 +184,7 @@ const CreateRide = () => {
   };
 
   const handleSubmit = async () => {
+    if (loadingReturn || (returnRideId && !sourceRide)) return;
     if (!profile) {
       toast({
         title: 'Chyba',
@@ -172,14 +213,22 @@ const CreateRide = () => {
       return;
     }
 
+    if (sourceRide && !isRecurring && (new Date(departureTime).getTime() <= Date.now() || new Date(departureTime).getTime() <= new Date(sourceRide.departure_time).getTime())) {
+      toast({ title: 'Vyber čas návratu', description: 'Spiatočná jazda musí odchádzať v budúcnosti a po odchode pôvodnej jazdy.', variant: 'destructive' });
+      return;
+    }
+
     if (!isRecurring) {
-      const { data: existing, error: existingError } = await supabase
+      let existingQuery = supabase
         .from('rides')
         .select('id')
         .eq('driver_id', profile.id)
         .in('status', ['active', 'in_progress'])
         .or(`status.eq.in_progress,departure_time.gte.${new Date(Date.now() - 15 * 60 * 1000).toISOString()}`)
         .limit(1);
+      // Only the authenticated driver's loaded outbound ride is exempted.
+      if (sourceRide) existingQuery = existingQuery.neq('id', sourceRide.id);
+      const { data: existing, error: existingError } = await existingQuery;
       if (existingError) {
         toast({ title: 'Chyba', description: existingError.message, variant: 'destructive' });
         return;
@@ -370,7 +419,7 @@ const CreateRide = () => {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
             <div>
               <h1 className="font-display text-3xl font-bold">
-                {isAirportRide ? 'Jazda na letisko' : 'Vytvor novú jazdu'}
+                {returnRideId ? 'Vytvoriť spiatočnú jazdu' : isAirportRide ? 'Jazda na letisko' : 'Vytvor novú jazdu'}
               </h1>
               {isAirportRide && (
                 <p className="text-sm text-muted-foreground mt-1">
@@ -400,7 +449,7 @@ const CreateRide = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <Label>Štart (vaša poloha)</Label>
+                    <Label>{returnRideId ? 'Štart' : 'Štart (vaša poloha)'}</Label>
                     <div className="flex gap-2">
                       <AddressSearch
                         value={origin.address}
@@ -496,7 +545,7 @@ const CreateRide = () => {
               <div className="p-6 rounded-2xl bg-card border border-border">
                 <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-primary" />
-                  {isRecurring ? 'Dni a čas odchodu' : 'Dátum a čas odchodu'}
+                  {isRecurring ? 'Dni a čas odchodu' : returnRideId ? 'Dátum a čas návratu' : 'Dátum a čas odchodu'}
                 </h2>
 
                 {isRecurring ? (
@@ -718,9 +767,9 @@ const CreateRide = () => {
                 size="lg"
                 className="w-full"
                 onClick={handleSubmit}
-                disabled={!origin.lat || !destination.lat || (isRecurring ? recurringDays.length === 0 : !departureTime) || loading}
+                disabled={loadingReturn || !origin.lat || !destination.lat || (isRecurring ? recurringDays.length === 0 : !departureTime) || loading}
               >
-                {loading ? 'Vytváranie...' : isRecurring ? 'Nastaviť pravidelnú jazdu' : 'Vytvoriť jazdu'}
+                {loadingReturn ? 'Načítavam trasu...' : loading ? 'Vytváranie...' : isRecurring ? 'Nastaviť pravidelnú jazdu' : returnRideId ? 'Vytvoriť spiatočnú jazdu' : 'Vytvoriť jazdu'}
               </Button>
             </div>
 

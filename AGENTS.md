@@ -8,3 +8,4 @@
 - Ride-detail location previews reuse useDriverTracking and label positions with their recorded time; unavailable or old GPS must never imply a current position or alter booking safeguards.
 - Booking eligibility must stay consistent in the ride detail, payment function and database guards; active rides do not require LIVE activation, only the shared grace window after departure.
 - Passed-pickup eligibility is authoritative in a database RPC/insert trigger using segment projection of persisted post-departure GPS; check before checkout and return the fee idempotently if the driver passes during payment.
+- Return rides load an owned source ride by ID into the existing creation form, reverse endpoints and ordered stops, and recalculate road routing; only that source is exempt from the form's active-ride check, preserving other guards and payment behavior.
