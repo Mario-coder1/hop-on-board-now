@@ -1,0 +1,1 @@
+ALTER TABLE public.rides ADD COLUMN IF NOT EXISTS luggage_capacity integer CHECK (luggage_capacity IS NULL OR luggage_capacity >= 0);

@@ -1388,6 +1388,7 @@ export type Database = {
           gas_station_id: string | null
           id: string
           luggage_allowed: boolean | null
+          luggage_capacity: number | null
           max_detour_km: number
           music_allowed: boolean | null
           origin_address: string
@@ -1422,6 +1423,7 @@ export type Database = {
           gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
+          luggage_capacity?: number | null
           max_detour_km?: number
           music_allowed?: boolean | null
           origin_address: string
@@ -1456,6 +1458,7 @@ export type Database = {
           gas_station_id?: string | null
           id?: string
           luggage_allowed?: boolean | null
+          luggage_capacity?: number | null
           max_detour_km?: number
           music_allowed?: boolean | null
           origin_address?: string
