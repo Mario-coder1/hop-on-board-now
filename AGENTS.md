@@ -1,5 +1,5 @@
 # Project rules
-- Use the shared rideDiscovery helpers for passenger listings and booking: after departure a ride stays joinable only while the driver is active in the app or moving (server RPC is_ride_joinable), with a hard cap, consistently in lists, ride detail, payment function and the insert trigger.
+- Use the shared rideDiscovery helpers for passenger listings and booking: a ride is joinable until departure plus estimated road travel time, afterwards only after the driver confirms it is still going (server RPC is_ride_joinable), consistently in lists, ride detail, payment function and the insert trigger.
 - Keep payment administration focused on platform reservation fees and card authorization/capture/refund states, never driver payouts; drivers collect their fares separately and historical payout fields do not represent current payments.
 - Preserve backend payment and refund behavior when updating public payment copy; wording changes must not alter money movement or historical records.
 - Use the shared DriverSpokenLanguages display and spoken-language catalog on discovery cards so saved driver languages render consistently across screen sizes.

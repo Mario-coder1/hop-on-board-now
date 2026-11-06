@@ -33,6 +33,9 @@ interface Ride {
   requests_count: number;
   confirm_asked_at?: string | null;
   driver_confirmed_at?: string | null;
+  still_going_asked_at?: string | null;
+  still_going_until?: string | null;
+  still_going_declined_at?: string | null;
 }
 
 const MyRides = () => {
@@ -272,6 +275,24 @@ const MyRides = () => {
                     onClick={() => navigate(`/ride/${ride.id}`)}
                     className="group relative p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
                   >
+                    {(ride.status === 'active' || ride.status === 'in_progress') && ride.still_going_asked_at && !ride.still_going_declined_at && (!ride.still_going_until || new Date(ride.still_going_until).getTime() <= Date.now()) && (
+                      <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-sm font-semibold mb-1">Ide ešte táto jazda?</p>
+                        <p className="text-xs text-muted-foreground mb-3">Čas jazdy uplynul. Ak ide, ostane aktívna a cestujúci sa môžu pripájať. Ak nie, pripojenie sa zablokuje.</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={async () => {
+                            const { error } = await supabase.rpc('answer_ride_still_going', { _ride_id: ride.id, _going: true });
+                            toast(error ? { title: 'Chyba', description: error.message, variant: 'destructive' } : { title: 'Potvrdené', description: 'Jazda ostáva aktívna.' });
+                            fetchRides();
+                          }}>Áno, ide</Button>
+                          <Button size="sm" variant="outline" onClick={async () => {
+                            const { error } = await supabase.rpc('answer_ride_still_going', { _ride_id: ride.id, _going: false });
+                            toast(error ? { title: 'Chyba', description: error.message, variant: 'destructive' } : { title: 'Pripojenie zablokované', description: 'Nikto sa už k jazde nepripojí.' });
+                            fetchRides();
+                          }}>Nie, nejde</Button>
+                        </div>
+                      </div>
+                    )}
                     {ride.status === 'active' && !ride.driver_confirmed_at && (ride.confirm_asked_at || new Date(String(ride.departure_time).replace(' ', 'T')).getTime() - Date.now() <= 15 * 60 * 1000) && (
                       <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30" onClick={(e) => e.stopPropagation()}>
                         <p className="text-sm font-semibold mb-2">Ide tvoja jazda?</p>

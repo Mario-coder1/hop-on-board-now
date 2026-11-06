@@ -101,6 +101,9 @@ Deno.serve(async (req) => {
       console.error('confirm flow error', e)
     }
 
+    // Po uplynutí odhadovaného času cesty sa vodiča opýtame, či jazda ešte ide
+    try { await supabase.rpc('ask_rides_still_going') } catch (e) { console.error('still going ask failed', e) }
+
     // Jazdy s otvoreným nahlásením nemažeme, kým ho admin nevyrieši.
     const { data: openReports } = await supabase
       .from('reports')
