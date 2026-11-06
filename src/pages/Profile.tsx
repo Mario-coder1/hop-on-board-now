@@ -3,6 +3,7 @@ import SpokenLanguagesField from '@/components/SpokenLanguagesField';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import FeedbackCard from '@/components/FeedbackCard';
+import InviteFriendCard from '@/components/InviteFriendCard';
 import { ArrowLeft, User, Phone, Car, FileText, Save, Star, Shield, Scale, Trash2, MessageCircle, Bell, Check, X, ChevronDown, ChevronUp, Mail, LogOut, Camera, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DriverVerificationCard from '@/components/DriverVerificationCard';
@@ -834,6 +835,7 @@ const Profile = () => {
             </div>
           </div>
 
+          <InviteFriendCard />
           <FeedbackCard />
 
           {/* Danger Zone */}

@@ -127,6 +127,13 @@
       "when": 1793950309428,
       "tag": "0017_ride_luggage_capacity",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793950694932,
+      "tag": "0018_free_first_booking_referrals_ride_wishes",
+      "breakpoints": true
     }
   ]
 }

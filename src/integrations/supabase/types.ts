@@ -67,6 +67,65 @@ export type Database = {
           },
         ]
       }
+      booking_credits: {
+        Row: {
+          created_at: string
+          free_credits: number
+          invited_count: number
+          profile_id: string
+          referral_code: string
+          referral_rewarded_at: string | null
+          referred_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          free_credits?: number
+          invited_count?: number
+          profile_id: string
+          referral_code?: string
+          referral_rewarded_at?: string | null
+          referred_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          free_credits?: number
+          invited_count?: number
+          profile_id?: string
+          referral_code?: string
+          referral_rewarded_at?: string | null
+          referred_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_credits_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_credits_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_credits_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_credits_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           active: boolean
@@ -1367,6 +1426,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_wishes: {
+        Row: {
+          active: boolean
+          created_at: string
+          destination_text: string
+          id: string
+          note: string | null
+          origin_text: string
+          passenger_id: string
+          seats: number
+          travel_date: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          destination_text: string
+          id?: string
+          note?: string | null
+          origin_text: string
+          passenger_id: string
+          seats?: number
+          travel_date: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          destination_text?: string
+          id?: string
+          note?: string | null
+          origin_text?: string
+          passenger_id?: string
+          seats?: number
+          travel_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_wishes_passenger_id_fkey"
+            columns: ["passenger_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_wishes_passenger_id_fkey"
+            columns: ["passenger_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rides: {
         Row: {
           ac_allowed: boolean | null
@@ -2005,6 +2115,19 @@ export type Database = {
         }
         Returns: string
       }
+      book_free_ride: {
+        Args: {
+          _dropoff_address: string
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _message?: string
+          _pickup_address: string
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_id: string
+        }
+        Returns: string
+      }
       claim_company_ride: {
         Args: {
           _booking_fee: number
@@ -2014,6 +2137,7 @@ export type Database = {
         }
         Returns: Json
       }
+      claim_referral: { Args: { _code: string }; Returns: Json }
       cleanup_old_location_history: { Args: never; Returns: undefined }
       cold_start_status: { Args: never; Returns: Json }
       company_distance_km: {
@@ -2091,6 +2215,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_booking_credits: { Args: never; Returns: Json }
       my_company_benefit: { Args: never; Returns: Json }
       record_ride_search: {
         Args: { p_results: number; p_session: string; p_source: string }
