@@ -1,3 +1,7 @@
+# Otvorenie hromadného upozornenia
+- [ ] Kliknutie na push otvorí konkrétnu celú správu, aj mimo posledných 20 upozornení.
+- [ ] Overiť smerovanie kliknutia a prihlásené otvorenie správy.
+
 # Spiatočná jazda
 - [x] Predvyplniť obrátenú trasu vodiča a zastávky v existujúcom formulári, zachovať kategóriu a nastavenia.
 - [x] Štyri testy prešli; prihlásený vodič vytvoril spiatočnú jazdu s obrátenou trasou a zastávkou, uloženie overené na detaile, skúšobná jazda odstránená. Telefón bez vodorovného pretečenia a zostavenie bez chýb.
