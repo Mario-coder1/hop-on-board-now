@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import SpokenLanguagesField from '@/components/SpokenLanguagesField';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { notificationLink } from '@/lib/notificationLink';
+import { notificationLink, stripRideLink } from '@/lib/notificationLink';
+import NotificationRideButton from '@/components/NotificationRideButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import FeedbackCard from '@/components/FeedbackCard';

@@ -133,9 +133,8 @@ export const NotificationsBell: React.FC = () => {
             notifications.map(n => (
               <div key={n.id} className="border-b border-border/60 last:border-0">
               <button
-                key={n.id}
                 onClick={() => markAsRead(n)}
-                className={`w-full text-left px-3 py-2.5 border-b border-border/60 last:border-0 hover:bg-muted/50 transition-colors ${
+                className={`w-full text-left px-3 py-2.5 hover:bg-muted/50 transition-colors ${
                   isUnread(n) ? 'bg-primary/5' : ''
                 }`}
               >
