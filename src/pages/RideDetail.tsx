@@ -42,6 +42,7 @@ import { usePickupPassed } from '@/hooks/usePickupPassed';
 
 import { CancellationDialog } from '@/components/CancellationDialog';
 import { RidePaymentCheckout } from '@/components/RidePaymentCheckout';
+import { isRideJoinable } from '@/lib/rideDiscovery';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { sendPushNotification } from '@/hooks/usePushNotifications';
 import { getStripeEnvironment, isPaymentsEnabled } from '@/lib/stripe';
@@ -1059,7 +1060,7 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {ride.status !== 'active' && ride.status !== 'in_progress' ? (
+                  {!isRideJoinable(ride) ? (
                     <div className="text-center py-6">
                       <p className="font-medium text-muted-foreground">{ride.status === 'cancelled' ? 'Jazda bola zrušená' : 'Jazda už skončila'}</p>
                       <p className="text-sm text-muted-foreground">

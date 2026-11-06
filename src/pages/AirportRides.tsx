@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
-import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
 
 export const AIRPORTS = [
   { id: 'vie', name: 'Viedeň (Schwechat)', keywords: ['schwechat', 'flughafen wien', 'vienna airport', 'letisko viedeň', 'letisko vieden'] },
@@ -60,6 +60,7 @@ const AirportRides = () => {
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, total_rides)
         `)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
+        .or(joinableRidesFilter())
         .gt('available_seats', 0)
         .eq('category', 'airport')
         .order('departure_time', { ascending: true })

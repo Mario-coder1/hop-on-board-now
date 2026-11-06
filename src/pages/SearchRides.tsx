@@ -22,7 +22,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
-import { DISCOVERABLE_RIDE_STATUSES } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
 import {
   parseRoutePolyline,
   isPointNearRoute,
@@ -145,6 +145,7 @@ const SearchRides = () => {
         ride_stops(id, address, stop_order)
       `)
       .in('status', DISCOVERABLE_RIDE_STATUSES)
+      .or(joinableRidesFilter())
       .neq('category', 'airport')
       .order('departure_time', { ascending: true });
 
