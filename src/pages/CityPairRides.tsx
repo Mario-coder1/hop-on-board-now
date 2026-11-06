@@ -16,7 +16,7 @@ import {
 } from '@/data/cities';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
-import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
 
 interface Ride {
   id: string;
@@ -78,7 +78,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
         .order('departure_time', { ascending: true })
         .limit(20);
       if (!cancelled) {
-        setRides((data as unknown as Ride[]) || []);
+        setRides(await filterJoinableRides((data as unknown as Ride[]) || []));
         setLoading(false);
       }
     })();

@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
-import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
 
 export const AIRPORTS = [
   { id: 'vie', name: 'Viedeň (Schwechat)', keywords: ['schwechat', 'flughafen wien', 'vienna airport', 'letisko viedeň', 'letisko vieden'] },
@@ -67,7 +67,7 @@ const AirportRides = () => {
         .limit(50);
       if (!cancelled) {
         setSearchReady(!error);
-        setRides((data as unknown as Ride[]) || []);
+        setRides(await filterJoinableRides((data as unknown as Ride[]) || []));
         setLoading(false);
       }
     })();
