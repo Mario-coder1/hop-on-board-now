@@ -1,7 +1,6 @@
-# Payment text consistency
 # Spiatočná jazda
 - [x] Predvyplniť obrátenú trasu vodiča a zastávky v existujúcom formulári, zachovať kategóriu a nastavenia.
-- [ ] Overiť testy a prihlásený postup vytvorenia spiatočnej jazdy.
+- [x] Štyri testy prešli; prihlásený vodič vytvoril spiatočnú jazdu s obrátenou trasou a zastávkou, uloženie overené na detaile, skúšobná jazda odstránená. Telefón bez vodorovného pretečenia a zostavenie bez chýb.
 
 # Payment text consistency
 - [x] Correct registration FAQ and all language versions.
