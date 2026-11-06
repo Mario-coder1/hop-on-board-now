@@ -127,7 +127,7 @@ const SearchRides = () => {
     );
   };
 
-  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number; updated_at?: string }>>({});
 
   useEffect(() => {
     fetchRides();
