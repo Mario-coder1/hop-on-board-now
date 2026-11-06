@@ -17,7 +17,7 @@ import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import LocationSearchInput from '@/components/LocationSearchInput';
 import DriverSpokenLanguages from '@/components/DriverSpokenLanguages';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
-import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
 
 interface ActiveRequest {
   id: string;
@@ -106,7 +106,7 @@ const PassengerDashboard: React.FC = () => {
       .gt('available_seats', 0)
       .order('departure_time', { ascending: true })
       .limit(20);
-    if (!error && data) setRides(data as unknown as Ride[]);
+    if (!error && data) setRides(await filterJoinableRides(data as unknown as Ride[]));
     setSearchReady(!error);
     setLoading(false);
   };

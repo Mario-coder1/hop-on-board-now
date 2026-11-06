@@ -80,7 +80,8 @@ Deno.serve(async (req) => {
         });
       }
     }
-    if (!isRideOpenForBooking(ride)) {
+    const { data: joinable } = await supabase.rpc("is_ride_joinable", { _ride_id: ride_id });
+    if (!isRideOpenForBooking(ride) || joinable !== true) {
       return new Response(JSON.stringify({ error: "Jazda nie je dostupná" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

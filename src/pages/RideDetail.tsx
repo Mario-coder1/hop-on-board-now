@@ -191,6 +191,17 @@ const RideDetail = () => {
     void loadBenefit();
   }, [loadBenefit]);
 
+  // Po odchode sa dá pripojiť len ak je vodič aktívny v appke alebo sa hýbe (overuje server)
+  const [serverJoinable, setServerJoinable] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!ride?.id) return;
+    let off = false;
+    const check = () => supabase.rpc('is_ride_joinable', { _ride_id: ride.id }).then(({ data }) => { if (!off) setServerJoinable(data === true); });
+    void check();
+    const t = setInterval(check, 60000);
+    return () => { off = true; clearInterval(t); };
+  }, [ride?.id]);
+
   // Prvá rezervácia zdarma / odmena za pozvanie
   const [freeCredits, setFreeCredits] = useState(0);
   const loadCredits = useCallback(async () => {
@@ -1060,7 +1071,7 @@ const RideDetail = () => {
                     </div>
                   </div>
 
-                  {!isRideJoinable(ride) ? (
+                  {!(isRideJoinable(ride) && serverJoinable !== false) ? (
                     <div className="text-center py-6">
                       <p className="font-medium text-muted-foreground">{ride.status === 'cancelled' ? 'Jazda bola zrušená' : 'Jazda už skončila'}</p>
                       <p className="text-sm text-muted-foreground">

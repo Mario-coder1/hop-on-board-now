@@ -22,7 +22,7 @@ import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
-import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
 import {
   parseRoutePolyline,
   isPointNearRoute,
@@ -157,7 +157,7 @@ const SearchRides = () => {
       return;
     }
 
-    setRides((data as unknown as Ride[]) ?? []);
+    setRides(await filterJoinableRides((data as unknown as Ride[]) ?? []));
     setSearchReady(true);
     setLoading(false);
   };

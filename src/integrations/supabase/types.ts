@@ -2146,6 +2146,7 @@ export type Database = {
       }
       company_portal_state: { Args: never; Returns: Json }
       current_profile_id: { Args: never; Returns: string }
+      filter_joinable_rides: { Args: { _ids: string[] }; Returns: string[] }
       get_driver_profile_stats: { Args: { _driver_id: string }; Returns: Json }
       get_driver_reviews: {
         Args: { _driver_id: string }
@@ -2195,6 +2196,7 @@ export type Database = {
         Returns: boolean
       }
       is_ride_driver: { Args: { _ride_id: string }; Returns: boolean }
+      is_ride_joinable: { Args: { _ride_id: string }; Returns: boolean }
       is_university_member: {
         Args: { _university_id: string }
         Returns: boolean
