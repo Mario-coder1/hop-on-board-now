@@ -1,6 +1,6 @@
-// After departure (+15 min) a ride is joinable only while the driver is active in the app or moving; hard cap 12 h.
+// A ride is joinable until departure + estimated road travel time; later only if the driver confirms it is still going (server RPC is_ride_joinable).
 export const DISCOVERABLE_RIDE_STATUSES: ('active' | 'in_progress' | 'completed' | 'cancelled')[] = ['active', 'in_progress'];
-export const LIVE_GRACE_HOURS = 12;
+export const LIVE_GRACE_HOURS = 24;
 
 export function isRideJoinable(ride: { status: string | null; departure_time: string }, now = new Date()): boolean {
   const dep = new Date(ride.departure_time).getTime();
@@ -20,7 +20,7 @@ export function joinableRidesFilter(now = new Date()): string {
  * (checked on the server). Up to 15 min after departure it is always joinable.
  */
 export async function filterJoinableRides<T extends { id: string; departure_time: string }>(rides: T[]): Promise<T[]> {
-  const cutoff = Date.now() - 15 * 60000;
+  const cutoff = Date.now();
   const late = rides.filter((r) => new Date(r.departure_time).getTime() < cutoff);
   if (late.length === 0) return rides;
   const { supabase } = await import('@/integrations/supabase/client');
