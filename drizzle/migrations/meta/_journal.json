@@ -141,6 +141,13 @@
       "when": 1793951118424,
       "tag": "0019_close_surely_ended_rides",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793951245520,
+      "tag": "0020_ride_joinable_driver_activity",
+      "breakpoints": true
     }
   ]
 }
