@@ -730,6 +730,13 @@ const RideDetail = () => {
     }));
   }, [stops]);
 
+  const isAirport = ride?.category === 'airport';
+  const luggageLeft = isAirport && ride?.luggage_capacity != null ? Number(ride.luggage_capacity) : null;
+  const luggageTooMany = luggageLeft != null && luggageCount > luggageLeft;
+  const bookingMessage = isAirport
+    ? [`🧳 Kufre: ${luggageCount}`, message.trim()].filter(Boolean).join('\n')
+    : message;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -828,7 +835,7 @@ const RideDetail = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
+                <div className={`grid ${isAirport && luggageLeft != null ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"} gap-4 pt-4 border-t border-border`}>
                   <div className="text-center">
                     <Calendar className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
                     <p className="font-medium">{formatDbDate(ride.departure_time, 'd. MMMM', { locale: sk })}</p>
@@ -839,6 +846,12 @@ const RideDetail = () => {
                     <p className="font-medium">{ride.available_seats}</p>
                     <p className="text-sm text-muted-foreground">voľné miesta</p>
                   </div>
+                  {isAirport && luggageLeft != null && (
+                    <div className="text-center">
+                      <p className="font-medium">🧳 {luggageLeft}</p>
+                      <p className="text-sm text-muted-foreground">kufrov sa vojde</p>
+                    </div>
+                  )}
                   <div className="text-center">
                     <span className="text-2xl font-bold text-primary">{ride.price_per_seat}€</span>
                     <p className="text-sm text-muted-foreground">za miesto</p>
@@ -1109,7 +1122,7 @@ const RideDetail = () => {
                             onChange={(e) => setLuggageCount(e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)} />
                           {luggageLeft != null && (
                             <p className={`mt-1 text-xs ${luggageTooMany ? 'text-destructive' : 'text-muted-foreground'}`}>
-                              {luggageTooMany ? `Do auta sa vojde už len ${luggageLeft} kufrov. Uberte batožinu alebo sa dohodnite s vodičom.` : `V aute je ešte miesto pre ${luggageLeft} kufrov.`}
+                              {luggageTooMany ? `Do auta sa vojde najviac ${luggageLeft} kufrov. Uberte batožinu alebo sa dohodnite s vodičom.` : `Vodič má v aute miesto pre ${luggageLeft} kufrov.`}
                             </p>
                           )}
                         </div>
