@@ -1,6 +1,6 @@
 # Otvorenie hromadného upozornenia
-- [ ] Kliknutie na push otvorí konkrétnu celú správu, aj mimo posledných 20 upozornení.
-- [ ] Overiť smerovanie kliknutia a prihlásené otvorenie správy.
+- [x] Kliknutie na nové push upozornenie otvorí konkrétnu celú správu, aj mimo posledných 20 upozornení; cieľ sa zachová pri prihlásení.
+- [x] Tri automatické testy prešli a zostavenie je bez chýb. Prihlásená stránka načítala celú správu; úplné vizuálne overenie prerušila výzva na zapnutie push a nestabilné skúšobné prihlásenie. Skúšobné správy odstránené. Skutočný klik na systémové upozornenie telefónu nebol vykonaný.
 
 # Spiatočná jazda
 - [x] Predvyplniť obrátenú trasu vodiča a zastávky v existujúcom formulári, zachovať kategóriu a nastavenia.
