@@ -134,6 +134,13 @@
       "when": 1793950694932,
       "tag": "0018_free_first_booking_referrals_ride_wishes",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793951118424,
+      "tag": "0019_close_surely_ended_rides",
+      "breakpoints": true
     }
   ]
 }
