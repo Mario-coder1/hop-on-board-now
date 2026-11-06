@@ -49,6 +49,7 @@ const CreateRide = () => {
   const [stops, setStops] = useState<Stop[]>([]);
   const [departureTime, setDepartureTime] = useState('');
   const [seats, setSeats] = useState(3);
+  const [luggageCapacity, setLuggageCapacity] = useState(2);
   const [price, setPrice] = useState(5);
   const [maxDetourKm, setMaxDetourKm] = useState<number>(0);
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
@@ -245,6 +246,7 @@ const CreateRide = () => {
           university_id: selectedUniversityId || null,
           gas_station_id: selectedGasStationId || null,
           category: isAirportRide ? 'airport' : 'standard',
+          luggage_capacity: isAirportRide ? Math.max(0, luggageCapacity || 0) : null,
           ...preferences,
         })
         .select('id')
@@ -559,6 +561,18 @@ const CreateRide = () => {
                       onChange={(e) => setSeats(e.target.value ? parseInt(e.target.value) : 0)}
                     />
                   </div>
+                  {isAirportRide && (
+                    <div className="col-span-2">
+                      <Label>🧳 Koľko veľkých kufrov sa vojde do auta</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={Number.isFinite(luggageCapacity) ? luggageCapacity : ''}
+                        onChange={(e) => setLuggageCapacity(e.target.value ? parseInt(e.target.value) : 0)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Spolu pre všetkých cestujúcich. Cestujúci uvidí, koľko miesta ešte ostáva.</p>
+                    </div>
+                  )}
                   <div>
                     <Label>Cena za miesto (€)</Label>
                     <Input

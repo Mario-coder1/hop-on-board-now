@@ -79,6 +79,8 @@ interface RideDetailData {
   destination_lng: number;
   departure_time: string;
   available_seats: number;
+  luggage_capacity?: number | null;
+  category?: string | null;
   price_per_seat: number;
   status: string;
   pets_allowed: boolean | null;
@@ -138,6 +140,7 @@ const RideDetail = () => {
 
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState('');
+  const [luggageCount, setLuggageCount] = useState(1);
 
   const [hasRequested, setHasRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(null);
@@ -337,6 +340,8 @@ const RideDetail = () => {
           destination_lng,
           departure_time,
           available_seats,
+          luggage_capacity,
+          category,
           price_per_seat,
           status,
           pets_allowed,
@@ -595,7 +600,7 @@ const RideDetail = () => {
         dropoff_address: dropoff.address || null,
         dropoff_lat: dropoff.lat || null,
         dropoff_lng: dropoff.lng || null,
-        message: message || null,
+        message: bookingMessage || null,
         status: 'pending',
         payment_status: 'unpaid',
         price_per_seat_snapshot: Number(ride.price_per_seat),
@@ -1097,6 +1102,19 @@ const RideDetail = () => {
                         </p>
                       </div>
 
+                      {isAirport && (
+                        <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border text-sm">
+                          <Label htmlFor="luggage-count">🧳 Počet veľkých kufrov</Label>
+                          <Input id="luggage-count" type="number" min={0} className="mt-1" value={luggageCount}
+                            onChange={(e) => setLuggageCount(e.target.value ? Math.max(0, parseInt(e.target.value)) : 0)} />
+                          {luggageLeft != null && (
+                            <p className={`mt-1 text-xs ${luggageTooMany ? 'text-destructive' : 'text-muted-foreground'}`}>
+                              {luggageTooMany ? `Do auta sa vojde už len ${luggageLeft} kufrov. Uberte batožinu alebo sa dohodnite s vodičom.` : `V aute je ešte miesto pre ${luggageLeft} kufrov.`}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       <Textarea
                         placeholder="Správa pre vodiča (voliteľné)"
                         value={message}
@@ -1200,6 +1218,7 @@ const RideDetail = () => {
                           requesting ||
                           pickupProgress.passed || pickupProgress.checking || pickupProgress.failed ||
                           ride.available_seats <= 0 ||
+                          luggageTooMany ||
                           !pickup.lat ||
                           !routeCheck.pickupOk ||
                           !routeCheck.dropoffOk
@@ -1247,7 +1266,7 @@ const RideDetail = () => {
               rideId={ride.id}
               pickup={pickup}
               dropoff={dropoff}
-              message={message}
+              message={bookingMessage}
               returnUrl={`${window.location.origin}/ride/${ride.id}?checkout=success&session_id={CHECKOUT_SESSION_ID}`}
             />
           )}
