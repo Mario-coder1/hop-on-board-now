@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import NotificationRideButton from '@/components/NotificationRideButton';
+import { stripRideLink } from '@/lib/notificationLink';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -129,6 +131,7 @@ export const NotificationsBell: React.FC = () => {
             </div>
           ) : (
             notifications.map(n => (
+              <div key={n.id} className="border-b border-border/60 last:border-0">
               <button
                 key={n.id}
                 onClick={() => markAsRead(n)}
@@ -143,7 +146,7 @@ export const NotificationsBell: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{n.title}</p>
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                      {n.message}
+                      {stripRideLink(n.message)}
                     </p>
                     <p className="text-[10px] text-muted-foreground/70 mt-1">
                       {new Date(n.created_at).toLocaleString('sk-SK')}
@@ -151,6 +154,8 @@ export const NotificationsBell: React.FC = () => {
                   </div>
                 </div>
               </button>
+              <NotificationRideButton message={n.message} className="mx-3 mb-2.5" onClick={() => { void markAsRead(n); setOpen(false); }} />
+              </div>
             ))
           )}
         </div>

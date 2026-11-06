@@ -411,7 +411,8 @@ const Profile = () => {
               {openedNotification ? new Date(openedNotification.created_at).toLocaleString('sk-SK') : notificationDetailLoading ? 'Načítavam…' : 'Toto upozornenie už nie je dostupné.'}
             </DialogDescription>
           </DialogHeader>
-          {openedNotification && <p className="whitespace-pre-wrap break-words text-sm">{openedNotification.message}</p>}
+          {openedNotification && <p className="whitespace-pre-wrap break-words text-sm">{stripRideLink(openedNotification.message)}</p>}
+          {openedNotification && <NotificationRideButton message={openedNotification.message} className="w-full" />}
         </DialogContent>
       </Dialog>
       
@@ -648,8 +649,9 @@ const Profile = () => {
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground mt-1">
-                              {notification.message}
+                              {stripRideLink(notification.message)}
                             </p>
+                            <NotificationRideButton message={notification.message} />
                             <p className="text-xs text-muted-foreground mt-2">
                               {new Date(notification.created_at).toLocaleDateString('sk-SK', {
                                 day: 'numeric',
