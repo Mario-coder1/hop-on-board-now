@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import NotificationsBell from '@/components/NotificationsBell';
+import { shouldHideBottomBar } from '@/lib/scrollBar';
 
 const Navigation: React.FC = () => {
   const { profile, signOut, isAdmin, updateRole } = useAuth();
@@ -33,6 +34,25 @@ const Navigation: React.FC = () => {
   };
 
   const isDriver = profile?.selected_role === 'driver';
+
+  // Mobile bottom bar slides away while scrolling down so it never covers the
+  // content below, and comes back as soon as the person scrolls up.
+  const [hideBottomNav, setHideBottomNav] = React.useState(false);
+
+  React.useEffect(() => {
+    let lastY = window.scrollY;
+    setHideBottomNav(false);
+
+    const onScroll = () => {
+      const next = shouldHideBottomBar(lastY, window.scrollY);
+      if (next === null) return;
+      lastY = window.scrollY;
+      setHideBottomNav(next);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [location.pathname]);
 
   const navItems = isDriver
     ? [
@@ -217,7 +237,11 @@ const Navigation: React.FC = () => {
       </div>
 
       {/* Mobile bottom nav — floating glass with gradient active state */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 safe-bottom pb-2 px-3 pointer-events-none">
+      <div
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 safe-bottom pb-2 px-3 pointer-events-none transition-all duration-300 ease-out ${
+          hideBottomNav ? 'translate-y-[180%] opacity-0' : 'translate-y-0 opacity-100'
+        }`}
+      >
         <div className="pointer-events-auto glass-strong rounded-full shadow-xl px-1.5 py-1.5">
           <div className="flex items-center justify-around">
             {navItems.map((item) => {

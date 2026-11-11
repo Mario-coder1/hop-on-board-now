@@ -48,3 +48,7 @@
 # Formulár jazdy bez posúvania a s mapou na kliknutie
 - [x] Odstrániť automatické posúvanie k mape pri vypĺňaní a mapu nahradiť tlačidlom, ktoré ju otvorí.
 - [x] Overiť na telefóne: vypísanie trasy neposunie stránku, mapa sa otvorí z tlačidla a po zatvorení zostáva rovnaké miesto; dva strážne testy prešli a zostavenie je bez chýb.
+
+# Spodné menu sa schová pri rolovaní
+- [x] Mobilné spodné menu zmizne pri rolovaní dole a vráti sa, keď človek rolbuje hore alebo sa vráti na začiatok stránky.
+- [x] Overené na telefóne (390×700) na Vytvoriť jazdu: hore viditeľné, po rolovaní dole skryté, po rolovaní hore zase viditeľné; 5 testov prešlo, spolu 88/88, zostavenie bez chýb.
