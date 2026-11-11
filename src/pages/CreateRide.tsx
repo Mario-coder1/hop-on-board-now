@@ -1,11 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Calendar, Users, Locate, Loader2, Repeat,
-  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee, Fuel
+  ChevronDown, ChevronUp, Dog, Cigarette, Briefcase, Music, Wind, Coffee, Fuel, MapPinned
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -59,6 +65,7 @@ const CreateRide = () => {
   const [routePolyline, setRoutePolyline] = useState<string | null>(null);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number>(0);
   const [selectedRouteCoords, setSelectedRouteCoords] = useState<Array<[number, number]> | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
 
   // Ride preferences (optional, like BlaBlaCar)
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -373,17 +380,12 @@ const CreateRide = () => {
     setRoutePolyline(polyline);
   }, []);
 
-  const mapRef = useRef<HTMLDivElement | null>(null);
-
   const handleRouteSelect = useCallback((route: RouteOption) => {
     setSelectedRouteIndex(route.index);
     // New array reference so the Map's route effect always re-runs and redraws the line
     setSelectedRouteCoords([...route.coordinates]);
     setRoutePolyline(JSON.stringify(route.coordinates));
-    // On mobile the map is below the form — scroll it into view so the driver sees the route
-    if (typeof window !== 'undefined' && window.innerWidth < 1024 && mapRef.current) {
-      mapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    // Never auto-scroll: the driver stays wherever they are while filling the form
   }, []);
 
   const markers = [];
@@ -467,7 +469,7 @@ const CreateRide = () => {
             />
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="max-w-2xl mx-auto">
             {/* Form */}
             <div className="space-y-6">
               <div className="p-6 rounded-2xl bg-card border border-border">
@@ -792,6 +794,16 @@ const CreateRide = () => {
               )}
 
               <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => setMapOpen(true)}
+              >
+                <MapPinned className="w-4 h-4 mr-2" />
+                {origin.lat && destination.lat ? 'Zobraziť trasu na mape' : 'Zobraziť mapu'}
+              </Button>
+
+              <Button
                 variant="hero"
                 size="lg"
                 className="w-full"
@@ -802,19 +814,26 @@ const CreateRide = () => {
               </Button>
             </div>
 
-            {/* Map */}
-            <div className="lg:sticky lg:top-24" ref={mapRef}>
-              <Map
-                markers={markers}
-                waypoints={waypoints}
-                center={mapCenter}
-                zoom={origin.lat ? 12 : 7}
-                showRoute={!selectedRouteCoords && origin.lat !== 0 && destination.lat !== 0}
-                route={selectedRouteCoords || undefined}
-                onRouteCalculated={handleRouteCalculated}
-                className="h-[500px]"
-              />
-            </div>
+            {/* Map opens only on request — it never takes space in the form */}
+            <Dialog open={mapOpen} onOpenChange={setMapOpen}>
+              <DialogContent className="max-w-3xl w-[95vw] p-0 gap-0 overflow-hidden">
+                <DialogHeader className="px-4 pt-4 text-left">
+                  <DialogTitle>{origin.lat && destination.lat ? 'Trasa jazdy' : 'Mapa'}</DialogTitle>
+                </DialogHeader>
+                <div className="px-4 pb-4">
+                  <Map
+                    markers={markers}
+                    waypoints={waypoints}
+                    center={mapCenter}
+                    zoom={origin.lat ? 12 : 7}
+                    showRoute={!selectedRouteCoords && origin.lat !== 0 && destination.lat !== 0}
+                    route={selectedRouteCoords || undefined}
+                    onRouteCalculated={handleRouteCalculated}
+                    className="h-[60vh] min-h-[320px] rounded-xl overflow-hidden"
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </motion.div>
       </div>

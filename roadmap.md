@@ -44,3 +44,7 @@
 - [x] Zobraziť iba obec/mesto s časom uloženej polohy aj po zatvorení appky.
 - [x] Zablokovať už prejdený nástup pred platbou aj pri odoslaní rezervácie bez požiadavky LIVE; pri posune počas platby uvoľniť blokáciu alebo refundovať poplatok.
 - [x] Overiť geometriu proti skutočnému serveru a prihlásený formulár s vybraným nástupom. Skutočný pohyb vodiča a platba/refundácia kartou neboli vykonané.
+
+# Formulár jazdy bez posúvania a s mapou na kliknutie
+- [x] Odstrániť automatické posúvanie k mape pri vypĺňaní a mapu nahradiť tlačidlom, ktoré ju otvorí.
+- [x] Overiť na telefóne: vypísanie trasy neposunie stránku, mapa sa otvorí z tlačidla a po zatvorení zostáva rovnaké miesto; dva strážne testy prešli a zostavenie je bez chýb.
