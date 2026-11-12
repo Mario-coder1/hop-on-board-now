@@ -17,6 +17,7 @@ interface Row {
   amount_cents?: number | null;
   refunded_cents?: number | null;
   net_cents?: number | null;
+  stripe_fee_cents?: number | null;
   currency: string;
   customer_name: string | null;
   customer_email: string | null;
@@ -33,6 +34,8 @@ interface CentRow {
   netCents: number;
   vatCents: number;
   baseCents: number;
+  stripeFeeCents: number;
+  afterStripeCents: number;
   currency: string;
   customer_name: string | null;
   customer_email: string | null;
@@ -72,6 +75,9 @@ const AdminTaxExport = () => {
   const all: CentRow[] = (rows || []).map((r) => {
     const netCents = centsOf(r.net_cents, r.net);
     const { vatCents, baseCents } = splitVat(netCents, VAT_RATE);
+    // Stripe fee is a cost of the payment, never part of the VAT base.
+    const stripeFeeCents = Math.min(netCents, centsOf(r.stripe_fee_cents, 0));
+    const afterStripeCents = netCents - stripeFeeCents;
     return {
       id: r.id,
       created: r.created,
@@ -80,6 +86,8 @@ const AdminTaxExport = () => {
       netCents,
       vatCents,
       baseCents,
+      stripeFeeCents,
+      afterStripeCents,
       currency: r.currency,
       customer_name: r.customer_name,
       customer_email: r.customer_email,
@@ -96,6 +104,8 @@ const AdminTaxExport = () => {
   const commissionCents = sumCents(all.map((r) => r.netCents));
   const commissionVatCents = sumCents(all.map((r) => r.vatCents));
   const commissionNetCents = sumCents(all.map((r) => r.baseCents));
+  const stripeFeeCents = sumCents(all.map((r) => r.stripeFeeCents));
+  const afterStripeCents = commissionCents - stripeFeeCents;
 
   const eur = (cents: number) => formatEurCentsLabel(cents);
 
@@ -103,13 +113,15 @@ const AdminTaxExport = () => {
     if (!rows?.length) return;
     const header = [
       'stripe_platba', 'datum_platby', 'zakaznik', 'email', 'popis',
-      'zaplatene_brutto', 'refundovane', 'poplatok_brutto', 'dph_23', 'zaklad_dane', 'mena', 'payment_intent', 'doklad_url',
+      'zaplatene_brutto', 'refundovane', 'poplatok_brutto', 'dph_23', 'zaklad_dane',
+      'stripe_poplatok', 'po_poplatku_stripe', 'mena', 'payment_intent', 'doklad_url',
     ];
     const lines = all.map((r) =>
       [
         r.id, r.created.slice(0, 10), r.customer_name || '', r.customer_email || '', r.description || '',
         formatEurCents(r.amountCents), formatEurCents(r.refundedCents), formatEurCents(r.netCents),
         formatEurCents(r.vatCents), formatEurCents(r.baseCents),
+        formatEurCents(r.stripeFeeCents), formatEurCents(r.afterStripeCents),
         (r.currency || 'eur').toUpperCase(), r.payment_intent || '', r.receipt_url || '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
@@ -138,6 +150,7 @@ const AdminTaxExport = () => {
             Celá online platba je rezervačný poplatok TakeMe za sprostredkovanie. Cenu úseku platí cestujúci vodičovi zvlášť v hotovosti; TakeMe vodičovi nič nevypláca.
             Údaje sa načítajú priamo zo Stripe, takže sú úplné aj po zmazaní starých jázd. Držané (nestrhnuté) platby sa nepočítajú.
             Sumy sú presné na cent: DPH sa počíta z každej platby osobitne a základ dane je zvyšok, takže súčet sedí do centa.
+            Poplatok, ktorým Stripe za spracovanie platby, je uvedený samostatne ako náklad — z DPH základu sa neodčítava.
           </p>
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
@@ -171,6 +184,8 @@ const AdminTaxExport = () => {
               { label: 'Rezervačné poplatky (brutto)', value: eur(commissionCents) },
               { label: `DPH ${Math.round(VAT_RATE * 100)} % z poplatkov`, value: eur(commissionVatCents) },
               { label: 'Poplatky bez DPH (základ dane)', value: eur(commissionNetCents) },
+              { label: 'Poplatok Stripe (náklad)', value: eur(stripeFeeCents) },
+              { label: 'Po poplatku Stripe', value: eur(afterStripeCents) },
             ].map((s) => (
               <Card key={s.label}>
                 <CardContent className="p-4">

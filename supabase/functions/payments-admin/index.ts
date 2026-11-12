@@ -131,12 +131,20 @@ Deno.serve(async (req) => {
       for await (const c of stripe.charges.list({
         created: { gte: Math.floor(start.getTime() / 1000), lt: Math.floor(end.getTime() / 1000) },
         limit: 100,
+        expand: ["data.balance_transaction"],
       })) {
         if (c.status !== "succeeded" || !c.captured) continue;
         // Stripe reports money in integer cents — keep cents as the source of truth.
         const capturedCents = Math.round(c.amount_captured ?? c.amount ?? 0);
         const refundedCents = Math.round(c.amount_refunded ?? 0);
         const netCents = Math.max(0, capturedCents - refundedCents);
+        // What Stripe itself kept for processing this payment (a cost, not part of the VAT base).
+        // Stripe returns fees pro-rata on refunds, so only the retained part counts.
+        const bt: any = c.balance_transaction;
+        const grossFeeCents = bt && typeof bt === "object" ? Math.round(bt.fee ?? 0) : 0;
+        const stripeFeeCents = capturedCents > 0
+          ? Math.round((grossFeeCents * netCents) / capturedCents)
+          : 0;
         rows.push({
           id: c.id,
           created: new Date(c.created * 1000).toISOString(),
@@ -146,6 +154,8 @@ Deno.serve(async (req) => {
           amount_cents: capturedCents,
           refunded_cents: refundedCents,
           net_cents: netCents,
+          stripe_fee_cents: stripeFeeCents,
+          after_stripe_cents: netCents - stripeFeeCents,
           currency: c.currency,
           customer_name: c.billing_details?.name ?? null,
           customer_email: c.billing_details?.email ?? c.receipt_email ?? null,

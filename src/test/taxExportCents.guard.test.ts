@@ -17,6 +17,17 @@ describe('tax export and invoice money are exact to the cent', () => {
     expect(adminFn).toContain('Math.round(c.amount_captured ?? c.amount ?? 0)');
   });
 
+  it('Stripe processing fee is reported separately as a cost', () => {
+    expect(adminFn).toContain('stripe_fee_cents');
+    expect(adminFn).toContain('after_stripe_cents');
+    // refunded payments must not carry the full fee
+    expect(adminFn).toContain('(grossFeeCents * netCents) / capturedCents');
+    expect(exportUi).toContain('stripe_fee_cents');
+    expect(exportUi).toContain('stripeFeeCents');
+    expect(exportUi).toContain('stripe_poplatok');
+    expect(exportUi).toContain('po_poplatku_stripe');
+  });
+
   it('export screen computes totals and VAT from cents, not floats', () => {
     expect(exportUi).toContain("from '@/lib/money'");
     expect(exportUi).toContain('net_cents');

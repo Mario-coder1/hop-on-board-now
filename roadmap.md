@@ -60,3 +60,7 @@
 # Daňový export presne na cent
 - [x] Všetky sumy exportu a potvrdenia o platbe sa počítajú z celých centov, DPH sa rozdeľuje pri každej platbe zvlášť, takže základ dane + DPH = suma poplatku.
 - [x] Overené priamo zo Stripe: október 3,00 € (DPH 0,57 €, základ 2,43 €), november 1,00 € (DPH 0,19 €, základ 0,81 €); 103 testov a zostavenie bez chýb.
+
+# Poplatok Stripe v daňovom exporte
+- [x] Export zobrazuje aj sumu, ktorú si strhol Stripe (po refundácii úmernie), a zvyšok po jeho poplatku; DPH základ ostáva z celej poplatkovej sumy.
+- [x] Overené priamo zo Stripe: október 3,00 € poplatkov, Stripe 0,81 €, zvyšok 2,19 €; november 1,00 €, Stripe 0,27 €, zvyšok 0,73 €. 104 testov a zostavenie bez chýb.
