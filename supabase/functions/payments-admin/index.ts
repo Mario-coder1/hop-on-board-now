@@ -133,14 +133,19 @@ Deno.serve(async (req) => {
         limit: 100,
       })) {
         if (c.status !== "succeeded" || !c.captured) continue;
-        const captured = (c.amount_captured ?? c.amount) / 100;
-        const refunded = (c.amount_refunded ?? 0) / 100;
+        // Stripe reports money in integer cents — keep cents as the source of truth.
+        const capturedCents = Math.round(c.amount_captured ?? c.amount ?? 0);
+        const refundedCents = Math.round(c.amount_refunded ?? 0);
+        const netCents = Math.max(0, capturedCents - refundedCents);
         rows.push({
           id: c.id,
           created: new Date(c.created * 1000).toISOString(),
-          amount: captured,
-          refunded,
-          net: Math.max(0, captured - refunded),
+          amount: capturedCents / 100,
+          refunded: refundedCents / 100,
+          net: netCents / 100,
+          amount_cents: capturedCents,
+          refunded_cents: refundedCents,
+          net_cents: netCents,
           currency: c.currency,
           customer_name: c.billing_details?.name ?? null,
           customer_email: c.billing_details?.email ?? c.receipt_email ?? null,

@@ -1,6 +1,7 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import type { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { VAT_RATE, formatEurCentsLabel, splitVat, toCents } from './money';
 
 // Wire built-in Roboto VFS (supports Slovak diacritics out of the box)
 const vfs =
@@ -48,21 +49,15 @@ function fmtDate(d: Date): string {
   return d.toLocaleDateString('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-function fmtMoney(n: number, currency: string): string {
-  const c = (currency || 'eur').toUpperCase();
-  const symbol = c === 'EUR' ? '€' : c;
-  return `${n.toFixed(2)} ${symbol}`;
-}
-
-const VAT_RATE = 0.23;
-const r2 = (n: number) => Math.round(n * 100) / 100;
+// Every amount on the document is carried in integer cents, so the printed
+// base + DPH always equals the gross amount to the cent.
+const fmtMoney = (cents: number, currency: string) => formatEurCentsLabel(cents, currency);
 
 function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
-  const total = r2(data.amount);
-  const commissionGross = total;
+  const totalCents = toCents(data.amount);
+  const commissionGrossCents = totalCents;
   // Celá online platba je poplatok TakeMe s DPH, nie cena jazdy vodičovi.
-  const commissionBase = r2(commissionGross / (1 + VAT_RATE));
-  const commissionVat = r2(commissionGross - commissionBase);
+  const { vatCents: commissionVatCents, baseCents: commissionBaseCents } = splitVat(totalCents, VAT_RATE);
 
   return {
     pageSize: 'A4',
@@ -163,10 +158,10 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
                   { text: 'Rezervačný poplatok TakeMe za sprostredkovanie', bold: true, fontSize: 11 },
                   { text: `${data.origin} → ${data.destination} · ${fmtDate(data.rideDate)}`, color: MUTED, margin: [0, 3, 0, 0] },
                   { text: `Vodič: ${data.driverName}. Cena úseku sa platí vodičovi zvlášť v hotovosti a nie je súčasťou tohto dokladu.`, color: MUTED, margin: [0, 3, 0, 0] },
-                  { text: `Základ ${fmtMoney(commissionBase, data.currency)} + DPH 23 % ${fmtMoney(commissionVat, data.currency)}`, color: MUTED, margin: [0, 3, 0, 0] },
+                  { text: `Základ ${fmtMoney(commissionBaseCents, data.currency)} + DPH 23 % ${fmtMoney(commissionVatCents, data.currency)}`, color: MUTED, margin: [0, 3, 0, 0] },
                 ],
               },
-              { text: fmtMoney(commissionGross, data.currency), alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
+              { text: fmtMoney(commissionGrossCents, data.currency), alignment: 'right', border: [false, false, false, true], borderColor: [LINE, LINE, LINE, LINE], margin: [0, 10, 0, 10] },
             ],
           ],
         },
@@ -191,7 +186,7 @@ function buildDocDefinition(data: InvoiceData): TDocumentDefinitions {
                 { text: 'REZERVAČNÝ POPLATOK UHRADENÝ', style: 'label' },
                 { text: 'Online kartou cez Stripe', color: MUTED, fontSize: 9, margin: [0, 2, 0, 0] },
               ]},
-              { width: 'auto', stack: [{ text: fmtMoney(total, data.currency), style: 'totalValue', alignment: 'right' }] },
+              { width: 'auto', stack: [{ text: fmtMoney(totalCents, data.currency), style: 'totalValue', alignment: 'right' }] },
             ],
           }]],
         },

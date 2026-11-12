@@ -56,3 +56,7 @@
 # Meranie pridania appky na plochu
 - [x] Merať prvú zistenú inštaláciu a otvorenie z plochy cez vstavanú analytiku so súhlasom, bez osobných údajov; počet je pozorovaný od nasadenia, nie historický počet ľudí.
 - [x] Šesť testov overilo Android udalosť, iPhone otvorenie, opakovanie, súhlas, GPC aj neskoré načítanie analytiky; v prehliadači overená simulovaná udalosť na existujúcej stránke inštalácie, zostavenie aj oba katalógové záznamy sú platné. Skutočná inštalácia na telefóne a prijatie dát zo zverejnenej appky ešte neboli overené.
+
+# Daňový export presne na cent
+- [x] Všetky sumy exportu a potvrdenia o platbe sa počítajú z celých centov, DPH sa rozdeľuje pri každej platbe zvlášť, takže základ dane + DPH = suma poplatku.
+- [x] Overené priamo zo Stripe: október 3,00 € (DPH 0,57 €, základ 2,43 €), november 1,00 € (DPH 0,19 €, základ 0,81 €); 103 testov a zostavenie bez chýb.
