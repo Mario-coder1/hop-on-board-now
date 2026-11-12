@@ -119,5 +119,42 @@ Deno.serve(async (req) => {
     return json({ success: true });
   }
 
+  if (action === "tax_export") {
+    const month = String(body?.month ?? "");
+    if (!/^\d{4}-\d{2}$/.test(month)) return json({ error: "Neplatný mesiac" }, 400);
+    const env: StripeEnv = body?.environment === "sandbox" ? "sandbox" : "live";
+    const start = new Date(`${month}-01T00:00:00Z`);
+    const end = new Date(start); end.setUTCMonth(end.getUTCMonth() + 1);
+    try {
+      const stripe = createStripeClient(env);
+      const rows: any[] = [];
+      for await (const c of stripe.charges.list({
+        created: { gte: Math.floor(start.getTime() / 1000), lt: Math.floor(end.getTime() / 1000) },
+        limit: 100,
+      })) {
+        if (c.status !== "succeeded" || !c.captured) continue;
+        const captured = (c.amount_captured ?? c.amount) / 100;
+        const refunded = (c.amount_refunded ?? 0) / 100;
+        rows.push({
+          id: c.id,
+          created: new Date(c.created * 1000).toISOString(),
+          amount: captured,
+          refunded,
+          net: Math.max(0, captured - refunded),
+          currency: c.currency,
+          customer_name: c.billing_details?.name ?? null,
+          customer_email: c.billing_details?.email ?? c.receipt_email ?? null,
+          description: c.description ?? null,
+          payment_intent: typeof c.payment_intent === "string" ? c.payment_intent : c.payment_intent?.id ?? null,
+          receipt_url: c.receipt_url ?? null,
+          ride_id: c.metadata?.ride_id ?? c.metadata?.rideId ?? null,
+        });
+      }
+      return json({ rows });
+    } catch (e) {
+      return json({ error: (e as Error).message }, 400);
+    }
+  }
+
   return json({ error: "Neznáma akcia" }, 400);
 });

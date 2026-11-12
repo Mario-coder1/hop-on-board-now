@@ -11,19 +11,16 @@ const VAT_RATE = 0.23;
 
 interface Row {
   id: string;
-  amount_paid: number | null;
-  commission_amount: number | null;
-  currency: string | null;
-  paid_at: string | null;
-  refunded_at: string | null;
-  stripe_payment_intent_id: string | null;
-  passenger: { full_name: string } | null;
-  ride: {
-    origin_address: string;
-    destination_address: string;
-    departure_time: string;
-    driver: { full_name: string } | null;
-  } | null;
+  created: string;
+  amount: number;
+  refunded: number;
+  net: number;
+  currency: string;
+  customer_name: string | null;
+  customer_email: string | null;
+  description: string | null;
+  payment_intent: string | null;
+  receipt_url: string | null;
 }
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
@@ -34,42 +31,26 @@ const AdminTaxExport = () => {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[] | null>(null);
 
-  const range = (m: string) => {
-    const start = new Date(`${m}-01T00:00:00Z`);
-    const end = new Date(start);
-    end.setUTCMonth(end.getUTCMonth() + 1);
-    return { from: start.toISOString(), to: end.toISOString() };
-  };
-
   const load = async () => {
     setLoading(true);
-    const { from, to } = range(month);
-    const { data, error } = await supabase
-      .from('ride_requests')
-      .select(
-        'id, amount_paid, commission_amount, currency, paid_at, refunded_at, stripe_payment_intent_id, passenger:profiles!ride_requests_passenger_id_fkey(full_name), ride:rides!ride_requests_ride_id_fkey(origin_address, destination_address, departure_time, driver:profiles!rides_driver_id_fkey(full_name))'
-      )
-      .not('paid_at', 'is', null)
-      .gte('paid_at', from)
-      .lt('paid_at', to)
-      .order('paid_at', { ascending: true });
-
+    const { data, error } = await supabase.functions.invoke('payments-admin', {
+      body: { action: 'tax_export', month, environment: 'live' },
+    });
     setLoading(false);
-    if (error) {
-      toast({ title: 'Chyba', description: error.message, variant: 'destructive' });
+    const msg = error?.message || (data as any)?.error;
+    if (msg) {
+      toast({ title: 'Chyba', description: msg, variant: 'destructive' });
       return;
     }
-    setRows((data as unknown as Row[]) || []);
+    setRows(((data as any)?.rows as Row[]) || []);
   };
 
-  const active = (rows || []).filter((r) => !r.refunded_at);
-  const refunded = (rows || []).filter((r) => r.refunded_at);
-
-  const sum = (fn: (r: Row) => number) => active.reduce((a, r) => a + fn(r), 0);
-  const gross = sum((r) => Number(r.amount_paid || 0));
-  // Celá online uhradená suma je rezervačný poplatok platformy (jazdu platí cestujúci vodičovi v hotovosti).
-  const commission = sum((r) => Number(r.commission_amount ?? r.amount_paid ?? 0));
-
+  const all = rows || [];
+  const active = all.filter((r) => r.net > 0);
+  const refunded = all.filter((r) => r.refunded > 0);
+  const gross = all.reduce((a, r) => a + r.amount, 0);
+  // Celá online platba je rezervačný poplatok TakeMe (jazdu platí cestujúci vodičovi v hotovosti).
+  const commission = all.reduce((a, r) => a + r.net, 0);
   const commissionVat = commission - commission / (1 + VAT_RATE);
   const commissionNet = commission - commissionVat;
 
@@ -78,39 +59,15 @@ const AdminTaxExport = () => {
   const downloadCsv = () => {
     if (!rows?.length) return;
     const header = [
-      'id_rezervacie',
-      'datum_platby',
-      'datum_jazdy',
-      'vodic',
-      'spolujazdec',
-      'odkial',
-      'kam',
-      'suma_brutto',
-      'provizia_brutto',
-      'provizia_dph_23',
-      'provizia_netto',
-      'mena',
-      'stripe_payment_intent',
-      'refundovane',
+      'stripe_platba', 'datum_platby', 'zakaznik', 'email', 'popis',
+      'zaplatene_brutto', 'refundovane', 'poplatok_brutto', 'dph_23', 'zaklad_dane', 'mena', 'payment_intent', 'doklad_url',
     ];
     const lines = rows.map((r) => {
-      const c = Number(r.commission_amount ?? r.amount_paid ?? 0);
-      const vat = c - c / (1 + VAT_RATE);
+      const vat = r.net - r.net / (1 + VAT_RATE);
       return [
-        r.id,
-        r.paid_at ? new Date(r.paid_at).toISOString().slice(0, 10) : '',
-        r.ride?.departure_time ? new Date(r.ride.departure_time).toISOString().slice(0, 10) : '',
-        r.ride?.driver?.full_name || '',
-        r.passenger?.full_name || '',
-        r.ride?.origin_address || '',
-        r.ride?.destination_address || '',
-        Number(r.amount_paid || 0).toFixed(2),
-        c.toFixed(2),
-        vat.toFixed(2),
-        (c - vat).toFixed(2),
-        (r.currency || 'EUR').toUpperCase(),
-        r.stripe_payment_intent_id || '',
-        r.refunded_at ? 'ano' : 'nie',
+        r.id, r.created.slice(0, 10), r.customer_name || '', r.customer_email || '', r.description || '',
+        r.amount.toFixed(2), r.refunded.toFixed(2), r.net.toFixed(2), vat.toFixed(2), (r.net - vat).toFixed(2),
+        (r.currency || 'eur').toUpperCase(), r.payment_intent || '', r.receipt_url || '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(';');
@@ -136,7 +93,7 @@ const AdminTaxExport = () => {
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
             Celá online platba je rezervačný poplatok TakeMe za sprostredkovanie. Cenu úseku platí cestujúci vodičovi zvlášť v hotovosti; TakeMe vodičovi nič nevypláca.
-            Export zahŕňa iba poplatky platformy, nie hotovostné platby vodičom.
+            Údaje sa načítajú priamo zo Stripe, takže sú úplné aj po zmazaní starých jázd. Držané (nestrhnuté) platby sa nepočítajú.
           </p>
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
@@ -165,7 +122,7 @@ const AdminTaxExport = () => {
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { label: 'Platby (bez refundov)', value: String(active.length) },
+              { label: 'Platby (bez plných refundov)', value: String(active.length) },
               { label: 'Online poplatky (brutto)', value: eur(gross) },
               { label: 'Rezervačné poplatky (brutto)', value: eur(commission) },
               { label: `DPH ${Math.round(VAT_RATE * 100)} % z poplatkov`, value: eur(commissionVat) },
@@ -183,7 +140,7 @@ const AdminTaxExport = () => {
           {refunded.length > 0 && (
             <Card>
               <CardContent className="p-4 text-sm text-muted-foreground">
-                V mesiaci je {refunded.length} refundovaných platieb — v CSV sú označené, do súčtov sa nepočítajú.
+                V mesiaci je {refunded.length} platieb s refundáciou — vrátená suma sa do poplatkov nepočíta.
               </CardContent>
             </Card>
           )}
