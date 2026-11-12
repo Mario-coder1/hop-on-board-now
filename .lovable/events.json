@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "events": {
+    "project.pwa_install_observed": {
+      "event_schema_version": 1,
+      "description": "First observed PWA installation on this browser storage, from appinstalled or first standalone launch; not an exact people or current installs count.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "platform"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "browser_install",
+              "standalone_launch"
+            ]
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android",
+              "other"
+            ]
+          }
+        }
+      }
+    },
+    "project.pwa_opened": {
+      "event_schema_version": 1,
+      "description": "Observed standalone PWA opening once per app document, including iOS home-screen launches; not a page-view or general browser session.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "platform"
+        ],
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android",
+              "other"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

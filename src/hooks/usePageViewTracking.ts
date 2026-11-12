@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasConsent } from '@/components/CookieConsentBanner';
 
 const SESSION_KEY = 'tm_session_id';
 
@@ -47,6 +48,62 @@ export function usePageViewTracking() {
   const location = useLocation();
   const { profile } = useAuth();
   const lastPath = useRef<string | null>(null);
+
+  useEffect(() => {
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    const device = navigator as Navigator & { standalone?: boolean; globalPrivacyControl?: boolean };
+    const platform = /iPad|iPhone|iPod/i.test(device.userAgent) ||
+      (device.platform === 'MacIntel' && device.maxTouchPoints > 1)
+      ? 'ios' : /android/i.test(device.userAgent) ? 'android' : 'other';
+    const installedKey = 'tm_pwa_install_observed_v1';
+    let pendingInstall: 'browser_install' | 'standalone_launch' | null = null;
+    let opened = false;
+    let retry: ReturnType<typeof setInterval> | undefined;
+
+    const flushObservations = () => {
+      if (!hasConsent('analytics') || device.globalPrivacyControl === true) return;
+      if (pendingInstall) {
+        let recorded = false;
+        try { recorded = localStorage.getItem(installedKey) === 'true'; } catch { /* Storage may be disabled. */ }
+        if (recorded) pendingInstall = null;
+        else if (window.__lovableEvents?.track?.('project.pwa_install_observed', { source: pendingInstall, platform })) {
+          pendingInstall = null;
+          try { localStorage.setItem(installedKey, 'true'); } catch { /* Keep the app usable without storage. */ }
+        }
+      }
+      if (!opened && (displayMode.matches || device.standalone === true)) {
+        if (window.__lovableEvents?.track?.('project.pwa_opened', { platform })) opened = true;
+      }
+      if (!pendingInstall && (opened || (!displayMode.matches && device.standalone !== true))) {
+        clearInterval(retry);
+        retry = undefined;
+      }
+    };
+
+    const handleInstalled = () => {
+      pendingInstall = 'browser_install';
+      flushObservations();
+      if ((pendingInstall || !opened) && retry === undefined) retry = setInterval(flushObservations, 1000);
+    };
+    const handleStandalone = () => {
+      if (displayMode.matches || device.standalone === true) {
+        pendingInstall ??= 'standalone_launch';
+        flushObservations();
+        if ((pendingInstall || !opened) && retry === undefined) retry = setInterval(flushObservations, 1000);
+      }
+    };
+
+    handleStandalone();
+    window.addEventListener('appinstalled', handleInstalled);
+    displayMode.addEventListener('change', handleStandalone);
+    window.addEventListener('cookie-consent-changed', flushObservations);
+    return () => {
+      clearInterval(retry);
+      window.removeEventListener('appinstalled', handleInstalled);
+      displayMode.removeEventListener('change', handleStandalone);
+      window.removeEventListener('cookie-consent-changed', flushObservations);
+    };
+  }, []);
 
   useEffect(() => {
     const path = location.pathname;

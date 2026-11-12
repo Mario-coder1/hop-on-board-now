@@ -52,3 +52,7 @@
 # Spodné menu sa schová pri rolovaní
 - [x] Mobilné spodné menu zmizne pri rolovaní dole a vráti sa, keď človek rolbuje hore alebo sa vráti na začiatok stránky.
 - [x] Overené na telefóne (390×700) na Vytvoriť jazdu: hore viditeľné, po rolovaní dole skryté, po rolovaní hore zase viditeľné; 5 testov prešlo, spolu 88/88, zostavenie bez chýb.
+
+# Meranie pridania appky na plochu
+- [x] Merať prvú zistenú inštaláciu a otvorenie z plochy cez vstavanú analytiku so súhlasom, bez osobných údajov; počet je pozorovaný od nasadenia, nie historický počet ľudí.
+- [x] Šesť testov overilo Android udalosť, iPhone otvorenie, opakovanie, súhlas, GPC aj neskoré načítanie analytiky; v prehliadači overená simulovaná udalosť na existujúcej stránke inštalácie, zostavenie aj oba katalógové záznamy sú platné. Skutočná inštalácia na telefóne a prijatie dát zo zverejnenej appky ešte neboli overené.
