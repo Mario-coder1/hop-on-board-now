@@ -169,6 +169,13 @@
       "when": 1793962762262,
       "tag": "0023_offer_ride_for_wish",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794818454090,
+      "tag": "0024_live_ride_route_override",
+      "breakpoints": true
     }
   ]
 }

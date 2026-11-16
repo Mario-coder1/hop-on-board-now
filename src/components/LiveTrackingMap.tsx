@@ -14,6 +14,7 @@ interface LiveTrackingMapProps {
   destinationLocation?: { lat: number; lng: number };
   originLocation?: { lat: number; lng: number };
   plannedRoute?: Array<[number, number]>;
+  selectedDrivingRoute?: Array<[number, number]>;
   className?: string;
 }
 
@@ -202,12 +203,13 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   destinationLocation,
   originLocation,
   plannedRoute,
+  selectedDrivingRoute,
   className = ''
 }) => {
   const { toast } = useToast();
   const { location: rawLocation, isLoading, error } = useDriverTracking(driverProfileId);
   const [route, setRoute] = useState<Array<[number, number]> | null>(null);
-  const location = useSmoothedLocation(rawLocation, route ?? plannedRoute ?? null);
+  const location = useSmoothedLocation(rawLocation, selectedDrivingRoute ?? route ?? plannedRoute ?? null);
   const [etaSec, setEtaSec] = useState<number | null>(null);
   const [etaTargetKm, setEtaTargetKm] = useState<number | null>(null);
   const [etaTarget, setEtaTarget] = useState<'pickup' | 'destination' | null>(null);
@@ -421,7 +423,7 @@ const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         zoom={14}
         markers={markers}
         plannedRoute={plannedRoute}
-        route={route || undefined}
+        route={selectedDrivingRoute ?? route ?? undefined}
         className="h-full w-full"
         interactive={true}
       />

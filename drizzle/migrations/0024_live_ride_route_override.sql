@@ -1,0 +1,2 @@
+ALTER TABLE public.rides ADD COLUMN IF NOT EXISTS live_route_polyline text;
+COMMENT ON COLUMN public.rides.live_route_polyline IS 'Driver-selected live driving path; never used to reprice existing reservations.';

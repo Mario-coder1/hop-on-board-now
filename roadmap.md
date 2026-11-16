@@ -64,3 +64,8 @@
 # Poplatok Stripe v daňovom exporte
 - [x] Export zobrazuje aj sumu, ktorú si strhol Stripe (po refundácii úmernie), a zvyšok po jeho poplatku; DPH základ ostáva z celej poplatkovej sumy.
 - [x] Overené priamo zo Stripe: október 3,00 € poplatkov, Stripe 0,81 €, zvyšok 2,19 €; november 1,00 €, Stripe 0,27 €, zvyšok 0,73 €. 104 testov a zostavenie bez chýb.
+
+# Zmena cesty počas jazdy
+- [x] Vodič môže vybrať alternatívnu cestu alebo prejazd cez obec/ulicu; cieľ, zastávky, miesta cestujúcich a ceny zostávajú zachované, živá cesta sa ukladá samostatne.
+- [x] 12 cielených testov prešlo, mapa aj simulované uloženie overené na počítači a telefóne bez pretečenia; zostavenie bez chýb.
+- [ ] Uloženie počas skutočnej jazdy a živé zobrazenie u cestujúceho: účet nemá aktívnu jazdu; simulované overenie nie je náhradou tohto testu.

@@ -19,6 +19,7 @@ import { PinEntryDialog } from '@/components/PinEntryDialog';
 import { parseRoutePolyline } from '@/lib/routeProximity';
 import { partitionOnRideEnd } from '@/lib/refundRules';
 import { computeRidePrice, type PriceBreakdown } from '@/lib/ridePricing';
+import LiveRouteEditor from '@/components/LiveRouteEditor';
 
 import { useGasStations } from '@/hooks/useGasStations';
 import {
@@ -67,6 +68,9 @@ interface RideInfo {
   destination_lng: number;
   available_seats?: number;
   route_polyline?: string | null;
+  live_route_polyline?: string | null;
+  driver_id: string;
+  status: string;
   price_per_seat?: number | null;
 }
 
@@ -92,6 +96,7 @@ const ManagePassengers = () => {
   const [endConfirmOpen, setEndConfirmOpen] = useState(false);
   const [endingRide, setEndingRide] = useState(false);
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [routeEditorOpen, setRouteEditorOpen] = useState(false);
   const lastPendingIdsRef = useRef<Set<string>>(new Set());
 
   // Watch driver position locally for distance/ETA chips (independent from broadcast)
@@ -546,10 +551,11 @@ const ManagePassengers = () => {
 
       {/* Map — below the passenger list, above the end-ride button */}
       <div className="px-3 pb-2 shrink-0">
+        {ride?.driver_id === profile?.id && ['active', 'in_progress'].includes(ride?.status ?? '') && <Button variant="outline" size="sm" className="h-8 mb-2 gap-1.5 text-xs" onClick={() => setRouteEditorOpen(true)}><NavIcon className="h-3.5 w-3.5" />Zmeniť cestu</Button>}
         <div className="h-[clamp(140px,22svh,240px)] rounded-2xl overflow-hidden border border-border shadow-card">
           <Map
             markers={[...markers, ...gasStations]}
-            plannedRoute={parseRoutePolyline(ride?.route_polyline ?? null) ?? undefined}
+            plannedRoute={parseRoutePolyline(ride?.live_route_polyline ?? ride?.route_polyline ?? null) ?? undefined}
             waypoints={ride ? [
               { lat: Number(ride.origin_lat), lng: Number(ride.origin_lng) },
               { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) },
@@ -576,6 +582,10 @@ const ManagePassengers = () => {
 
 
       {/* PIN dialog */}
+      {ride && profile && <LiveRouteEditor open={routeEditorOpen} onOpenChange={setRouteEditorOpen} ride={ride} driverId={profile.id} onSaved={() => { void fetchRideAndPassengers(); }} passengerPoints={passengers.flatMap(p => [
+        { lat: Number(p.pickup_lat), lng: Number(p.pickup_lng) },
+        ...(p.dropoff_lat != null && p.dropoff_lng != null ? [{ lat: Number(p.dropoff_lat), lng: Number(p.dropoff_lng) }] : []),
+      ])} />}
       {pinDialogFor && (
         <PinEntryDialog
           open={!!pinDialogFor}

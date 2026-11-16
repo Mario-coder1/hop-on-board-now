@@ -48,6 +48,7 @@ interface RideRequest {
     departure_time: string;
     driver_id: string;
     route_polyline: string | null;
+    live_route_polyline: string | null;
     available_seats: number;
   };
 }
@@ -91,6 +92,7 @@ const TrackRide: React.FC = () => {
           departure_time,
           driver_id,
           route_polyline,
+          live_route_polyline,
           available_seats
         )
       `)
@@ -225,6 +227,13 @@ const TrackRide: React.FC = () => {
   useEffect(() => {
     fetchRideRequest();
   }, [requestId]);
+
+  useEffect(() => {
+    const id = rideRequest?.ride.id;
+    if (!id) return;
+    const channel = supabase.channel(`track-path-${id}`).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` }, () => { void fetchRideRequest(); }).subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [rideRequest?.ride.id]);
 
   useEffect(() => {
     if (profile && requestId) {
@@ -391,7 +400,8 @@ const TrackRide: React.FC = () => {
                 lat: Number(ride.destination_lat),
                 lng: Number(ride.destination_lng)
               }}
-              plannedRoute={parseRoutePolyline(ride.route_polyline) ?? undefined}
+              plannedRoute={parseRoutePolyline(ride.live_route_polyline ?? ride.route_polyline) ?? undefined}
+              selectedDrivingRoute={parseRoutePolyline(ride.live_route_polyline) ?? undefined}
               className="h-[28vh] sm:h-[50vh] rounded-2xl overflow-hidden"
             />
           )}

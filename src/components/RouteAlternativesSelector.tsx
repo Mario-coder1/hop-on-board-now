@@ -20,6 +20,7 @@ interface Props {
   selectedIndex: number;
   onSelect: (route: RouteOption) => void;
   onRoutesLoaded?: (routes: RouteOption[]) => void;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 const formatDuration = (sec: number) => {
@@ -39,6 +40,7 @@ const RouteAlternativesSelector = ({
   selectedIndex,
   onSelect,
   onRoutesLoaded,
+  onLoadingChange,
 }: Props) => {
   const [routes, setRoutes] = useState<RouteOption[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,6 +54,7 @@ const RouteAlternativesSelector = ({
 
     const ctrl = new AbortController();
     setLoading(true);
+    onLoadingChange?.(true);
     setError(null);
 
     (async () => {
@@ -105,7 +108,7 @@ const RouteAlternativesSelector = ({
         const kindRank: Record<NonNullable<RouteOption['kind']>, number> = {
           fastest: 0, alternative: 1, 'no-motorway': 2, 'no-toll': 3,
         };
-        tagged.sort((a, b) => kindRank[a.kind!] - kindRank[b.kind!]);
+        tagged.sort((a, b) => kindRank[a.kind ?? 'alternative'] - kindRank[b.kind ?? 'alternative']);
 
         const deduped: Tagged[] = [];
         for (const t of tagged) {
@@ -126,6 +129,7 @@ const RouteAlternativesSelector = ({
           kind: t.kind,
         }));
 
+        if (ctrl.signal.aborted) return;
         setRoutes(opts);
         onRoutesLoaded?.(opts);
 
@@ -142,7 +146,10 @@ const RouteAlternativesSelector = ({
           setError('Chyba pri načítaní trasy.');
         }
       } finally {
-        setLoading(false);
+        if (!ctrl.signal.aborted) {
+          setLoading(false);
+          onLoadingChange?.(false);
+        }
       }
     })();
 
