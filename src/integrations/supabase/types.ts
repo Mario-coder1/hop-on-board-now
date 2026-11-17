@@ -2344,6 +2344,13 @@ export type Database = {
           progress_m: number
         }[]
       }
+      seat_position: {
+        Args: { _lat: number; _lng: number; _route: Json }
+        Returns: {
+          distance_m: number
+          progress_m: number
+        }[]
+      }
       seat_segment: {
         Args: {
           _dlat: number

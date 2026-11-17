@@ -239,6 +239,13 @@
       "when": 1794900739042,
       "tag": "0033_segment_capacity_end_and_status_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794900873494,
+      "tag": "0034_stable_segment_distance",
+      "breakpoints": true
     }
   ]
 }
