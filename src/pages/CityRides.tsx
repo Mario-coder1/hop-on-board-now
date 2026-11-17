@@ -11,7 +11,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { CITIES, getCity, distanceKm, formatDuration, estimatedDurationMin } from '@/data/cities';
 import type { CityVariant } from '@/data/seoVariants';
-import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter } from '@/lib/rideDiscovery';
+import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
+import { searchSegment, type SegmentSearchRide } from '@/lib/segmentSearch';
 
 interface CityRidesProps {
   variantOverride?: CityVariant;
@@ -31,23 +32,26 @@ const CityRides = ({ variantOverride }: CityRidesProps = {}) => {
     (async () => {
       const { data } = await supabase
         .from('rides')
-        .select('destination_address')
+        .select('id,departure_time,origin_address,destination_address,origin_lat,origin_lng,destination_lat,destination_lng,ride_stops(address,lat,lng,stop_order)')
         .in('status', DISCOVERABLE_RIDE_STATUSES)
         .or(joinableRidesFilter())
         .neq('category', 'airport')
-        .gt('available_seats', 0)
-        .ilike('origin_address', `%${cityObj.name}%`);
+        .gt('available_seats', 0).limit(100);
       if (cancelled || !data) return;
       const map: Record<string, number> = {};
-      for (const r of data as Array<{ destination_address: string }>) {
+      for (const r of await filterJoinableRides(data)) {
         for (const c of CITIES) {
           if (c.slug === cityObj.slug) continue;
-          if (r.destination_address.toLowerCase().includes(c.name.toLowerCase())) {
-            map[c.slug] = (map[c.slug] || 0) + 1;
-          }
+          const segment = searchSegment(r as SegmentSearchRide, cityObj.name, c.name);
+          if (!segment) continue;
+          const { data: free } = await supabase.rpc('get_ride_segment_seats', {
+            _ride_id: r.id, _pickup_lat: segment.pickup.lat, _pickup_lng: segment.pickup.lng,
+            _dropoff_lat: segment.dropoff.lat, _dropoff_lng: segment.dropoff.lng,
+          });
+          if ((free ?? 0) > 0) map[c.slug] = (map[c.slug] || 0) + 1;
         }
       }
-      setCounts(map);
+      if (!cancelled) setCounts(map);
     })();
     return () => { cancelled = true; };
   }, [cityObj.slug]);

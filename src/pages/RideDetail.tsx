@@ -1296,6 +1296,7 @@ const RideDetail = () => {
                       >
                         {requesting
                           ? 'Odosielanie...'
+                          : freeCredits > 0 && !benefit?.member ? 'Rezervovať zdarma'
                           : pickup.lat && (dropoff.lat || (Number(pickup.lat) === Number(ride.origin_lat) && Number(pickup.lng) === Number(ride.origin_lng)))
                             ? `Rezervovať za ${priceEstimate?.bookingFee?.toFixed(2)} €`
                             : 'Rezervovať'}

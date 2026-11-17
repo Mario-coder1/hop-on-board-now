@@ -17,6 +17,7 @@ import {
 import { sk } from 'date-fns/locale';
 import { formatDbDate } from '@/lib/datetime';
 import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
+import { useSearchSegmentSeats } from '@/hooks/useSearchSegmentSeats';
 
 interface Ride {
   id: string;
@@ -27,6 +28,11 @@ interface Ride {
   full_route_seats?: number | null;
   price_per_seat: number;
   status: string;
+  origin_lat: number;
+  origin_lng: number;
+  destination_lat: number;
+  destination_lng: number;
+  ride_stops?: { address: string; lat: number; lng: number; stop_order: number }[];
   driver: { full_name: string | null; rating: number | null; avatar_url: string | null; total_rides: number | null } | null;
 }
 
@@ -47,7 +53,9 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
     return <Navigate to="/jazdy" replace />;
   }
 
-  const [rides, setRides] = useState<Ride[]>([]);
+  const [candidates, setRides] = useState<Ride[]>([]);
+  const segmentSearch = useSearchSegmentSeats(candidates, fromCity.name, toCity.name);
+  const rides = candidates.filter(r => (segmentSearch.counts[r.id] ?? 0) > 0);
   const [loading, setLoading] = useState(true);
 
   const km = useMemo(() => distanceKm(fromCity, toCity), [fromCity, toCity]);
@@ -61,23 +69,20 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const fromName = fromCity.name.toLowerCase();
-      const toName = toCity.name.toLowerCase();
       const { data } = await supabase
         .from('rides')
         .select(`
           id, origin_address, destination_address, departure_time,
           available_seats, full_route_seats, price_per_seat, status,
+          origin_lat, origin_lng, destination_lat, destination_lng, ride_stops(address, lat, lng, stop_order),
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, total_rides)
         `)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
         .or(joinableRidesFilter())
         .neq('category', 'airport')
         .gt('available_seats', 0)
-        .ilike('origin_address', `%${fromName}%`)
-        .ilike('destination_address', `%${toName}%`)
         .order('departure_time', { ascending: true })
-        .limit(20);
+        .limit(100);
       if (!cancelled) {
         setRides(await filterJoinableRides((data as unknown as Ride[]) || []));
         setLoading(false);
@@ -238,7 +243,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
               Všetky jazdy →
             </Link>
           </div>
-          {loading ? (
+          {loading || segmentSearch.loading ? (
             <div className="space-y-3">
               {[1,2,3].map(i => <div key={i} className="card-mono p-5 h-24 animate-pulse" />)}
             </div>
@@ -289,7 +294,7 @@ const CityPairRides = ({ fromSlug, toSlug, variantOverride }: CityPairRidesProps
                           )}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}</span>
+                          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{segmentSearch.counts[ride.id]} na úseku</span>
                           <ArrowRight className="w-4 h-4 text-foreground group-hover:translate-x-0.5 transition-transform" />
                         </div>
                       </div>

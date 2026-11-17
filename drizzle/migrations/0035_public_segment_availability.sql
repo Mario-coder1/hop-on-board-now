@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.get_ride_segment_seats(uuid,numeric,numeric,numeric,numeric) TO anon;

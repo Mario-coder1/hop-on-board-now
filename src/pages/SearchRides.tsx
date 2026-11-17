@@ -20,6 +20,7 @@ import { sk } from 'date-fns/locale';
 import { formatDbDate, parseDbTimestamp } from '@/lib/datetime';
 import { useGasStations } from '@/hooks/useGasStations';
 import { useRidesRealtime } from '@/hooks/useRidesRealtime';
+import { useSearchSegmentSeats } from '@/hooks/useSearchSegmentSeats';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchMetrics } from '@/hooks/useSearchMetrics';
 import { DISCOVERABLE_RIDE_STATUSES, joinableRidesFilter, filterJoinableRides } from '@/lib/rideDiscovery';
@@ -34,6 +35,8 @@ interface RideStop {
   id: string;
   address: string;
   stop_order: number;
+  lat: number;
+  lng: number;
 }
 
 interface Ride {
@@ -143,7 +146,7 @@ const SearchRides = () => {
       .select(`
         *,
         driver:public_profiles!rides_driver_id_fkey(full_name, avatar_url, rating, total_rides, spoken_languages),
-        ride_stops(id, address, stop_order)
+        ride_stops(id, address, stop_order, lat, lng)
       `)
       .in('status', DISCOVERABLE_RIDE_STATUSES)
       .or(joinableRidesFilter())
@@ -288,6 +291,7 @@ const SearchRides = () => {
     );
   };
 
+  const segmentSearch = useSearchSegmentSeats(rides, searchOrigin, searchDestination);
   const filteredRides = useMemo(() => {
     const maxP = maxPrice ? Number(maxPrice) : null;
     const minS = minSeats ? Number(minSeats) : null;
@@ -300,11 +304,11 @@ const SearchRides = () => {
         const dest = searchDestination.trim().toLowerCase();
         const stopsLower = (ride.ride_stops ?? []).map(s => s.address.toLowerCase());
 
-        const matchOrigin = !origin
+        const matchOrigin = segmentSearch.active || !origin
           || ride.origin_address.toLowerCase().includes(origin)
           || stopsLower.some(a => a.includes(origin));
 
-        const matchDestination = !dest
+        const matchDestination = segmentSearch.active || !dest
           || ride.destination_address.toLowerCase().includes(dest)
           || stopsLower.some(a => a.includes(dest));
 
@@ -313,7 +317,8 @@ const SearchRides = () => {
         const matchTo = !toDate || (departure && departure <= toDate);
 
         const matchPrice = maxP === null || Number(ride.price_per_seat) <= maxP;
-        const matchSeats = minS === null || ride.available_seats >= minS;
+        const freeSeats = segmentSearch.active ? segmentSearch.counts[ride.id] ?? 0 : ride.available_seats;
+        const matchSeats = freeSeats > 0 && (minS === null || freeSeats >= minS);
         const matchRating = minR === null || (ride.driver?.rating ?? 0) >= minR;
         const matchLive = !liveOnly || ride.status === 'in_progress';
 
@@ -367,7 +372,7 @@ const SearchRides = () => {
       }
     });
     return sorted;
-  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, liveLocations]);
+  }, [rides, searchOrigin, searchDestination, fromDate, toDate, maxPrice, minSeats, minRating, liveOnly, sortBy, nearMeEnabled, myLocation, nearMeRadiusKm, liveLocations, segmentSearch.active, segmentSearch.counts]);
 
   const activeFilterCount =
     (searchOrigin ? 1 : 0) +
@@ -893,7 +898,7 @@ const SearchRides = () => {
                             <div className="flex items-center gap-3 shrink-0">
                               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-white/10 border border-white/50 dark:border-white/15 rounded-full px-2.5 py-1.5 backdrop-blur-sm">
                                 <Users className="w-3 h-3" />
-                                {ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}
+                                {segmentSearch.active ? segmentSearch.counts[ride.id] : ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}
                               </span>
                               <Button
                                 variant="ghost"
