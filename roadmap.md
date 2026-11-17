@@ -1,4 +1,5 @@
 # Otvorenie hromadného upozornenia
+- [x] Pripomienka 30 minút pred odchodom vodičovi aj potvrdeným cestujúcim, kontrola každých 5 minút a jedinečný záznam na jazdu/osobu/čas odchodu; osem časových testov a tri testy odkazov prešli. Prvý pravidelný beh uspel a vytvoril dve pripomienky; používateľ nemôže spúšťať odosielanie ani čítať interné záznamy, zostavenie bez chýb. Prijatie systémového push na telefóne nebolo overené.
 - [x] Kliknutie na nové push upozornenie otvorí konkrétnu celú správu, aj mimo posledných 20 upozornení; cieľ sa zachová pri prihlásení.
 - [x] Tri automatické testy prešli a zostavenie je bez chýb. Prihlásená stránka načítala celú správu; úplné vizuálne overenie prerušila výzva na zapnutie push a nestabilné skúšobné prihlásenie. Skúšobné správy odstránené. Skutočný klik na systémové upozornenie telefónu nebol vykonaný.
 

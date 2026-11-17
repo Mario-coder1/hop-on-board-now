@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.ride_departure_reminder_due(text,timestamptz,timestamptz) TO supabase_read_only_user;

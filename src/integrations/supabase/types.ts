@@ -1101,6 +1101,56 @@ export type Database = {
           },
         ]
       }
+      ride_departure_reminders: {
+        Row: {
+          departure_time: string
+          notification_id: string
+          profile_id: string
+          ride_id: string
+        }
+        Insert: {
+          departure_time: string
+          notification_id: string
+          profile_id: string
+          ride_id: string
+        }
+        Update: {
+          departure_time?: string
+          notification_id?: string
+          profile_id?: string
+          ride_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_departure_reminders_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_departure_reminders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_departure_reminders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_departure_reminders_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ride_gas_stops: {
         Row: {
           created_at: string
@@ -2248,6 +2298,10 @@ export type Database = {
         Args: { _billing_email: string; _ico?: string; _name: string }
         Returns: string
       }
+      ride_departure_reminder_due: {
+        Args: { _departure: string; _now: string; _status: string }
+        Returns: boolean
+      }
       ride_est_duration: { Args: { _ride_id: string }; Returns: string }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       route_position_m: {
@@ -2266,6 +2320,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      send_ride_departure_reminders: { Args: never; Returns: number }
       send_ride_request_email_via_edge: {
         Args: { _request_id: string }
         Returns: undefined
