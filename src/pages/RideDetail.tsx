@@ -39,6 +39,7 @@ import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import ShareRideButton from '@/components/ShareRideButton';
 import DriverLastKnownLocation from '@/components/DriverLastKnownLocation';
+import { useSegmentSeats } from '@/hooks/useSegmentSeats';
 import { usePickupPassed } from '@/hooks/usePickupPassed';
 
 import { CancellationDialog } from '@/components/CancellationDialog';
@@ -82,6 +83,8 @@ interface RideDetailData {
   destination_lng: number;
   departure_time: string;
   available_seats: number;
+  full_route_seats: number | null;
+  total_seats: number | null;
   luggage_capacity?: number | null;
   category?: string | null;
   price_per_seat: number;
@@ -242,6 +245,9 @@ const RideDetail = () => {
     });
   }, [ride, pickup, dropoff]);
 
+  const { seats: segmentSeats, loading: segmentLoading } = useSegmentSeats(ride?.id, pickup, dropoff, ride?.available_seats);
+  const bookingSeats = segmentSeats ?? 0;
+
   // Verify pickup/dropoff lie within reasonable distance from the ride's route.
   // Threshold = max(driver's declared detour, 15 km default).
   const routeCheck = useMemo(() => {
@@ -363,6 +369,8 @@ const RideDetail = () => {
           destination_lng,
           departure_time,
           available_seats,
+          full_route_seats,
+          total_seats,
           luggage_capacity,
           category,
           price_per_seat,
@@ -449,12 +457,6 @@ const RideDetail = () => {
       return;
     }
 
-    if (wasAccepted) {
-      await supabase
-        .from('rides')
-        .update({ available_seats: ride.available_seats + 1 })
-        .eq('id', ride.id);
-    }
 
     if (isPaymentsEnabled()) {
       try {
@@ -578,7 +580,7 @@ const RideDetail = () => {
       toast({ title: 'Chyba', description: 'Vyberte miesto nastúpenia.', variant: 'destructive' });
       return;
     }
-    if (ride.available_seats <= 0) {
+    if (bookingSeats <= 0 || segmentLoading) {
       toast({ title: 'Plné', description: 'Táto jazda už nemá voľné miesta.', variant: 'destructive' });
       return;
     }
@@ -826,7 +828,7 @@ const RideDetail = () => {
                 <div className="flex items-center justify-between gap-2 mb-4">
                   <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
                     <Users className="w-4 h-4 text-muted-foreground" />
-                    <span>{ride.available_seats} voľných miest</span>
+                    <span>{ride.full_route_seats === 0 ? "Miesta na časti jazdy" : `${ride.full_route_seats ?? ride.available_seats} voľných miest`}</span>
                   </div>
                   <ShareRideButton
                     rideId={ride.id}
@@ -1076,7 +1078,7 @@ const RideDetail = () => {
                     <h2 className="font-display font-semibold">Požiadať o pripojenie</h2>
                     <div className="flex items-center gap-1.5 text-sm font-medium text-foreground bg-muted px-3 py-1.5 rounded-full">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      <span>{ride.available_seats} voľných</span>
+                      <span>{segmentLoading ? "Overujem miesta…" : `${bookingSeats} voľných na úseku`}</span>
                     </div>
                   </div>
 
@@ -1087,7 +1089,7 @@ const RideDetail = () => {
                         K tejto jazde sa už nedá pripojiť. Vyhľadajte inú dostupnú jazdu.
                       </p>
                     </div>
-                  ) : ride.available_seats <= 0 ? (
+                  ) : ride.available_seats <= 0 && !hasRequested ? (
                     <div className="text-center py-6">
                       <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-3">
                         <Users className="w-6 h-6 text-destructive" />
@@ -1285,7 +1287,7 @@ const RideDetail = () => {
                         disabled={
                           requesting ||
                           pickupProgress.passed || pickupProgress.checking || pickupProgress.failed ||
-                          ride.available_seats <= 0 ||
+                          bookingSeats <= 0 || segmentLoading ||
                           luggageTooMany ||
                           !pickup.lat ||
                           !routeCheck.pickupOk ||

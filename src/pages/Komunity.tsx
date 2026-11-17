@@ -23,6 +23,7 @@ interface UniversityRide {
   destination_address: string;
   departure_time: string;
   available_seats: number;
+  full_route_seats?: number | null;
   price_per_seat: number;
   university_id: string;
   driver_id: string;
@@ -60,7 +61,7 @@ const Komunity = () => {
       const orFilter = `university_id.is.null,university_id.in.(${universityIds.join(',')})`;
       const { data } = await supabase
         .from('rides')
-        .select('id, origin_address, destination_address, departure_time, available_seats, price_per_seat, university_id, driver_id')
+        .select('id, origin_address, destination_address, departure_time, available_seats, full_route_seats, price_per_seat, university_id, driver_id')
         .or(orFilter)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
         .or(joinableRidesFilter())
@@ -405,7 +406,7 @@ const Komunity = () => {
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          {ride.available_seats} miest
+                          {ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats} miest
                         </span>
                         <span className="flex items-center gap-1">
                           <Euro className="w-3 h-3" />

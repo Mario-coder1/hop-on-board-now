@@ -204,6 +204,41 @@
       "when": 1794897307153,
       "tag": "0028_reminder_timing_readonly_tests",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794900486933,
+      "tag": "0029_segment_seat_capacity",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794900546731,
+      "tag": "0030_booking_rpc_segment_eligibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794900594789,
+      "tag": "0031_accurate_segment_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794900624051,
+      "tag": "0032_segment_geometry_diagnostic_grant",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794900739042,
+      "tag": "0033_segment_capacity_end_and_status_guards",
+      "breakpoints": true
     }
   ]
 }

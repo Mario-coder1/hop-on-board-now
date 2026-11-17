@@ -9,7 +9,7 @@ export function makeReturnRideDraft(ride: SourceRide, stops: SourceStop[]) {
     origin: { address: ride.destination_address, lat: ride.destination_lat, lng: ride.destination_lng },
     destination: { address: ride.origin_address, lat: ride.origin_lat, lng: ride.origin_lng },
     stops: [...stops].sort((a, b) => b.stop_order - a.stop_order).map(({ id, address, lat, lng }) => ({ id, address, lat, lng })),
-    seats: ride.available_seats,
+    seats: ride.total_seats ?? ride.available_seats,
     price: ride.price_per_seat,
     maxDetourKm: ride.max_detour_km,
     luggageCapacity: ride.luggage_capacity ?? 2,

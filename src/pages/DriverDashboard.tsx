@@ -100,14 +100,9 @@ const DriverDashboard: React.FC = () => {
 
   const handleRequest = async (requestId: string, action: 'accepted' | 'rejected') => {
     const request = requests.find(r => r.id === requestId);
-    await supabase.from('ride_requests').update({ status: action }).eq('id', requestId);
-    if (action === 'accepted' && request) {
-      const ride = rides.find(r => r.id === request.ride_id);
-      if (ride && ride.available_seats > 0) {
-        await supabase.from('rides').update({ available_seats: ride.available_seats - 1 }).eq('id', request.ride_id);
-        setRides(prev => prev.map(r => r.id === request.ride_id ? { ...r, available_seats: r.available_seats - 1 } : r));
-      }
-    }
+    const { error } = await supabase.from('ride_requests').update({ status: action }).eq('id', requestId);
+    if (error) { window.alert(error.message); return; }
+    await fetchData();
     if (action === 'rejected' && isPaymentsEnabled()) {
       // Auto-refund the passenger
       try {

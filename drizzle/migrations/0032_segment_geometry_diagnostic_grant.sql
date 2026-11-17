@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.route_position_m(jsonb,numeric,numeric) TO supabase_read_only_user;

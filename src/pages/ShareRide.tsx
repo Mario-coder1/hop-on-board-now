@@ -15,6 +15,7 @@ interface SharedRide {
   destination_address: string;
   departure_time: string;
   available_seats: number;
+  full_route_seats?: number | null;
   price_per_seat: number;
   status: string;
   driver: {
@@ -112,7 +113,7 @@ const ShareRide = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{ride.available_seats} voľné miesta</span>
+                  <span>{ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats} voľné miesta</span>
                 </div>
               </div>
 

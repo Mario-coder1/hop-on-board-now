@@ -34,6 +34,7 @@ interface Ride {
   destination_address: string;
   departure_time: string;
   available_seats: number;
+  full_route_seats?: number | null;
   price_per_seat: number;
   driver: { full_name: string | null; rating: number | null; total_rides: number | null } | null;
 }
@@ -56,7 +57,7 @@ const AirportRides = () => {
         .from('rides')
         .select(`
           id, origin_address, destination_address, departure_time,
-          available_seats, price_per_seat,
+          available_seats, full_route_seats, price_per_seat,
           driver:public_profiles!rides_driver_id_fkey(full_name, rating, total_rides)
         `)
         .in('status', DISCOVERABLE_RIDE_STATUSES)
@@ -184,7 +185,7 @@ const AirportRides = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Users className="w-3 h-3" />{ride.available_seats}</span>
+                        <span className="flex items-center gap-1"><Users className="w-3 h-3" />{ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}</span>
                         <ArrowRight className="w-4 h-4 text-foreground group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>

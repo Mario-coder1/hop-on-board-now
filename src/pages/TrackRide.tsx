@@ -158,7 +158,6 @@ const TrackRide: React.FC = () => {
     }
 
     setCancelling(true);
-    const wasAccepted = rideRequest.status === 'accepted' || rideRequest.status === 'driver_arrived';
 
     const { error } = await supabase
       .from('ride_requests')
@@ -171,12 +170,6 @@ const TrackRide: React.FC = () => {
       return;
     }
 
-    if (wasAccepted) {
-      await supabase
-        .from('rides')
-        .update({ available_seats: (rideRequest.ride.available_seats ?? 0) + 1 })
-        .eq('id', rideRequest.ride.id);
-    }
 
     // Plná refundácia cez Stripe (VOP čl. 2.1) — len ak sú platby zapnuté
     if (isPaymentsEnabled()) {

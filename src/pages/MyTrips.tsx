@@ -147,8 +147,8 @@ const MyTrips = () => {
   const handleCancelRequest = async (reason: string) => {
     if (!cancellingTrip || !profile) return;
     setCancelling(true);
-
     const wasAccepted = cancellingTrip.status === 'accepted' || cancellingTrip.status === 'driver_arrived';
+
     
     // Update the request with cancellation info
     const { error } = await supabase
@@ -171,12 +171,6 @@ const MyTrips = () => {
     }
 
     // If was accepted, restore the seat
-    if (wasAccepted && cancellingTrip.ride) {
-      await supabase
-        .from('rides')
-        .update({ available_seats: cancellingTrip.ride.available_seats + 1 })
-        .eq('id', cancellingTrip.ride_id);
-    }
 
     // Auto-refund the passenger if they paid — len ak sú platby zapnuté
     if (isPaymentsEnabled()) {

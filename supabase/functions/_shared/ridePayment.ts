@@ -64,7 +64,7 @@ export async function processCheckoutSession(session: any): Promise<"created" | 
   });
 
   if (error) {
-    if (error.message.includes('Vodič podľa poslednej uloženej polohy') && pi) {
+    if ((error.message.includes('Vodič podľa poslednej uloženej polohy') || error.message.includes('Na zvolenom úseku')) && pi) {
       const stripe = createStripeClient(session.livemode ? 'live' : 'sandbox');
       const intent = await stripe.paymentIntents.retrieve(pi);
       if (intent.status === 'requires_capture') {

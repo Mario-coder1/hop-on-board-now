@@ -1225,6 +1225,8 @@ export type Database = {
           price_per_seat_snapshot: number | null
           refunded_at: string | null
           ride_id: string
+          segment_end_m: number | null
+          segment_start_m: number | null
           status: Database["public"]["Enums"]["request_status"] | null
           stripe_payment_intent_id: string | null
           stripe_refund_id: string | null
@@ -1262,6 +1264,8 @@ export type Database = {
           price_per_seat_snapshot?: number | null
           refunded_at?: string | null
           ride_id: string
+          segment_end_m?: number | null
+          segment_start_m?: number | null
           status?: Database["public"]["Enums"]["request_status"] | null
           stripe_payment_intent_id?: string | null
           stripe_refund_id?: string | null
@@ -1299,6 +1303,8 @@ export type Database = {
           price_per_seat_snapshot?: number | null
           refunded_at?: string | null
           ride_id?: string
+          segment_end_m?: number | null
+          segment_start_m?: number | null
           status?: Database["public"]["Enums"]["request_status"] | null
           stripe_payment_intent_id?: string | null
           stripe_refund_id?: string | null
@@ -1545,6 +1551,7 @@ export type Database = {
           driver_confirmed_at: string | null
           driver_id: string
           food_allowed: boolean | null
+          full_route_seats: number | null
           gas_station_id: string | null
           id: string
           live_route_polyline: string | null
@@ -1564,6 +1571,7 @@ export type Database = {
           still_going_declined_at: string | null
           still_going_until: string | null
           template_id: string | null
+          total_seats: number | null
           university_id: string | null
           updated_at: string
         }
@@ -1584,6 +1592,7 @@ export type Database = {
           driver_confirmed_at?: string | null
           driver_id: string
           food_allowed?: boolean | null
+          full_route_seats?: number | null
           gas_station_id?: string | null
           id?: string
           live_route_polyline?: string | null
@@ -1603,6 +1612,7 @@ export type Database = {
           still_going_declined_at?: string | null
           still_going_until?: string | null
           template_id?: string | null
+          total_seats?: number | null
           university_id?: string | null
           updated_at?: string
         }
@@ -1623,6 +1633,7 @@ export type Database = {
           driver_confirmed_at?: string | null
           driver_id?: string
           food_allowed?: boolean | null
+          full_route_seats?: number | null
           gas_station_id?: string | null
           id?: string
           live_route_polyline?: string | null
@@ -1642,6 +1653,7 @@ export type Database = {
           still_going_declined_at?: string | null
           still_going_until?: string | null
           template_id?: string | null
+          total_seats?: number | null
           university_id?: string | null
           updated_at?: string
         }
@@ -2234,6 +2246,16 @@ export type Database = {
           users: number
         }[]
       }
+      get_ride_segment_seats: {
+        Args: {
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_id: string
+        }
+        Returns: number
+      }
       has_ride_request: { Args: { _ride_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -2303,6 +2325,17 @@ export type Database = {
         Returns: boolean
       }
       ride_est_duration: { Args: { _ride_id: string }; Returns: string }
+      ride_segment_seats: {
+        Args: {
+          _dropoff_lat: number
+          _dropoff_lng: number
+          _exclude?: string
+          _pickup_lat: number
+          _pickup_lng: number
+          _ride_id: string
+        }
+        Returns: number
+      }
       rollup_page_views: { Args: { _older_than?: string }; Returns: number }
       route_position_m: {
         Args: { _lat: number; _lng: number; _route: Json }
@@ -2310,6 +2343,28 @@ export type Database = {
           distance_m: number
           progress_m: number
         }[]
+      }
+      seat_segment: {
+        Args: {
+          _dlat: number
+          _dlng: number
+          _plat: number
+          _plng: number
+          _route: string
+        }
+        Returns: {
+          end_m: number
+          start_m: number
+        }[]
+      }
+      segment_free_seats: {
+        Args: {
+          _capacity: number
+          _end: number
+          _segments: Json
+          _start: number
+        }
+        Returns: number
       }
       send_push_via_edge: {
         Args: {

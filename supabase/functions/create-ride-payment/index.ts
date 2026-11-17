@@ -87,6 +87,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    const { data: segmentSeats, error: seatError } = await supabase.rpc('get_ride_segment_seats', {
+      _ride_id: ride_id, _pickup_lat: Number(pickup_lat), _pickup_lng: Number(pickup_lng),
+      _dropoff_lat: dropoff_lat == null ? null : Number(dropoff_lat), _dropoff_lng: dropoff_lng == null ? null : Number(dropoff_lng),
+    });
+    if (seatError || !segmentSeats) return new Response(JSON.stringify({ error: 'Na zvolenom úseku už nie je voľné miesto' }), {
+      status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
     // Already requested?
     const { data: pickupPassed, error: progressError } = await supabase.rpc('is_pickup_passed', {
       _ride_id: ride_id, _pickup_lat: Number(pickup_lat), _pickup_lng: Number(pickup_lng),

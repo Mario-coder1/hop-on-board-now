@@ -47,6 +47,7 @@ interface Ride {
   destination_lng: number;
   departure_time: string;
   available_seats: number;
+  full_route_seats?: number | null;
   price_per_seat: number;
   status: string;
   route_polyline: string | null;
@@ -892,7 +893,7 @@ const SearchRides = () => {
                             <div className="flex items-center gap-3 shrink-0">
                               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-white/10 border border-white/50 dark:border-white/15 rounded-full px-2.5 py-1.5 backdrop-blur-sm">
                                 <Users className="w-3 h-3" />
-                                {ride.available_seats}
+                                {ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}
                               </span>
                               <Button
                                 variant="ghost"
@@ -992,7 +993,7 @@ const SearchRides = () => {
                           </span>
                           <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5" />
-                            {selectedMapRide.available_seats}
+                            {selectedMapRide.full_route_seats === 0 ? "Na časti trasy" : selectedMapRide.full_route_seats ?? selectedMapRide.available_seats}
                           </span>
                           <span className="flex items-center gap-1 font-semibold text-foreground">
                             <Euro className="w-3.5 h-3.5" />

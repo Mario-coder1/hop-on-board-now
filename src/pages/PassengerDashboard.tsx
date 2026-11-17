@@ -36,6 +36,8 @@ interface Ride {
   destination_address: string;
   departure_time: string;
   available_seats: number;
+  full_route_seats?: number | null;
+  ride_stops?: { address: string }[];
   price_per_seat: number;
   status: string;
   origin_lat: number;
@@ -97,7 +99,7 @@ const PassengerDashboard: React.FC = () => {
     const { data, error } = await supabase
       .from('rides')
       .select(`
-        *,
+        *, ride_stops(address),
         driver:public_profiles!rides_driver_id_fkey(full_name, rating, avatar_url, car_model, car_color, spoken_languages)
       `)
       .in('status', DISCOVERABLE_RIDE_STATUSES)
@@ -112,8 +114,8 @@ const PassengerDashboard: React.FC = () => {
   };
 
   const filteredRides = rides.filter(ride => {
-    const matchesFrom = !searchFrom || ride.origin_address.toLowerCase().includes(searchFrom.toLowerCase());
-    const matchesTo = !searchTo || ride.destination_address.toLowerCase().includes(searchTo.toLowerCase());
+    const matchesFrom = !searchFrom || ride.origin_address.toLowerCase().includes(searchFrom.toLowerCase()) || ride.ride_stops?.some(s => s.address.toLowerCase().includes(searchFrom.toLowerCase()));
+    const matchesTo = !searchTo || ride.destination_address.toLowerCase().includes(searchTo.toLowerCase()) || ride.ride_stops?.some(s => s.address.toLowerCase().includes(searchTo.toLowerCase()));
     return matchesFrom && matchesTo;
   });
 
@@ -338,7 +340,7 @@ const PassengerDashboard: React.FC = () => {
                       <div className="flex items-center justify-between gap-2">
                         <div className="text-[11px] text-muted-foreground flex items-center gap-2">
                           <span className="tabular-nums">{formatDbDate(selectedMapRide.departure_time, 'd. MMM HH:mm', { locale: sk })}</span>
-                          <span>· <Users className="w-3 h-3 inline" /> {selectedMapRide.available_seats}</span>
+                          <span>· <Users className="w-3 h-3 inline" /> {selectedMapRide.full_route_seats === 0 ? "Na časti trasy" : selectedMapRide.full_route_seats ?? selectedMapRide.available_seats}</span>
                           <span>· {selectedMapRide.price_per_seat}€</span>
                         </div>
                         <Button size="sm" className="rounded-full h-8 text-xs" onClick={() => navigate(`/ride/${selectedMapRide.id}`)}>
@@ -496,7 +498,7 @@ const PassengerDashboard: React.FC = () => {
                             <div className="flex items-center gap-2 shrink-0">
                               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-white/10 border border-white/50 dark:border-white/15 rounded-full px-2.5 py-1.5 backdrop-blur-sm">
                                 <Users className="w-3 h-3" />
-                                <span className="tabular-nums">{ride.available_seats}</span>
+                                <span className="tabular-nums">{ride.full_route_seats === 0 ? "Na časti trasy" : ride.full_route_seats ?? ride.available_seats}</span>
                               </span>
                               <div className={`w-9 h-9 rounded-full ${tint.btn} text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg`}>
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

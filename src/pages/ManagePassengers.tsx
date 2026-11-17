@@ -202,9 +202,6 @@ const ManagePassengers = () => {
     if (error) {
       toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return;
     }
-    if (ride) {
-      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
-    }
     toast({ title: '✅ Jazda pasažiera dokončená', description: `${passengerName} bol vysadený.` });
     fetchRideAndPassengers();
   };
@@ -220,9 +217,6 @@ const ManagePassengers = () => {
   const handleAcceptRequest = async (requestId: string, passengerName: string) => {
     const { error } = await supabase.from('ride_requests').update({ status: 'accepted' }).eq('id', requestId);
     if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
-    if (ride && (ride.available_seats ?? 0) > 0) {
-      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 1) - 1 }).eq('id', ride.id);
-    }
     toast({ title: '🎉 Prijaté', description: `${passengerName} pridaný.` });
     fetchRideAndPassengers();
   };
@@ -250,9 +244,6 @@ const ManagePassengers = () => {
       cancelled_at: new Date().toISOString(),
     }).eq('id', requestId);
     if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
-    if (ride) {
-      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
-    }
     if (isPaymentsEnabled()) {
       try {
         await supabase.functions.invoke('refund-ride-payment', {
@@ -281,9 +272,6 @@ const ManagePassengers = () => {
       cancelled_at: new Date().toISOString(),
     }).eq('id', requestId);
     if (error) { toast({ title: 'Chyba', description: error.message, variant: 'destructive' }); return; }
-    if (ride) {
-      await supabase.from('rides').update({ available_seats: (ride.available_seats ?? 0) + 1 }).eq('id', ride.id);
-    }
     toast({ title: 'Pasažier sa nedostavil', description: `${passengerName} bol odstránený z jazdy.` });
     fetchRideAndPassengers();
   };
