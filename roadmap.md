@@ -1,4 +1,5 @@
 # Otvorenie hromadného upozornenia
+- [x] Na žiadosť používateľa spresnená kontrola pripomienok na každú minútu (približne 30 minút pred odchodom); bežné správy neobsahujú skúšobný text a dočasné skúšobné správy sú odstránené. Používateľ potvrdil prijatie upozornenia na telefóne.
 - [x] Pripomienka 30 minút pred odchodom vodičovi aj potvrdeným cestujúcim, kontrola každých 5 minút a jedinečný záznam na jazdu/osobu/čas odchodu; osem časových testov a tri testy odkazov prešli. Prvý pravidelný beh uspel a vytvoril dve pripomienky; používateľ nemôže spúšťať odosielanie ani čítať interné záznamy, zostavenie bez chýb. Prijatie systémového push na telefóne nebolo overené.
 - [x] Opakované spustenie vrátilo 0 nových pripomienok. Skúšobná správa čitateľná na počítači v svetlom aj tmavom zobrazení; skúšobné údaje odstránené. Kontrolu mobilného otvorenia a zatvorenia prerušilo nestabilné skúšobné prihlásenie; prijatie systémového push a otvorenie vodičovej/cestujúceho jazdy z telefónu zostávajú neoverené.
 - [x] Kliknutie na nové push upozornenie otvorí konkrétnu celú správu, aj mimo posledných 20 upozornení; cieľ sa zachová pri prihlásení.
