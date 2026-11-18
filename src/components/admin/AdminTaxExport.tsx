@@ -1,3 +1,4 @@
+import { csvCell } from '@/lib/csvSafe';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,7 +125,7 @@ const AdminTaxExport = () => {
         formatEurCents(r.stripeFeeCents), formatEurCents(r.afterStripeCents),
         (r.currency || 'eur').toUpperCase(), r.payment_intent || '', r.receipt_url || '',
       ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .map((v) => csvCell(v))
         .join(';'),
     );
     const csv = '\uFEFF' + [header.join(';'), ...lines].join('\r\n');

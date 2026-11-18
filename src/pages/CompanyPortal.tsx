@@ -1,3 +1,4 @@
+import { csvRow } from '@/lib/csvSafe';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -167,7 +168,7 @@ export default function CompanyPortal() {
       [],
       ['Spolu jazdy', '', '', '', '', '', Number(invoice.total_cash).toFixed(2), Number(invoice.total_fee).toFixed(2), ''],
     ];
-    const csv = '\uFEFF' + rows.map((r) => r.join(';')).join('\n');
+    const csv = '\uFEFF' + rows.map((r) => csvRow(r)).join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
     const a = document.createElement('a');
     a.href = url;

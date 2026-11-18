@@ -148,10 +148,10 @@ Deno.serve(async (req) => {
         console.error('[university-code] Resend exception', e);
       }
     } else {
-      console.warn('[university-code] No email provider configured – code only in logs');
+      console.warn('[university-code] No email provider configured – code not delivered');
     }
 
-    console.log(`[university-code] Code for ${email} (${uni.short_name}): ${code}`);
+    console.log(`[university-code] Code issued (${uni.short_name}), email_sent=${emailSent}`);
 
     return json({
       success: true,

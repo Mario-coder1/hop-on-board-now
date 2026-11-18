@@ -1,3 +1,4 @@
+import { csvRow } from '@/lib/csvSafe';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -190,16 +191,16 @@ export const AdminDisputes = () => {
     if (!selectedRide || !focusRequest) return;
     const rows: string[] = [];
     rows.push('TakeMe – Reklamačný export');
-    rows.push(`Jazda;${selectedRide.id}`);
-    rows.push(`Vodič;${selectedRide.driver?.full_name ?? ''};${selectedRide.driver?.phone ?? ''}`);
-    rows.push(`Trasa;${selectedRide.origin_address} -> ${selectedRide.destination_address}`);
-    rows.push(`Odjazd;${selectedRide.departure_time}`);
-    rows.push(`Pasažier;${focusRequest.passenger?.full_name ?? ''};${focusRequest.passenger?.phone ?? ''}`);
-    rows.push(`Pickup;${focusRequest.pickup_address};${focusRequest.pickup_lat};${focusRequest.pickup_lng}`);
+    rows.push(csvRow(['Jazda', selectedRide.id]));
+    rows.push(csvRow(['Vodič', selectedRide.driver?.full_name ?? '', selectedRide.driver?.phone ?? '']));
+    rows.push(csvRow(['Trasa', `${selectedRide.origin_address} -> ${selectedRide.destination_address}`]));
+    rows.push(csvRow(['Odjazd', selectedRide.departure_time]));
+    rows.push(csvRow(['Pasažier', focusRequest.passenger?.full_name ?? '', focusRequest.passenger?.phone ?? '']));
+    rows.push(csvRow(['Pickup', focusRequest.pickup_address, focusRequest.pickup_lat, focusRequest.pickup_lng]));
     rows.push('');
     rows.push('TIMELINE');
     rows.push('Čas;Udalosť;Detail');
-    buildTimeline().forEach(e => rows.push(`${e.time};${e.event};${(e.detail || '').replace(/;/g, ',')}`));
+    buildTimeline().forEach(e => rows.push(csvRow([e.time, e.event, e.detail || ''])));
     rows.push('');
     rows.push('GPS PINGY VODIČA (±30 min)');
     rows.push('Čas;Lat;Lng;Rýchlosť(km/h);Vzdialenosť od pickup(m)');

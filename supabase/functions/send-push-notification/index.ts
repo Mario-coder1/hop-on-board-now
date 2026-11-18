@@ -89,7 +89,7 @@ serve(async (req) => {
         .select('id, ride_requests!inner(passenger_id)')
         .eq('driver_id', callerProfile.id)
         .eq('ride_requests.passenger_id', profile_id)
-        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
+        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
         .limit(1);
 
       const { data: passengerRelation } = await supabase
@@ -97,7 +97,7 @@ serve(async (req) => {
         .select('id, ride_requests!inner(passenger_id)')
         .eq('driver_id', profile_id)
         .eq('ride_requests.passenger_id', callerProfile.id)
-        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up', 'completed'])
+        .in('ride_requests.status', ['pending', 'accepted', 'driver_arrived', 'picked_up'])
         .limit(1);
 
       const isAuthorized = (driverRelation && driverRelation.length > 0) ||
@@ -112,7 +112,24 @@ serve(async (req) => {
       }
     }
 
-    const { profile_id, title, body, data, tag } = await req.json() as PushPayload;
+    const raw = await req.json() as PushPayload;
+    const { profile_id, tag } = raw;
+    let { title, body, data } = raw;
+
+    if (!isServerCall) {
+      // User-initiated pushes: plain text only, bounded length, same-origin links only.
+      const clean = (v: unknown, max: number) =>
+        typeof v === 'string' ? v.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/https?:\/\/\S+/gi, '').trim().slice(0, max) : '';
+      title = clean(title, 80);
+      body = clean(body, 300);
+      const url = data && typeof data.url === 'string' && data.url.startsWith('/') && !data.url.startsWith('//') ? data.url : undefined;
+      const safeData: Record<string, unknown> = {};
+      if (url) safeData.url = url;
+      for (const k of ['ride_id', 'request_id', 'type']) {
+        if (data && typeof data[k] === 'string' && (data[k] as string).length <= 64) safeData[k] = data[k];
+      }
+      data = safeData;
+    }
 
     if (!profile_id || !title || !body) {
       return new Response(
@@ -121,7 +138,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[Push] Sending to profile: ${profile_id}, title: ${title}, server: ${isServerCall}`);
+    console.log(`[Push] Sending, server: ${isServerCall}`);
 
 
     // Get all subscriptions
