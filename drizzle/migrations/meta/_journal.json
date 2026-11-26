@@ -260,6 +260,13 @@
       "when": 1795677169745,
       "tag": "0036_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1795677248288,
+      "tag": "0037_restrict_link_existing_profiles",
+      "breakpoints": true
     }
   ]
 }

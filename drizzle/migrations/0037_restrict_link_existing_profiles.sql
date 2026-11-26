@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.link_existing_profiles_for_company(uuid) FROM PUBLIC, anon, authenticated;
