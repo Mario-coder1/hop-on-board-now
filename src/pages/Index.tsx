@@ -17,6 +17,8 @@ import {
   CheckCircle,
   ChevronDown,
   Smartphone,
+  Gift,
+  Hand,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallBanner from "@/components/InstallBanner";
@@ -151,6 +153,16 @@ const Index = () => {
               {t("hero.subtitle")}
             </motion.p>
 
+            <div className="mt-6 border-l-4 border-primary pl-4 text-left max-w-md mx-auto lg:mx-0">
+              <h2 className="flex items-start gap-2 text-xl font-bold text-foreground">
+                <Gift className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {t("hero.first_booking")}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {t("hero.first_booking_detail")}
+              </p>
+            </div>
+
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -190,6 +202,20 @@ const Index = () => {
                 {t("hero.badge_live_tracking")}
               </span>
             </motion.div>
+
+            <div className="mt-6 border-t border-border pt-4 max-w-md mx-auto lg:mx-0 text-left">
+              <p className="text-sm font-semibold text-foreground">{t("hero.no_ride")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("hero.wish_detail")}</p>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/auth?next=%2Fhladam-odvoz")}
+                className="mt-3 w-full sm:w-auto gap-2"
+              >
+                <Hand className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {t("hero.wish_cta")}
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+              </Button>
+            </div>
           </div>
 
           <motion.div
