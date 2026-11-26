@@ -253,6 +253,13 @@
       "when": 1794901607219,
       "tag": "0035_public_segment_availability",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795677169745,
+      "tag": "0036_migration",
+      "breakpoints": true
     }
   ]
 }
