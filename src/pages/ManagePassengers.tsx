@@ -12,7 +12,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocationBroadcast } from '@/hooks/useDriverTracking';
-import { useAutoCompleteRide } from '@/hooks/useAutoCompleteRide';
 import SEO from '@/components/SEO';
 import RideBadge from '@/components/RideBadge';
 import { PinEntryDialog } from '@/components/PinEntryDialog';
@@ -109,14 +108,6 @@ const ManagePassengers = () => {
     );
     return () => navigator.geolocation.clearWatch(id);
   }, []);
-
-  // Auto-complete ride at destination
-  const { completeRide } = useAutoCompleteRide(
-    rideId || null,
-    ride ? { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) } : null,
-    profile?.id || null,
-    isTracking
-  );
 
   // 🔑 Auto-start location sharing as soon as page mounts
   useEffect(() => {
@@ -564,7 +555,7 @@ const ManagePassengers = () => {
           onClick={() => setEndConfirmOpen(true)}
           className="w-full gap-1.5 h-8 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs"
         >
-          <Flag className="w-3.5 h-3.5" /> Ukončiť jazdu
+          <Flag className="w-3.5 h-3.5" /> Som v cieli
         </Button>
       </div>
 
@@ -588,7 +579,7 @@ const ManagePassengers = () => {
       <AlertDialog open={endConfirmOpen} onOpenChange={setEndConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Ukončiť celú jazdu?</AlertDialogTitle>
+            <AlertDialogTitle>Si v cieli a chceš ukončiť jazdu?</AlertDialogTitle>
             <AlertDialogDescription>
               Všetci aktívni pasažieri budú označení ako dokončení a upozornení. Túto akciu nie je možné vrátiť.
             </AlertDialogDescription>

@@ -15,3 +15,4 @@
 - Return rides load an owned source ride by ID into the existing creation form, reverse endpoints and ordered stops, and recalculate road routing; only that source is exempt from the form's active-ride check, preserving other guards and payment behavior.
 - PWA observations use the existing global page-tracking lifecycle and built-in event pipeline with analytics consent and GPC respected; browser-local deduplication measures observed installations, not exact people or currently installed copies.
 - Store driver-selected live paths separately in rides.live_route_polyline, preserving fare/discovery geometry and all agreed endpoints; live maps subscribe to ride updates so rerouting never reprices reservations.
+- Whole-ride arrival uses the existing confirmed manual end handler only; never attach completion writes to GPS or location subscriptions, because city geocoding may point to a centre the driver does not visit.
